@@ -13,13 +13,13 @@ class Menu {
 
     public function add_admin_menu() {
         add_menu_page(
-            __('WP AI Alt Text', 'wp-ai-alt-text'), // Page title
-            __('WP AI Alt Text', 'wp-ai-alt-text'), // Menu title
-            'manage_options',                     // Capability
-            'wp-ai-alt-text',                      // Menu slug
-            [$this, 'render_dashboard'],          // Callback function
-            'dashicons-format-image',                   // Icon
-            20                                    // Position
+            __('AI Alt Text', 'wp-ai-alt-text'),
+            __('AI Alt Text', 'wp-ai-alt-text'),
+            'manage_options',
+            'wp-ai-alt-text',
+            [$this, 'render_dashboard'],
+            'dashicons-format-image',
+            20
         );
     }
 

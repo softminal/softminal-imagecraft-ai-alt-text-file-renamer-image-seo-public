@@ -25,6 +25,8 @@ Thumbs.db
 
 # Build artifacts
 *.map
+build/
+*.zip
 
 # WordPress-specific files
 wp-content/debug.log
