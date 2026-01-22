@@ -1,0 +1,19 @@
+{
+    "name": "wpaialttext/wp-ai-alt-text",
+    "description": "A WordPress plugin that generates alt text for images using AI.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Softminal LLC",
+            "email": "support@softminal.com",
+            "homepage": "https://softminal.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "WpAiAltText\\": "includes/"
+        }
+    },
+    "require": {}
+}

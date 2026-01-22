@@ -1,0 +1,30 @@
+# Node.js dependencies
+node_modules
+assets/
+
+# Composer dependencies
+vendor/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.orig
+*.save
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Build artifacts
+*.map
+
+# WordPress-specific files
+wp-content/debug.log
