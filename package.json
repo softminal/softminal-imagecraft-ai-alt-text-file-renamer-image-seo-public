@@ -4,8 +4,8 @@
   "description": "A WordPress plugin that generates alt text for images using AI.",
   "main": "resources/admin/main.js",
   "scripts": {
-    "dev": "vite",
-    "prod": "vite build",
+    "dev": "node resources/env.config.js && vite",
+    "prod": "node resources/env.config.js --prod && vite build",
     "serve": "vite preview"
   },
   "dependencies": {

@@ -3,22 +3,25 @@
         <div class="flex flex-wrap justify-between items-center">
             <!-- Logo Section -->
             <div class="flex items-center">
-                <span class="self-center text-xl font-semibold whitespace-nowrap text-red-500">
+                <span class="self-center text-xl font-semibold whitespace-nowrap text-blue-500">
                     WP AI Alt Text
                 </span>
             </div>
 
             <!-- Navigation Menu -->
-            <div class="flex items-center gap-1">
+            <div v-if="menuItems && menuItems.length > 0" class="flex items-center gap-1">
                 <router-link 
                     v-for="(item, index) in menuItems" 
                     :key="index"
                     :to="item.path"
                     class="px-4 py-2 text-sm outline-none focus:shadow-none font-medium text-gray-700 rounded-lg hover:bg-blue-100 transition-colors"
-                    :class="{ 'bg-blue-100': isActive(item.path) }"
+                    :class="{ 'bg-blue-100 text-blue-700': isActive(item.path) }"
                 >
                     {{ item.name }}
                 </router-link>
+            </div>
+            <div v-else class="flex items-center gap-1 text-gray-500 text-sm">
+                Loading...
             </div>
         </div>
     </nav>
@@ -32,17 +35,28 @@ const route = useRoute()
 
 const menuItems = ref([
     { name: 'Dashboard', path: '/' },
-    // { name: 'Settings', path: '/settings' },
-    // { name: 'Help', path: '/help' }
+    { name: 'Scanner', path: '/scanner' },
+    { name: 'Settings', path: '/settings' }
 ])
 
 const isActive = (path) => {
-    return route.path === path
+    // Handle hash router - remove # if present
+    const currentPath = route.path.replace(/^#/, '')
+    const checkPath = path.replace(/^#/, '')
+    return currentPath === checkPath || currentPath === checkPath + '/'
 }
 </script>
 
 <style scoped>
 .router-link-active {
-    @apply bg-blue-100;
+    @apply bg-blue-100 text-blue-700;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
 }
 </style>

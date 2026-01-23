@@ -8,98 +8,13 @@ if (!defined('ABSPATH')) {
 
 class Enqueue {
     private const DEV_SERVER_URL = 'http://localhost:4000';
-    private const DEV_SERVER_PORT = 4000;
     
     public function init() {
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
     }
 
-    /**
-     * Check if Vite dev server is running
-     * Uses a fast socket connection check to avoid blocking page load
-     * Caches result in transient to avoid repeated checks
-     * @return bool
-     */
-    private function isDevServerRunning() {
-        // Cache the result for 5 seconds to avoid repeated checks
-        $cache_key = 'wp_ai_alt_text_dev_server_check';
-        $cached = get_transient($cache_key);
-        
-        if ($cached !== false) {
-            return (bool) $cached;
-        }
-        
-        $is_running = false;
-        
-        // Use a method that doesn't trigger PHP errors
-        // Check if socket extension is available
-        if (function_exists('socket_create')) {
-            $socket = @socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-            if ($socket !== false) {
-                // Set non-blocking mode
-                @socket_set_nonblock($socket);
-                // Try to connect with very short timeout
-                $result = @socket_connect($socket, '127.0.0.1', self::DEV_SERVER_PORT);
-                if ($result !== false) {
-                    $is_running = true;
-                }
-                @socket_close($socket);
-            }
-        } else {
-            // Fallback: Use stream_socket_client with complete error suppression
-            $old_error_handler = set_error_handler(function() { return true; }, E_ALL);
-            $socket = stream_socket_client(
-                'tcp://127.0.0.1:' . self::DEV_SERVER_PORT,
-                $errno,
-                $errstr,
-                0.1,
-                STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT
-            );
-            restore_error_handler();
-            
-            if ($socket !== false) {
-                @fclose($socket);
-                $is_running = true;
-            }
-        }
-        
-        // Cache the result for 5 seconds
-        set_transient($cache_key, $is_running ? 1 : 0, 5);
-        
-        return $is_running;
-    }
 
-    /**
-     * Check if we should use dev mode
-     * @return bool
-     */
-    private function isDevMode() {
-        // Check if dev mode is explicitly set via constant
-        if (defined('WP_AI_ALT_TEXT_DEV_MODE')) {
-            $dev_mode = WP_AI_ALT_TEXT_DEV_MODE;
-            if ($dev_mode !== null) {
-                return (bool) $dev_mode;
-            }
-        }
-        
-        // Auto-detect: Check if dev server is running
-        if ($this->isDevServerRunning()) {
-            return true;
-        }
-        
-        // Fallback: Check if manifest exists (production mode)
-        $manifest_path = WP_AI_ALT_TEXT_DIR . 'assets/.vite/manifest.json';
-        if (!file_exists($manifest_path)) {
-            $manifest_path = WP_AI_ALT_TEXT_DIR . 'assets/manifest.json';
-        }
-        
-        // If manifest exists, we're in production mode
-        // If no manifest exists, assume dev mode (but dev server not running - might be an error)
-        return !file_exists($manifest_path);
-    }
-
-    public function enqueue_admin_assets($hook) {
-        // Only load assets on the plugin's admin page
+    public function enqueueAdminAssets($hook) {
         if ($hook !== 'toplevel_page_wp-ai-alt-text') {
             return;
         }
@@ -109,9 +24,8 @@ class Enqueue {
         $script_dependencies = ['jquery', 'wp-api-fetch', 'wp-i18n'];
         
         // Check if we should use dev mode (Vite dev server running)
-        if ($this->isDevMode()) {
+        if (defined('WP_AI_ALT_TEXT_DEV_MODE') && WP_AI_ALT_TEXT_DEV_MODE) {
             // Development mode: Load assets from Vite dev server
-            // Vite dev server serves files from project root without base path
             $dev_server_url = self::DEV_SERVER_URL . '/resources/admin/main.js';
             wp_enqueue_script(
                 'wp-ai-alt-text-script',

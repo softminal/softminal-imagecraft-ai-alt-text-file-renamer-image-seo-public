@@ -26,6 +26,11 @@ const notification = (options) => {
   // Make sure the notification system is initialized
   initNotification();
   
+  if (!notificationInstance) {
+    console.error('Notification system not initialized');
+    return;
+  }
+  
   // Handle string input
   if (typeof options === 'string') {
     return notificationInstance.info(options)

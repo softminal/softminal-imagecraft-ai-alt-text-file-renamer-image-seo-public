@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 use WpAiAltText\Includes\Enqueue;
 use WpAiAltText\Includes\Menu;
 use WpAiAltText\Includes\Http\Routes\Router;
+use WpAiAltText\Includes\AutoGenerate;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Exception;
@@ -53,57 +54,79 @@ class App
     }
 
     /**
-     * Load all required dependencies
+     * Load all required dependencies dynamically
      * @throws Exception
      */
     function loadDependencies(): void
     {
-        $requiredFiles = [
-            // Http files (must be loaded first)
-            'includes/Http/Routes/Route.php',
-            'includes/Http/Routes/Router.php',
-            'includes/Http/Controllers/Controller.php',
-            'includes/Http/Sanitizer/RequestSanitizer.php',
+        // Define load order: directories and their priority files
+        $loadOrder = [
+            // 1. Support files (no dependencies)
+            ['dir' => 'includes/Support', 'priority' => []],
             
-            // Support files
-            'includes/Support/Collection.php',
+            // 2. HTTP Routes (base Route first)
+            ['dir' => 'includes/Http/Routes', 'priority' => ['Route.php']],
             
-            // Core files
-            'includes/Http/api.php',
-            'includes/Enqueue.php',
-            'includes/Menu.php',
+            // 3. HTTP Controllers (base Controller first)
+            ['dir' => 'includes/Http/Controllers', 'priority' => ['Controller.php']],
             
-            // Models (base model first)
-            'includes/Models/Model.php',
+            // 4. HTTP Sanitizer
+            ['dir' => 'includes/Http/Sanitizer', 'priority' => []],
+            
+            // 5. Models (base Model first, then Relations)
+            ['dir' => 'includes/Models', 'priority' => ['Model.php'], 'exclude' => ['Relations']],
+            ['dir' => 'includes/Models/Relations', 'priority' => []],
+            
+            // 6. Services (base classes first)
+            ['dir' => 'includes/Services', 'priority' => [], 'exclude' => ['AI']],
+            ['dir' => 'includes/Services/AI', 'priority' => ['BaseAIProvider.php'], 'excludeFiles' => ['AIFactory.php']],
+            ['dir' => 'includes/Services/AI', 'files' => ['AIFactory.php']],
+            
+            // 7. Core files (specific order)
+            ['dir' => 'includes/Http', 'files' => ['api.php']],
+            ['dir' => 'includes', 'files' => ['Enqueue.php', 'Menu.php']],
+            
+            // 8. AutoGenerate (loads last as it depends on everything)
+            ['dir' => 'includes', 'files' => ['AutoGenerate.php']],
         ];
 
-        foreach ($requiredFiles as $file) {
-            $filePath = WP_AI_ALT_TEXT_DIR . $file;
-            if (!file_exists($filePath)) {
-                throw new Exception("Required file not found: {$file}");
-            }
-            require_once $filePath;
+        foreach ($loadOrder as $config) {
+            $this->loadDirectory($config);
         }
-
-        // Dynamically load controllers and models
-        $this->loadControllers();
-        $this->loadModels();
     }
 
     /**
-     * Load all controller files dynamically
+     * Load files from a directory with optional priority and exclusions
+     * @param array $config Configuration array with dir, priority, exclude, files
      * @throws Exception
      */
-    function loadControllers(): void
+    private function loadDirectory(array $config): void
     {
-        $controllersDir = WP_AI_ALT_TEXT_DIR . 'includes/Http/Controllers';
+        $dir = WP_AI_ALT_TEXT_DIR . $config['dir'];
         
-        if (!is_dir($controllersDir)) {
-            return; // Controllers directory is optional
+        // If specific files are requested, load only those
+        if (isset($config['files']) && is_array($config['files'])) {
+            foreach ($config['files'] as $file) {
+                $filePath = $dir . '/' . $file;
+                if (file_exists($filePath)) {
+                    require_once $filePath;
+                }
+            }
+            return;
+        }
+        
+        if (!is_dir($dir)) {
+            return; // Directory doesn't exist, skip
         }
 
+        $priority = $config['priority'] ?? [];
+        $exclude = $config['exclude'] ?? [];
+        $excludeFiles = $config['excludeFiles'] ?? [];
+        
+        // Get all PHP files
+        $files = [];
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($controllersDir)
+            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS)
         );
 
         foreach ($iterator as $file) {
@@ -111,42 +134,51 @@ class App
                 continue;
             }
 
-            // Skip base Controller.php (already loaded)
-            if ($file->getBasename() === 'Controller.php') {
+            $relativePath = str_replace($dir . '/', '', $file->getPathname());
+            $relativeDir = str_replace($dir . '/', '', $file->getPath());
+            $fileName = $file->getBasename();
+            
+            // Check if this file should be excluded by name
+            if (in_array($fileName, $excludeFiles)) {
+                continue;
+            }
+            
+            // Check if this path should be excluded
+            $shouldExclude = false;
+            foreach ($exclude as $excludePattern) {
+                if (strpos($relativePath, $excludePattern) !== false || 
+                    strpos($relativeDir, $excludePattern) !== false) {
+                    $shouldExclude = true;
+                    break;
+                }
+            }
+            
+            if ($shouldExclude) {
                 continue;
             }
 
-            require_once $file->getPathname();
+            $files[] = [
+                'path' => $file->getPathname(),
+                'name' => $file->getBasename(),
+                'priority' => array_search($file->getBasename(), $priority)
+            ];
         }
-    }
 
-    /**
-     * Load all model files dynamically
-     * @throws Exception
-     */
-    function loadModels(): void
-    {
-        $modelsDir = WP_AI_ALT_TEXT_DIR . 'includes/Models';
-        
-        if (!is_dir($modelsDir)) {
-            return; // Models directory is optional
-        }
-
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($modelsDir)
-        );
-
-        foreach ($iterator as $file) {
-            if ($file->isDir() || $file->getExtension() !== 'php') {
-                continue;
+        // Sort: priority files first, then alphabetically
+        usort($files, function($a, $b) {
+            $aPriority = $a['priority'] !== false ? $a['priority'] : 999;
+            $bPriority = $b['priority'] !== false ? $b['priority'] : 999;
+            
+            if ($aPriority !== $bPriority) {
+                return $aPriority <=> $bPriority;
             }
+            
+            return strcmp($a['name'], $b['name']);
+        });
 
-            // Skip base Model.php (already loaded)
-            if ($file->getBasename() === 'Model.php') {
-                continue;
-            }
-
-            require_once $file->getPathname();
+        // Load files in sorted order
+        foreach ($files as $file) {
+            require_once $file['path'];
         }
     }
 
@@ -170,6 +202,13 @@ class App
             $this->enqueue->init();
             $this->menu->init();
             $this->router->init();
+            
+            // AutoGenerate should be loaded by now, but verify
+            if (class_exists('\WpAiAltText\Includes\AutoGenerate')) {
+                \WpAiAltText\Includes\AutoGenerate::init();
+            } else {
+                error_log('WP AI Alt Text: AutoGenerate class not found after loading dependencies.');
+            }
         } catch (Exception $e) {
             error_log('WP AI Alt Text Plugin Error: ' . $e->getMessage());
             throw $e;

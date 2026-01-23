@@ -39,9 +39,9 @@ class Router {
         add_action('rest_api_init', [$this, 'registerRoutes']);
         
         // Add debug information if in debug mode
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            add_action('admin_footer', [$this, 'debugRoutes']);
-        }
+        // if (defined('WP_DEBUG') && WP_DEBUG) {
+        //     add_action('admin_footer', [$this, 'debugRoutes']);
+        // }
     }
     
     /**
@@ -80,16 +80,16 @@ class Router {
     /**
      * Debug the registered routes in admin footer
      */
-    public function debugRoutes() {
-        if (!current_user_can('manage_options')) {
-            return;
-        }
+    // public function debugRoutes() {
+    //     if (!current_user_can('manage_options')) {
+    //         return;
+    //     }
         
-        echo '<script>console.group("WP AI Alt Text API Routes");</script>';
-        foreach (Route::getRegisteredRoutes() as $route) {
-            $endpoint = $this->namespace . '/' . $route['endpoint'];
-            echo '<script>console.log("' . esc_js($route['method']) . ': ' . esc_js($endpoint) . '");</script>';
-        }
-        echo '<script>console.groupEnd();</script>';
-    }
+    //     echo '<script>console.group("WP AI Alt Text API Routes");</script>';
+    //     foreach (Route::getRegisteredRoutes() as $route) {
+    //         $endpoint = $this->namespace . '/' . $route['endpoint'];
+    //         echo '<script>console.log("' . esc_js($route['method']) . ': ' . esc_js($endpoint) . '");</script>';
+    //     }
+    //     echo '<script>console.groupEnd();</script>';
+    // }
 }

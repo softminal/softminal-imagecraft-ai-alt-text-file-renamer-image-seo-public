@@ -26,8 +26,8 @@
 - **WordPress:** 5.8+ (for modern React support)
 - **PHP:** 7.4+ (8.0+ recommended)
 - **Database:** MySQL 5.7+ or MariaDB 10.3+
-- **JavaScript:** ES6+ with React (optional for admin UI)
-- **APIs:** Anthropic Claude API, OpenAI GPT-4 Vision API
+- **JavaScript:** ES6+ with vue3 (admin UI)
+- **APIs:** Anthropic Claude API and OpenAI GPT-4 Vision API and gemini (give option to select user)
 
 ### WordPress APIs to Use
 - `add_attachment` hook (auto-generate on upload)
@@ -37,59 +37,6 @@
 - Settings API (for plugin settings)
 - Transients API (for caching)
 
----
-
-## 📁 Plugin File Structure
-
-```
-wp-ai-alt-text/
-│
-├── wp-ai-alt-text.php              # Main plugin file
-├── uninstall.php                    # Cleanup on uninstall
-├── readme.txt                       # WordPress.org readme
-├── LICENSE                          # GPL v2 or later
-│
-├── includes/                        # Core PHP classes
-│   ├── class-activator.php         # Plugin activation
-│   ├── class-deactivator.php       # Plugin deactivation
-│   ├── class-api-manager.php       # API handler (Anthropic/OpenAI)
-│   ├── class-image-scanner.php     # Scan media library
-│   ├── class-batch-processor.php   # Process images in batches
-│   ├── class-setup-wizard.php      # First-time setup
-│   ├── class-settings.php          # Settings management
-│   └── class-encryption.php        # Encrypt/decrypt API keys
-│
-├── admin/                           # Admin interface
-│   ├── class-admin.php             # Admin controller
-│   ├── views/                      # HTML templates
-│   │   ├── wizard.php              # Setup wizard
-│   │   ├── dashboard.php           # Main dashboard
-│   │   ├── settings.php            # Settings page
-│   │   └── help.php                # Help/documentation
-│   ├── css/
-│   │   └── admin-style.css         # Admin styles
-│   └── js/
-│       ├── wizard.js               # Wizard interactions
-│       ├── dashboard.js            # Dashboard functionality
-│       └── batch-processor.js      # AJAX batch processing
-│
-├── public/                          # Public-facing (optional)
-│   ├── class-public.php            # Public hooks
-│   └── js/
-│       └── auto-generate.js        # Auto-generate on upload
-│
-├── languages/                       # Translations
-│   └── wp-ai-alt-text.pot          # Translation template
-│
-└── assets/                          # WordPress.org assets
-    ├── banner-772x250.png          # Plugin banner
-    ├── banner-1544x500.png         # Retina banner
-    ├── icon-128x128.png            # Plugin icon
-    ├── icon-256x256.png            # Retina icon
-    └── screenshot-1.png            # Screenshots (1-8)
-```
-
----
 
 ## 🗄️ Database Schema
 
@@ -262,6 +209,8 @@ $query = new WP_Query([
 - Endpoint: `https://api.openai.com/v1/chat/completions`
 - Max tokens: 100
 - Best for: Users who already have OpenAI account
+
+**Gemini Vision:**
 
 #### AI Prompts by Tone:
 

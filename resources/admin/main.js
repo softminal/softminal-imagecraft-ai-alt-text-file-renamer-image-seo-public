@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import notification from './plugins/notification';
 import '../scss/index.scss';
 
 const app = createApp(App);
@@ -9,4 +10,6 @@ app.config.globalProperties.$t = (text)=>{
     return  text
 }
 
-app.use(router).mount('#wp-ai-alt-text-app');
+app.use(router);
+app.use(notification);
+app.mount('#wp-ai-alt-text-app');
