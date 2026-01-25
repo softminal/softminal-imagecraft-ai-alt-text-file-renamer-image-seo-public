@@ -34,7 +34,7 @@ class History extends Model
     /**
      * Get recent history for user
      */
-    public static function getRecent(int $userId = null, int $limit = 10)
+    public static function getRecent(?int $userId = null, int $limit = 10)
     {
         if ($userId === null) {
             $userId = get_current_user_id();
@@ -42,7 +42,6 @@ class History extends Model
         
         return static::where('user_id', $userId)
             ->orderBy('created_at', 'DESC')
-            ->limit($limit)
-            ->get();
+            ->paginate($limit, 1);
     }
 }

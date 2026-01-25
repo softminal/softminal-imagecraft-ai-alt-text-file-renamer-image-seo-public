@@ -36,7 +36,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate
 
     public function offsetGet($offset): mixed
     {
-        return $this->items[$offset];
+        return $this->items[$offset] ?? null;
     }
 
     public function offsetSet($offset, $value): void

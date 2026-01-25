@@ -2,6 +2,7 @@
 
 namespace WpAiAltText\Includes;
 
+use WpAiAltText\Includes\Models\Stats;
 use WpAiAltText\Includes\Services\Settings;
 use WpAiAltText\Includes\Services\AI\AIFactory;
 
@@ -35,7 +36,7 @@ class AutoGenerate
         }
         
         // Check if skip existing is enabled and alt text already exists
-        if (Settings::get('alttext_skip_existing', true)) {
+        if (Settings::get('alttext_skip_existing', false)) {
             $existingAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
             if (!empty($existingAlt)) {
                 return;
@@ -74,6 +75,10 @@ class AutoGenerate
         // Save to history
         $apiSetting = \WpAiAltText\Includes\Models\ApiSetting::getActive($userId);
         if ($apiSetting) {
+            // WordPress stores booleans as '1'/'0', so we need to properly check the value
+            $previewSetting = Settings::get('alttext_preview_before_accept', '1');
+            $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+            
             $history = \WpAiAltText\Includes\Models\History::create([
                 'attachment_id' => $attachmentId,
                 'original_alt' => get_post_meta($attachmentId, '_wp_attachment_image_alt', true),
@@ -81,19 +86,19 @@ class AutoGenerate
                 'user_id' => $userId,
                 'api_provider' => $apiSetting->api_provider,
                 'tone' => $tone,
-                'status' => Settings::get('alttext_preview_before_accept', true) ? 'pending' : 'accepted',
+                'status' => $previewBeforeAccept ? 'pending' : 'accepted',
                 'tokens_used' => $result['tokens'] ?? 0,
                 'cost_estimate' => $result['cost'] ?? 0
             ]);
             
             // Auto-accept if preview is disabled
-            if (!Settings::get('alttext_preview_before_accept', true)) {
+            if (!$previewBeforeAccept) {
                 update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
                 $history->status = 'accepted';
                 $history->save();
                 
                 // Update stats
-                $stats = \WpAiAltText\Includes\Models\Stats::getOrCreate($userId, date('Y-m-d'));
+                $stats = Stats::getOrCreate($userId, date('Y-m-d'));
                 $stats->increment('images_processed');
                 $stats->increment('images_accepted');
                 $stats->total_cost_estimate = (float) $stats->total_cost_estimate + ($result['cost'] ?? 0);

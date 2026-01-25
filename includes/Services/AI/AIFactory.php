@@ -1,6 +1,9 @@
 <?php
 
 namespace WpAiAltText\Includes\Services\AI;
+
+use WpAiAltText\Includes\Models\ApiSetting;
+use WpAiAltText\Includes\Services\Encryption;
 use WpAiAltText\Includes\Services\Settings;
 
 if (!defined('ABSPATH')) {
@@ -15,7 +18,6 @@ class AIFactory
     public static function create(string $provider, string $apiKey, int $timeout = 60): BaseAIProvider
     {
         $timeout = Settings::get('alttext_request_timeout', $timeout);
-        
         switch (strtolower($provider)) {
             case 'anthropic':
                 return new AnthropicProvider($apiKey, $timeout);
@@ -34,23 +36,21 @@ class AIFactory
     /**
      * Get provider for current user
      */
-    public static function getProviderForUser(int $userId = null): ?BaseAIProvider
+    public static function getProviderForUser(?int $userId = null): ?BaseAIProvider
     {
         if ($userId === null) {
             $userId = get_current_user_id();
         }
         
-        $apiSetting = \WpAiAltText\Includes\Models\ApiSetting::getActive($userId);
+        $apiSetting = ApiSetting::getActive($userId);
         
         if (!$apiSetting) {
             return null;
         }
         
-        $apiKey = $apiSetting->getApiKey();
-        if (!$apiKey) {
+        if (is_null($apiSetting->api_key_encrypted)) {
             return null;
         }
-        
-        return self::create($apiSetting->api_provider, $apiKey);
+        return self::create($apiSetting->api_provider, Encryption::decrypt($apiSetting->api_key_encrypted));
     }
 }

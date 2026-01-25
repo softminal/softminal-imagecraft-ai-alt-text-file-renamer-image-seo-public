@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
  */
 class Encryption
 {
-    private const CIPHER = 'AES-256-CBC';
+    private const CIPHER = 'aes-256-cbc';
     
     /**
      * Get encryption key from WordPress salts
@@ -30,20 +30,65 @@ class Encryption
      */
     public static function encrypt(string $data): string
     {
-        $key = self::getEncryptionKey();
-        $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length(self::CIPHER));
+        // Check if OpenSSL is available
+        if (!function_exists('openssl_encrypt')) {
+            throw new \Exception('OpenSSL extension is not available. Please enable OpenSSL in your PHP configuration.');
+        }
+        
+        // Check if cipher is available (case-insensitive check)
+        $availableCiphers = openssl_get_cipher_methods();
+        $cipherLower = strtolower(self::CIPHER);
+        $cipherToUse = self::CIPHER; // Default fallback
+        $cipherFound = false;
+        
+        foreach ($availableCiphers as $availableCipher) {
+            if (strtolower($availableCipher) === $cipherLower) {
+                $cipherFound = true;
+                // Use the actual cipher name from OpenSSL (might be different case)
+                $cipherToUse = $availableCipher;
+                break;
+            }
+        }
+        
+        if (!$cipherFound) {
+            throw new \Exception('Cipher ' . self::CIPHER . ' is not available. Available ciphers: ' . implode(', ', array_slice($availableCiphers, 0, 10)) . '...');
+        }
+        
+        try {
+            $key = self::getEncryptionKey();
+        } catch (\Exception $e) {
+            throw new \Exception('Failed to get encryption key: ' . $e->getMessage());
+        }
+        
+        $ivLength = openssl_cipher_iv_length($cipherToUse);
+        if ($ivLength === false) {
+            throw new \Exception('Failed to get IV length for cipher: ' . $cipherToUse);
+        }
+        
+        $iv = openssl_random_pseudo_bytes($ivLength);
         
         if ($iv === false) {
-            throw new \Exception('Failed to generate IV');
+            throw new \Exception('Failed to generate IV. OpenSSL error: ' . openssl_error_string());
         }
         
-        $encrypted = openssl_encrypt($data, self::CIPHER, $key, 0, $iv);
+        $encrypted = openssl_encrypt($data, $cipherToUse, $key, 0, $iv);
         
         if ($encrypted === false) {
-            throw new \Exception('Encryption failed');
+            $error = openssl_error_string();
+            throw new \Exception('Encryption failed. OpenSSL error: ' . ($error ?: 'Unknown error'));
         }
         
-        return base64_encode($encrypted . '::' . bin2hex($iv));
+        if (empty($encrypted)) {
+            throw new \Exception('Encryption returned empty string. Data length: ' . strlen($data) . ', Key length: ' . strlen($key));
+        }
+        
+        $result = base64_encode($encrypted . '::' . bin2hex($iv));
+        
+        if (empty($result)) {
+            throw new \Exception('Base64 encoding failed. Encrypted length: ' . strlen($encrypted));
+        }
+        
+        return $result;
     }
     
     /**
@@ -51,6 +96,22 @@ class Encryption
      */
     public static function decrypt(string $data): string
     {
+        // Check if OpenSSL is available
+        if (!function_exists('openssl_decrypt')) {
+            throw new \Exception('OpenSSL extension is not available. Please enable OpenSSL in your PHP configuration.');
+        }
+        
+        // Find the actual cipher name (case-insensitive)
+        $availableCiphers = openssl_get_cipher_methods();
+        $cipherLower = strtolower(self::CIPHER);
+        $cipherToUse = self::CIPHER; // Default
+        foreach ($availableCiphers as $availableCipher) {
+            if (strtolower($availableCipher) === $cipherLower) {
+                $cipherToUse = $availableCipher;
+                break;
+            }
+        }
+        
         $key = self::getEncryptionKey();
         $decoded = base64_decode($data);
         
@@ -65,7 +126,7 @@ class Encryption
             throw new \Exception('Failed to decode IV');
         }
         
-        $decrypted = openssl_decrypt($encrypted, self::CIPHER, $key, 0, $iv);
+        $decrypted = openssl_decrypt($encrypted, $cipherToUse, $key, 0, $iv);
         
         if ($decrypted === false) {
             throw new \Exception('Decryption failed');

@@ -8,9 +8,9 @@ if (!defined('ABSPATH')) {
 
 class GeminiProvider extends BaseAIProvider
 {
-    private const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent';
+    private const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
     // private const ENDPOINT = 'https://generativelanguage.googleapis.com/v1/models';
-    private const COST_PER_1K_TOKENS = 0.0005; // Approximate cost
+    private const COST_PER_1K_TOKENS = 0.0005;
     
     public function generateAltText(string $imageUrl, string $tone = 'professional'): array
     {
@@ -79,7 +79,10 @@ class GeminiProvider extends BaseAIProvider
         $url = self::ENDPOINT . '?key=' . urlencode($this->apiKey);
         
         try {
-            $response = $this->makeRequest($url, $data);
+            $headers = [
+                'x-goog-api-key' => $this->apiKey,
+            ];
+            $response = $this->makeRequest($url, $data, $headers);
             return ['success' => true, 'message' => 'Connection successful'];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
@@ -100,35 +103,6 @@ class GeminiProvider extends BaseAIProvider
         return ($tokens / 1000) * self::COST_PER_1K_TOKENS;
     }
     
-    private function getImageData(string $imageUrl): array
-    {
-        $imageContent = file_get_contents($imageUrl);
-        if ($imageContent === false) {
-            throw new \Exception('Failed to fetch image');
-        }
-        
-        $base64 = base64_encode($imageContent);
-        $mimeType = $this->getMimeType($imageUrl);
-        
-        return [
-            'base64' => $base64,
-            'mime_type' => $mimeType
-        ];
-    }
-    
-    private function getMimeType(string $url): string
-    {
-        $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
-        $mimeTypes = [
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'png' => 'image/png',
-            'gif' => 'image/gif',
-            'webp' => 'image/webp'
-        ];
-        
-        return $mimeTypes[$extension] ?? 'image/jpeg';
-    }
     
     private function estimateTokens(array $response): int
     {

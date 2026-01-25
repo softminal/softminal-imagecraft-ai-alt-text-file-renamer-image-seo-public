@@ -39,7 +39,7 @@ class SettingsController extends Controller
             'api_setting' => $apiSetting ? [
                 'provider' => $apiSetting->api_provider,
                 'is_active' => (bool) $apiSetting->is_active,
-                'has_key' => !empty($apiSetting->api_key_encrypted)
+                'has_key' => !is_null($apiSetting->api_key_encrypted)
             ] : null,
             'wizard_completed' => Settings::isWizardCompleted($userId)
         ]);
@@ -53,17 +53,85 @@ class SettingsController extends Controller
         $params = $request->get_json_params();
         $settings = $params['settings'] ?? [];
         
-        if (Settings::update($settings)) {
+        if (empty($settings)) {
             return $this->response([
-                'success' => true,
-                'message' => 'Settings updated successfully'
-            ]);
+                'success' => false,
+                'message' => 'No settings provided'
+            ], 400);
         }
         
-        return $this->response([
-            'success' => false,
-            'message' => 'Failed to update settings'
-        ], 400);
+        // Validate settings keys
+        $validKeys = array_keys(Settings::all());
+        $invalidKeys = [];
+        foreach (array_keys($settings) as $key) {
+            if (!in_array($key, $validKeys)) {
+                $invalidKeys[] = $key;
+            }
+        }
+        
+        if (!empty($invalidKeys)) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Invalid setting keys: ' . implode(', ', $invalidKeys)
+            ], 400);
+        }
+        
+        try {
+            if (Settings::update($settings)) {
+                return $this->response([
+                    'success' => true,
+                    'message' => 'Settings updated successfully'
+                ]);
+            }
+            
+            // If update returns false, it might still be successful if values were unchanged
+            // Check if settings were actually updated by comparing
+            $allSettings = Settings::all();
+            $allMatch = true;
+            foreach ($settings as $key => $value) {
+                $currentValue = $allSettings[$key] ?? null;
+                if (self::normalizeForComparison($currentValue) !== self::normalizeForComparison($value)) {
+                    $allMatch = false;
+                    break;
+                }
+            }
+            
+            if ($allMatch) {
+                // All values match, so update was successful (just no changes needed)
+                return $this->response([
+                    'success' => true,
+                    'message' => 'Settings updated successfully'
+                ]);
+            }
+            
+            return $this->response([
+                'success' => false,
+                'message' => 'Failed to update some settings'
+            ], 400);
+        } catch (\Exception $e) {
+            error_log('WP AI Alt Text: Settings update error: ' . $e->getMessage());
+            return $this->response([
+                'success' => false,
+                'message' => 'Error updating settings: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Normalize value for comparison
+     */
+    private static function normalizeForComparison($value)
+    {
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+        if ($value === '1' || $value === 1 || $value === true) {
+            return '1';
+        }
+        if ($value === '0' || $value === 0 || $value === false || $value === '') {
+            return '0';
+        }
+        return (string) $value;
     }
     
     /**
@@ -73,12 +141,21 @@ class SettingsController extends Controller
     {
         $params = $request->get_json_params();
         $provider = sanitize_text_field($params['provider'] ?? '');
-        $apiKey = sanitize_text_field($params['api_key'] ?? '');
+        // Don't sanitize API key - it may contain special characters that sanitize_text_field would remove
+        $apiKey = trim($params['api_key'] ?? '');
         
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
                 'success' => false,
                 'message' => 'Provider and API key are required'
+            ], 400);
+        }
+        
+        // Basic validation - API keys should be non-empty strings
+        if (!is_string($apiKey) || strlen($apiKey) < 10) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Invalid API key format'
             ], 400);
         }
         
@@ -114,8 +191,52 @@ class SettingsController extends Controller
             $apiSetting->is_active = 1;
         }
         
-        $apiSetting->setApiKey($apiKey);
-        $apiSetting->save();
+        try {
+            $apiSetting->setApiKey($apiKey);
+        } catch (\Exception $e) {
+            error_log('WP AI Alt Text: Encryption exception in SettingsController: ' . $e->getMessage());
+            return $this->response([
+                'success' => false,
+                'message' => 'Failed to encrypt API key: ' . $e->getMessage()
+            ], 400);
+        }
+        
+        // Verify the encrypted key was set before saving
+        $encryptedKey = $apiSetting->api_key_encrypted ?? null;
+        
+        if (empty($encryptedKey)) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Failed to encrypt API key. Encrypted value is empty.'
+            ], 400);
+        }
+        
+        $saved = $apiSetting->save();
+        
+        if (!$saved) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Failed to save API key to database'
+            ], 500);
+        }
+        
+        // Verify it was actually saved by checking database directly
+        global $wpdb;
+        $table = ApiSetting::table();
+        $dbValue = $wpdb->get_var($wpdb->prepare(
+            "SELECT api_key_encrypted FROM {$table} WHERE id = %d",
+            $apiSetting->id
+        ));
+        
+        if (empty($dbValue)) {
+            return $this->response([
+                'success' => false,
+                'message' => 'API key was not saved correctly. Please try again.'
+            ], 500);
+        }
+        
+        // Sync the preference setting with the active provider
+        Settings::set('alttext_api_provider', $provider);
         
         return $this->response([
             'success' => true,
@@ -158,6 +279,13 @@ class SettingsController extends Controller
     public function completeWizard($request)
     {
         $userId = get_current_user_id();
+        
+        if (empty($userId) || $userId === 0) {
+            return $this->response([
+                'success' => false,
+                'message' => 'User not logged in'
+            ], 401);
+        }
         
         if (Settings::completeWizard($userId)) {
             return $this->response([

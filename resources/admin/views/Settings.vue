@@ -70,6 +70,8 @@
         <label class="flex items-center gap-2">
           <input 
             type="checkbox"
+            true-value="1"
+            false-value="0"
             v-model="settings.alttext_auto_generate"
           />
           <span>Auto-generate on upload</span>
@@ -80,6 +82,8 @@
         <label class="flex items-center gap-2">
           <input 
             type="checkbox"
+            true-value="1"
+            false-value="0"
             v-model="settings.alttext_preview_before_accept"
           />
           <span>Preview before accepting</span>
@@ -90,6 +94,8 @@
         <label class="flex items-center gap-2">
           <input 
             type="checkbox"
+            true-value="1"
+            false-value="0"
             v-model="settings.alttext_skip_existing"
           />
           <span>Skip images with existing alt text</span>
@@ -139,6 +145,7 @@
 import { ref, onMounted } from 'vue'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
+import { clearSettingsCache } from '../router'
 
 const settings = ref({})
 const apiKey = ref('')
@@ -151,6 +158,11 @@ const loadSettings = async () => {
     if (result.success) {
       settings.value = result.settings
       apiSetting.value = result.api_setting
+      
+      // Sync provider dropdown with active API setting
+      if (result.api_setting && result.api_setting.is_active) {
+        settings.value.alttext_api_provider = result.api_setting.provider
+      }
     }
   } catch (error) {
     notification.error('Failed to load settings')
@@ -159,13 +171,13 @@ const loadSettings = async () => {
 
 const saveSettings = async () => {
   saving.value = true;
-  console.log(settings.value)
   try {
     const result = await Api.post('/settings', {
       settings: settings.value
     })
     if (result.success) {
       notification.success('Settings saved successfully')
+      clearSettingsCache() // Clear cache so router guard gets fresh data
     }
   } catch (error) {
     notification.error('Failed to save settings')
@@ -188,6 +200,7 @@ const saveApiKey = async () => {
     if (result.success) {
       notification.success('API key saved successfully')
       apiKey.value = ''
+      clearSettingsCache() // Clear cache so router guard gets fresh data
       loadSettings()
     }
   } catch (error) {

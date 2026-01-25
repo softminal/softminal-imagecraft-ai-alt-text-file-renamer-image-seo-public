@@ -385,8 +385,18 @@ abstract class Model
         global $wpdb;
         $table = static::table();
 
-        // Prepare attributes for saving
-        $attributes = $this->attributes;
+        // Prepare attributes for saving - only include fillable fields that have values
+        $attributes = [];
+        foreach ($this->fillable as $field) {
+            if (isset($this->attributes[$field]) && $this->attributes[$field] !== null && $this->attributes[$field] !== '') {
+                $attributes[$field] = $this->attributes[$field];
+            }
+        }
+        
+        // Always include id if it exists (for updates)
+        if (isset($this->attributes['id'])) {
+            $attributes['id'] = $this->attributes['id'];
+        }
 
         // Handle casts before saving
         foreach ($this->casts as $key => $type) {
@@ -411,18 +421,31 @@ abstract class Model
 
         // Update or Insert
         if (isset($attributes['id'])) {
+            $id = $attributes['id'];
+            unset($attributes['id']); // Remove id from data array for update
+            
             $updated = $wpdb->update(
                 $table,
                 $attributes,
-                ['id' => $attributes['id']]
+                ['id' => $id],
+                null, // Let WordPress auto-detect format
+                ['%d'] // WHERE format
             );
-            return $updated !== false;
+            
+            if ($updated === false) {
+                error_log('WP AI Alt Text: Database update failed: ' . $wpdb->last_error);
+                return false;
+            }
+            
+            return true;
         }
 
         $inserted = $wpdb->insert($table, $attributes);
         if ($inserted) {
             $this->attributes['id'] = $wpdb->insert_id;
             return true;
+        } else {
+            error_log('WP AI Alt Text: Database insert failed: ' . $wpdb->last_error);
         }
 
         return false;

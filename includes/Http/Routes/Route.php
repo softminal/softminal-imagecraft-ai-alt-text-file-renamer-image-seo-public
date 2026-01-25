@@ -178,8 +178,6 @@ class Route
                 $pattern = $endpoint;
             }
             
-            // For debugging
-            error_log("Registering route: {$method} {$namespace}/{$pattern}");
             
             register_rest_route($namespace, $pattern, [
                 'methods' => $method,

@@ -103,6 +103,7 @@ class Install
         ];
 
         try {
+            $userId = get_current_user_id();
             foreach ($sql as $query) {
                 $results = dbDelta($query);
                 if ($results === false) {
@@ -112,6 +113,7 @@ class Install
             }
 
             update_option('wp_ai_alt_text_db_version', '1.0.0');
+            add_user_meta($userId, WP_AI_ALT_TEXT_TABLE_PREFIX.'wizard_completed', false);
             return true;
         } catch (\Exception $e) {
             error_log('WP AI Alt Text Installation Error: ' . $e->getMessage());

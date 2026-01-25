@@ -3,6 +3,8 @@
 namespace WpAiAltText\Includes\Http\Controllers;
 
 use WpAiAltText\Includes\Models\BatchJob;
+use WpAiAltText\Includes\Models\History;
+use WpAiAltText\Includes\Models\Stats;
 use WpAiAltText\Includes\Services\Settings;
 
 if (!defined('ABSPATH')) {
@@ -80,6 +82,9 @@ class BatchController extends Controller
             ], 404);
         }
         
+        // Validate and correct status if needed (fixes existing jobs with incorrect status)
+        $job->validateStatus();
+        
         return $this->response([
             'success' => true,
             'job' => [
@@ -144,30 +149,57 @@ class BatchController extends Controller
         $startIndex = $job->processed_images;
         $chunk = array_slice($imageIds, $startIndex, $batchSize);
         
+        // Get user ID from batch job to ensure we use the correct user's API settings
+        $userId = (int) $job->user_id;
+        
         foreach ($chunk as $attachmentId) {
-            // Use GeneratorController logic
-            $generator = new \WpAiAltText\Includes\Http\Controllers\GeneratorController();
-            $requestData = new \WP_REST_Request('POST');
-            $requestData->set_body(json_encode([
-                'attachment_id' => $attachmentId,
-                'tone' => $tone
-            ]));
-            
-            $result = $generator->generate($requestData);
-            $resultData = $result->get_data();
-            
-            if ($resultData['success']) {
-                // Auto-accept if preview is disabled
-                if (!Settings::get('alttext_preview_before_accept', true)) {
-                    $acceptRequest = new \WP_REST_Request('POST');
-                    $acceptRequest->set_body(json_encode([
-                        'history_id' => $resultData['history_id'],
-                        'alt_text' => $resultData['alt_text']
-                    ]));
-                    $generator->accept($acceptRequest);
+            try {
+                // Call GeneratorController directly (bypass REST API layer for internal calls)
+                $generator = new GeneratorController();
+                
+                // Use direct method call to bypass REST API nonce verification
+                // Pass user ID from batch job to ensure correct API settings are used
+                $result = $generator->generateAltText((int) $attachmentId, $tone, $userId);
+                
+                if ($result['success'] ?? false) {
+                    // Auto-accept if preview is disabled
+                    // WordPress stores booleans as '1'/'0', so we need to properly check the value
+                    $previewSetting = Settings::get('alttext_preview_before_accept', '1');
+                    $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+                    if (!$previewBeforeAccept) {
+                        // Update attachment alt text directly
+                        update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
+                        
+                        // Update history status
+                        if (isset($result['history_id'])) {
+                            $history = History::find($result['history_id']);
+                            if ($history) {
+                                $history->status = 'accepted';
+                                $history->save();
+                                
+                                // Update stats
+                                $stats = Stats::getOrCreate(get_current_user_id(), date('Y-m-d'));
+                                $stats->increment('images_accepted');
+                                $stats->save();
+                            }
+                        }
+                    }
+                    $processed++;
+                } else {
+                    $errorMessage = $result['message'] ?? 'Unknown error';
+                    error_log(sprintf(
+                        'WP AI Alt Text: Batch processing failed for attachment %d - %s',
+                        $attachmentId,
+                        $errorMessage
+                    ));
+                    $failed++;
                 }
-                $processed++;
-            } else {
+            } catch (\Exception $e) {
+                error_log(sprintf(
+                    'WP AI Alt Text: Batch processing exception for attachment %d - %s',
+                    $attachmentId,
+                    $e->getMessage()
+                ));
                 $failed++;
             }
         }
@@ -178,7 +210,16 @@ class BatchController extends Controller
         
         // Check if complete
         if ($job->processed_images + $job->failed_images >= $job->total_images) {
-            $job->status = 'completed';
+            // If all images failed, mark as failed; otherwise completed
+            $processed = (int) $job->processed_images;
+            $failed = (int) $job->failed_images;
+            $total = (int) $job->total_images;
+            
+            if ($failed === $total && $processed === 0) {
+                $job->status = 'failed';
+            } else {
+                $job->status = 'completed';
+            }
             $job->completed_at = current_time('mysql');
         }
         
@@ -221,6 +262,8 @@ class BatchController extends Controller
             ], 404);
         }
         
+        // Mark as cancelled (using 'failed' status for cancelled jobs)
+        // Note: We could add a 'cancelled' status in the future if needed
         $job->status = 'failed';
         $job->completed_at = current_time('mysql');
         $job->save();

@@ -36,6 +36,11 @@ const router = createRouter({
     routes,
 });
 
+// Cache settings to avoid duplicate API calls
+let settingsCache = null;
+let settingsCacheTime = 0;
+const CACHE_DURATION = 5000; // 5 seconds
+
 // Check wizard completion on route change
 router.beforeEach(async (to, from, next) => {
     // Skip check for wizard route
@@ -45,7 +50,17 @@ router.beforeEach(async (to, from, next) => {
     }
     
     try {
-        const settings = await Api.get('/settings');
+        // Use cached settings if available and fresh
+        let settings;
+        const now = Date.now();
+        if (settingsCache && (now - settingsCacheTime) < CACHE_DURATION) {
+            settings = settingsCache;
+        } else {
+            settings = await Api.get('/settings');
+            settingsCache = settings;
+            settingsCacheTime = now;
+        }
+        
         if (!settings.wizard_completed || !settings.api_setting?.has_key) {
             next('/wizard');
         } else {
@@ -56,5 +71,11 @@ router.beforeEach(async (to, from, next) => {
         next();
     }
 });
+
+// Export function to clear cache (useful when settings are updated)
+export const clearSettingsCache = () => {
+    settingsCache = null;
+    settingsCacheTime = 0;
+};
 
 export default router;

@@ -22,7 +22,7 @@ class BatchJob extends Model
     /**
      * Get active batch job for user
      */
-    public static function getActive(int $userId = null)
+    public static function getActive(?int $userId = null)
     {
         if ($userId === null) {
             $userId = get_current_user_id();
@@ -48,6 +48,7 @@ class BatchJob extends Model
     
     /**
      * Get progress percentage
+     * Progress is based on total attempted (processed + failed) vs total images
      */
     public function getProgress(): float
     {
@@ -55,6 +56,38 @@ class BatchJob extends Model
             return 0;
         }
         
-        return round(($this->processed_images / $this->total_images) * 100, 2);
+        $totalAttempted = $this->processed_images + $this->failed_images;
+        return round(($totalAttempted / $this->total_images) * 100, 2);
+    }
+    
+    /**
+     * Validate and correct job status based on processed/failed counts
+     * Fixes jobs that were incorrectly marked as completed when all images failed
+     */
+    public function validateStatus(): void
+    {
+        $processed = (int) $this->processed_images;
+        $failed = (int) $this->failed_images;
+        $total = (int) $this->total_images;
+        
+        // Only validate if all images have been processed
+        if ($processed + $failed < $total || $total === 0) {
+            return;
+        }
+        
+        // If all images failed, status should be 'failed' not 'completed'
+        if ($failed === $total && $processed === 0) {
+            if ($this->status === 'completed') {
+                $this->status = 'failed';
+                $this->save();
+            }
+        } else if ($this->status !== 'completed') {
+            // If some images succeeded, ensure status is 'completed'
+            $this->status = 'completed';
+            if (!$this->completed_at) {
+                $this->completed_at = current_time('mysql');
+            }
+            $this->save();
+        }
     }
 }

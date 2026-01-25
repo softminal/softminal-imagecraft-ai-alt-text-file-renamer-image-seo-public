@@ -109,33 +109,4 @@ class AnthropicProvider extends BaseAIProvider
         return $tokens * self::COST_PER_TOKEN;
     }
     
-    private function getImageData(string $imageUrl): array
-    {
-        $imageContent = file_get_contents($imageUrl);
-        if ($imageContent === false) {
-            throw new \Exception('Failed to fetch image');
-        }
-        
-        $base64 = base64_encode($imageContent);
-        $mimeType = $this->getMimeType($imageUrl);
-        
-        return [
-            'base64' => $base64,
-            'mime_type' => $mimeType
-        ];
-    }
-    
-    private function getMimeType(string $url): string
-    {
-        $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
-        $mimeTypes = [
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'png' => 'image/png',
-            'gif' => 'image/gif',
-            'webp' => 'image/webp'
-        ];
-        
-        return $mimeTypes[$extension] ?? 'image/jpeg';
-    }
 }

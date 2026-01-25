@@ -48,37 +48,58 @@ abstract class BaseAIProvider
     protected function makeRequest(string $url, array $data, array $headers = []): array
     {
         $ch = curl_init();
-        
+    
+        // Normalize headers to "Key: Value" format
+        $normalizedHeaders = ['Content-Type: application/json'];
+    
+        foreach ($headers as $key => $value) {
+            // If it's already "Key: Value" string
+            if (is_int($key) && is_string($value)) {
+                $normalizedHeaders[] = $value;
+                continue;
+            }
+    
+            // If it's associative array: ['Key' => 'Value']
+            if (is_string($key)) {
+                $normalizedHeaders[] = $key . ': ' . $value;
+            }
+        }
+    
         curl_setopt_array($ch, [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_HTTPHEADER => array_merge([
-                'Content-Type: application/json',
-            ], $headers),
+            CURLOPT_HTTPHEADER => $normalizedHeaders,
             CURLOPT_TIMEOUT => $this->timeout,
             CURLOPT_SSL_VERIFYPEER => true,
         ]);
-        
+    
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-        
+    
         curl_close($ch);
-        
+    
         if ($error) {
             throw new \Exception("cURL Error: {$error}");
         }
-        
+    
+        // Decode once so we can show better error messages
+        $decoded = json_decode($response, true);
+    
         if ($httpCode >= 400) {
-            $errorData = json_decode($response, true);
-            $errorMessage = $errorData['error']['message'] ?? "HTTP Error {$httpCode}";
+            $errorMessage =
+                $decoded['error']['message']
+                ?? $decoded['message']
+                ?? "HTTP Error {$httpCode}";
+    
             throw new \Exception($errorMessage);
         }
-        
-        return json_decode($response, true) ?? [];
+    
+        return is_array($decoded) ? $decoded : [];
     }
+    
     
     /**
      * Extract alt text from response
@@ -89,4 +110,144 @@ abstract class BaseAIProvider
      * Calculate cost estimate
      */
     abstract protected function calculateCost(int $tokens): float;
+    
+    /**
+     * Get image data from URL (handles local files and remote URLs)
+     * 
+     * @param string $imageUrl Image URL
+     * @return array Array with 'base64' and 'mime_type' keys
+     * @throws \Exception If image cannot be fetched
+     */
+    protected function getImageData(string $imageUrl): array
+    {
+        // Try to get local file path if URL is from this WordPress site
+        $localPath = $this->getLocalFilePath($imageUrl);
+        
+        if ($localPath && file_exists($localPath)) {
+            // Read from local file system (no SSL issues)
+            $imageContent = file_get_contents($localPath);
+            if ($imageContent === false) {
+                throw new \Exception('Failed to read local image file');
+            }
+        } else {
+            // Use WordPress HTTP API for remote URLs (handles SSL better)
+            $response = wp_remote_get($imageUrl, [
+                'timeout' => $this->timeout,
+                'sslverify' => !$this->isLocalDevelopment(),
+            ]);
+            
+            if (is_wp_error($response)) {
+                throw new \Exception('Failed to fetch image: ' . $response->get_error_message());
+            }
+            
+            $httpCode = wp_remote_retrieve_response_code($response);
+            if ($httpCode !== 200) {
+                throw new \Exception("Failed to fetch image: HTTP {$httpCode}");
+            }
+            
+            $imageContent = wp_remote_retrieve_body($response);
+            if (empty($imageContent)) {
+                throw new \Exception('Failed to fetch image: Empty response');
+            }
+        }
+        
+        $base64 = base64_encode($imageContent);
+        $mimeType = $this->getMimeType($imageUrl);
+        
+        return [
+            'base64' => $base64,
+            'mime_type' => $mimeType
+        ];
+    }
+    
+    /**
+     * Get local file path from WordPress upload URL
+     * 
+     * @param string $url Image URL
+     * @return string|null Local file path or null if not a local URL
+     */
+    protected function getLocalFilePath(string $url): ?string
+    {
+        $uploadDir = wp_upload_dir();
+        $uploadUrl = $uploadDir['baseurl'];
+        $uploadPath = $uploadDir['basedir'];
+        
+        // Check if URL is from this WordPress site's upload directory
+        if (strpos($url, $uploadUrl) === 0) {
+            // Extract relative path from upload URL
+            $relativePath = substr($url, strlen($uploadUrl));
+            $relativePath = ltrim($relativePath, '/');
+            $localPath = trailingslashit($uploadPath) . $relativePath;
+            
+            if (file_exists($localPath)) {
+                return $localPath;
+            }
+        }
+        
+        // Check if URL is from this WordPress site (by hostname)
+        $urlHost = parse_url($url, PHP_URL_HOST);
+        $siteHost = parse_url(site_url(), PHP_URL_HOST);
+        
+        if ($urlHost && ($urlHost === $siteHost || 
+            strpos($urlHost, '.local') !== false || 
+            strpos($urlHost, '.test') !== false ||
+            $urlHost === 'localhost' ||
+            $urlHost === '127.0.0.1')) {
+            
+            // Try to extract path relative to WordPress root
+            $urlPath = parse_url($url, PHP_URL_PATH);
+            if ($urlPath && strpos($urlPath, '/wp-content/') === 0) {
+                $localPath = ABSPATH . ltrim($urlPath, '/');
+                if (file_exists($localPath)) {
+                    return $localPath;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Check if running in local development environment
+     * 
+     * @return bool
+     */
+    protected function isLocalDevelopment(): bool
+    {
+        // Check common local development indicators
+        $siteUrl = site_url();
+        $homeUrl = home_url();
+        
+        return (
+            strpos($siteUrl, 'localhost') !== false ||
+            strpos($siteUrl, '127.0.0.1') !== false ||
+            strpos($siteUrl, '.local') !== false ||
+            strpos($siteUrl, '.test') !== false ||
+            strpos($homeUrl, 'localhost') !== false ||
+            strpos($homeUrl, '127.0.0.1') !== false ||
+            strpos($homeUrl, '.local') !== false ||
+            strpos($homeUrl, '.test') !== false
+        );
+    }
+    
+    /**
+     * Get MIME type from URL
+     * 
+     * @param string $url Image URL
+     * @return string MIME type
+     */
+    protected function getMimeType(string $url): string
+    {
+        $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
+        $mimeTypes = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml'
+        ];
+        
+        return $mimeTypes[$extension] ?? 'image/jpeg';
+    }
 }

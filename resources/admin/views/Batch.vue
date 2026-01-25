@@ -38,6 +38,40 @@
         </div>
       </div>
       
+      <!-- Error Troubleshooting -->
+      <div v-if="job.status === 'failed' && job.failed_images > 0" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <h3 class="font-semibold text-red-800 mb-2">⚠️ Troubleshooting Failed Images</h3>
+        <p class="text-sm text-red-700 mb-3">
+          All {{ job.failed_images }} image(s) failed to process. Common causes:
+        </p>
+        <ul class="list-disc list-inside text-sm text-red-700 space-y-1 mb-3">
+          <li><strong>No API key configured:</strong> Go to Settings → API Configuration and add your API key</li>
+          <li><strong>Invalid API key:</strong> Verify your API key is correct. For Gemini, get your key from <a href="https://aistudio.google.com/apikey" target="_blank" class="underline">Google AI Studio</a></li>
+          <li><strong>API key permissions:</strong> Ensure your API key has access to Gemini API</li>
+          <li><strong>Image URL not accessible:</strong> Images must be publicly accessible (not behind authentication)</li>
+          <li><strong>API rate limit exceeded:</strong> Wait a few minutes and try again</li>
+          <li><strong>Network/connection error:</strong> Check your internet connection and firewall settings</li>
+        </ul>
+        <div class="mt-3 pt-3 border-t border-red-200">
+          <p class="text-xs text-red-600 mb-2">
+            <strong>To find the exact error:</strong>
+          </p>
+          <ol class="list-decimal list-inside text-xs text-red-600 space-y-1">
+            <li>Enable WordPress debug logging in <code>wp-config.php</code>: <code>define('WP_DEBUG', true); define('WP_DEBUG_LOG', true);</code></li>
+            <li>Check <code>wp-content/debug.log</code> for entries starting with "WP AI Alt Text: Batch processing failed"</li>
+            <li>The log will show the specific error message for each failed image</li>
+          </ol>
+        </div>
+        <div class="mt-3">
+          <button 
+            @click="$router.push('/settings')"
+            class="text-sm bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Go to Settings
+          </button>
+        </div>
+      </div>
+      
       <!-- Actions -->
       <div class="flex gap-3">
         <button 
@@ -91,7 +125,19 @@ const loadJobStatus = async () => {
       if (job.value.status === 'completed' || job.value.status === 'failed') {
         stopPolling()
         if (job.value.status === 'completed') {
-          notification.success('Batch processing completed!')
+          // Show appropriate message based on results
+          if (job.value.failed_images > 0) {
+            notification.warning(`Batch processing completed with ${job.value.processed_images} successful and ${job.value.failed_images} failed.`)
+          } else {
+            notification.success('Batch processing completed successfully!')
+          }
+        } else if (job.value.status === 'failed') {
+          // Check if it was cancelled or all images failed
+          if (job.value.processed_images === 0 && job.value.failed_images === job.value.total_images) {
+            notification.error(`Batch processing failed. All ${job.value.total_images} images failed to process.`)
+          } else {
+            notification.error('Batch job was cancelled.')
+          }
         }
       }
     }

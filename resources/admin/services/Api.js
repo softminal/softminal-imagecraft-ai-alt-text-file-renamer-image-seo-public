@@ -4,26 +4,11 @@ class Api {
     constructor() {
         this.baseURL = config.baseURL
         this.headers = config.headers
-        
-        // Debug: Log API configuration
-        if (typeof window !== 'undefined' && window.wpAiAltText) {
-            console.log('API Config loaded:', {
-                baseURL: this.baseURL,
-                hasNonce: !!this.headers['X-WP-Nonce']
-            })
-        } else {
-            console.warn('API Config: wpAiAltText not found in window, using fallback URL')
-        }
     }
 
     async request(endpoint, options = {}) {
         try {
             const url = `${this.baseURL}${endpoint}`
-            
-            // Debug logging
-            if (typeof window !== 'undefined' && (window.wpAiAltText?.debug || import.meta.env.DEV)) {
-                console.log(`API Request: ${options.method || 'GET'} ${url}`)
-            }
             
             const response = await fetch(url, {
                 ...options,
@@ -46,14 +31,6 @@ class Api {
                         // If JSON parsing fails, use default message
                     }
                 } else {
-                    // If response is HTML (like a 404 page), get text for debugging
-                    try {
-                        const text = await response.text()
-                        console.error('Non-JSON error response:', text.substring(0, 200))
-                        errorMessage = `API endpoint not found or returned HTML. Check if the endpoint exists: ${url}`
-                    } catch (e) {
-                        // If text parsing also fails, use default message
-                    }
                 }
                 
                 throw new Error(errorMessage)
@@ -72,14 +49,9 @@ class Api {
                 if (jsonMatch) {
                     try {
                         data = JSON.parse(jsonMatch[0])
-                        console.warn('Extracted JSON from non-JSON response. HTML was prepended to response.')
                     } catch (e) {
-                        console.error('Failed to parse extracted JSON:', e)
                         throw new Error(`Expected JSON response but received: ${contentType || 'unknown'}`)
                     }
-                } else {
-                    console.warn('Response is not JSON:', text.substring(0, 200))
-                    throw new Error(`Expected JSON response but received: ${contentType || 'unknown'}`)
                 }
             }
             
@@ -87,17 +59,6 @@ class Api {
 
         } catch (error) {
             console.error('API Request Failed:', error)
-            // Log additional debugging info
-            if (error.message.includes('Unexpected token')) {
-                console.error('This usually means the API endpoint returned HTML instead of JSON.')
-                console.error('Check if:', [
-                    '1. The REST API endpoint is registered correctly',
-                    '2. The baseURL is correct:',
-                    `   Current: ${this.baseURL}${endpoint}`,
-                    '3. WordPress REST API is enabled',
-                    '4. The endpoint requires authentication and nonce is valid'
-                ].join('\n'))
-            }
             throw error
         }
     }
