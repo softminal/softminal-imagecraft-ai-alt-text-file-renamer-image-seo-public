@@ -38,6 +38,16 @@
         </div>
       </div>
       
+      <!-- Show Review button when completed and we have images to review -->
+      <div v-if="job.status === 'completed' && !showReviewModal" class="mb-6">
+        <button 
+          @click="openReviewModal"
+          class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+        >
+          Review & Edit Alt Text
+        </button>
+      </div>
+      
       <!-- Error Troubleshooting -->
       <div v-if="job.status === 'failed' && job.failed_images > 0" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
         <h3 class="font-semibold text-red-800 mb-2">⚠️ Troubleshooting Failed Images</h3>
@@ -93,6 +103,78 @@
     <div v-else class="text-center py-12 text-gray-500">
       No active batch job
     </div>
+
+    <!-- Review Alt Text Modal -->
+    <Teleport to="body">
+      <div 
+        v-if="showReviewModal" 
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        @click.self="closeReviewModal"
+      >
+        <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+          <div class="p-4 border-b flex items-center justify-between shrink-0">
+            <h2 class="text-xl font-bold">Review & Edit Alt Text</h2>
+            <button 
+              @click="closeReviewModal"
+              class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+              aria-label="Close"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="p-4 overflow-y-auto flex-1">
+            <div v-if="loadingResults" class="text-center py-8 text-gray-500">
+              Loading images...
+            </div>
+            <div v-else-if="reviewImages.length === 0" class="text-center py-8 text-gray-500">
+              No generated images to review.
+            </div>
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div 
+                v-for="item in reviewImages" 
+                :key="item.id"
+                class="border rounded-lg p-3 flex flex-col gap-2"
+              >
+                <div class="flex gap-3">
+                  <img 
+                    :src="item.thumbnail || item.url" 
+                    :alt="item.alt_text"
+                    class="w-20 h-20 object-cover rounded shrink-0"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs text-gray-500 truncate mb-1" :title="item.filename">{{ item.filename }}</p>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Alt text</label>
+                    <textarea 
+                      v-model="item.alt_text"
+                      rows="3"
+                      class="w-full text-sm border rounded-lg p-2 resize-y focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter alt text..."
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 border-t flex justify-end gap-2 shrink-0">
+            <button 
+              @click="closeReviewModal"
+              class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button 
+              @click="saveAllAltTexts"
+              :disabled="savingAltTexts || reviewImages.length === 0"
+              class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ savingAltTexts ? 'Saving...' : 'Save All' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -106,6 +188,12 @@ const route = useRoute()
 const router = useRouter()
 const job = ref(null)
 const jobId = ref(route.params.jobId)
+const prevJobStatus = ref(null)
+const showReviewModal = ref(false)
+const reviewImages = ref([])
+const loadingResults = ref(false)
+const savingAltTexts = ref(false)
+const reviewModalShownForJob = ref(false)
 let intervalId = null
 
 const loadJobStatus = async () => {
@@ -114,6 +202,8 @@ const loadJobStatus = async () => {
   try {
     const result = await Api.get(`/batch/status?job_id=${jobId.value}`)
     if (result.success) {
+      const wasProcessing = prevJobStatus.value === 'processing' || prevJobStatus.value === 'pending'
+      prevJobStatus.value = result.job.status
       job.value = result.job
       
       // If processing, trigger process chunk
@@ -125,6 +215,11 @@ const loadJobStatus = async () => {
       if (job.value.status === 'completed' || job.value.status === 'failed') {
         stopPolling()
         if (job.value.status === 'completed') {
+          // Auto-open review modal when generation just completed
+          if (wasProcessing && !reviewModalShownForJob.value) {
+            reviewModalShownForJob.value = true
+            await openReviewModal()
+          }
           // Show appropriate message based on results
           if (job.value.failed_images > 0) {
             notification.warning(`Batch processing completed with ${job.value.processed_images} successful and ${job.value.failed_images} failed.`)
@@ -143,6 +238,48 @@ const loadJobStatus = async () => {
     }
   } catch (error) {
     console.error('Failed to load job status:', error)
+  }
+}
+
+const openReviewModal = async () => {
+  showReviewModal.value = true
+  reviewImages.value = []
+  loadingResults.value = true
+  try {
+    const result = await Api.get(`/batch/results?job_id=${jobId.value}`)
+    if (result.success && result.images && result.images.length > 0) {
+      reviewImages.value = result.images.map(img => ({ ...img }))
+    }
+  } catch (error) {
+    notification.error('Failed to load generated images')
+  } finally {
+    loadingResults.value = false
+  }
+}
+
+const closeReviewModal = () => {
+  showReviewModal.value = false
+}
+
+const saveAllAltTexts = async () => {
+  if (reviewImages.value.length === 0) return
+  savingAltTexts.value = true
+  try {
+    const items = reviewImages.value.map(img => ({
+      history_id: img.history_id,
+      alt_text: img.alt_text || ''
+    }))
+    const result = await Api.post('/generator/accept-bulk', { items })
+    if (result.success) {
+      notification.success(result.message || 'Alt texts saved successfully.')
+      closeReviewModal()
+    } else {
+      notification.error(result.message || 'Failed to save alt texts')
+    }
+  } catch (error) {
+    notification.error(error.message || 'Failed to save alt texts')
+  } finally {
+    savingAltTexts.value = false
   }
 }
 

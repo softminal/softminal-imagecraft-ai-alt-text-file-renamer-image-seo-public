@@ -50,7 +50,6 @@ class Router {
     public function registerRoutes() {
         // Ensure we have a valid namespace
         if (empty($this->namespace)) {
-            error_log('Error: API namespace not defined in Router class');
             return;
         }
         
@@ -73,7 +72,7 @@ class Router {
                 }
             ]);
         } catch (\Exception $e) {
-            error_log('WP AI Alt Text API Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
+
         }
     }
     

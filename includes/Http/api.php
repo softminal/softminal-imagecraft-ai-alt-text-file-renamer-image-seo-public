@@ -31,6 +31,8 @@ Route::prefix('scanner')->group(function () {
 Route::prefix('generator')->group(function () {
     Route::post('/generate', [GeneratorController::class, 'generate']);
     Route::post('/accept', [GeneratorController::class, 'accept']);
+    Route::post('/accept-bulk', [GeneratorController::class, 'acceptBulk']);
+    Route::post('/update-alt', [GeneratorController::class, 'updateAlt']);
     Route::post('/reject', [GeneratorController::class, 'reject']);
 });
 
@@ -38,6 +40,7 @@ Route::prefix('generator')->group(function () {
 Route::prefix('batch')->group(function () {
     Route::post('/start', [BatchController::class, 'start']);
     Route::get('/status', [BatchController::class, 'status']);
+    Route::get('/results', [BatchController::class, 'results']);
     Route::post('/process', [BatchController::class, 'process']);
     Route::post('/cancel', [BatchController::class, 'cancel']);
 });

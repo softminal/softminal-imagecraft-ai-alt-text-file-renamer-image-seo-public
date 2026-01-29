@@ -157,7 +157,7 @@ class Settings
         
         // Validate user ID
         if (empty($userId) || $userId === 0) {
-            error_log('WP AI Alt Text: Invalid user ID for completeWizard');
+
             return false;
         }
         

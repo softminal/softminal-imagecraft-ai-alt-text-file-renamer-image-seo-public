@@ -52,6 +52,7 @@ class Enqueue {
             // Localize script for dev mode
             wp_localize_script('wp-ai-alt-text-script', 'wpAiAltText', [
                 'apiUrl' => rest_url(WP_AI_ALT_TEXT_API_NAMESPACE),
+                'adminUrl' => admin_url(),
                 'nonce' => wp_create_nonce('wp_rest'),
                 'debug' => true
             ]);
@@ -63,6 +64,7 @@ class Enqueue {
             if ($script_enqueued) {
                 wp_localize_script('wp-ai-alt-text-script', 'wpAiAltText', [
                     'apiUrl' => rest_url(WP_AI_ALT_TEXT_API_NAMESPACE),
+                    'adminUrl' => admin_url(),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'debug' => false
                 ]);
@@ -80,7 +82,6 @@ class Enqueue {
         }
     
         if (!file_exists($manifest_path)) {
-            error_log('WP AI Alt Text: Manifest file not found in production mode.');
             return false;
         }
         

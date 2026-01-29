@@ -107,7 +107,6 @@ class Install
             foreach ($sql as $query) {
                 $results = dbDelta($query);
                 if ($results === false) {
-                    error_log('WP AI Alt Text Installation Error: Failed to create table');
                     return false;
                 }
             }
@@ -116,7 +115,6 @@ class Install
             add_user_meta($userId, WP_AI_ALT_TEXT_TABLE_PREFIX.'wizard_completed', false);
             return true;
         } catch (\Exception $e) {
-            error_log('WP AI Alt Text Installation Error: ' . $e->getMessage());
             return false;
         }
     }
@@ -141,7 +139,6 @@ class Install
             // Clean up options
             delete_option('wp_ai_alt_text_db_version');
         } catch (\Exception $e) {
-            error_log('WP AI Alt Text Uninstall Error: ' . $e->getMessage());
         }
     }
 }

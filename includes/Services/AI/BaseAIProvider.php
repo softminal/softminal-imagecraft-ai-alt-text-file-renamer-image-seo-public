@@ -47,56 +47,46 @@ abstract class BaseAIProvider
      */
     protected function makeRequest(string $url, array $data, array $headers = []): array
     {
-        $ch = curl_init();
-    
-        // Normalize headers to "Key: Value" format
-        $normalizedHeaders = ['Content-Type: application/json'];
-    
+        // Normalize headers to associative array for wp_remote_post()
+        $normalizedHeaders = ['Content-Type' => 'application/json'];
+
         foreach ($headers as $key => $value) {
-            // If it's already "Key: Value" string
             if (is_int($key) && is_string($value)) {
-                $normalizedHeaders[] = $value;
+                $parts = explode(':', $value, 2);
+                $normalizedHeaders[trim($parts[0])] = isset($parts[1]) ? trim($parts[1]) : '';
                 continue;
             }
-    
-            // If it's associative array: ['Key' => 'Value']
             if (is_string($key)) {
-                $normalizedHeaders[] = $key . ': ' . $value;
+                $normalizedHeaders[$key] = $value;
             }
         }
-    
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_HTTPHEADER => $normalizedHeaders,
-            CURLOPT_TIMEOUT => $this->timeout,
-            CURLOPT_SSL_VERIFYPEER => true,
+
+        $response = wp_remote_post($url, [
+            'headers' => $normalizedHeaders,
+            'body' => wp_json_encode($data),
+            'timeout' => $this->timeout,
+            'sslverify' => true,
         ]);
-    
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-    
-        curl_close($ch);
-    
-        if ($error) {
-            throw new \Exception("cURL Error: {$error}");
+
+        if (is_wp_error($response)) {
+            throw new \Exception('Request failed: ' . esc_html($response->get_error_message()));
         }
-    
+
+        $httpCode = (int) wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+
         // Decode once so we can show better error messages
-        $decoded = json_decode($response, true);
-    
+        $decoded = json_decode($body, true);
+
         if ($httpCode >= 400) {
             $errorMessage =
                 $decoded['error']['message']
                 ?? $decoded['message']
                 ?? "HTTP Error {$httpCode}";
-    
-            throw new \Exception($errorMessage);
+
+            throw new \Exception(esc_html($errorMessage));
         }
-    
+
         return is_array($decoded) ? $decoded : [];
     }
     
@@ -137,12 +127,12 @@ abstract class BaseAIProvider
             ]);
             
             if (is_wp_error($response)) {
-                throw new \Exception('Failed to fetch image: ' . $response->get_error_message());
+                throw new \Exception('Failed to fetch image: ' . esc_html($response->get_error_message()));
             }
             
             $httpCode = wp_remote_retrieve_response_code($response);
             if ($httpCode !== 200) {
-                throw new \Exception("Failed to fetch image: HTTP {$httpCode}");
+                throw new \Exception('Failed to fetch image: HTTP ' . esc_html((string) $httpCode));
             }
             
             $imageContent = wp_remote_retrieve_body($response);
@@ -185,8 +175,8 @@ abstract class BaseAIProvider
         }
         
         // Check if URL is from this WordPress site (by hostname)
-        $urlHost = parse_url($url, PHP_URL_HOST);
-        $siteHost = parse_url(site_url(), PHP_URL_HOST);
+        $urlHost = wp_parse_url($url, PHP_URL_HOST);
+        $siteHost = wp_parse_url(site_url(), PHP_URL_HOST);
         
         if ($urlHost && ($urlHost === $siteHost || 
             strpos($urlHost, '.local') !== false || 
@@ -195,7 +185,7 @@ abstract class BaseAIProvider
             $urlHost === '127.0.0.1')) {
             
             // Try to extract path relative to WordPress root
-            $urlPath = parse_url($url, PHP_URL_PATH);
+            $urlPath = wp_parse_url($url, PHP_URL_PATH);
             if ($urlPath && strpos($urlPath, '/wp-content/') === 0) {
                 $localPath = ABSPATH . ltrim($urlPath, '/');
                 if (file_exists($localPath)) {
@@ -238,7 +228,7 @@ abstract class BaseAIProvider
      */
     protected function getMimeType(string $url): string
     {
-        $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
+        $extension = strtolower(pathinfo(wp_parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
         $mimeTypes = [
             'jpg' => 'image/jpeg',
             'jpeg' => 'image/jpeg',

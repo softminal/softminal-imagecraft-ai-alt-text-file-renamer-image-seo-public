@@ -119,7 +119,7 @@ class GeneratorController extends Controller
             update_post_meta($attachmentId, '_wp_attachment_image_alt', $altText);
             
             // Update stats
-            $stats = Stats::getOrCreate($userId, date('Y-m-d'));
+            $stats = Stats::getOrCreate($userId, gmdate('Y-m-d'));
             $stats->increment('images_processed');
             $stats->increment('images_accepted');
             $stats->total_cost_estimate = (float) $stats->total_cost_estimate + ($result['cost'] ?? 0);
@@ -129,7 +129,7 @@ class GeneratorController extends Controller
             $stats->save();
         } else {
             // Update stats (without incrementing accepted count)
-            $stats = Stats::getOrCreate($userId, date('Y-m-d'));
+            $stats = Stats::getOrCreate($userId, gmdate('Y-m-d'));
             $stats->increment('images_processed');
             $stats->total_cost_estimate = (float) $stats->total_cost_estimate + ($result['cost'] ?? 0);
             if ($apiSetting) {
@@ -185,7 +185,7 @@ class GeneratorController extends Controller
         $history->save();
         
         // Update stats
-        $stats = Stats::getOrCreate($history->user_id, date('Y-m-d'));
+        $stats = Stats::getOrCreate($history->user_id, gmdate('Y-m-d'));
         $stats->increment('images_accepted');
         $stats->save();
         
@@ -194,7 +194,92 @@ class GeneratorController extends Controller
             'message' => 'Alt text saved successfully'
         ]);
     }
-    
+
+    /**
+     * Accept multiple generated alt texts (bulk save from review modal)
+     */
+    public function acceptBulk($request)
+    {
+        $params = $request->get_json_params();
+        $items = $params['items'] ?? [];
+
+        if (empty($items) || !is_array($items)) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Items array is required'
+            ], 400);
+        }
+
+        $saved = 0;
+        $errors = [];
+
+        foreach ($items as $item) {
+            $historyId = (int) ($item['history_id'] ?? 0);
+            $altText = isset($item['alt_text']) ? sanitize_text_field($item['alt_text']) : '';
+
+            if (!$historyId) {
+                continue;
+            }
+
+            $history = History::find($historyId);
+            if (!$history) {
+                $errors[] = sprintf('History %d not found', $historyId);
+                continue;
+            }
+
+            $finalAltText = !empty($altText) ? $altText : $history->generated_alt;
+            update_post_meta($history->attachment_id, '_wp_attachment_image_alt', $finalAltText);
+            $history->status = 'accepted';
+            if (!empty($altText)) {
+                $history->generated_alt = $finalAltText;
+            }
+            $history->save();
+
+            $stats = Stats::getOrCreate($history->user_id, gmdate('Y-m-d'));
+            $stats->increment('images_accepted');
+            $stats->save();
+            $saved++;
+        }
+
+        return $this->response([
+            'success' => true,
+            'message' => sprintf('%d alt text(s) saved successfully', $saved),
+            'saved_count' => $saved,
+            'errors' => $errors
+        ]);
+    }
+
+    /**
+     * Update attachment alt text directly (no history required)
+     */
+    public function updateAlt($request)
+    {
+        $params = $request->get_json_params();
+        $attachmentId = (int) ($params['attachment_id'] ?? 0);
+        $altText = isset($params['alt_text']) ? sanitize_text_field($params['alt_text']) : '';
+
+        if (!$attachmentId) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Attachment ID is required'
+            ], 400);
+        }
+
+        if (!wp_attachment_is_image($attachmentId)) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Invalid image attachment'
+            ], 400);
+        }
+
+        update_post_meta($attachmentId, '_wp_attachment_image_alt', $altText);
+
+        return $this->response([
+            'success' => true,
+            'message' => 'Alt text saved successfully'
+        ]);
+    }
+
     /**
      * Reject generated alt text
      */
@@ -222,7 +307,7 @@ class GeneratorController extends Controller
         $history->save();
         
         // Update stats
-        $stats = Stats::getOrCreate($history->user_id, date('Y-m-d'));
+        $stats = Stats::getOrCreate($history->user_id, gmdate('Y-m-d'));
         $stats->increment('images_rejected');
         $stats->save();
         

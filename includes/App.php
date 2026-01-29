@@ -9,7 +9,6 @@ if (!defined('ABSPATH')) {
 use WpAiAltText\Includes\Enqueue;
 use WpAiAltText\Includes\Menu;
 use WpAiAltText\Includes\Http\Routes\Router;
-use WpAiAltText\Includes\AutoGenerate;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Exception;
@@ -47,8 +46,6 @@ class App
             $this->loadDependencies();
             $this->initializeClasses();
         } catch (Exception $e) {
-            // Log the error and handle it appropriately
-            error_log('WP AI Alt Text Plugin Error: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -207,10 +204,8 @@ class App
             if (class_exists('\WpAiAltText\Includes\AutoGenerate')) {
                 \WpAiAltText\Includes\AutoGenerate::init();
             } else {
-                error_log('WP AI Alt Text: AutoGenerate class not found after loading dependencies.');
             }
         } catch (Exception $e) {
-            error_log('WP AI Alt Text Plugin Error: ' . $e->getMessage());
             throw $e;
         }
     }

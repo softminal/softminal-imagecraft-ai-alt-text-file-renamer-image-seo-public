@@ -52,7 +52,7 @@ class StatsController extends Controller
         $missingAlt = $missingQuery->found_posts;
         
         // Get this month's stats
-        $thisMonth = date('Y-m');
+        $thisMonth = gmdate('Y-m');
         $monthStats = Stats::where('user_id', $userId)
             ->andWhere('date', 'LIKE', $thisMonth . '%')
             ->get();

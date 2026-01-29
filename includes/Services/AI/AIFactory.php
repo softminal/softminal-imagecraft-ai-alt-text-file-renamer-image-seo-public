@@ -29,7 +29,7 @@ class AIFactory
                 return new GeminiProvider($apiKey, $timeout);
             
             default:
-                throw new \Exception("Unknown provider: {$provider}");
+                throw new \Exception('Unknown provider: ' . esc_html($provider));
         }
     }
     

@@ -51,41 +51,41 @@ class Encryption
         }
         
         if (!$cipherFound) {
-            throw new \Exception('Cipher ' . self::CIPHER . ' is not available. Available ciphers: ' . implode(', ', array_slice($availableCiphers, 0, 10)) . '...');
+            throw new \Exception('Cipher ' . esc_html(self::CIPHER) . ' is not available. Available ciphers: ' . esc_html(implode(', ', array_slice($availableCiphers, 0, 10))) . '...');
         }
         
         try {
             $key = self::getEncryptionKey();
         } catch (\Exception $e) {
-            throw new \Exception('Failed to get encryption key: ' . $e->getMessage());
+            throw new \Exception('Failed to get encryption key: ' . esc_html($e->getMessage()));
         }
         
         $ivLength = openssl_cipher_iv_length($cipherToUse);
         if ($ivLength === false) {
-            throw new \Exception('Failed to get IV length for cipher: ' . $cipherToUse);
+            throw new \Exception('Failed to get IV length for cipher: ' . esc_html($cipherToUse));
         }
         
         $iv = openssl_random_pseudo_bytes($ivLength);
         
         if ($iv === false) {
-            throw new \Exception('Failed to generate IV. OpenSSL error: ' . openssl_error_string());
+            throw new \Exception('Failed to generate IV. OpenSSL error: ' . esc_html(openssl_error_string() ?: ''));
         }
         
         $encrypted = openssl_encrypt($data, $cipherToUse, $key, 0, $iv);
         
         if ($encrypted === false) {
             $error = openssl_error_string();
-            throw new \Exception('Encryption failed. OpenSSL error: ' . ($error ?: 'Unknown error'));
+            throw new \Exception('Encryption failed. OpenSSL error: ' . esc_html($error ?: 'Unknown error'));
         }
         
         if (empty($encrypted)) {
-            throw new \Exception('Encryption returned empty string. Data length: ' . strlen($data) . ', Key length: ' . strlen($key));
+            throw new \Exception('Encryption returned empty string. Data length: ' . esc_html((string) strlen($data)) . ', Key length: ' . esc_html((string) strlen($key)));
         }
         
         $result = base64_encode($encrypted . '::' . bin2hex($iv));
         
         if (empty($result)) {
-            throw new \Exception('Base64 encoding failed. Encrypted length: ' . strlen($encrypted));
+            throw new \Exception('Base64 encoding failed. Encrypted length: ' . esc_html((string) strlen($encrypted)));
         }
         
         return $result;

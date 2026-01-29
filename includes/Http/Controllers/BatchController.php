@@ -178,7 +178,7 @@ class BatchController extends Controller
                                 $history->save();
                                 
                                 // Update stats
-                                $stats = Stats::getOrCreate(get_current_user_id(), date('Y-m-d'));
+                                $stats = Stats::getOrCreate(get_current_user_id(), gmdate('Y-m-d'));
                                 $stats->increment('images_accepted');
                                 $stats->save();
                             }
@@ -186,20 +186,10 @@ class BatchController extends Controller
                     }
                     $processed++;
                 } else {
-                    $errorMessage = $result['message'] ?? 'Unknown error';
-                    error_log(sprintf(
-                        'WP AI Alt Text: Batch processing failed for attachment %d - %s',
-                        $attachmentId,
-                        $errorMessage
-                    ));
+                   
                     $failed++;
                 }
             } catch (\Exception $e) {
-                error_log(sprintf(
-                    'WP AI Alt Text: Batch processing exception for attachment %d - %s',
-                    $attachmentId,
-                    $e->getMessage()
-                ));
                 $failed++;
             }
         }
@@ -271,6 +261,79 @@ class BatchController extends Controller
         return $this->response([
             'success' => true,
             'message' => 'Batch job cancelled'
+        ]);
+    }
+
+    /**
+     * Get batch job results (images with generated alt text) for review modal
+     */
+    public function results($request)
+    {
+        $params = $request->get_params();
+        $jobId = (int) ($params['job_id'] ?? 0);
+
+        if (!$jobId) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Job ID is required'
+            ], 400);
+        }
+
+        $job = BatchJob::find($jobId);
+        if (!$job) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Job not found'
+            ], 404);
+        }
+
+        if ($job->status !== 'completed') {
+            return $this->response([
+                'success' => false,
+                'message' => 'Job is not completed yet'
+            ], 400);
+        }
+
+        $imageIds = get_transient('alttext_batch_' . $jobId);
+        if (!$imageIds || !is_array($imageIds)) {
+            return $this->response([
+                'success' => true,
+                'images' => []
+            ]);
+        }
+
+        $images = [];
+        foreach ($imageIds as $attachmentId) {
+            $attachmentId = (int) $attachmentId;
+            if (!wp_attachment_is_image($attachmentId)) {
+                continue;
+            }
+
+            $history = History::where('attachment_id', $attachmentId)
+                ->orderBy('created_at', 'DESC')
+                ->first();
+
+            if (!$history) {
+                continue;
+            }
+
+            $thumbnail = wp_get_attachment_image_src($attachmentId, 'thumbnail');
+            $post = get_post($attachmentId);
+
+            $images[] = [
+                'id' => $attachmentId,
+                'url' => wp_get_attachment_url($attachmentId),
+                'thumbnail' => $thumbnail ? $thumbnail[0] : null,
+                'filename' => $post ? basename(get_attached_file($attachmentId)) : '',
+                'title' => $post ? $post->post_title : '',
+                'alt_text' => $history->generated_alt ?: '',
+                'history_id' => (int) $history->id
+            ];
+        }
+
+        return $this->response([
+            'success' => true,
+            'images' => $images
         ]);
     }
 }

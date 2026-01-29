@@ -48,7 +48,6 @@ class ApiSetting extends Model
             }
             return $decrypted;
         } catch (\Exception $e) {
-            error_log('WP AI Alt Text: Failed to decrypt API key for provider ' . ($this->api_provider ?? 'unknown') . ': ' . $e->getMessage());
             return null;
         }
     }
@@ -84,7 +83,6 @@ class ApiSetting extends Model
             // Explicitly set in attributes array to ensure it's saved
             $this->attributes['api_key_encrypted'] = $encrypted;
         } catch (\Exception $e) {
-            error_log('WP AI Alt Text: Failed to encrypt API key: ' . $e->getMessage());
             throw $e;
         }
     }

@@ -162,7 +162,6 @@ class Route
                 : 'wp-ai-alt-text/v1';
         }
         if (empty(self::$routes)) {
-            error_log('No routes defined for registration');
             return;
         }
         
@@ -191,7 +190,6 @@ class Route
                         
                         return $controller->$action($request, $params);
                     } catch (\Exception $e) {
-                        error_log('API Error: ' . $e->getMessage());
                         return new \WP_Error(
                             'api_error',
                             $e->getMessage(),
@@ -255,7 +253,6 @@ class Route
                     }
                 }
             } catch (\Exception $e) {
-                error_log('Middleware error: ' . $e->getMessage());
                 return new WP_Error(
                     'server_error',
                     'Internal server error',

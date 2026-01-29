@@ -88,11 +88,16 @@
                    selectedImages.includes(image.id) ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
         >
           <div class="relative mb-2">
-            <img 
-              :src="image.thumbnail || image.url" 
-              :alt="image.filename"
-              class="w-full h-24 object-cover rounded"
-            />
+            <div 
+              class="cursor-pointer"
+              @click.stop="openImageModal(image)"
+            >
+              <img 
+                :src="image.thumbnail || image.url" 
+                :alt="image.alt_text || image.filename"
+                class="w-full h-24 object-cover rounded"
+              />
+            </div>
             <input 
               type="checkbox"
               :checked="selectedImages.includes(image.id)"
@@ -105,6 +110,16 @@
           </div>
           <div class="text-xs mt-1" :class="image.has_alt ? 'text-green-600' : 'text-orange-600'">
             {{ image.has_alt ? '✓ Has alt' : '✗ Missing' }}
+          </div>
+          <div 
+            v-if="image.alt_text" 
+            class="text-xs mt-1 text-gray-600 line-clamp-2 break-words" 
+            :title="image.alt_text"
+          >
+            {{ image.alt_text }}
+          </div>
+          <div v-else class="text-xs mt-1 text-gray-400 italic">
+            No alt text
           </div>
         </div>
       </div>
@@ -130,6 +145,95 @@
         </button>
       </div>
     </div>
+
+    <!-- Single image modal (WP Media–style view) -->
+    <Teleport to="body">
+      <div 
+        v-if="selectedImage" 
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        @click.self="closeImageModal"
+      >
+        <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+          <div class="p-4 border-b flex items-center justify-between shrink-0">
+            <h2 class="text-lg font-bold">Attachment details</h2>
+            <button 
+              @click="closeImageModal"
+              class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+              aria-label="Close"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="p-4 overflow-y-auto flex-1">
+            <div class="flex gap-4 flex-col sm:flex-row">
+              <div class="shrink-0">
+                <img 
+                  :src="selectedImage.url" 
+                  :alt="modalAltText || selectedImage.filename"
+                  class="max-h-64 w-full object-contain rounded-lg border bg-gray-50"
+                />
+              </div>
+              <div class="flex-1 min-w-0 space-y-3">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">File name</label>
+                  <p class="text-sm text-gray-600 truncate" :title="selectedImage.filename">
+                    {{ selectedImage.filename }}
+                  </p>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between gap-2 mb-1">
+                    <label class="block text-sm font-medium text-gray-700">Alt text</label>
+                    <button 
+                      type="button"
+                      @click="generateAltForImage"
+                      :disabled="generatingAlt"
+                      class="text-sm px-3 py-1.5 rounded-lg text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {{ generatingAlt ? 'Generating...' : 'Generate with AI' }}
+                    </button>
+                  </div>
+                  <textarea 
+                    v-model="modalAltText"
+                    rows="3"
+                    class="w-full text-sm border rounded-lg p-2 resize-y focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Describe the image for accessibility..."
+                  />
+                  <p class="text-xs text-gray-500 mt-1">
+                    Alternative text helps describe the image for screen readers and SEO.
+                  </p>
+                </div>
+                <a 
+                  v-if="editAttachmentUrl"
+                  :href="editAttachmentUrl"
+                  target="_blank"
+                  rel="noopener"
+                  class="text-sm text-blue-600 hover:underline"
+                >
+                  Open in WordPress Media Library →
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 border-t flex justify-end gap-2 shrink-0">
+            <button 
+              @click="closeImageModal"
+              class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button 
+              @click="saveImageAlt"
+              :disabled="savingImageAlt"
+              class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ savingImageAlt ? 'Saving...' : 'Update' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -146,6 +250,13 @@ const pagination = ref({})
 const loading = ref(false)
 const filter = ref('all')
 const selectedImages = ref([])
+
+// Single image modal (WP Media–style view)
+const selectedImage = ref(null)
+const modalAltText = ref('')
+const savingImageAlt = ref(false)
+const generatingAlt = ref(false)
+const pendingHistoryId = ref(null)
 
 const allSelected = computed(() => {
   return images.value.length > 0 && selectedImages.value.length === images.value.length
@@ -204,6 +315,83 @@ const startBatch = async () => {
     }
   } catch (error) {
     notification.error('Failed to start batch job')
+  }
+}
+
+function openImageModal(image) {
+  selectedImage.value = image
+  modalAltText.value = image.alt_text || ''
+  pendingHistoryId.value = null
+}
+
+function closeImageModal() {
+  selectedImage.value = null
+  pendingHistoryId.value = null
+}
+
+const generateAltForImage = async () => {
+  if (!selectedImage.value) return
+  generatingAlt.value = true
+  try {
+    const result = await Api.post('/generator/generate', {
+      attachment_id: selectedImage.value.id,
+      tone: 'professional'
+    })
+    if (result.success && result.alt_text) {
+      modalAltText.value = result.alt_text
+      if (result.history_id) {
+        pendingHistoryId.value = result.history_id
+      } else {
+        pendingHistoryId.value = null
+      }
+      notification.success('Alt text generated. Review and click Update to save.')
+    } else {
+      notification.error(result.message || 'Failed to generate alt text')
+    }
+  } catch (error) {
+    notification.error(error.message || 'Failed to generate alt text')
+  } finally {
+    generatingAlt.value = false
+  }
+}
+
+const editAttachmentUrl = computed(() => {
+  if (!selectedImage.value) return ''
+  const adminUrl = typeof window !== 'undefined' && window.wpAiAltText ? window.wpAiAltText.adminUrl : ''
+  return adminUrl ? `${adminUrl}post.php?post=${selectedImage.value.id}&action=edit` : ''
+})
+
+const saveImageAlt = async () => {
+  if (!selectedImage.value) return
+  savingImageAlt.value = true
+  try {
+    let result
+    if (pendingHistoryId.value) {
+      result = await Api.post('/generator/accept', {
+        history_id: pendingHistoryId.value,
+        alt_text: modalAltText.value || ''
+      })
+    } else {
+      result = await Api.post('/generator/update-alt', {
+        attachment_id: selectedImage.value.id,
+        alt_text: modalAltText.value || ''
+      })
+    }
+    if (result.success) {
+      const img = images.value.find(i => i.id === selectedImage.value.id)
+      if (img) {
+        img.alt_text = modalAltText.value || ''
+        img.has_alt = !!modalAltText.value
+      }
+      notification.success('Alt text updated.')
+      closeImageModal()
+    } else {
+      notification.error(result.message || 'Failed to update alt text')
+    }
+  } catch (error) {
+    notification.error(error.message || 'Failed to update alt text')
+  } finally {
+    savingImageAlt.value = false
   }
 }
 

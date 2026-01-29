@@ -30,9 +30,13 @@ class BatchJob extends Model
         
         global $wpdb;
         $table = static::table();
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is internal from static::table().
         $result = $wpdb->get_row(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is internal from static::table().
+
             $wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is internal from static::table().
                 "SELECT * FROM {$table} WHERE user_id = %d AND status IN ('pending', 'processing') ORDER BY created_at DESC LIMIT 1",
                 $userId
             ),

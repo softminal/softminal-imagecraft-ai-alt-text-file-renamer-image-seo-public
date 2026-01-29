@@ -68,7 +68,6 @@ class AutoGenerate
         $result = $aiProvider->generateAltText($imageUrl, $tone);
         
         if (!$result['success']) {
-            error_log('Auto-generate failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'Unknown error'));
             return;
         }
         
@@ -98,7 +97,7 @@ class AutoGenerate
                 $history->save();
                 
                 // Update stats
-                $stats = Stats::getOrCreate($userId, date('Y-m-d'));
+                $stats = Stats::getOrCreate($userId, gmdate('Y-m-d'));
                 $stats->increment('images_processed');
                 $stats->increment('images_accepted');
                 $stats->total_cost_estimate = (float) $stats->total_cost_estimate + ($result['cost'] ?? 0);

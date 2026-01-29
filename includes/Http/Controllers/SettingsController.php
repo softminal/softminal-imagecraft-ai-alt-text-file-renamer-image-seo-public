@@ -27,8 +27,6 @@ class SettingsController extends Controller
         try {
             $apiSetting = ApiSetting::getActive($userId);
         } catch (\Exception $e) {
-            // Table might not exist yet - this is OK during initial setup
-            error_log('WP AI Alt Text: Could not fetch API setting - ' . $e->getMessage());
         }
         
         $wpdb->suppress_errors = false;
@@ -109,7 +107,6 @@ class SettingsController extends Controller
                 'message' => 'Failed to update some settings'
             ], 400);
         } catch (\Exception $e) {
-            error_log('WP AI Alt Text: Settings update error: ' . $e->getMessage());
             return $this->response([
                 'success' => false,
                 'message' => 'Error updating settings: ' . $e->getMessage()
@@ -194,7 +191,6 @@ class SettingsController extends Controller
         try {
             $apiSetting->setApiKey($apiKey);
         } catch (\Exception $e) {
-            error_log('WP AI Alt Text: Encryption exception in SettingsController: ' . $e->getMessage());
             return $this->response([
                 'success' => false,
                 'message' => 'Failed to encrypt API key: ' . $e->getMessage()
@@ -224,6 +220,7 @@ class SettingsController extends Controller
         global $wpdb;
         $table = ApiSetting::table();
         $dbValue = $wpdb->get_var($wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is internal from static::table().
             "SELECT api_key_encrypted FROM {$table} WHERE id = %d",
             $apiSetting->id
         ));
