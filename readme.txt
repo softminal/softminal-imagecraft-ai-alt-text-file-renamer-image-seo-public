@@ -1,5 +1,5 @@
 === Smart Ai Alt Text Generator ===
-Contributors: wpaialttext
+Contributors: softminal, diptosoftminal
 Tags: accessibility, alt text, ai, images, seo
 Requires at least: 5.8
 Tested up to: 6.9
