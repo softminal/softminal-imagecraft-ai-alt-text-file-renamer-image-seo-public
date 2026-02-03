@@ -1,0 +1,46 @@
+# Development files
+.git
+.gitignore
+.gitattributes
+.editorconfig
+.prettierrc
+.eslintrc
+.stylelintrc
+
+# AI/IDE directories
+.claude
+.vscode
+.idea
+
+# Build tools
+build.sh
+node_modules
+package.json
+package-lock.json
+yarn.lock
+vite.config.js
+postcss.config.js
+tailwind.config.js
+
+# Source files (compiled assets are in /assets)
+resources
+
+# Documentation (dev only)
+CLAUDE.md
+instruction.md
+README.md
+
+# Composer dev
+composer.lock
+phpcs.xml
+phpunit.xml
+
+# Tests
+tests
+phpunit.xml.dist
+
+# Misc
+*.log
+*.map
+.DS_Store
+Thumbs.db

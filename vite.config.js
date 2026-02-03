@@ -28,7 +28,7 @@ const inputs = [
 ];
 
 export default defineConfig({
-    base: process.env.NODE_ENV === 'production' ? '/wp-content/plugins/wp-ai-alt-text/' : '/',
+    base: process.env.NODE_ENV === 'production' ? '/wp-content/plugins/smart-alt-text-ai/' : '/',
     assetsInclude: ['**/*.svg'],
     plugins: [
         vue(),

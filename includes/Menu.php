@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes;
+namespace SmartAltTextAi\Includes;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -13,10 +13,10 @@ class Menu {
 
     public function add_admin_menu() {
         add_menu_page(
-            __('AI Alt Text', 'wp-ai-alt-text'),
-            __('AI Alt Text', 'wp-ai-alt-text'),
+            __('AI Alt Text', 'smart-alt-text-ai'),
+            __('AI Alt Text', 'smart-alt-text-ai'),
             'manage_options',
-            'wp-ai-alt-text',
+            'smart-alt-text-ai',
             [$this, 'render_dashboard'],
             'dashicons-format-image',
             20
@@ -25,6 +25,6 @@ class Menu {
 
     public function render_dashboard() {
         wp_enqueue_media();
-        echo '<div id="wp-ai-alt-text-app"></div>';
+        echo '<div id="smart-alt-text-ai-app"></div>';
     }
 }

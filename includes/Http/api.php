@@ -1,13 +1,13 @@
 <?php
 
-namespace WpAiAltText\Includes\Http;
+namespace SmartAltTextAi\Includes\Http;
 
-use WpAiAltText\Includes\Http\Routes\Route;
-use WpAiAltText\Includes\Http\Controllers\SettingsController;
-use WpAiAltText\Includes\Http\Controllers\ScannerController;
-use WpAiAltText\Includes\Http\Controllers\GeneratorController;
-use WpAiAltText\Includes\Http\Controllers\BatchController;
-use WpAiAltText\Includes\Http\Controllers\StatsController;
+use SmartAltTextAi\Includes\Http\Controllers\BatchController;
+use SmartAltTextAi\Includes\Http\Controllers\GeneratorController;
+use SmartAltTextAi\Includes\Http\Controllers\ScannerController;
+use SmartAltTextAi\Includes\Http\Controllers\SettingsController;
+use SmartAltTextAi\Includes\Http\Controllers\StatsController;
+use SmartAltTextAi\Includes\Http\Routes\Route;
 
 if (!defined('ABSPATH')) {
     exit;

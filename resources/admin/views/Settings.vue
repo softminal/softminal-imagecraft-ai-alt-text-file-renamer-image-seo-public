@@ -8,7 +8,7 @@
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Provider</label>
         <select 
-          v-model="settings.alttext_api_provider"
+          v-model="settings.satai_api_provider"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
         >
           <option value="anthropic">Anthropic Claude</option>
@@ -45,7 +45,7 @@
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Default Tone</label>
         <select 
-          v-model="settings.alttext_default_tone"
+          v-model="settings.satai_default_tone"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
         >
           <option value="professional">Professional</option>
@@ -58,7 +58,7 @@
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Max Character Length</label>
         <input 
-          v-model.number="settings.alttext_max_length"
+          v-model.number="settings.satai_max_length"
           type="number"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           min="50"
@@ -72,7 +72,7 @@
             type="checkbox"
             true-value="1"
             false-value="0"
-            v-model="settings.alttext_auto_generate"
+            v-model="settings.satai_auto_generate"
           />
           <span>Auto-generate on upload</span>
         </label>
@@ -84,7 +84,7 @@
             type="checkbox"
             true-value="1"
             false-value="0"
-            v-model="settings.alttext_preview_before_accept"
+            v-model="settings.satai_preview_before_accept"
           />
           <span>Preview before accepting</span>
         </label>
@@ -96,7 +96,7 @@
             type="checkbox"
             true-value="1"
             false-value="0"
-            v-model="settings.alttext_skip_existing"
+            v-model="settings.satai_skip_existing"
           />
           <span>Skip images with existing alt text</span>
         </label>
@@ -109,7 +109,7 @@
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Batch Size</label>
         <input 
-          v-model.number="settings.alttext_batch_size"
+          v-model.number="settings.satai_batch_size"
           type="number"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           min="1"
@@ -121,7 +121,7 @@
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Request Timeout (seconds)</label>
         <input 
-          v-model.number="settings.alttext_request_timeout"
+          v-model.number="settings.satai_request_timeout"
           type="number"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           min="30"
@@ -161,7 +161,7 @@ const loadSettings = async () => {
       
       // Sync provider dropdown with active API setting
       if (result.api_setting && result.api_setting.is_active) {
-        settings.value.alttext_api_provider = result.api_setting.provider
+        settings.value.satai_api_provider = result.api_setting.provider
       }
     }
   } catch (error) {
@@ -194,7 +194,7 @@ const saveApiKey = async () => {
   
   try {
     const result = await Api.post('/settings/api-key', {
-      provider: settings.value.alttext_api_provider,
+      provider: settings.value.satai_api_provider,
       api_key: apiKey.value
     })
     if (result.success) {

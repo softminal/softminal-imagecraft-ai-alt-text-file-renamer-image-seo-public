@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Models\Relations;
+namespace SmartAltTextAi\Includes\Models\Relations;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -8,10 +8,10 @@ if (!defined('ABSPATH')) {
 
 class BelongsTo
 {
-    protected $related;
-    protected $child;
-    protected $foreignKey;
-    protected $ownerKey;
+    private $related;
+    private $child;
+    private $foreignKey;
+    private $ownerKey;
 
     public function __construct($related, $child, $foreignKey, $ownerKey)
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Models;
+namespace SmartAltTextAi\Includes\Models;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -18,7 +18,7 @@ class BatchJob extends Model
         'started_at',
         'completed_at'
     ];
-    
+
     /**
      * Get active batch job for user
      */
@@ -27,29 +27,24 @@ class BatchJob extends Model
         if ($userId === null) {
             $userId = get_current_user_id();
         }
-        
+
         global $wpdb;
-        $table = static::table();
+        // Table name is constructed from trusted sources (wpdb prefix + plugin constant + hardcoded table name)
+        $tableName = static::table();
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
+            return null;
+        }
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is internal from static::table().
-        $result = $wpdb->get_row(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is internal from static::table().
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Active job lookups need real-time data; table name validated above
+        $result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `{$tableName}` WHERE user_id = %d AND status IN ('pending', 'processing') ORDER BY created_at DESC LIMIT 1", $userId ), ARRAY_A );
 
-            $wpdb->prepare(
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is internal from static::table().
-                "SELECT * FROM {$table} WHERE user_id = %d AND status IN ('pending', 'processing') ORDER BY created_at DESC LIMIT 1",
-                $userId
-            ),
-            ARRAY_A
-        );
-        
         if (!$result) {
             return null;
         }
-        
+
         return static::hydrate($result);
     }
-    
+
     /**
      * Get progress percentage
      * Progress is based on total attempted (processed + failed) vs total images
@@ -59,11 +54,11 @@ class BatchJob extends Model
         if ($this->total_images == 0) {
             return 0;
         }
-        
+
         $totalAttempted = $this->processed_images + $this->failed_images;
         return round(($totalAttempted / $this->total_images) * 100, 2);
     }
-    
+
     /**
      * Validate and correct job status based on processed/failed counts
      * Fixes jobs that were incorrectly marked as completed when all images failed
@@ -73,19 +68,19 @@ class BatchJob extends Model
         $processed = (int) $this->processed_images;
         $failed = (int) $this->failed_images;
         $total = (int) $this->total_images;
-        
+
         // Only validate if all images have been processed
         if ($processed + $failed < $total || $total === 0) {
             return;
         }
-        
+
         // If all images failed, status should be 'failed' not 'completed'
         if ($failed === $total && $processed === 0) {
             if ($this->status === 'completed') {
                 $this->status = 'failed';
                 $this->save();
             }
-        } else if ($this->status !== 'completed') {
+        } elseif ($this->status !== 'completed') {
             // If some images succeeded, ensure status is 'completed'
             $this->status = 'completed';
             if (!$this->completed_at) {

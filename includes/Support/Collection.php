@@ -1,8 +1,8 @@
 <?php
 
-namespace WpAiAltText\Includes\Support;
+namespace SmartAltTextAi\Includes\Support;
 
-use WpAiAltText\Includes\Models\Model;
+use SmartAltTextAi\Includes\Models\Model;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 class Collection implements \ArrayAccess, \Countable, \IteratorAggregate
 {
-    protected $items = [];
+    private array $items = [];
 
     public function __construct(array $items = [])
     {

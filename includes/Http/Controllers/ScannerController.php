@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Controllers;
+namespace SmartAltTextAi\Includes\Http\Controllers;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -29,6 +29,7 @@ class ScannerController extends Controller
         ];
         
         if ($filter === 'missing') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; optimized with fields=ids
             $args['meta_query'] = [
                 'relation' => 'OR',
                 [
@@ -42,6 +43,7 @@ class ScannerController extends Controller
                 ]
             ];
         } elseif ($filter === 'has_alt') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; optimized with fields=ids
             $args['meta_query'] = [
                 [
                     'key' => '_wp_attachment_image_alt',
@@ -54,7 +56,6 @@ class ScannerController extends Controller
                 ]
             ];
         }
-        
         $query = new \WP_Query($args);
         
         $images = [];
@@ -89,6 +90,7 @@ class ScannerController extends Controller
             'post_status' => 'inherit',
             'posts_per_page' => -1,
             'fields' => 'ids',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; optimized with fields=ids
             'meta_query' => [
                 'relation' => 'OR',
                 [

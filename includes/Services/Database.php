@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Services;
+namespace SmartAltTextAi\Includes\Services;
 
 /**
  * Database class for handling database operations.
@@ -8,15 +8,15 @@ namespace WpAiAltText\Includes\Services;
  * This class is responsible for managing the database operations related to the plugin.
  * It includes methods for activating, deactivating, and uninstalling the plugin.
  *
- * @package WpAiAltText\Includes\Services
+ * @package SmartAltTextAi\Includes\Services
  */
 if (!defined('ABSPATH')) {
     exit;
 }
 
-use WpAiAltText\Includes\Install;
+use SmartAltTextAi\Includes\Install;
 
-class Database 
+class Database
 {
     private static $mainFile;
 

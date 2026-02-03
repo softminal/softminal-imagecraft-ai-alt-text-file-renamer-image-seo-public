@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Services\AI;
+namespace SmartAltTextAi\Includes\Services\AI;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -10,23 +10,23 @@ abstract class BaseAIProvider
 {
     protected string $apiKey;
     protected int $timeout;
-    
+
     public function __construct(string $apiKey, int $timeout = 60)
     {
         $this->apiKey = $apiKey;
         $this->timeout = $timeout;
     }
-    
+
     /**
      * Generate alt text for an image
      */
     abstract public function generateAltText(string $imageUrl, string $tone = 'professional'): array;
-    
+
     /**
      * Test API connection
      */
     abstract public function testConnection(): array;
-    
+
     /**
      * Get prompt based on tone
      */
@@ -38,10 +38,10 @@ abstract class BaseAIProvider
             'technical' => "Analyze this image and create a detailed, technical alt text (max 125 characters) describing specific elements, composition, and technical aspects. Be precise and informative. Do not use phrases like \"Image of\". Return only the alt text, nothing else.",
             'seo' => "Generate SEO-friendly alt text (max 125 characters) for this image. Include relevant keywords naturally while accurately describing the image. Make it descriptive and keyword-rich without keyword stuffing. Do not start with \"Image of\". Return only the alt text, nothing else."
         ];
-        
+
         return $prompts[$tone] ?? $prompts['professional'];
     }
-    
+
     /**
      * Make HTTP request
      */
@@ -89,21 +89,21 @@ abstract class BaseAIProvider
 
         return is_array($decoded) ? $decoded : [];
     }
-    
-    
+
+
     /**
      * Extract alt text from response
      */
     abstract protected function extractAltText(array $response): string;
-    
+
     /**
      * Calculate cost estimate
      */
     abstract protected function calculateCost(int $tokens): float;
-    
+
     /**
      * Get image data from URL (handles local files and remote URLs)
-     * 
+     *
      * @param string $imageUrl Image URL
      * @return array Array with 'base64' and 'mime_type' keys
      * @throws \Exception If image cannot be fetched
@@ -112,7 +112,7 @@ abstract class BaseAIProvider
     {
         // Try to get local file path if URL is from this WordPress site
         $localPath = $this->getLocalFilePath($imageUrl);
-        
+
         if ($localPath && file_exists($localPath)) {
             // Read from local file system (no SSL issues)
             $imageContent = file_get_contents($localPath);
@@ -125,34 +125,34 @@ abstract class BaseAIProvider
                 'timeout' => $this->timeout,
                 'sslverify' => !$this->isLocalDevelopment(),
             ]);
-            
+
             if (is_wp_error($response)) {
                 throw new \Exception('Failed to fetch image: ' . esc_html($response->get_error_message()));
             }
-            
+
             $httpCode = wp_remote_retrieve_response_code($response);
             if ($httpCode !== 200) {
                 throw new \Exception('Failed to fetch image: HTTP ' . esc_html((string) $httpCode));
             }
-            
+
             $imageContent = wp_remote_retrieve_body($response);
             if (empty($imageContent)) {
                 throw new \Exception('Failed to fetch image: Empty response');
             }
         }
-        
+
         $base64 = base64_encode($imageContent);
         $mimeType = $this->getMimeType($imageUrl);
-        
+
         return [
             'base64' => $base64,
             'mime_type' => $mimeType
         ];
     }
-    
+
     /**
      * Get local file path from WordPress upload URL
-     * 
+     *
      * @param string $url Image URL
      * @return string|null Local file path or null if not a local URL
      */
@@ -161,29 +161,29 @@ abstract class BaseAIProvider
         $uploadDir = wp_upload_dir();
         $uploadUrl = $uploadDir['baseurl'];
         $uploadPath = $uploadDir['basedir'];
-        
+
         // Check if URL is from this WordPress site's upload directory
         if (strpos($url, $uploadUrl) === 0) {
             // Extract relative path from upload URL
             $relativePath = substr($url, strlen($uploadUrl));
             $relativePath = ltrim($relativePath, '/');
             $localPath = trailingslashit($uploadPath) . $relativePath;
-            
+
             if (file_exists($localPath)) {
                 return $localPath;
             }
         }
-        
+
         // Check if URL is from this WordPress site (by hostname)
         $urlHost = wp_parse_url($url, PHP_URL_HOST);
         $siteHost = wp_parse_url(site_url(), PHP_URL_HOST);
-        
-        if ($urlHost && ($urlHost === $siteHost || 
-            strpos($urlHost, '.local') !== false || 
+
+        if ($urlHost && ($urlHost === $siteHost ||
+            strpos($urlHost, '.local') !== false ||
             strpos($urlHost, '.test') !== false ||
             $urlHost === 'localhost' ||
             $urlHost === '127.0.0.1')) {
-            
+
             // Try to extract path relative to WordPress root
             $urlPath = wp_parse_url($url, PHP_URL_PATH);
             if ($urlPath && strpos($urlPath, '/wp-content/') === 0) {
@@ -193,13 +193,13 @@ abstract class BaseAIProvider
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Check if running in local development environment
-     * 
+     *
      * @return bool
      */
     protected function isLocalDevelopment(): bool
@@ -207,7 +207,7 @@ abstract class BaseAIProvider
         // Check common local development indicators
         $siteUrl = site_url();
         $homeUrl = home_url();
-        
+
         return (
             strpos($siteUrl, 'localhost') !== false ||
             strpos($siteUrl, '127.0.0.1') !== false ||
@@ -219,10 +219,10 @@ abstract class BaseAIProvider
             strpos($homeUrl, '.test') !== false
         );
     }
-    
+
     /**
      * Get MIME type from URL
-     * 
+     *
      * @param string $url Image URL
      * @return string MIME type
      */
@@ -237,7 +237,7 @@ abstract class BaseAIProvider
             'webp' => 'image/webp',
             'svg' => 'image/svg+xml'
         ];
-        
+
         return $mimeTypes[$extension] ?? 'image/jpeg';
     }
 }

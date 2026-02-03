@@ -1,8 +1,8 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Routes;
+namespace SmartAltTextAi\Includes\Http\Routes;
 
-use WpAiAltText\Includes\Http\Routes\Route;
+use SmartAltTextAi\Includes\Http\Routes\Route;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -11,39 +11,39 @@ if (!defined('ABSPATH')) {
 /**
  * Router class for handling API routes.
  *
- * @package WpAiAltText\Includes\Http\Routes
+ * @package SmartAltTextAi\Includes\Http\Routes
  */
 class Router {
     /**
      * API namespace
-     * 
+     *
      * @var string
      */
     private $namespace;
-    
+
     /**
      * Initialize the router
      */
     public function __construct() {
-        $this->namespace = WP_AI_ALT_TEXT_API_NAMESPACE;
+        $this->namespace = SATAI_API_NAMESPACE;
     }
-    
+
     /**
      * Initialize the router
      */
     public function init() {
         // Load API route definitions
-        require_once WP_AI_ALT_TEXT_DIR . 'includes/Http/api.php';
-        
+        require_once SATAI_DIR . 'includes/Http/api.php';
+
         // Register routes with WordPress REST API
         add_action('rest_api_init', [$this, 'registerRoutes']);
-        
+
         // Add debug information if in debug mode
         // if (defined('WP_DEBUG') && WP_DEBUG) {
         //     add_action('admin_footer', [$this, 'debugRoutes']);
         // }
     }
-    
+
     /**
      * Register all routes with WordPress REST API
      */
@@ -52,11 +52,11 @@ class Router {
         if (empty($this->namespace)) {
             return;
         }
-        
+
         try {
             // Call the static method on the Route class to register all routes
             Route::registerRoutes($this->namespace);
-            
+
             // Register a test endpoint to verify the API is working
             register_rest_route($this->namespace, '/test', [
                 'methods' => 'GET',
@@ -75,7 +75,7 @@ class Router {
 
         }
     }
-    
+
     /**
      * Debug the registered routes in admin footer
      */
@@ -83,8 +83,8 @@ class Router {
     //     if (!current_user_can('manage_options')) {
     //         return;
     //     }
-        
-    //     echo '<script>console.group("WP AI Alt Text API Routes");</script>';
+
+    //     echo '<script>console.group("AltText AI API Routes");</script>';
     //     foreach (Route::getRegisteredRoutes() as $route) {
     //         $endpoint = $this->namespace . '/' . $route['endpoint'];
     //         echo '<script>console.log("' . esc_js($route['method']) . ': ' . esc_js($endpoint) . '");</script>';

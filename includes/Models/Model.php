@@ -1,8 +1,8 @@
 <?php
 
-namespace WpAiAltText\Includes\Models;
+namespace SmartAltTextAi\Includes\Models;
 
-use WpAiAltText\Includes\Support\Collection;
+use SmartAltTextAi\Includes\Support\Collection;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -25,13 +25,25 @@ abstract class Model
         'offset'  => null
     ];
 
-    protected $validOperators = ['=', '!=', '>', '<', '>=', '<=', 'LIKE', 'NOT LIKE', 'IN'];
+    private static array $validOperators = ['=', '!=', '>', '<', '>=', '<=', 'LIKE', 'NOT LIKE', 'IN'];
 
     /**
      * Object cache settings (tune as needed)
      */
-    protected $cacheGroup = 'wp_ai_alt_text';
-    protected $cacheTtl   = 60; // seconds
+    private string $cacheGroup = 'satai';
+    private int $cacheTtl = 60; // seconds
+
+    /**
+     * Get the full table name with prefix
+     *
+     * @return string
+     */
+    public static function table(): string
+    {
+        global $wpdb;
+        $instance = new static();
+        return $wpdb->prefix . SATAI_TABLE_PREFIX . $instance->table;
+    }
 
     /**
      * Start a new query
@@ -129,14 +141,14 @@ abstract class Model
     /**
      * Cache helpers (version-busting keys so we can invalidate all model caches reliably)
      */
-    protected function getCacheVersion(): int
+    private function getCacheVersion(): int
     {
         $key = 'model_cache_ver:' . static::table();
         $ver = wp_cache_get($key, $this->cacheGroup);
         return $ver ? (int) $ver : 1;
     }
 
-    protected static function bumpCacheVersion(): void
+    private static function bumpCacheVersion(): void
     {
         $instance = new static();
         $key = 'model_cache_ver:' . static::table();
@@ -144,12 +156,12 @@ abstract class Model
         wp_cache_set($key, $ver + 1, $instance->cacheGroup, DAY_IN_SECONDS);
     }
 
-    protected function cacheKey(string $suffix): string
+    private function cacheKey(string $suffix): string
     {
         return $suffix . ':v' . $this->getCacheVersion();
     }
 
-    protected function cacheKeyForSql(string $sql, array $params = []): string
+    private function cacheKeyForSql(string $sql, array $params = []): string
     {
         return $this->cacheKey('sql:' . md5(static::table() . '|' . $sql . '|' . wp_json_encode($params)));
     }
@@ -157,14 +169,16 @@ abstract class Model
     /**
      * Get all records
      */
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
     public static function all()
     {
         global $wpdb;
 
         $instance = new static();
-        $table = static::table();
+        // Table name escaped via esc_sql()
+        $safeTable = esc_sql(static::table());
 
-        $cacheKey = $instance->cacheKey('all:' . md5($table));
+        $cacheKey = $instance->cacheKey('all:' . md5($safeTable));
         $cached = wp_cache_get($cacheKey, $instance->cacheGroup);
 
         if ($cached !== false) {
@@ -173,14 +187,8 @@ abstract class Model
             }, $cached ?: []));
         }
 
-        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
-        // Reason: Table is internal; query is safe. We cache results immediately after.
-        $results = $wpdb->get_results("SELECT * FROM {$table}", ARRAY_A);
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Results cached; table escaped via esc_sql()
+        $results = $wpdb->get_results( "SELECT * FROM `{$safeTable}`", ARRAY_A );
 
         wp_cache_set($cacheKey, $results ?: [], $instance->cacheGroup, $instance->cacheTtl);
 
@@ -188,6 +196,7 @@ abstract class Model
             return static::hydrate($item);
         }, $results ?: []));
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
     public function toArray(): array
     {
@@ -216,14 +225,6 @@ abstract class Model
         return $attributes;
     }
 
-    public static function table()
-    {
-        global $wpdb;
-        $instance = new static();
-
-        return $wpdb->prefix . WP_AI_ALT_TEXT_TABLE_PREFIX . $instance->table;
-    }
-
     /**
      * Add where clause to query
      */
@@ -244,7 +245,7 @@ abstract class Model
         }
 
         $operator = strtoupper((string) $operator);
-        if (!in_array($operator, $this->validOperators, true)) {
+        if (!in_array($operator, self::$validOperators, true)) {
             throw new \InvalidArgumentException('Invalid operator: ' . esc_html($operator));
         }
 
@@ -279,6 +280,7 @@ abstract class Model
     /**
      * Add pagination
      */
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
     public function paginate($perPage = 15, $page = 1)
     {
         global $wpdb;
@@ -286,30 +288,29 @@ abstract class Model
         $this->query['limit']  = (int) $perPage;
         $this->query['offset'] = ((int) $page - 1) * (int) $perPage;
 
-        $table  = static::table();
-        $sql    = "SELECT COUNT(*) FROM {$table}";
+        // Table name escaped via esc_sql(), $whereSql uses placeholders
+        $safeTable = esc_sql(static::table());
         $params = [];
 
+        // Build WHERE clause
+        $whereSql = '';
         if (!empty($this->query['where'])) {
             [$whereSql, $whereParams] = $this->buildWhereClause();
-            $sql .= $whereSql;
             $params = $whereParams;
         }
 
-        $cacheKey = $this->cacheKeyForSql($sql, $params);
+        $cacheKey = $this->cacheKeyForSql("COUNT:{$safeTable}{$whereSql}", $params);
         $cachedTotal = wp_cache_get($cacheKey, $this->cacheGroup);
 
         if ($cachedTotal === false) {
-            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
-            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
-            // Reason: Table is internal; values are prepared. We cache result.
-            $countSql = !empty($params) ? $wpdb->prepare($sql, $params) : $sql;
-            $total = (int) $wpdb->get_var($countSql);
-            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
-            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
-
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Results are cached below
+            if (!empty($params)) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery
+                $total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM `{$safeTable}`" . $whereSql, $params ) );
+            } else {
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+                $total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$safeTable}`" . $whereSql );
+            }
             wp_cache_set($cacheKey, $total, $this->cacheGroup, $this->cacheTtl);
         } else {
             $total = (int) $cachedTotal;
@@ -328,43 +329,58 @@ abstract class Model
             ]
         ];
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
     /**
      * Execute query and get results
      */
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
     public function get($columns = ['*'])
     {
         global $wpdb;
 
-        $this->query['select'] = $this->normalizeSelect($columns);
+        // All dynamic SQL components are properly escaped:
+        // - $selectClause: via normalizeSelect() which uses esc_sql(sanitize_key())
+        // - $safeTable: via esc_sql()
+        // - $orderCol: via esc_sql(sanitize_key())
+        // - $dir: validated to be exactly 'DESC' or 'ASC'
+        // - $whereSql: built with placeholders, values passed to prepare()
+        // - $limitSql: uses %d placeholders only
 
-        $table  = static::table();
-        $sql    = "SELECT {$this->query['select']} FROM {$table}";
+        $selectClause = $this->normalizeSelect($columns);
+        $safeTable = esc_sql(static::table());
         $params = [];
 
+        // Build WHERE clause
+        $whereSql = '';
         if (!empty($this->query['where'])) {
             [$whereSql, $whereParams] = $this->buildWhereClause();
-            $sql .= $whereSql;
             $params = array_merge($params, $whereParams);
         }
 
+        // Build ORDER BY clause
+        $orderSql = '';
         if ($this->query['orderBy']) {
-            $orderCol = sanitize_key($this->query['orderBy']['column']);
-            $dir      = strtoupper($this->query['orderBy']['direction']) === 'DESC' ? 'DESC' : 'ASC';
-            $sql     .= " ORDER BY `{$orderCol}` {$dir}";
+            $orderCol = esc_sql(sanitize_key($this->query['orderBy']['column']));
+            $dir = strtoupper($this->query['orderBy']['direction']) === 'DESC' ? 'DESC' : 'ASC';
+            $orderSql = " ORDER BY `{$orderCol}` {$dir}";
         }
 
+        // Build LIMIT/OFFSET clause
+        $limitSql = '';
         if ($this->query['limit']) {
-            $sql     .= " LIMIT %d";
+            $limitSql .= ' LIMIT %d';
             $params[] = (int) $this->query['limit'];
 
             if ($this->query['offset']) {
-                $sql     .= " OFFSET %d";
+                $limitSql .= ' OFFSET %d';
                 $params[] = (int) $this->query['offset'];
             }
         }
 
-        $cacheKey = $this->cacheKeyForSql($sql, $params);
+        $baseSql = "SELECT {$selectClause} FROM `{$safeTable}`{$whereSql}{$orderSql}{$limitSql}";
+
+        $cacheKey = $this->cacheKeyForSql($baseSql, $params);
         $cached = wp_cache_get($cacheKey, $this->cacheGroup);
 
         if ($cached !== false) {
@@ -383,15 +399,14 @@ abstract class Model
             return $collection;
         }
 
-        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
-        // Reason: Table is internal; all dynamic values are prepared via placeholders. We cache immediately.
-        $prepared = !empty($params) ? $wpdb->prepare($sql, $params) : $sql;
-        $results  = $wpdb->get_results($prepared, ARRAY_A);
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Results are cached below
+        if (!empty($params)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery -- $baseSql built from escaped components, placeholders filled by $params, WordPress.DB.DirectDatabaseQuery.DirectQuery
+            $results = $wpdb->get_results( $wpdb->prepare( $baseSql, $params ), ARRAY_A );
+        } else {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery -- $baseSql built from escaped components, no user values, WordPress.DB.DirectDatabaseQuery.DirectQuery
+            $results = $wpdb->get_results( $baseSql, ARRAY_A );
+        }
 
         wp_cache_set($cacheKey, $results ?: [], $this->cacheGroup, $this->cacheTtl);
 
@@ -409,6 +424,7 @@ abstract class Model
 
         return $collection;
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
     /**
      * Create a new model instance from database attributes
@@ -446,29 +462,24 @@ abstract class Model
     /**
      * Find by primary key
      */
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
     public static function find($id)
     {
         global $wpdb;
 
         $instance = new static();
-        $table = static::table();
+        // Table name escaped via esc_sql()
+        $safeTable = esc_sql(static::table());
 
-        $cacheKey = $instance->cacheKey('find:' . md5($table . '|' . (int) $id));
+        $cacheKey = $instance->cacheKey('find:' . md5($safeTable . '|' . (int) $id));
         $cachedRow = wp_cache_get($cacheKey, $instance->cacheGroup);
 
         if ($cachedRow !== false) {
             return !empty($cachedRow) ? static::hydrate($cachedRow) : null;
         }
 
-        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
-        // Reason: Table is internal; id is prepared. We cache immediately.
-        $sql = $wpdb->prepare("SELECT * FROM {$table} WHERE id = %d", (int) $id);
-        $result = $wpdb->get_row($sql, ARRAY_A);
-        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Results cached; table escaped via esc_sql()
+        $result = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `{$safeTable}` WHERE id = %d", (int) $id ), ARRAY_A );
 
         wp_cache_set($cacheKey, $result ?: [], $instance->cacheGroup, $instance->cacheTtl);
 
@@ -478,11 +489,14 @@ abstract class Model
 
         return static::hydrate($result);
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
     public function save()
     {
         global $wpdb;
-        $table = static::table();
+        // Table name escaped via esc_sql()
+        $safeTable = esc_sql(static::table());
 
         $attributes = [];
         foreach ($this->fillable as $field) {
@@ -519,8 +533,9 @@ abstract class Model
             $id = (int) $attributes['id'];
             unset($attributes['id']);
 
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache invalidated via bumpCacheVersion
             $updated = $wpdb->update(
-                $table,
+                $safeTable,
                 $attributes,
                 ['id' => $id],
                 null,
@@ -535,7 +550,8 @@ abstract class Model
             return false;
         }
 
-        $inserted = $wpdb->insert($table, $attributes);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache invalidated via bumpCacheVersion
+        $inserted = $wpdb->insert($safeTable, $attributes);
         if ($inserted) {
             $this->attributes['id'] = (int) $wpdb->insert_id;
             static::bumpCacheVersion();
@@ -544,6 +560,7 @@ abstract class Model
 
         return false;
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
     public function __get($key)
     {
@@ -590,6 +607,7 @@ abstract class Model
     /**
      * Delete the current model instance from database
      */
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
     public function delete()
     {
         global $wpdb;
@@ -599,9 +617,12 @@ abstract class Model
         }
 
         $id = (int) $this->attributes[$this->primaryKey];
+        // Table name escaped via esc_sql()
+        $safeTable = esc_sql(static::table());
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache invalidated via bumpCacheVersion
         $result = $wpdb->delete(
-            static::table(),
+            $safeTable,
             [$this->primaryKey => $id],
             ['%d']
         );
@@ -612,16 +633,21 @@ abstract class Model
 
         return $result !== false;
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
     /**
      * Find and delete a record
      */
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
     public static function findByIdAndDelete($id)
     {
         global $wpdb;
+        // Table name escaped via esc_sql()
+        $safeTable = esc_sql(static::table());
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache invalidated via bumpCacheVersion
         $result = $wpdb->delete(
-            static::table(),
+            $safeTable,
             ['id' => (int) $id],
             ['%d']
         );
@@ -632,6 +658,7 @@ abstract class Model
 
         return $result !== false;
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
     /**
      * Update a record
@@ -669,16 +696,19 @@ abstract class Model
 
     /**
      * Build WHERE clause (returns [sql, params]) and prepares once in caller.
+     * Column names are escaped via esc_sql(sanitize_key()), values use placeholders.
      *
      * @return array{0:string,1:array}
      */
-    protected function buildWhereClause(): array
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
+    private function buildWhereClause(): array
     {
         $sqlParts = [];
         $params   = [];
 
         foreach ($this->query['where'] as $where) {
-            $column   = sanitize_key((string) ($where['column'] ?? ''));
+            // Column escaped via esc_sql(sanitize_key())
+            $column   = esc_sql(sanitize_key((string) ($where['column'] ?? '')));
             $operator = strtoupper((string) ($where['operator'] ?? '='));
             $value    = $where['value'] ?? null;
 
@@ -693,7 +723,7 @@ abstract class Model
                 }));
 
                 if (empty($values)) {
-                    $sqlParts[] = "1=0";
+                    $sqlParts[] = '1=0';
                     continue;
                 }
 
@@ -715,17 +745,20 @@ abstract class Model
             return ['', []];
         }
 
-        return [" WHERE " . implode(' AND ', $sqlParts), $params];
+        return [' WHERE ' . implode(' AND ', $sqlParts), $params];
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
     /**
      * Normalize select columns safely.
+     * All column names are escaped via esc_sql(sanitize_key()).
      */
-    protected function normalizeSelect($columns): string
+    // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
+    private function normalizeSelect($columns): string
     {
         if (is_string($columns)) {
             $columns = trim($columns);
-            return ($columns === '*') ? '*' : '`' . sanitize_key($columns) . '`';
+            return ($columns === '*') ? '*' : '`' . esc_sql(sanitize_key($columns)) . '`';
         }
 
         if (!is_array($columns) || empty($columns)) {
@@ -739,7 +772,8 @@ abstract class Model
         $safe = [];
         foreach ($columns as $col) {
             $col = (string) $col;
-            $key = sanitize_key($col);
+            // Column escaped via esc_sql(sanitize_key())
+            $key = esc_sql(sanitize_key($col));
             if ($key !== '') {
                 $safe[] = "`{$key}`";
             }
@@ -747,4 +781,5 @@ abstract class Model
 
         return !empty($safe) ? implode(', ', $safe) : '*';
     }
+    // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 }

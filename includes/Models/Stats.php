@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Models;
+namespace SmartAltTextAi\Includes\Models;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -18,7 +18,7 @@ class Stats extends Model
         'total_cost_estimate',
         'api_provider'
     ];
-    
+
     /**
      * Get or create stats for a date
      */
@@ -27,7 +27,7 @@ class Stats extends Model
         $stats = static::where('user_id', $userId)
             ->andWhere('date', '=', $date)
             ->first();
-        
+
         if (!$stats) {
             $stats = static::create([
                 'user_id' => $userId,
@@ -38,10 +38,10 @@ class Stats extends Model
                 'total_cost_estimate' => 0
             ]);
         }
-        
+
         return $stats;
     }
-    
+
     /**
      * Increment stats
      */
@@ -50,10 +50,10 @@ class Stats extends Model
         if (!in_array($field, ['images_processed', 'images_accepted', 'images_rejected', 'total_cost_estimate'])) {
             return false;
         }
-        
+
         $current = (float) ($this->attributes[$field] ?? 0);
         $this->attributes[$field] = $current + $amount;
-        
+
         return $this->save();
     }
 }

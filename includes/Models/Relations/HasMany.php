@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Models\Relations;
+namespace SmartAltTextAi\Includes\Models\Relations;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -8,10 +8,10 @@ if (!defined('ABSPATH')) {
 
 class HasMany
 {
-    protected $related;
-    protected $parent;
-    protected $foreignKey;
-    protected $localKey;
+    private $related;
+    private $parent;
+    private $foreignKey;
+    private $localKey;
 
     public function __construct($related, $parent, $foreignKey, $localKey)
     {

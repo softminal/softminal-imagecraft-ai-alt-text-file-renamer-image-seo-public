@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Controllers;
+namespace SmartAltTextAi\Includes\Http\Controllers;
 
 if (!defined('ABSPATH')) {
     exit;

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build script for WP AI Alt Text Plugin
+# Build script for AltText AI Plugin
 # This script builds production assets and creates a zip file ready for distribution
 
 set -e  # Exit on any error
@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Get the plugin directory
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGIN_NAME="wp-ai-alt-text"
+PLUGIN_NAME="smart-alt-text-ai"
 BUILD_DIR="$PLUGIN_DIR/build"
 ZIP_NAME="${PLUGIN_NAME}.zip"
 
@@ -80,15 +80,20 @@ if [ -d "$PLUGIN_DIR/vendor" ]; then
     echo "  ✓ vendor/"
 fi
 
+if [ -d "$PLUGIN_DIR/languages" ]; then
+    cp -r "$PLUGIN_DIR/languages" "$BUILD_DIR/$PLUGIN_NAME/"
+    echo "  ✓ languages/"
+fi
+
 # Copy files
 if [ -f "$PLUGIN_DIR/composer.json" ]; then
     cp "$PLUGIN_DIR/composer.json" "$BUILD_DIR/$PLUGIN_NAME/"
     echo "  ✓ composer.json"
 fi
 
-if [ -f "$PLUGIN_DIR/wp-ai-alt-text.php" ]; then
-    cp "$PLUGIN_DIR/wp-ai-alt-text.php" "$BUILD_DIR/$PLUGIN_NAME/"
-    echo "  ✓ wp-ai-alt-text.php"
+if [ -f "$PLUGIN_DIR/smart-alt-text-ai.php" ]; then
+    cp "$PLUGIN_DIR/smart-alt-text-ai.php" "$BUILD_DIR/$PLUGIN_NAME/"
+    echo "  ✓ smart-alt-text-ai.php"
 fi
 
 # Copy composer.lock if exists
@@ -97,10 +102,10 @@ if [ -f "$PLUGIN_DIR/composer.lock" ]; then
     echo "  ✓ composer.lock"
 fi
 
-# Copy README if exists
-if [ -f "$PLUGIN_DIR/README.md" ]; then
-    cp "$PLUGIN_DIR/README.md" "$BUILD_DIR/$PLUGIN_NAME/"
-    echo "  ✓ README.md"
+# Copy readme.txt for WordPress.org (not README.md which is for development)
+if [ -f "$PLUGIN_DIR/readme.txt" ]; then
+    cp "$PLUGIN_DIR/readme.txt" "$BUILD_DIR/$PLUGIN_NAME/"
+    echo "  ✓ readme.txt"
 fi
 
 # Step 6: Create zip file

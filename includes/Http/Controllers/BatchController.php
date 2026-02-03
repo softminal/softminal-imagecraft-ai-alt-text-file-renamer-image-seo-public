@@ -1,11 +1,11 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Controllers;
+namespace SmartAltTextAi\Includes\Http\Controllers;
 
-use WpAiAltText\Includes\Models\BatchJob;
-use WpAiAltText\Includes\Models\History;
-use WpAiAltText\Includes\Models\Stats;
-use WpAiAltText\Includes\Services\Settings;
+use SmartAltTextAi\Includes\Models\BatchJob;
+use SmartAltTextAi\Includes\Models\History;
+use SmartAltTextAi\Includes\Models\Stats;
+use SmartAltTextAi\Includes\Services\Settings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -50,7 +50,7 @@ class BatchController extends Controller
         ]);
         
         // Store image IDs in job meta (we'll use transients for this)
-        set_transient('alttext_batch_' . $job->id, $imageIds, DAY_IN_SECONDS);
+        set_transient('satai_batch_' . $job->id, $imageIds, DAY_IN_SECONDS);
         
         return $this->response([
             'success' => true,
@@ -124,7 +124,7 @@ class BatchController extends Controller
         }
         
         // Get image IDs
-        $imageIds = get_transient('alttext_batch_' . $jobId);
+        $imageIds = get_transient('satai_batch_' . $jobId);
         if (!$imageIds) {
             return $this->response([
                 'success' => false,
@@ -140,8 +140,8 @@ class BatchController extends Controller
         }
         
         // Get batch size
-        $batchSize = Settings::get('alttext_batch_size', 5);
-        $tone = Settings::get('alttext_default_tone', 'professional');
+        $batchSize = Settings::get('satai_batch_size', 5);
+        $tone = Settings::get('satai_default_tone', 'professional');
         
         // Process chunk
         $processed = 0;
@@ -164,7 +164,7 @@ class BatchController extends Controller
                 if ($result['success'] ?? false) {
                     // Auto-accept if preview is disabled
                     // WordPress stores booleans as '1'/'0', so we need to properly check the value
-                    $previewSetting = Settings::get('alttext_preview_before_accept', '1');
+                    $previewSetting = Settings::get('satai_preview_before_accept', '1');
                     $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
                     if (!$previewBeforeAccept) {
                         // Update attachment alt text directly
@@ -294,7 +294,7 @@ class BatchController extends Controller
             ], 400);
         }
 
-        $imageIds = get_transient('alttext_batch_' . $jobId);
+        $imageIds = get_transient('satai_batch_' . $jobId);
         if (!$imageIds || !is_array($imageIds)) {
             return $this->response([
                 'success' => true,

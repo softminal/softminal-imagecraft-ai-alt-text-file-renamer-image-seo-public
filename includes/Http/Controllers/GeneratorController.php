@@ -1,12 +1,12 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Controllers;
+namespace SmartAltTextAi\Includes\Http\Controllers;
 
-use WpAiAltText\Includes\Models\ApiSetting;
-use WpAiAltText\Includes\Models\History;
-use WpAiAltText\Includes\Models\Stats;
-use WpAiAltText\Includes\Services\AI\AIFactory;
-use WpAiAltText\Includes\Services\Settings;
+use SmartAltTextAi\Includes\Models\ApiSetting;
+use SmartAltTextAi\Includes\Models\History;
+use SmartAltTextAi\Includes\Models\Stats;
+use SmartAltTextAi\Includes\Services\AI\AIFactory;
+use SmartAltTextAi\Includes\Services\Settings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -21,7 +21,7 @@ class GeneratorController extends Controller
     {
         $params = $request->get_json_params();
         $attachmentId = (int) ($params['attachment_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('alttext_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('satai_default_tone', 'professional'));
         
         $result = $this->generateAltText($attachmentId, $tone);
         
@@ -95,7 +95,7 @@ class GeneratorController extends Controller
         
         // Determine initial status based on preview setting
         // WordPress stores booleans as '1'/'0', so we need to properly check the value
-        $previewSetting = Settings::get('alttext_preview_before_accept', '1');
+        $previewSetting = Settings::get('satai_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
         $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
         

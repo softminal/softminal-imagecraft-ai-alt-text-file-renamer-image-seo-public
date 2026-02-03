@@ -1,10 +1,10 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Controllers;
+namespace SmartAltTextAi\Includes\Http\Controllers;
 
-use WpAiAltText\Includes\Models\Stats;
-use WpAiAltText\Includes\Models\History;
-use WpAiAltText\Includes\Models\ApiSetting;
+use SmartAltTextAi\Includes\Models\Stats;
+use SmartAltTextAi\Includes\Models\History;
+use SmartAltTextAi\Includes\Models\ApiSetting;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -34,6 +34,7 @@ class StatsController extends Controller
             'post_status' => 'inherit',
             'posts_per_page' => -1,
             'fields' => 'ids',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; optimized with fields=ids
             'meta_query' => [
                 'relation' => 'OR',
                 [

@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Sanitizer;
+namespace SmartAltTextAi\Includes\Http\Sanitizer;
 
 if (!defined('ABSPATH')) {
     exit;

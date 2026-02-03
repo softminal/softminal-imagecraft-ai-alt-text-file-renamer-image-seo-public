@@ -1,8 +1,8 @@
 <?php
 
-namespace WpAiAltText\Includes\Models;
+namespace SmartAltTextAi\Includes\Models;
 
-use WpAiAltText\Includes\Services\Encryption;
+use SmartAltTextAi\Includes\Services\Encryption;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -18,7 +18,7 @@ class ApiSetting extends Model
         'encryption_iv',
         'is_active'
     ];
-    
+
     /**
      * Get active API setting for current user
      */
@@ -31,7 +31,7 @@ class ApiSetting extends Model
             ->where('is_active', 1)
             ->first();
     }
-    
+
     /**
      * Get API key (decrypted)
      */
@@ -40,7 +40,7 @@ class ApiSetting extends Model
         if (empty($this->api_key_encrypted)) {
             return null;
         }
-        
+
         try {
             $decrypted = Encryption::decrypt($this->api_key_encrypted);
             if (empty($decrypted)) {
@@ -51,7 +51,7 @@ class ApiSetting extends Model
             return null;
         }
     }
-    
+
     /**
      * Set API key (encrypted)
      */
@@ -60,14 +60,14 @@ class ApiSetting extends Model
         if (empty($apiKey)) {
             throw new \Exception('API key cannot be empty');
         }
-        
+
         try {
             $encrypted = Encryption::encrypt($apiKey);
-            
+
             if (empty($encrypted)) {
                 throw new \Exception('Encryption returned empty string');
             }
-            
+
             // Extract IV from encrypted string for database storage
             // Format: base64(encrypted::hex_iv)
             $decoded = base64_decode($encrypted);
@@ -79,7 +79,7 @@ class ApiSetting extends Model
                     $this->attributes['encryption_iv'] = substr($ivHex, 0, 32);
                 }
             }
-            
+
             // Explicitly set in attributes array to ensure it's saved
             $this->attributes['api_key_encrypted'] = $encrypted;
         } catch (\Exception $e) {

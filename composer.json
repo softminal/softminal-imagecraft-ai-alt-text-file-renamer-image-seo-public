@@ -1,5 +1,5 @@
 {
-    "name": "wpaialttext/wp-ai-alt-text",
+    "name": "smart-alt-text-ai/smart-alt-text-ai",
     "description": "A WordPress plugin that generates alt text for images using AI.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0+",
@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "WpAiAltText\\": "includes/"
+            "SmartAltTextAi\\": "includes/"
         }
     },
     "require": {}

@@ -30,3 +30,5 @@ build/
 
 # WordPress-specific files
 wp-content/debug.log
+
+CLAUDE.md

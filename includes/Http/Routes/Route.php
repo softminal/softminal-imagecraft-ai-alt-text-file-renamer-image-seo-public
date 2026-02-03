@@ -1,6 +1,6 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Routes;
+namespace SmartAltTextAi\Includes\Http\Routes;
 
 use WP_Error;
 
@@ -27,7 +27,7 @@ class Route
     {
         $instance = new static();
         self::$middleware = array_merge(
-            self::$middleware, 
+            self::$middleware,
             is_array($middleware) ? $middleware : [$middleware]
         );
         return $instance;
@@ -37,12 +37,12 @@ class Route
     {
         $previousPrefix = self::$prefix;
         $previousMiddleware = self::$middleware;
-        
+
         $callback();
-        
+
         self::$prefix = $previousPrefix;
         self::$middleware = $previousMiddleware;
-        
+
         return $this;
     }
 
@@ -69,7 +69,7 @@ class Route
     private static function addRoute($method, $endpoint, $controller, $params = [])
     {
         $endpoint = self::$prefix . '/' . trim($endpoint, '/');
-        
+
         if (is_array($controller)) {
             $handler = $controller[0];
             $action = $controller[1];
@@ -120,19 +120,19 @@ class Route
         // Define common RESTful routes for a resource
         // GET /resource - List all resources
         self::get('', $controller);
-        
+
         // GET /resource/{id} - Get a single resource
         self::get('{id}', [$controller, 'show']);
-        
+
         // POST /resource - Create a resource
         self::post('', [$controller, 'store']);
-        
+
         // PUT /resource/{id} - Update a resource
         self::put('{id}', [$controller, 'update']);
-        
+
         // DELETE /resource/{id} - Delete a resource
         self::delete('{id}', [$controller, 'destroy']);
-        
+
         return new static();
     }
 
@@ -141,7 +141,7 @@ class Route
         if (strpos($endpoint, '{id}') === false) {
             $endpoint = '{id}/' . trim($endpoint, '/');
         }
-        
+
         return self::addRoute('GET', $endpoint, $controller, $params);
     }
 
@@ -150,25 +150,25 @@ class Route
         if (strpos($endpoint, '{id}') === false) {
             $endpoint = '{id}/' . trim($endpoint, '/');
         }
-        
+
         return self::addRoute('POST', $endpoint, $controller, $params);
     }
 
     public static function registerRoutes($namespace = null) {
         // Use default namespace if not provided
         if ($namespace === null) {
-            $namespace = defined('WP_AI_ALT_TEXT_API_NAMESPACE') 
-                ? WP_AI_ALT_TEXT_API_NAMESPACE 
-                : 'wp-ai-alt-text/v1';
+            $namespace = defined('SATAI_API_NAMESPACE')
+                ? SATAI_API_NAMESPACE
+                : 'smart-alt-text-ai/v1';
         }
         if (empty(self::$routes)) {
             return;
         }
-        
+
         foreach (self::$routes as $route) {
             $endpoint = $route['endpoint'];
             $method = $route['method'];
-            
+
             // For endpoints with parameters
             if (!empty($route['parameters'])) {
                 // Use the pattern if it exists, otherwise build it
@@ -176,18 +176,18 @@ class Route
             } else {
                 $pattern = $endpoint;
             }
-            
-            
+
+
             register_rest_route($namespace, $pattern, [
                 'methods' => $method,
                 'callback' => function($request) use ($route) {
                     try {
                         $controller = new $route['controller']();
                         $action = $route['action'];
-                        
+
                         // Pass any URL parameters to the controller method
                         $params = $request->get_params();
-                        
+
                         return $controller->$action($request, $params);
                     } catch (\Exception $e) {
                         return new \WP_Error(

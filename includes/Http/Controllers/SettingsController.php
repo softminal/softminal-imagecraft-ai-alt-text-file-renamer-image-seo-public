@@ -1,10 +1,10 @@
 <?php
 
-namespace WpAiAltText\Includes\Http\Controllers;
+namespace SmartAltTextAi\Includes\Http\Controllers;
 
-use WpAiAltText\Includes\Models\ApiSetting;
-use WpAiAltText\Includes\Services\Settings;
-use WpAiAltText\Includes\Services\AI\AIFactory;
+use SmartAltTextAi\Includes\Models\ApiSetting;
+use SmartAltTextAi\Includes\Services\Settings;
+use SmartAltTextAi\Includes\Services\AI\AIFactory;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -167,6 +167,7 @@ class SettingsController extends Controller
         
         // Deactivate other providers
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Intentional direct update
         $wpdb->update(
             ApiSetting::table(),
             ['is_active' => 0],
@@ -218,12 +219,16 @@ class SettingsController extends Controller
         
         // Verify it was actually saved by checking database directly
         global $wpdb;
-        $table = ApiSetting::table();
-        $dbValue = $wpdb->get_var($wpdb->prepare(
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is internal from static::table().
-            "SELECT api_key_encrypted FROM {$table} WHERE id = %d",
-            $apiSetting->id
-        ));
+        // Table name is constructed from trusted sources (wpdb prefix + plugin constant + hardcoded table name)
+        $tableName = ApiSetting::table();
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Invalid table configuration'
+            ], 500);
+        }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Verification query needs real-time data; table name validated above
+        $dbValue = $wpdb->get_var( $wpdb->prepare( "SELECT api_key_encrypted FROM `{$tableName}` WHERE id = %d", $apiSetting->id ) );
         
         if (empty($dbValue)) {
             return $this->response([
@@ -233,7 +238,7 @@ class SettingsController extends Controller
         }
         
         // Sync the preference setting with the active provider
-        Settings::set('alttext_api_provider', $provider);
+        Settings::set('satai_api_provider', $provider);
         
         return $this->response([
             'success' => true,

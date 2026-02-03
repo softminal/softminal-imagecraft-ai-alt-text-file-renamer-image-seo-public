@@ -12,4 +12,4 @@ app.config.globalProperties.$t = (text)=>{
 
 app.use(router);
 app.use(notification);
-app.mount('#wp-ai-alt-text-app');
+app.mount('#smart-alt-text-ai-app');
