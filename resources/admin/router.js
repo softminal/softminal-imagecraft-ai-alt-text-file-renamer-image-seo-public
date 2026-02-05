@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { Dashboard, Scanner, Batch, Settings } from './views';
 import SetupWizard from './views/SetupWizard.vue';
+import WooCommerce from './views/WooCommerce.vue';
 import Api from './services/Api';
 
 const routes = [
@@ -13,6 +14,11 @@ const routes = [
         path: '/scanner',
         name: 'scanner',
         component: Scanner,
+    },
+    {
+        path: '/woocommerce',
+        name: 'woocommerce',
+        component: WooCommerce,
     },
     {
         path: '/batch/:jobId?',

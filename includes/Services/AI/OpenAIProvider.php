@@ -12,9 +12,9 @@ class OpenAIProvider extends BaseAIProvider
     private const MODEL = 'gpt-4o';
     private const COST_PER_1K_TOKENS = 0.01; // Approximate cost
 
-    public function generateAltText(string $imageUrl, string $tone = 'professional'): array
+    public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
     {
-        $prompt = $this->getPrompt($tone);
+        $prompt = $this->getPrompt($tone, $context);
 
         $data = [
             'model' => self::MODEL,

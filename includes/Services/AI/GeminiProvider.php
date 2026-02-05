@@ -12,9 +12,9 @@ class GeminiProvider extends BaseAIProvider
     // private const ENDPOINT = 'https://generativelanguage.googleapis.com/v1/models';
     private const COST_PER_1K_TOKENS = 0.0005;
 
-    public function generateAltText(string $imageUrl, string $tone = 'professional'): array
+    public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
     {
-        $prompt = $this->getPrompt($tone);
+        $prompt = $this->getPrompt($tone, $context);
 
         // Get image data
         $imageData = $this->getImageData($imageUrl);

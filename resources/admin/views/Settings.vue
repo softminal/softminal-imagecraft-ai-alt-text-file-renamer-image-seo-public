@@ -92,7 +92,7 @@
       
       <div class="mb-4">
         <label class="flex items-center gap-2">
-          <input 
+          <input
             type="checkbox"
             true-value="1"
             false-value="0"
@@ -102,13 +102,46 @@
         </label>
       </div>
     </div>
-    
+
+    <div class="bg-white rounded-lg shadow border p-6 mb-6">
+      <h2 class="text-lg font-semibold mb-4">File Renaming</h2>
+
+      <div class="mb-4">
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            true-value="1"
+            false-value="0"
+            v-model="settings.satai_auto_rename"
+          />
+          <span>Auto-rename files on upload</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-1">
+          Rename uploaded files to SEO-friendly names based on generated alt text
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Max Filename Length</label>
+        <input
+          v-model.number="settings.satai_rename_max_length"
+          type="number"
+          min="50"
+          max="150"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        />
+        <p class="text-xs text-gray-500 mt-1">
+          Characters in filename (default: 120)
+        </p>
+      </div>
+    </div>
+
     <div class="bg-white rounded-lg shadow border p-6">
       <h2 class="text-lg font-semibold mb-4">Advanced Settings</h2>
-      
+
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Batch Size</label>
-        <input 
+        <input
           v-model.number="settings.satai_batch_size"
           type="number"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
@@ -117,10 +150,10 @@
         />
         <p class="text-xs text-gray-500 mt-1">Number of images to process per batch</p>
       </div>
-      
+
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Request Timeout (seconds)</label>
-        <input 
+        <input
           v-model.number="settings.satai_request_timeout"
           type="number"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
@@ -128,6 +161,61 @@
           max="120"
         />
       </div>
+    </div>
+
+    <div v-if="woocommerceInstalled" class="bg-white rounded-lg shadow border p-6 mt-6">
+      <h2 class="text-lg font-semibold mb-4">WooCommerce Settings</h2>
+      <p class="text-sm text-gray-600 mb-4">Configure alt text generation for WooCommerce products</p>
+
+      <div class="mb-4">
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            true-value="1"
+            false-value="0"
+            v-model="settings.satai_woo_auto_generate"
+          />
+          <span>Auto-generate on product upload</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-1">
+          Automatically generate alt text when adding product images
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            true-value="1"
+            false-value="0"
+            v-model="settings.satai_woo_include_product_info"
+          />
+          <span>Include product information</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-1">
+          Use product name, categories, and SKU in alt text generation
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Default Tone for Products</label>
+        <select
+          v-model="settings.satai_woo_default_tone"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        >
+          <option value="professional">Professional</option>
+          <option value="casual">Casual</option>
+          <option value="technical">Technical</option>
+          <option value="seo">SEO-Optimized</option>
+        </select>
+      </div>
+    </div>
+
+    <div v-else class="bg-white rounded-lg shadow border p-6 mt-6">
+      <h2 class="text-lg font-semibold mb-4">WooCommerce Settings</h2>
+      <p class="text-sm text-gray-600">
+        WooCommerce is not installed. Install WooCommerce to access product image optimization features.
+      </p>
     </div>
     
     <div class="mt-6">
@@ -151,6 +239,7 @@ const settings = ref({})
 const apiKey = ref('')
 const apiSetting = ref(null)
 const saving = ref(false)
+const woocommerceInstalled = ref(false)
 
 const loadSettings = async () => {
   try {
@@ -159,10 +248,16 @@ const loadSettings = async () => {
       settings.value = result.settings
       apiSetting.value = result.api_setting
       
-      // Sync provider dropdown with active API setting
       if (result.api_setting && result.api_setting.is_active) {
         settings.value.satai_api_provider = result.api_setting.provider
       }
+    }
+
+    try {
+      const wooStats = await Api.get('/woocommerce/stats')
+      woocommerceInstalled.value = wooStats.is_active || false
+    } catch (e) {
+      woocommerceInstalled.value = false
     }
   } catch (error) {
     notification.error('Failed to load settings')

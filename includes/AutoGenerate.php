@@ -5,6 +5,7 @@ namespace SmartAltTextAi\Includes;
 use SmartAltTextAi\Includes\Models\Stats;
 use SmartAltTextAi\Includes\Services\Settings;
 use SmartAltTextAi\Includes\Services\AI\AIFactory;
+use SmartAltTextAi\Includes\Services\FileRenamer;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -19,6 +20,7 @@ class AutoGenerate
     {
         add_action('add_attachment', [self::class, 'onAttachmentAdded']);
         add_action('satai_auto_generate', [self::class, 'generateForAttachment']);
+        add_action('satai_auto_rename', [self::class, 'renameOnUpload']);
     }
 
     /**
@@ -46,6 +48,11 @@ class AutoGenerate
 
         // Schedule generation in background
         wp_schedule_single_event(time() + 5, 'satai_auto_generate', [$attachmentId]);
+
+        // Schedule rename after alt text is generated
+        if (Settings::get('satai_auto_rename', false)) {
+            wp_schedule_single_event(time() + 15, 'satai_auto_rename', [$attachmentId]);
+        }
     }
 
     /**
@@ -106,5 +113,19 @@ class AutoGenerate
                 $stats->save();
             }
         }
+    }
+
+    public static function renameOnUpload($attachmentId)
+    {
+        if (!Settings::get('satai_auto_rename', false)) {
+            return;
+        }
+
+        if (!wp_attachment_is_image($attachmentId)) {
+            return;
+        }
+
+        $renamer = new FileRenamer();
+        $renamer->rename($attachmentId);
     }
 }

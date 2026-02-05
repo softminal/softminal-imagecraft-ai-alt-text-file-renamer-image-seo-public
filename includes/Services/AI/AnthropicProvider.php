@@ -12,9 +12,9 @@ class AnthropicProvider extends BaseAIProvider
     private const MODEL = 'claude-3-haiku-20240307';
     private const COST_PER_TOKEN = 0.00000025; // $0.00025 per 1K tokens
 
-    public function generateAltText(string $imageUrl, string $tone = 'professional'): array
+    public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
     {
-        $prompt = $this->getPrompt($tone);
+        $prompt = $this->getPrompt($tone, $context);
 
         // Get image data
         $imageData = $this->getImageData($imageUrl);

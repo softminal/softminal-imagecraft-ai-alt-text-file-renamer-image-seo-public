@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-abstract class BaseAIProvider
+    abstract class BaseAIProvider
 {
     protected string $apiKey;
     protected int $timeout;
@@ -19,8 +19,13 @@ abstract class BaseAIProvider
 
     /**
      * Generate alt text for an image
+     *
+     * @param string $imageUrl Image URL
+     * @param string $tone Tone of the alt text
+     * @param string|null $context Optional context for WooCommerce products
+     * @return array
      */
-    abstract public function generateAltText(string $imageUrl, string $tone = 'professional'): array;
+    abstract public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array;
 
     /**
      * Test API connection
@@ -28,18 +33,28 @@ abstract class BaseAIProvider
     abstract public function testConnection(): array;
 
     /**
-     * Get prompt based on tone
+     * Get prompt based on tone with optional context
+     *
+     * @param string $tone Tone of the alt text
+     * @param string|null $context Optional context information
+     * @return string
      */
-    protected function getPrompt(string $tone): string
+    protected function getPrompt(string $tone, ?string $context = null): string
     {
-        $prompts = [
+        $basePrompts = [
             'professional' => "Analyze this image and generate a concise, professional alt text (max 125 characters) for accessibility. Describe the main subject, action, and relevant context. Do not start with \"Image of\" or \"Photo of\". Focus on what's important for someone who cannot see the image. Return only the alt text, nothing else.",
             'casual' => "Look at this image and write a friendly, conversational alt text (max 125 characters) that describes what's happening. Keep it natural and easy to understand. Don't start with \"Image of\" or \"Picture of\". Return only the alt text, nothing else.",
             'technical' => "Analyze this image and create a detailed, technical alt text (max 125 characters) describing specific elements, composition, and technical aspects. Be precise and informative. Do not use phrases like \"Image of\". Return only the alt text, nothing else.",
             'seo' => "Generate SEO-friendly alt text (max 125 characters) for this image. Include relevant keywords naturally while accurately describing the image. Make it descriptive and keyword-rich without keyword stuffing. Do not start with \"Image of\". Return only the alt text, nothing else."
         ];
 
-        return $prompts[$tone] ?? $prompts['professional'];
+        $prompt = $basePrompts[$tone] ?? $basePrompts['professional'];
+
+        if (!empty($context)) {
+            $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+        }
+
+        return $prompt;
     }
 
     /**

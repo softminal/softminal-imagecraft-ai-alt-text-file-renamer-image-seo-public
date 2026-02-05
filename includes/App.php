@@ -77,9 +77,11 @@ class App
 
             // 6. Services (base classes first)
             // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Not a WP query, just autoloader config
-            ['dir' => 'includes/Services', 'priority' => [], 'exclude' => ['AI']],
+            ['dir' => 'includes/Services', 'priority' => [], 'exclude' => ['AI'], 'excludeFiles' => ['WooCommerce.php', 'FileRenamer.php', 'AIFactory.php', 'Encryption.php', 'Settings.php']],
+            ['dir' => 'includes/Services', 'files' => ['Encryption.php', 'Settings.php']],
             ['dir' => 'includes/Services/AI', 'priority' => ['BaseAIProvider.php'], 'excludeFiles' => ['AIFactory.php']],
             ['dir' => 'includes/Services/AI', 'files' => ['AIFactory.php']],
+            ['dir' => 'includes/Services', 'files' => ['WooCommerce.php', 'FileRenamer.php']],
 
             // 7. Core files (specific order)
             ['dir' => 'includes/Http', 'files' => ['api.php']],

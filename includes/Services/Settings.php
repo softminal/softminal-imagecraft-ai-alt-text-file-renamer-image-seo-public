@@ -22,6 +22,11 @@ class Settings
         'satai_request_timeout' => 60,
         'satai_language' => 'en',
         'satai_email_on_complete' => '0',
+        'satai_auto_rename' => '0',
+        'satai_rename_max_length' => 120,
+        'satai_woo_auto_generate' => '0',
+        'satai_woo_include_product_info' => '1',
+        'satai_woo_default_tone' => 'professional',
     ];
 
     /**

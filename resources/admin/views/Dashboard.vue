@@ -41,13 +41,20 @@
       <div class="bg-white p-6 rounded-lg shadow border mb-6">
         <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
         <div class="flex flex-wrap gap-3">
-          <button 
+          <button
             @click="$router.push('/scanner')"
             class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
           >
             Scan Media Library
           </button>
-          <button 
+          <button
+            v-if="woocommerceInstalled"
+            @click="$router.push('/woocommerce')"
+            class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
+          >
+            WooCommerce Products
+          </button>
+          <button
             @click="$router.push('/settings')"
             class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
           >
@@ -106,24 +113,27 @@ const router = useRouter()
 const stats = ref({})
 const recentActivity = ref([])
 const loading = ref(true)
+const woocommerceInstalled = ref(false)
 
 const loadDashboard = async () => {
   try {
-    // Check if wizard is completed, redirect if not
     const settings = await Api.get('/settings')
     if (!settings.wizard_completed || !settings.api_setting?.has_key) {
       router.push('/wizard')
       return
     }
-    
-    // Load stats
+
     const statsData = await Api.get('/stats/dashboard')
     if (statsData.success) {
       stats.value = statsData.stats
     }
-    
-    // Load recent activity (we'll need to add this endpoint or use history)
-    // For now, we'll skip this
+
+    try {
+      const wooStats = await Api.get('/woocommerce/stats')
+      woocommerceInstalled.value = wooStats.is_active || false
+    } catch (e) {
+      woocommerceInstalled.value = false
+    }
   } catch (error) {
     console.error('Failed to load dashboard:', error)
   } finally {

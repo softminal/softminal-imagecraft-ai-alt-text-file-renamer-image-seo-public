@@ -3,10 +3,12 @@
 namespace SmartAltTextAi\Includes\Http;
 
 use SmartAltTextAi\Includes\Http\Controllers\BatchController;
+use SmartAltTextAi\Includes\Http\Controllers\FileRenamerController;
 use SmartAltTextAi\Includes\Http\Controllers\GeneratorController;
 use SmartAltTextAi\Includes\Http\Controllers\ScannerController;
 use SmartAltTextAi\Includes\Http\Controllers\SettingsController;
 use SmartAltTextAi\Includes\Http\Controllers\StatsController;
+use SmartAltTextAi\Includes\Http\Controllers\WooCommerceController;
 use SmartAltTextAi\Includes\Http\Routes\Route;
 
 if (!defined('ABSPATH')) {
@@ -48,5 +50,21 @@ Route::prefix('batch')->group(function () {
 // Stats routes
 Route::prefix('stats')->group(function () {
     Route::get('/dashboard', [StatsController::class, 'dashboard']);
+});
+
+// File Renamer routes
+Route::prefix('renamer')->group(function () {
+    Route::post('/rename', [FileRenamerController::class, 'rename']);
+    Route::post('/rename-bulk', [FileRenamerController::class, 'renameBulk']);
+    Route::get('/preview', [FileRenamerController::class, 'preview']);
+});
+
+// WooCommerce routes
+Route::prefix('woocommerce')->group(function () {
+    Route::get('/products', [WooCommerceController::class, 'getProducts']);
+    Route::get('/stats', [WooCommerceController::class, 'getStats']);
+    Route::post('/generate', [WooCommerceController::class, 'generate']);
+    Route::post('/generate-gallery', [WooCommerceController::class, 'generateGallery']);
+    Route::get('/gallery', [WooCommerceController::class, 'getGallery']);
 });
 

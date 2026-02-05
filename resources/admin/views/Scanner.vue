@@ -44,18 +44,25 @@
         </div>
         
         <div class="flex gap-2">
-          <button 
+          <button
             @click="loadImages()"
             class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300"
           >
             Refresh
           </button>
-          <button 
+          <button
             v-if="selectedImages.length > 0"
             @click="startBatch"
             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
             Generate for {{ selectedImages.length }} Selected
+          </button>
+          <button
+            v-if="selectedImages.length > 0"
+            @click="renameSelectedImages"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            Rename {{ selectedImages.length }} Selected
           </button>
         </div>
       </div>
@@ -111,15 +118,40 @@
           <div class="text-xs mt-1" :class="image.has_alt ? 'text-green-600' : 'text-orange-600'">
             {{ image.has_alt ? '✓ Has alt' : '✗ Missing' }}
           </div>
-          <div 
-            v-if="image.alt_text" 
-            class="text-xs mt-1 text-gray-600 line-clamp-2 break-words" 
+          <div
+            v-if="image.alt_text"
+            class="text-xs mt-1 text-gray-600 line-clamp-2 break-words"
             :title="image.alt_text"
           >
             {{ image.alt_text }}
           </div>
           <div v-else class="text-xs mt-1 text-gray-400 italic">
             No alt text
+          </div>
+          <div v-if="image.has_alt && renamingId !== image.id" class="mt-2">
+            <button
+              @click.stop="renameFile(image.id)"
+              class="text-xs flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
+            >
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              Rename
+            </button>
+          </div>
+          <div v-if="renamingId === image.id" class="mt-2">
+            <span class="text-xs text-gray-500 flex items-center gap-1">
+              <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Renaming...
+            </span>
+          </div>
+          <div v-if="image.new_filename" class="mt-1">
+            <span class="text-xs text-green-600">
+              ✓ {{ image.new_filename }}
+            </span>
           </div>
         </div>
       </div>
@@ -181,6 +213,17 @@
                   <p class="text-sm text-gray-600 truncate" :title="selectedImage.filename">
                     {{ selectedImage.filename }}
                   </p>
+                  <button
+                    v-if="selectedImage.has_alt && !renamingId"
+                    @click="renameFile(selectedImage.id)"
+                    :disabled="renamingId === selectedImage.id"
+                    class="mt-2 text-xs flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
+                  >
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    Rename to SEO
+                  </button>
                 </div>
                 <div>
                   <div class="flex items-center justify-between gap-2 mb-1">
@@ -250,6 +293,7 @@ const pagination = ref({})
 const loading = ref(false)
 const filter = ref('all')
 const selectedImages = ref([])
+const renamingId = ref(null)
 
 // Single image modal (WP Media–style view)
 const selectedImage = ref(null)
@@ -392,6 +436,55 @@ const saveImageAlt = async () => {
     notification.error(error.message || 'Failed to update alt text')
   } finally {
     savingImageAlt.value = false
+  }
+}
+
+const renameFile = async (imageId) => {
+  renamingId.value = imageId
+  try {
+    const result = await Api.post('/renamer/rename', {
+      attachment_id: imageId
+    })
+    if (result.success) {
+      const img = images.value.find(i => i.id === imageId)
+      if (img) {
+        img.new_filename = result.new_filename
+      }
+      notification.success(`Renamed to: ${result.new_filename}`)
+    } else {
+      notification.error(result.error || 'Failed to rename file')
+    }
+  } catch (error) {
+    notification.error('Failed to rename file')
+  } finally {
+    renamingId.value = null
+  }
+}
+
+const renameSelectedImages = async () => {
+  const imagesWithAlt = selectedImages.value.filter(id => {
+    const img = images.value.find(i => i.id === id)
+    return img && img.has_alt
+  })
+
+  if (imagesWithAlt.length === 0) {
+    notification.error('Selected images must have alt text to rename')
+    return
+  }
+
+  try {
+    const result = await Api.post('/renamer/rename-bulk', {
+      attachment_ids: imagesWithAlt
+    })
+    if (result.success || result.error_count === 0) {
+      notification.success(`Renamed ${result.success_count} files`)
+      loadImages()
+      selectedImages.value = []
+    } else {
+      notification.error(`Renamed ${result.success_count}/${selectedImages.value.length} files`)
+    }
+  } catch (error) {
+    notification.error('Bulk rename failed')
   }
 }
 
