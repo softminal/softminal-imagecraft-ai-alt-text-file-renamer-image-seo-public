@@ -16,6 +16,9 @@ class OpenAIProvider extends BaseAIProvider
     {
         $prompt = $this->getPrompt($tone, $context);
 
+        // Get image data as base64 (handles local files and remote URLs consistently)
+        $imageData = $this->getImageData($imageUrl);
+
         $data = [
             'model' => self::MODEL,
             'messages' => [
@@ -29,7 +32,7 @@ class OpenAIProvider extends BaseAIProvider
                         [
                             'type' => 'image_url',
                             'image_url' => [
-                                'url' => $imageUrl
+                                'url' => 'data:' . $imageData['mime_type'] . ';base64,' . $imageData['base64']
                             ]
                         ]
                     ]

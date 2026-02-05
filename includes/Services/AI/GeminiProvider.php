@@ -9,7 +9,6 @@ if (!defined('ABSPATH')) {
 class GeminiProvider extends BaseAIProvider
 {
     private const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-    // private const ENDPOINT = 'https://generativelanguage.googleapis.com/v1/models';
     private const COST_PER_1K_TOKENS = 0.0005;
 
     public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array

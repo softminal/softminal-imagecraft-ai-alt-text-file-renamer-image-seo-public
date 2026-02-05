@@ -52,12 +52,26 @@
           <option value="casual">Casual</option>
           <option value="technical">Technical</option>
           <option value="seo">SEO-Optimized</option>
+          <option value="custom">Custom Prompt</option>
         </select>
       </div>
-      
+
+      <div v-if="settings.satai_default_tone === 'custom'" class="mb-4">
+        <label class="block text-sm font-medium mb-2">Custom Prompt</label>
+        <textarea
+          v-model="settings.satai_custom_prompt"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          rows="4"
+          placeholder="e.g. Generate alt text (max {max_length} characters) describing the subject, colors, and setting. Do not start with 'Image of'. Return only the alt text."
+        ></textarea>
+        <p class="text-xs text-gray-500 mt-1">
+          Use <code class="bg-gray-100 px-1 rounded">{max_length}</code> as a placeholder for your max character setting. Product context is added automatically for WooCommerce images.
+        </p>
+      </div>
+
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">Max Character Length</label>
-        <input 
+        <input
           v-model.number="settings.satai_max_length"
           type="number"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
@@ -65,10 +79,52 @@
           max="200"
         />
       </div>
-      
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Language</label>
+        <select
+          v-model="settings.satai_language"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        >
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="it">Italian</option>
+          <option value="pt">Portuguese</option>
+          <option value="nl">Dutch</option>
+          <option value="ru">Russian</option>
+          <option value="ja">Japanese</option>
+          <option value="zh">Chinese</option>
+          <option value="ko">Korean</option>
+          <option value="ar">Arabic</option>
+          <option value="hi">Hindi</option>
+          <option value="bn">Bengali</option>
+          <option value="tr">Turkish</option>
+          <option value="pl">Polish</option>
+          <option value="sv">Swedish</option>
+          <option value="da">Danish</option>
+          <option value="fi">Finnish</option>
+          <option value="no">Norwegian</option>
+          <option value="th">Thai</option>
+          <option value="vi">Vietnamese</option>
+          <option value="id">Indonesian</option>
+          <option value="ms">Malay</option>
+          <option value="uk">Ukrainian</option>
+          <option value="cs">Czech</option>
+          <option value="el">Greek</option>
+          <option value="he">Hebrew</option>
+          <option value="ro">Romanian</option>
+          <option value="hu">Hungarian</option>
+        </select>
+        <p class="text-xs text-gray-500 mt-1">
+          Alt text will be generated in the selected language
+        </p>
+      </div>
+
       <div class="mb-4">
         <label class="flex items-center gap-2">
-          <input 
+          <input
             type="checkbox"
             true-value="1"
             false-value="0"
@@ -203,11 +259,32 @@
           v-model="settings.satai_woo_default_tone"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
         >
-          <option value="professional">Professional</option>
-          <option value="casual">Casual</option>
-          <option value="technical">Technical</option>
-          <option value="seo">SEO-Optimized</option>
+          <optgroup label="WooCommerce Optimized">
+            <option value="woo_seo">Product SEO (Recommended)</option>
+            <option value="woo_descriptive">Product Descriptive (Accessibility)</option>
+            <option value="woo_lifestyle">Product Lifestyle (In-Use Photos)</option>
+            <option value="woo_custom">Custom Prompt</option>
+          </optgroup>
+          <optgroup label="General">
+            <option value="professional">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="technical">Technical</option>
+            <option value="seo">SEO-Optimized</option>
+          </optgroup>
         </select>
+      </div>
+
+      <div v-if="settings.satai_woo_default_tone === 'woo_custom'" class="mb-4">
+        <label class="block text-sm font-medium mb-2">Custom WooCommerce Prompt</label>
+        <textarea
+          v-model="settings.satai_woo_custom_prompt"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          rows="4"
+          placeholder="e.g. Generate product alt text (max {max_length} characters) with the product name, visible features, and use case. Do not start with 'Image of'. Return only the alt text."
+        ></textarea>
+        <p class="text-xs text-gray-500 mt-1">
+          Use <code class="bg-gray-100 px-1 rounded">{max_length}</code> as a placeholder. Product name, category, and SKU are automatically included as context.
+        </p>
       </div>
     </div>
 

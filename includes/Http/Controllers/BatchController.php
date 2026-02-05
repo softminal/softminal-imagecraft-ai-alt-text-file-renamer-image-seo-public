@@ -14,6 +14,23 @@ if (!defined('ABSPATH')) {
 class BatchController extends Controller
 {
     /**
+     * Find batch job and verify ownership
+     */
+    private function findOwnedJob(int $jobId)
+    {
+        $job = BatchJob::find($jobId);
+        if (!$job) {
+            return null;
+        }
+
+        if ((int) $job->user_id !== get_current_user_id()) {
+            return null;
+        }
+
+        return $job;
+    }
+
+    /**
      * Start batch processing
      */
     public function start($request)
@@ -27,7 +44,14 @@ class BatchController extends Controller
                 'message' => 'Image IDs are required'
             ], 400);
         }
-        
+
+        if (count($imageIds) > 500) {
+            return $this->response([
+                'success' => false,
+                'message' => 'Maximum 500 images per batch job'
+            ], 400);
+        }
+
         $userId = get_current_user_id();
         
         // Check for active batch job
@@ -66,15 +90,15 @@ class BatchController extends Controller
     {
         $params = $request->get_params();
         $jobId = (int) ($params['job_id'] ?? 0);
-        
+
         if (!$jobId) {
             return $this->response([
                 'success' => false,
                 'message' => 'Job ID is required'
             ], 400);
         }
-        
-        $job = BatchJob::find($jobId);
+
+        $job = $this->findOwnedJob($jobId);
         if (!$job) {
             return $this->response([
                 'success' => false,
@@ -107,15 +131,15 @@ class BatchController extends Controller
     {
         $params = $request->get_json_params();
         $jobId = (int) ($params['job_id'] ?? 0);
-        
+
         if (!$jobId) {
             return $this->response([
                 'success' => false,
                 'message' => 'Job ID is required'
             ], 400);
         }
-        
-        $job = BatchJob::find($jobId);
+
+        $job = $this->findOwnedJob($jobId);
         if (!$job) {
             return $this->response([
                 'success' => false,
@@ -156,37 +180,14 @@ class BatchController extends Controller
             try {
                 // Call GeneratorController directly (bypass REST API layer for internal calls)
                 $generator = new GeneratorController();
-                
-                // Use direct method call to bypass REST API nonce verification
-                // Pass user ID from batch job to ensure correct API settings are used
+
+                // generateAltText() already handles auto-accept and stats internally
+                // based on the satai_preview_before_accept setting
                 $result = $generator->generateAltText((int) $attachmentId, $tone, $userId);
-                
+
                 if ($result['success'] ?? false) {
-                    // Auto-accept if preview is disabled
-                    // WordPress stores booleans as '1'/'0', so we need to properly check the value
-                    $previewSetting = Settings::get('satai_preview_before_accept', '1');
-                    $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
-                    if (!$previewBeforeAccept) {
-                        // Update attachment alt text directly
-                        update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
-                        
-                        // Update history status
-                        if (isset($result['history_id'])) {
-                            $history = History::find($result['history_id']);
-                            if ($history) {
-                                $history->status = 'accepted';
-                                $history->save();
-                                
-                                // Update stats
-                                $stats = Stats::getOrCreate(get_current_user_id(), gmdate('Y-m-d'));
-                                $stats->increment('images_accepted');
-                                $stats->save();
-                            }
-                        }
-                    }
                     $processed++;
                 } else {
-                   
                     $failed++;
                 }
             } catch (\Exception $e) {
@@ -236,15 +237,15 @@ class BatchController extends Controller
     {
         $params = $request->get_json_params();
         $jobId = (int) ($params['job_id'] ?? 0);
-        
+
         if (!$jobId) {
             return $this->response([
                 'success' => false,
                 'message' => 'Job ID is required'
             ], 400);
         }
-        
-        $job = BatchJob::find($jobId);
+
+        $job = $this->findOwnedJob($jobId);
         if (!$job) {
             return $this->response([
                 'success' => false,
@@ -279,7 +280,7 @@ class BatchController extends Controller
             ], 400);
         }
 
-        $job = BatchJob::find($jobId);
+        $job = $this->findOwnedJob($jobId);
         if (!$job) {
             return $this->response([
                 'success' => false,

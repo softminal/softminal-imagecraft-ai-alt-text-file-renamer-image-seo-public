@@ -2,6 +2,8 @@
 
 namespace SmartAltTextAi\Includes\Services\AI;
 
+use SmartAltTextAi\Includes\Services\Settings;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -45,16 +47,82 @@ if (!defined('ABSPATH')) {
             'professional' => "Analyze this image and generate a concise, professional alt text (max 125 characters) for accessibility. Describe the main subject, action, and relevant context. Do not start with \"Image of\" or \"Photo of\". Focus on what's important for someone who cannot see the image. Return only the alt text, nothing else.",
             'casual' => "Look at this image and write a friendly, conversational alt text (max 125 characters) that describes what's happening. Keep it natural and easy to understand. Don't start with \"Image of\" or \"Picture of\". Return only the alt text, nothing else.",
             'technical' => "Analyze this image and create a detailed, technical alt text (max 125 characters) describing specific elements, composition, and technical aspects. Be precise and informative. Do not use phrases like \"Image of\". Return only the alt text, nothing else.",
-            'seo' => "Generate SEO-friendly alt text (max 125 characters) for this image. Include relevant keywords naturally while accurately describing the image. Make it descriptive and keyword-rich without keyword stuffing. Do not start with \"Image of\". Return only the alt text, nothing else."
+            'seo' => "Generate SEO-friendly alt text (max 125 characters) for this image. Include relevant keywords naturally while accurately describing the image. Make it descriptive and keyword-rich without keyword stuffing. Do not start with \"Image of\". Return only the alt text, nothing else.",
+            'woo_seo' => "Generate SEO-optimized product alt text (max 125 characters). You MUST include the product name from the context. Describe visible features (color, material, shape). Mention the camera angle if detectable (front, back, side, close-up). Use category keywords from the context naturally. Optimize for Google Image Search. Do not start with \"Image of\". Return only the alt text.",
+            'woo_descriptive' => "Generate descriptive product alt text (max 125 characters) for accessibility. You MUST include the product name from the context. Describe visible physical features: color, material, texture, shape, size. State the camera angle if detectable (front, back, side, close-up, detail). Focus on what a visually impaired shopper needs. Do not start with \"Image of\". Return only the alt text.",
+            'woo_lifestyle' => "Generate lifestyle product alt text (max 125 characters). You MUST include the product name from the context. Describe how the product is used, the setting, and any people or activities shown. Use category keywords naturally. Mention the view angle if detectable. Do not start with \"Image of\". Return only the alt text."
         ];
 
-        $prompt = $basePrompts[$tone] ?? $basePrompts['professional'];
+        // Resolve prompt text
+        if ($tone === 'custom' || $tone === 'woo_custom') {
+            $settingKey = $tone === 'custom' ? 'satai_custom_prompt' : 'satai_woo_custom_prompt';
+            $customPrompt = Settings::get($settingKey);
 
+            if (!empty($customPrompt)) {
+                $maxLength = Settings::get('satai_max_length', 125);
+                $prompt = str_replace('{max_length}', (string) $maxLength, $customPrompt);
+            } else {
+                $tone = $tone === 'custom' ? 'professional' : 'woo_seo';
+                $prompt = $basePrompts[$tone] ?? $basePrompts['professional'];
+            }
+        } else {
+            $prompt = $basePrompts[$tone] ?? $basePrompts['professional'];
+        }
+
+        // Prepend context
         if (!empty($context)) {
             $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
         }
 
+        // Append language instruction for non-English
+        $language = Settings::get('satai_language', 'en');
+        if ($language !== 'en') {
+            $languageName = $this->getLanguageName($language);
+            $prompt .= " You MUST write the alt text in {$languageName}.";
+        }
+
         return $prompt;
+    }
+
+    /**
+     * Get human-readable language name from ISO code
+     */
+    protected function getLanguageName(string $code): string
+    {
+        $languages = [
+            'en' => 'English',
+            'es' => 'Spanish',
+            'fr' => 'French',
+            'de' => 'German',
+            'it' => 'Italian',
+            'pt' => 'Portuguese',
+            'nl' => 'Dutch',
+            'ru' => 'Russian',
+            'ja' => 'Japanese',
+            'zh' => 'Chinese',
+            'ko' => 'Korean',
+            'ar' => 'Arabic',
+            'hi' => 'Hindi',
+            'bn' => 'Bengali',
+            'tr' => 'Turkish',
+            'pl' => 'Polish',
+            'sv' => 'Swedish',
+            'da' => 'Danish',
+            'fi' => 'Finnish',
+            'no' => 'Norwegian',
+            'th' => 'Thai',
+            'vi' => 'Vietnamese',
+            'id' => 'Indonesian',
+            'ms' => 'Malay',
+            'uk' => 'Ukrainian',
+            'cs' => 'Czech',
+            'el' => 'Greek',
+            'he' => 'Hebrew',
+            'ro' => 'Romanian',
+            'hu' => 'Hungarian',
+        ];
+
+        return $languages[$code] ?? $code;
     }
 
     /**

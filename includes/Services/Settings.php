@@ -26,7 +26,9 @@ class Settings
         'satai_rename_max_length' => 120,
         'satai_woo_auto_generate' => '0',
         'satai_woo_include_product_info' => '1',
-        'satai_woo_default_tone' => 'professional',
+        'satai_woo_default_tone' => 'woo_seo',
+        'satai_custom_prompt' => '',
+        'satai_woo_custom_prompt' => '',
     ];
 
     /**

@@ -64,11 +64,10 @@ class Router {
                     return [
                         'status' => 'success',
                         'message' => 'API is working correctly',
-                        'routes' => Route::getRegisteredRoutes()
                     ];
                 },
                 'permission_callback' => function() {
-                    return true; // Open endpoint for testing
+                    return is_user_logged_in() && current_user_can('manage_options');
                 }
             ]);
         } catch (\Exception $e) {

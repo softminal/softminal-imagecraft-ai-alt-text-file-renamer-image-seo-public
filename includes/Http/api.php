@@ -50,6 +50,7 @@ Route::prefix('batch')->group(function () {
 // Stats routes
 Route::prefix('stats')->group(function () {
     Route::get('/dashboard', [StatsController::class, 'dashboard']);
+    Route::get('/audit', [StatsController::class, 'audit']);
 });
 
 // File Renamer routes

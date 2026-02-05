@@ -218,7 +218,7 @@ class WooCommerce
         ];
     }
 
-    private static function buildProductContextPrompt($product): string
+    public static function buildProductContextPrompt($product): string
     {
         $context = [];
 

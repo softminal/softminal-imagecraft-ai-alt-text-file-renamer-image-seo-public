@@ -23,6 +23,117 @@
         </div>
       </div>
       
+      <!-- SEO Audit Report -->
+      <div class="bg-white p-6 rounded-lg shadow border mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold">Image SEO Audit</h3>
+          <button
+            @click="runAudit"
+            :disabled="auditLoading"
+            class="text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition disabled:opacity-50"
+          >
+            {{ auditLoading ? 'Scanning...' : 'Refresh' }}
+          </button>
+        </div>
+
+        <div v-if="auditLoading && !audit" class="text-center py-8 text-gray-500">
+          Scanning media library...
+        </div>
+
+        <div v-else-if="audit">
+          <!-- Score -->
+          <div class="flex items-center gap-6 mb-6">
+            <div class="relative w-24 h-24">
+              <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" stroke="#e5e7eb" stroke-width="8" fill="none" />
+                <circle
+                  cx="50" cy="50" r="42"
+                  :stroke="scoreColor"
+                  stroke-width="8"
+                  fill="none"
+                  stroke-linecap="round"
+                  :stroke-dasharray="263.89"
+                  :stroke-dashoffset="263.89 - (263.89 * audit.score / 100)"
+                />
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-2xl font-bold">{{ audit.score }}%</span>
+              </div>
+            </div>
+            <div>
+              <div class="text-lg font-semibold" :class="scoreLabelColor">{{ scoreLabel }}</div>
+              <div class="text-sm text-gray-500">{{ audit.good }} of {{ audit.total_images }} images are fully optimized</div>
+            </div>
+          </div>
+
+          <!-- Breakdown -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-green-700">{{ audit.good }}</div>
+              <div class="text-xs text-green-600">Good</div>
+            </div>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-red-700">{{ audit.missing }}</div>
+              <div class="text-xs text-red-600">Missing Alt Text</div>
+            </div>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-yellow-700">{{ audit.generic }}</div>
+              <div class="text-xs text-yellow-600">Generic / Placeholder</div>
+            </div>
+            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-orange-700">{{ audit.too_long }}</div>
+              <div class="text-xs text-orange-600">Too Long (&gt;{{ audit.max_length }})</div>
+            </div>
+          </div>
+
+          <!-- Generic Examples -->
+          <div v-if="audit.generic_examples.length" class="mt-4">
+            <div class="text-sm font-medium text-gray-700 mb-2">Generic alt text found:</div>
+            <div class="space-y-2">
+              <div
+                v-for="item in audit.generic_examples"
+                :key="item.id"
+                class="flex items-center gap-3 p-2 bg-yellow-50 border border-yellow-100 rounded-lg text-sm"
+              >
+                <img
+                  v-if="item.thumbnail"
+                  :src="item.thumbnail"
+                  class="w-10 h-10 object-cover rounded"
+                  :alt="item.filename"
+                />
+                <div class="flex-1 min-w-0">
+                  <div class="text-gray-600 truncate">{{ item.filename }}</div>
+                  <div class="text-yellow-700 font-mono truncate">"{{ item.alt_text }}"</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Too Long Examples -->
+          <div v-if="audit.too_long_examples.length" class="mt-4">
+            <div class="text-sm font-medium text-gray-700 mb-2">Alt text exceeding {{ audit.max_length }} characters:</div>
+            <div class="space-y-2">
+              <div
+                v-for="item in audit.too_long_examples"
+                :key="item.id"
+                class="flex items-center gap-3 p-2 bg-orange-50 border border-orange-100 rounded-lg text-sm"
+              >
+                <img
+                  v-if="item.thumbnail"
+                  :src="item.thumbnail"
+                  class="w-10 h-10 object-cover rounded"
+                  :alt="item.filename"
+                />
+                <div class="flex-1 min-w-0">
+                  <div class="text-gray-600 truncate">{{ item.filename }} <span class="text-orange-600">({{ item.length }} chars)</span></div>
+                  <div class="text-orange-700 font-mono truncate">"{{ item.alt_text }}"</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- API Status -->
       <div class="bg-white p-6 rounded-lg shadow border mb-6">
         <h3 class="text-lg font-semibold mb-4">API Status</h3>
@@ -105,7 +216,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Api from '../services/Api'
 
@@ -114,6 +225,46 @@ const stats = ref({})
 const recentActivity = ref([])
 const loading = ref(true)
 const woocommerceInstalled = ref(false)
+const audit = ref(null)
+const auditLoading = ref(false)
+
+const scoreColor = computed(() => {
+  const s = audit.value?.score ?? 0
+  if (s >= 80) return '#16a34a'
+  if (s >= 60) return '#ca8a04'
+  if (s >= 40) return '#ea580c'
+  return '#dc2626'
+})
+
+const scoreLabel = computed(() => {
+  const s = audit.value?.score ?? 0
+  if (s >= 80) return 'Excellent'
+  if (s >= 60) return 'Good'
+  if (s >= 40) return 'Needs Work'
+  return 'Poor'
+})
+
+const scoreLabelColor = computed(() => {
+  const s = audit.value?.score ?? 0
+  if (s >= 80) return 'text-green-600'
+  if (s >= 60) return 'text-yellow-600'
+  if (s >= 40) return 'text-orange-600'
+  return 'text-red-600'
+})
+
+const runAudit = async () => {
+  auditLoading.value = true
+  try {
+    const result = await Api.get('/stats/audit')
+    if (result.success) {
+      audit.value = result.audit
+    }
+  } catch (error) {
+    console.error('Failed to load audit:', error)
+  } finally {
+    auditLoading.value = false
+  }
+}
 
 const loadDashboard = async () => {
   try {
@@ -127,6 +278,8 @@ const loadDashboard = async () => {
     if (statsData.success) {
       stats.value = statsData.stats
     }
+
+    runAudit()
 
     try {
       const wooStats = await Api.get('/woocommerce/stats')

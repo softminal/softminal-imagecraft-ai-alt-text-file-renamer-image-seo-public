@@ -2,6 +2,9 @@
 
 namespace SmartAltTextAi\Includes\Http\Controllers;
 
+use SmartAltTextAi\Includes\Models\History;
+use SmartAltTextAi\Includes\Models\ApiSetting;
+use SmartAltTextAi\Includes\Models\Stats;
 use SmartAltTextAi\Includes\Services\WooCommerce;
 use SmartAltTextAi\Includes\Services\Settings;
 
@@ -130,7 +133,9 @@ class WooCommerceController extends Controller
             ], 400);
         }
 
-        $contextPrompt = \SmartAltTextAi\Includes\Services\WooCommerce::buildProductContextPrompt($product);
+        $contextPrompt = WooCommerce::buildProductContextPrompt($product);
+        $userId = get_current_user_id();
+        $apiSetting = ApiSetting::getActive($userId);
 
         foreach ($galleryIds as $index => $attachmentId) {
             $imageUrl = wp_get_attachment_url($attachmentId);
@@ -156,7 +161,30 @@ class WooCommerceController extends Controller
             $result = $aiProvider->generateAltText($imageUrl, $tone, $contextPrompt);
 
             if ($result['success']) {
+                $originalAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
                 update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
+
+                History::create([
+                    'attachment_id' => $attachmentId,
+                    'original_alt' => $originalAlt,
+                    'generated_alt' => $result['alt_text'],
+                    'user_id' => $userId,
+                    'api_provider' => $apiSetting ? $apiSetting->api_provider : 'unknown',
+                    'tone' => $tone,
+                    'status' => 'accepted',
+                    'tokens_used' => $result['tokens'] ?? 0,
+                    'cost_estimate' => $result['cost'] ?? 0,
+                ]);
+
+                $stats = Stats::getOrCreate($userId, gmdate('Y-m-d'));
+                $stats->increment('images_processed');
+                $stats->increment('images_accepted');
+                $stats->total_cost_estimate = (float) $stats->total_cost_estimate + ($result['cost'] ?? 0);
+                if ($apiSetting) {
+                    $stats->api_provider = $apiSetting->api_provider;
+                }
+                $stats->save();
+
                 $results[$index] = [
                     'success' => true,
                     'attachment_id' => $attachmentId,

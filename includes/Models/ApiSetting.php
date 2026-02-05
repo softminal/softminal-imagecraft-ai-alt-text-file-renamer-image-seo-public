@@ -28,7 +28,7 @@ class ApiSetting extends Model
             $userId = get_current_user_id();
         }
         return static::where('user_id', $userId)
-            ->where('is_active', 1)
+            ->andWhere('is_active', 1)
             ->first();
     }
 

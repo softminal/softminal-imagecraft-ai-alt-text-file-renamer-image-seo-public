@@ -253,7 +253,8 @@ class SettingsController extends Controller
     {
         $params = $request->get_json_params();
         $provider = sanitize_text_field($params['provider'] ?? '');
-        $apiKey = sanitize_text_field($params['api_key'] ?? '');
+        // Don't sanitize API key - it may contain special characters that sanitize_text_field would remove
+        $apiKey = trim($params['api_key'] ?? '');
         
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
