@@ -9,53 +9,65 @@ if (!defined('ABSPATH')) {
 class ScannerController extends Controller
 {
     /**
+     * Build base WP_Query args with filter and date range
+     */
+    private function buildQueryArgs(array $params, array $overrides = []): array
+    {
+        $filter = sanitize_text_field($params['filter'] ?? 'all');
+        $dateFrom = sanitize_text_field($params['date_from'] ?? '');
+        $dateTo = sanitize_text_field($params['date_to'] ?? '');
+
+        $args = array_merge([
+            'post_type' => 'attachment',
+            'post_mime_type' => 'image',
+            'post_status' => 'inherit',
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ], $overrides);
+
+        if ($filter === 'missing') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $args['meta_query'] = [
+                'relation' => 'OR',
+                ['key' => '_wp_attachment_image_alt', 'compare' => 'NOT EXISTS'],
+                ['key' => '_wp_attachment_image_alt', 'value' => '', 'compare' => '='],
+            ];
+        } elseif ($filter === 'has_alt') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $args['meta_query'] = [
+                ['key' => '_wp_attachment_image_alt', 'compare' => 'EXISTS'],
+                ['key' => '_wp_attachment_image_alt', 'value' => '', 'compare' => '!='],
+            ];
+        }
+
+        if ($dateFrom || $dateTo) {
+            $dateQuery = ['inclusive' => true];
+            if ($dateFrom) {
+                $dateQuery['after'] = $dateFrom;
+            }
+            if ($dateTo) {
+                $dateQuery['before'] = $dateTo . ' 23:59:59';
+            }
+            $args['date_query'] = [$dateQuery];
+        }
+
+        return $args;
+    }
+
+    /**
      * Scan media library
      */
     public function scan($request)
     {
         $params = $request->get_params();
-        $filter = sanitize_text_field($params['filter'] ?? 'all');
         $page = (int) ($params['page'] ?? 1);
         $perPage = (int) ($params['per_page'] ?? 50);
-        
-        $args = [
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
+
+        $args = $this->buildQueryArgs($params, [
             'posts_per_page' => $perPage,
             'paged' => $page,
-            'orderby' => 'date',
-            'order' => 'DESC'
-        ];
-        
-        if ($filter === 'missing') {
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; optimized with fields=ids
-            $args['meta_query'] = [
-                'relation' => 'OR',
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'compare' => 'NOT EXISTS'
-                ],
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'value' => '',
-                    'compare' => '='
-                ]
-            ];
-        } elseif ($filter === 'has_alt') {
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; optimized with fields=ids
-            $args['meta_query'] = [
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'compare' => 'EXISTS'
-                ],
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'value' => '',
-                    'compare' => '!='
-                ]
-            ];
-        }
+        ]);
+
         $query = new \WP_Query($args);
         
         $images = [];
@@ -125,5 +137,106 @@ class ScannerController extends Controller
                 'missing_percentage' => $totalImages > 0 ? round(($missingAlt / $totalImages) * 100, 2) : 0
             ]
         ]);
+    }
+
+    /**
+     * Return all image IDs matching current filters (for bulk select)
+     */
+    public function selectAll($request)
+    {
+        $params = $request->get_params();
+        $quality = sanitize_text_field($params['quality'] ?? '');
+
+        $args = $this->buildQueryArgs($params, [
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+        ]);
+
+        // Quality filters require has_alt base; override filter if needed
+        if ($quality === 'generic' || $quality === 'too_long') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $args['meta_query'] = [
+                ['key' => '_wp_attachment_image_alt', 'compare' => 'EXISTS'],
+                ['key' => '_wp_attachment_image_alt', 'value' => '', 'compare' => '!='],
+            ];
+        }
+
+        $query = new \WP_Query($args);
+        $ids = $query->posts;
+
+        // PHP-level quality filtering
+        if ($quality === 'generic' || $quality === 'too_long') {
+            $maxLength = (int) \SmartAltTextAi\Includes\Services\Settings::get('satai_max_length', 125);
+            $filtered = [];
+            foreach ($ids as $id) {
+                $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
+                if (empty($alt)) {
+                    continue;
+                }
+                if ($quality === 'generic' && $this->isGenericAlt($alt)) {
+                    $filtered[] = $id;
+                } elseif ($quality === 'too_long' && mb_strlen($alt) > $maxLength) {
+                    $filtered[] = $id;
+                }
+            }
+            $ids = $filtered;
+        }
+
+        // PHP-level file size filtering (min_size in KB)
+        $minSize = (int) ($params['min_size'] ?? 0);
+        if ($minSize > 0) {
+            $minBytes = $minSize * 1024;
+            $filtered = [];
+            foreach ($ids as $id) {
+                $filePath = get_attached_file($id);
+                if ($filePath && file_exists($filePath) && filesize($filePath) >= $minBytes) {
+                    $filtered[] = $id;
+                }
+            }
+            $ids = $filtered;
+        }
+
+        return $this->response([
+            'success' => true,
+            'image_ids' => $ids,
+            'total' => count($ids),
+        ]);
+    }
+
+    /**
+     * Check if alt text looks like a generic/placeholder value
+     */
+    private function isGenericAlt(string $alt): bool
+    {
+        $alt = trim($alt);
+
+        if (mb_strlen($alt) < 4) {
+            return true;
+        }
+
+        $lower = strtolower($alt);
+
+        $placeholders = [
+            'image', 'photo', 'picture', 'img', 'untitled',
+            'default', 'placeholder', 'no alt', 'alt text',
+            'thumbnail', 'banner', 'hero', 'logo',
+        ];
+        if (in_array($lower, $placeholders, true)) {
+            return true;
+        }
+
+        if (preg_match('/^(img|dsc|dcim|p\d{3,}|screenshot|screen\s*shot|photo_|vid_)/i', $alt)) {
+            return true;
+        }
+
+        if (preg_match('/^\d+$/', $alt)) {
+            return true;
+        }
+
+        if (preg_match('/\.(jpe?g|png|gif|webp|svg|bmp|tiff?)$/i', $alt)) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -21,28 +21,28 @@
       </div>
       
       <!-- Filters and Actions -->
-      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
         <div class="flex gap-2">
-          <button 
+          <button
             @click="filter = 'all'; loadImages()"
             :class="['px-4 py-2 rounded-lg', filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700']"
           >
             All Images
           </button>
-          <button 
+          <button
             @click="filter = 'missing'; loadImages()"
             :class="['px-4 py-2 rounded-lg', filter === 'missing' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700']"
           >
             Missing Alt Text
           </button>
-          <button 
+          <button
             @click="filter = 'has_alt'; loadImages()"
             :class="['px-4 py-2 rounded-lg', filter === 'has_alt' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700']"
           >
             Has Alt Text
           </button>
         </div>
-        
+
         <div class="flex gap-2">
           <button
             @click="loadImages()"
@@ -64,6 +64,115 @@
           >
             Rename {{ selectedImages.length }} Selected
           </button>
+        </div>
+      </div>
+
+      <!-- Advanced Filters -->
+      <div class="bg-gray-50 border rounded-lg p-4 mb-6">
+        <button
+          @click="showAdvancedFilters = !showAdvancedFilters"
+          class="flex items-center gap-2 text-sm font-medium text-gray-700"
+        >
+          <svg
+            class="w-4 h-4 transition-transform"
+            :class="{ 'rotate-90': showAdvancedFilters }"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          Advanced Filters & Bulk Select
+        </button>
+
+        <div v-if="showAdvancedFilters" class="mt-4 space-y-4">
+          <!-- Date Range & File Size -->
+          <div class="flex flex-wrap items-end gap-4">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Upload Date From</label>
+              <input
+                v-model="dateFrom"
+                type="date"
+                class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Upload Date To</label>
+              <input
+                v-model="dateTo"
+                type="date"
+                class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Min File Size (KB)</label>
+              <input
+                v-model.number="minSize"
+                type="number"
+                min="0"
+                step="50"
+                placeholder="e.g. 500"
+                class="w-28 px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+              />
+            </div>
+            <button
+              @click="loadImages()"
+              class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+            >
+              Apply
+            </button>
+            <button
+              v-if="dateFrom || dateTo || minSize"
+              @click="dateFrom = ''; dateTo = ''; minSize = 0; loadImages()"
+              class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
+            >
+              Clear Filters
+            </button>
+          </div>
+
+          <!-- Bulk Select Buttons -->
+          <div>
+            <div class="text-xs font-medium text-gray-600 mb-2">Quick Bulk Select (across all pages)</div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                @click="bulkSelect('missing')"
+                :disabled="bulkSelecting"
+                class="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50"
+              >
+                {{ bulkSelecting === 'missing' ? 'Selecting...' : 'All Missing Alt Text' }}
+              </button>
+              <button
+                @click="bulkSelect('generic')"
+                :disabled="bulkSelecting"
+                class="px-3 py-1.5 text-sm bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 disabled:opacity-50"
+              >
+                {{ bulkSelecting === 'generic' ? 'Selecting...' : 'All Generic / Placeholder' }}
+              </button>
+              <button
+                @click="bulkSelect('too_long')"
+                :disabled="bulkSelecting"
+                class="px-3 py-1.5 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 disabled:opacity-50"
+              >
+                {{ bulkSelecting === 'too_long' ? 'Selecting...' : 'All Too Long' }}
+              </button>
+              <button
+                v-if="minSize > 0"
+                @click="bulkSelect('large')"
+                :disabled="bulkSelecting"
+                class="px-3 py-1.5 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 disabled:opacity-50"
+              >
+                {{ bulkSelecting === 'large' ? 'Selecting...' : `All Larger Than ${minSize} KB` }}
+              </button>
+              <button
+                v-if="selectedImages.length > 0"
+                @click="selectedImages = []"
+                class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
+              >
+                Clear Selection ({{ selectedImages.length }})
+              </button>
+            </div>
+            <p v-if="bulkSelectCount !== null" class="text-xs text-gray-500 mt-2">
+              {{ bulkSelectCount }} images selected across all pages
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -294,6 +403,12 @@ const loading = ref(false)
 const filter = ref('all')
 const selectedImages = ref([])
 const renamingId = ref(null)
+const showAdvancedFilters = ref(false)
+const dateFrom = ref('')
+const dateTo = ref('')
+const minSize = ref(0)
+const bulkSelecting = ref(false)
+const bulkSelectCount = ref(null)
 
 // Single image modal (WP Media–style view)
 const selectedImage = ref(null)
@@ -306,10 +421,17 @@ const allSelected = computed(() => {
   return images.value.length > 0 && selectedImages.value.length === images.value.length
 })
 
+const buildFilterParams = () => {
+  let params = `filter=${filter.value}`
+  if (dateFrom.value) params += `&date_from=${dateFrom.value}`
+  if (dateTo.value) params += `&date_to=${dateTo.value}`
+  return params
+}
+
 const loadImages = async (page = 1) => {
   loading.value = true
   try {
-    const result = await Api.get(`/scanner/scan?filter=${filter.value}&page=${page}&per_page=48`)
+    const result = await Api.get(`/scanner/scan?${buildFilterParams()}&page=${page}&per_page=48`)
     if (result.success) {
       images.value = result.images
       scanStats.value = result.stats
@@ -345,14 +467,57 @@ const toggleSelectAll = () => {
   }
 }
 
+const buildSelectParams = (filterOverride, quality) => {
+  let params = `filter=${filterOverride}`
+  if (dateFrom.value) params += `&date_from=${dateFrom.value}`
+  if (dateTo.value) params += `&date_to=${dateTo.value}`
+  if (minSize.value > 0) params += `&min_size=${minSize.value}`
+  if (quality) params += `&quality=${quality}`
+  return params
+}
+
+const bulkSelect = async (quality) => {
+  bulkSelecting.value = quality
+  bulkSelectCount.value = null
+  try {
+    let params
+    if (quality === 'missing') {
+      params = buildSelectParams('missing', '')
+    } else if (quality === 'large') {
+      params = buildSelectParams(filter.value, '')
+    } else {
+      params = buildSelectParams('has_alt', quality)
+    }
+    const result = await Api.get(`/scanner/select-all?${params}`)
+    if (result.success) {
+      selectedImages.value = result.image_ids
+      bulkSelectCount.value = result.total
+      if (result.total === 0) {
+        notification.info('No images match this filter')
+      } else {
+        notification.success(`${result.total} images selected`)
+      }
+    }
+  } catch (error) {
+    notification.error('Failed to select images')
+  } finally {
+    bulkSelecting.value = false
+  }
+}
+
 const startBatch = async () => {
   if (selectedImages.value.length === 0) return
-  
+
+  if (selectedImages.value.length > 500) {
+    notification.error('Maximum 500 images per batch job. Please reduce your selection.')
+    return
+  }
+
   try {
     const result = await Api.post('/batch/start', {
       image_ids: selectedImages.value
     })
-    
+
     if (result.success) {
       notification.success(`Batch job started for ${selectedImages.value.length} images`)
       router.push(`/batch/${result.job_id}`)

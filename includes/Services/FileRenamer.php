@@ -284,7 +284,7 @@ class FileRenamer
         $oldBasename = basename($oldUrl);
 
         // Replace full URL
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk REPLACE across all posts; caching not applicable
         $wpdb->query(
 
             $wpdb->prepare(
@@ -301,7 +301,7 @@ class FileRenamer
         );
 
         // Replace basename fallback
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk REPLACE across all posts; caching not applicable
         $wpdb->query(
             $wpdb->prepare(
                 "UPDATE {$wpdb->posts}
@@ -327,8 +327,8 @@ class FileRenamer
         $oldBasename = basename($oldUrl);
 
         // Find meta rows that contain old URL OR old basename
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time search for meta rows containing old URL; result set varies per rename
         $metaRows = $wpdb->get_results(
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->prepare(
                 "SELECT post_id, meta_key, meta_value
                  FROM {$wpdb->postmeta}
@@ -357,7 +357,7 @@ class FileRenamer
                 continue;
             }
 
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Updating meta rows with new URL references; each row is unique
             $wpdb->update(
                 $wpdb->postmeta,
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value

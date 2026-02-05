@@ -1,4 +1,4 @@
-=== Smart Ai Alt Text Generator ===
+=== Smart Alt Text AI ===
 Contributors: softminal, diptosoftminal
 Tags: accessibility, alt text, ai, images, seo
 Requires at least: 5.8
@@ -12,7 +12,7 @@ Generate AI-powered alt text for your images. 100% free forever. Uses your own A
 
 == Description ==
 
-Make your WordPress site accessible with AI-generated alt text. This plugin helps you automatically generate descriptive alt text for all your images using AI.
+Make your WordPress site accessible and SEO-friendly with AI-generated alt text. This plugin helps you automatically generate descriptive alt text for all your images using AI.
 
 **100% Free Forever**
 
@@ -20,13 +20,26 @@ This plugin is completely free with no paid tiers or hidden costs. You use your 
 
 **Features**
 
-* Scan your entire media library
+* Scan your entire media library with advanced filters
 * Generate alt text for all images at once
 * Auto-generate for new uploads
 * Multiple tone options (Professional, Casual, Technical, SEO)
-* Edit alt text before accepting
+* Custom prompt builder — write your own AI instructions
+* Multi-language support (30+ languages)
+* Image SEO audit with quality score
 * Batch processing with progress tracking
+* WooCommerce product image support with optimized prompts
+* SEO-friendly file renaming
+* Bulk select with date range, quality, and file size filters
+* Edit alt text before accepting
 * Detailed usage statistics
+
+**WooCommerce Integration**
+
+* Product SEO — optimized for Google Image Search
+* Product Descriptive — accessibility-focused alt text
+* Product Lifestyle — for in-use and lifestyle photos
+* Gallery image support
 
 **Easy Setup (3 Minutes)**
 
@@ -70,24 +83,39 @@ We recommend Anthropic Claude for the best quality at the lowest cost. OpenAI an
 
 Yes. Your API key is encrypted and stored securely in your WordPress database.
 
+= Does it work with WooCommerce? =
+
+Yes! Smart Alt Text AI includes WooCommerce-specific prompts optimized for product images, gallery images, and lifestyle photos.
+
+= Can I generate alt text in my language? =
+
+Yes. The plugin supports 30+ languages including Spanish, French, German, Japanese, Chinese, Arabic, and more.
+
 == Screenshots ==
 
 1. Setup wizard - Get started in minutes
-2. Dashboard - Overview of your images
-3. Batch processing - Generate alt text for all images
-4. Settings - Customize tone and behavior
+2. Dashboard - Overview of your images with SEO audit score
+3. Scanner - Scan and filter your media library
+4. Batch processing - Generate alt text for all images
+5. Settings - Customize tone, language, and prompts
 
 == Changelog ==
 
 = 1.0.0 =
 * Initial release
-* Anthropic Claude API support
-* OpenAI GPT-4 Vision support
-* Google Gemini support
-* Batch processing
+* Anthropic Claude, OpenAI GPT-4, and Google Gemini support
+* Media library scanner with advanced filters
+* Batch processing with progress tracking
 * Auto-generate on upload
-* Multiple tone options
-* Usage statistics
+* Multiple tone options (Professional, Casual, Technical, SEO)
+* Custom prompt builder
+* Multi-language support (30+ languages)
+* Image SEO audit report with quality score
+* WooCommerce product image support with optimized prompts
+* SEO-friendly file renaming
+* Bulk select with date range, quality, and file size filters
+* Usage statistics dashboard
+* API key encryption
 
 == Upgrade Notice ==
 

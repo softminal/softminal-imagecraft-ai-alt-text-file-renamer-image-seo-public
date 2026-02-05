@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Plugin Name:       Smart Ai Alt Text Generator
- * Plugin URI:        https://alttextai.com/
+ * Plugin Name:       Smart Alt Text AI
+ * Plugin URI:        https://github.com/softminal/smart-alt-text-ai
  * Description:       A plugin that generates alt text for images using AI.
  * Version:           1.0.0
  * Author:            Softminal
- * Author URI:        https://alttextai.com/
+ * Author URI:        https://github.com/softminal
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       smart-alt-text-ai

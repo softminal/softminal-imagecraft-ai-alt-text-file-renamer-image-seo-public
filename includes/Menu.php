@@ -13,8 +13,8 @@ class Menu {
 
     public function add_admin_menu() {
         add_menu_page(
-            __('AI Alt Text', 'smart-alt-text-ai'),
-            __('AI Alt Text', 'smart-alt-text-ai'),
+            __('Smart Alt Text', 'smart-alt-text-ai'),
+            __('Smart Alt Text', 'smart-alt-text-ai'),
             'manage_options',
             'smart-alt-text-ai',
             [$this, 'render_dashboard'],

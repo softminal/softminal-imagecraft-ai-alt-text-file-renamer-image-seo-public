@@ -4,7 +4,7 @@
             <!-- Logo Section -->
             <div class="flex items-center">
                 <span class="self-center text-xl font-semibold whitespace-nowrap text-blue-500">
-                    WP AI Alt Text
+                    Smart Alt Text AI
                 </span>
             </div>
 

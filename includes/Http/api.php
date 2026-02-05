@@ -27,6 +27,7 @@ Route::prefix('settings')->group(function () {
 // Scanner routes
 Route::prefix('scanner')->group(function () {
     Route::get('/scan', [ScannerController::class, 'scan']);
+    Route::get('/select-all', [ScannerController::class, 'selectAll']);
 });
 
 // Generator routes
