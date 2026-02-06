@@ -5,34 +5,34 @@
         <svg class="w-8 h-8 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
         </svg>
-        <h1 class="text-2xl font-bold">WooCommerce Products</h1>
+        <h1 class="text-2xl font-bold">{{ $t('WooCommerce Products') }}</h1>
       </div>
 
       <div v-if="!woocommerceActive" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
         <svg class="w-12 h-12 text-yellow-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
         </svg>
-        <h2 class="text-lg font-semibold text-yellow-800 mb-2">WooCommerce Not Detected</h2>
-        <p class="text-yellow-700">Please install and activate WooCommerce to use this feature.</p>
+        <h2 class="text-lg font-semibold text-yellow-800 mb-2">{{ $t('WooCommerce Not Detected') }}</h2>
+        <p class="text-yellow-700">{{ $t('Please install and activate WooCommerce to use this feature.') }}</p>
       </div>
 
       <template v-else>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div class="bg-white p-4 rounded-lg shadow border">
-            <div class="text-sm text-gray-600">Total Products</div>
+            <div class="text-sm text-gray-600">{{ $t('Total Products') }}</div>
             <div class="text-2xl font-bold">{{ productStats.total_products || 0 }}</div>
           </div>
           <div class="bg-white p-4 rounded-lg shadow border">
-            <div class="text-sm text-gray-600">Missing Alt Text</div>
+            <div class="text-sm text-gray-600">{{ $t('Missing Alt Text') }}</div>
             <div class="text-2xl font-bold text-orange-600">{{ productStats.missing_alt || 0 }}</div>
             <div class="text-xs text-gray-500">{{ productStats.missing_percentage || 0 }}%</div>
           </div>
           <div class="bg-white p-4 rounded-lg shadow border">
-            <div class="text-sm text-gray-600">Has Alt Text</div>
+            <div class="text-sm text-gray-600">{{ $t('Has Alt Text') }}</div>
             <div class="text-2xl font-bold text-green-600">{{ productStats.has_alt || 0 }}</div>
           </div>
           <div class="bg-white p-4 rounded-lg shadow border">
-            <div class="text-sm text-gray-600">Selected</div>
+            <div class="text-sm text-gray-600">{{ $t('Selected') }}</div>
             <div class="text-2xl font-bold text-blue-600">{{ selectedProducts.length }}</div>
           </div>
         </div>
@@ -43,19 +43,19 @@
               @click="filter = 'all'; loadProducts()"
               :class="['px-4 py-2 rounded-lg', filter === 'all' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700']"
             >
-              All Products
+              {{ $t('All Products') }}
             </button>
             <button
               @click="filter = 'missing'; loadProducts()"
               :class="['px-4 py-2 rounded-lg', filter === 'missing' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700']"
             >
-              Missing Alt
+              {{ $t('Missing Alt') }}
             </button>
             <button
               @click="filter = 'has_alt'; loadProducts()"
               :class="['px-4 py-2 rounded-lg', filter === 'has_alt' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700']"
             >
-              Has Alt
+              {{ $t('Has Alt') }}
             </button>
           </div>
 
@@ -64,14 +64,14 @@
               @click="loadProducts()"
               class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300"
             >
-              Refresh
+              {{ $t('Refresh') }}
             </button>
             <button
               v-if="selectedProducts.length > 0"
               @click="startBatch"
               class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
             >
-              Generate for {{ selectedProducts.length }} Selected
+              {{ $t('Generate for %s Selected', selectedProducts.length) }}
             </button>
           </div>
         </div>
@@ -79,7 +79,7 @@
     </div>
 
     <div v-if="loading" class="text-center py-12 text-gray-500">
-      Loading products...
+      {{ $t('Loading products...') }}
     </div>
 
     <div v-else-if="woocommerceActive" class="bg-white rounded-lg shadow border">
@@ -91,7 +91,7 @@
             @change="toggleSelectAll"
             class="rounded"
           />
-          <span>Select All</span>
+          <span>{{ $t('Select All') }}</span>
         </label>
       </div>
 
@@ -125,7 +125,7 @@
             </div>
             <div class="flex-1 min-w-0">
               <h3 class="font-medium text-sm truncate" :title="product.title">{{ product.title }}</h3>
-              <p v-if="product.sku" class="text-xs text-gray-500">SKU: {{ product.sku }}</p>
+              <p v-if="product.sku" class="text-xs text-gray-500">{{ $t('SKU:') }} {{ product.sku }}</p>
               <div class="text-sm text-gray-600 mt-1" v-html="product.price"></div>
               <div
                 v-if="product.alt_text"
@@ -135,7 +135,7 @@
                 {{ product.alt_text }}
               </div>
               <div v-else class="text-xs mt-2 text-orange-600 italic">
-                No alt text
+                {{ $t('No alt text') }}
               </div>
             </div>
           </div>
@@ -144,14 +144,14 @@
               @click.stop="openProductModal(product)"
               class="text-xs flex-1 bg-gray-100 text-gray-700 px-2 py-1.5 rounded hover:bg-gray-200"
             >
-              View Details
+              {{ $t('View Details') }}
             </button>
             <button
               @click.stop="generateForProduct(product.id)"
               :disabled="generatingId === product.id"
               class="text-xs flex-1 bg-purple-100 text-purple-700 px-2 py-1.5 rounded hover:bg-purple-200 disabled:opacity-50"
             >
-              {{ generatingId === product.id ? '...' : 'Generate' }}
+              {{ generatingId === product.id ? '...' : $t('Generate') }}
             </button>
           </div>
         </div>
@@ -163,17 +163,17 @@
           :disabled="pagination.current_page === 1"
           class="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
         >
-          Previous
+          {{ $t('Previous') }}
         </button>
         <span class="text-sm text-gray-600">
-          Page {{ pagination.current_page }} of {{ pagination.total_pages }}
+          {{ $t('Page %s of %s', pagination.current_page, pagination.total_pages) }}
         </span>
         <button
           @click="loadPage(pagination.current_page + 1)"
           :disabled="pagination.current_page >= pagination.total_pages"
           class="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
         >
-          Next
+          {{ $t('Next') }}
         </button>
       </div>
     </div>
@@ -186,11 +186,11 @@
       >
         <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
           <div class="p-4 border-b flex items-center justify-between shrink-0">
-            <h2 class="text-lg font-bold">Product Details</h2>
+            <h2 class="text-lg font-bold">{{ $t('Product Details') }}</h2>
             <button
               @click="closeProductModal"
               class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
-              aria-label="Close"
+              :aria-label="$t('Close')"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -208,33 +208,33 @@
               </div>
               <div class="flex-1 min-w-0 space-y-3">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('Product') }}</label>
                   <p class="text-sm text-gray-600">{{ selectedProduct.title }}</p>
                 </div>
                 <div v-if="selectedProduct.sku">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">SKU</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('SKU') }}</label>
                   <p class="text-sm text-gray-600">{{ selectedProduct.sku }}</p>
                 </div>
                 <div>
                   <div class="flex items-center justify-between gap-2 mb-1">
-                    <label class="block text-sm font-medium text-gray-700">Featured Image Alt Text</label>
+                    <label class="block text-sm font-medium text-gray-700">{{ $t('Featured Image Alt Text') }}</label>
                     <button
                       @click="generateForModal"
                       :disabled="generatingAlt"
                       class="text-sm px-3 py-1.5 rounded-lg text-purple-700 disabled:opacity-50"
                     >
-                      {{ generatingAlt ? 'Generating...' : 'Generate with AI' }}
+                      {{ generatingAlt ? $t('Generating...') : $t('Generate with AI') }}
                     </button>
                   </div>
                   <textarea
                     v-model="modalAltText"
                     rows="3"
                     class="w-full text-sm border rounded-lg p-2 resize-y"
-                    placeholder="Describe for accessibility..."
+                    :placeholder="$t('Describe for accessibility...')"
                   />
                 </div>
                 <div v-if="selectedProduct.gallery && selectedProduct.gallery.length > 0">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Gallery Images ({{ selectedProduct.gallery.length }})</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">{{ $t('Gallery Images (%s)', selectedProduct.gallery.length) }}</label>
                   <div class="flex gap-2 flex-wrap">
                     <img
                       v-for="(galleryImg, index) in selectedProduct.gallery.slice(0, 4)"
@@ -258,14 +258,14 @@
               @click="closeProductModal"
               class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
             >
-              Cancel
+              {{ $t('Cancel') }}
             </button>
             <button
               @click="saveProductAlt"
               :disabled="savingAlt"
               class="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
             >
-              {{ savingAlt ? 'Saving...' : 'Update' }}
+              {{ savingAlt ? $t('Saving...') : $t('Update') }}
             </button>
           </div>
         </div>
@@ -279,6 +279,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
+import { $t } from '../utils/i18n'
 
 const router = useRouter()
 const woocommerceActive = ref(true)
@@ -313,7 +314,7 @@ const loadProducts = async (page = 1) => {
     if (error.message && error.message.includes('WooCommerce')) {
       woocommerceActive.value = false
     } else {
-      notification.error('Failed to load products')
+      notification.error($t('Failed to load products'))
     }
   } finally {
     loading.value = false
@@ -356,11 +357,11 @@ const startBatch = async () => {
     }
 
     const successCount = results.filter(r => r.success).length
-    notification.success(`Generated alt text for ${successCount}/${selectedProducts.value.length} products`)
+    notification.success($t('Generated alt text for %s/%s products', successCount, selectedProducts.value.length))
     selectedProducts.value = []
     loadProducts()
   } catch (error) {
-    notification.error('Batch generation failed')
+    notification.error($t('Batch generation failed'))
   }
 }
 
@@ -371,13 +372,13 @@ const generateForProduct = async (productId) => {
       product_id: productId
     })
     if (result.success) {
-      notification.success('Alt text generated successfully')
+      notification.success($t('Alt text generated successfully'))
       loadProducts()
     } else {
-      notification.error(result.error || 'Failed to generate alt text')
+      notification.error(result.error || $t('Failed to generate alt text'))
     }
   } catch (error) {
-    notification.error('Failed to generate alt text')
+    notification.error($t('Failed to generate alt text'))
   } finally {
     generatingId.value = null
   }
@@ -410,12 +411,12 @@ const generateForModal = async () => {
     })
     if (result.success) {
       modalAltText.value = result.alt_text
-      notification.success('Alt text generated')
+      notification.success($t('Alt text generated'))
     } else {
-      notification.error(result.error || 'Failed to generate')
+      notification.error(result.error || $t('Failed to generate'))
     }
   } catch (error) {
-    notification.error('Failed to generate alt text')
+    notification.error($t('Failed to generate alt text'))
   } finally {
     generatingAlt.value = false
   }
@@ -430,10 +431,10 @@ const saveProductAlt = async () => {
       product.alt_text = modalAltText.value
       product.has_alt = !!modalAltText.value
     }
-    notification.success('Alt text updated')
+    notification.success($t('Alt text updated'))
     closeProductModal()
   } catch (error) {
-    notification.error('Failed to save')
+    notification.error($t('Failed to save'))
   } finally {
     savingAlt.value = false
   }

@@ -1,13 +1,1264 @@
-# Copyright (C) 2024 WP AI Alt Text
+# Copyright (C) 2024 Softminal
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Smart Ai Alt Text Generator 1.0.0\n"
-"Report-Msgid-Bugs-To: https://alttextai.com/\n"
-"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"Project-Id-Version: Smart Alt Text AI 1.0.0\n"
+"Report-Msgid-Bugs-To: https://softminal.github.io/smart-alt-text-ai/\n"
+"POT-Creation-Date: 2024-02-06 12:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Last-Translator: Softminal <support@softminal.com>\n"
+"Language-Team: Softminal <support@softminal.com>\n"
+"Language: en\n"
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "No settings provided"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Invalid setting keys:"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Settings updated successfully"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Failed to update some settings"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Error updating settings:"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Provider and API key are required"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Invalid API key format"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Invalid provider"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Failed to encrypt API key:"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Failed to encrypt API key. Encrypted value is empty."
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Failed to save API key to database"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Invalid table configuration"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "API key was not saved correctly. Please try again."
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "API key saved successfully"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "User not logged in"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Wizard completed"
+msgstr ""
+
+#: includes/Http/Controllers/SettingsController.php
+msgid "Failed to complete wizard"
+msgstr ""
+
+#: includes/Http/Controllers/GeneratorController.php
+msgid "Alt text generated successfully"
+msgstr ""
+
+#: includes/Http/Controllers/GeneratorController.php
+msgid "Failed to generate alt text"
+msgstr ""
+
+#: includes/Http/Controllers/GeneratorController.php
+msgid "Alt text accepted"
+msgstr ""
+
+#: includes/Http/Controllers/GeneratorController.php
+msgid "Failed to accept alt text"
+msgstr ""
+
+#: includes/Http/Controllers/BatchController.php
+msgid "Batch processing started"
+msgstr ""
+
+#: includes/Http/Controllers/BatchController.php
+msgid "No images found to process"
+msgstr ""
+
+#: includes/Http/Controllers/BatchController.php
+msgid "Batch processing completed"
+msgstr ""
+
+#: includes/Http/Controllers/BatchController.php
+msgid "Batch processing failed"
+msgstr ""
+
+#: includes/Http/Controllers/ScannerController.php
+msgid "Scan completed"
+msgstr ""
+
+#: includes/Http/Controllers/ScannerController.php
+msgid "No images without alt text found"
+msgstr ""
+
+#: includes/Http/Controllers/WooCommerceController.php
+msgid "WooCommerce stats retrieved"
+msgstr ""
+
+#. Frontend strings (passed via wp_localize_script)
+
+#: includes/Services/TranslationStrings.php
+msgid "Dashboard"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Scanner"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Loading..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Total Images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Missing Alt Text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "This Month"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Success Rate"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Image SEO Audit"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Scanning..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Refresh"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Scanning media library..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Excellent"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Good"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Needs Work"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Poor"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "%s of %s images are fully optimized"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generic / Placeholder"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Too Long"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generic alt text found:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt text exceeding %s characters:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "%s chars"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "API Status"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Connected to %s"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Not connected"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Configure API"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Quick Actions"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Scan Media Library"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "WooCommerce Products"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Recent Activity"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "No recent activity"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Media Library Scanner"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Has Alt Text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "All Images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generate for %s Selected"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Rename %s Selected"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Advanced Filters & Bulk Select"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Upload Date From"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Upload Date To"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Min File Size (KB)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "e.g. 500"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Apply"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Clear Filters"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Quick Bulk Select (across all pages)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Selecting..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "All Missing Alt Text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "All Generic / Placeholder"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "All Too Long"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "All Larger Than %s KB"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Clear Selection (%s)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "%s images selected across all pages"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Loading images..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Select All"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Has alt"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Missing"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "No alt text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Rename"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Renaming..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Previous"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Page %s of %s"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Next"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Attachment details"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Close"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "File name"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Rename to SEO"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generating..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generate with AI"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Describe the image for accessibility..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alternative text helps describe the image for screen readers and SEO."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Open in WordPress Media Library"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Cancel"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Saving..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Update"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to load images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "No images match this filter"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "%s images selected"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to select images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Maximum 500 images per batch job. Please reduce your selection."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch job started for %s images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to start batch job"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt text generated. Review and click Update to save."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to generate alt text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt text updated."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to update alt text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Renamed to: %s"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to rename file"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Selected images must have alt text to rename"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Renamed %s files"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Renamed %s/%s files"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Bulk rename failed"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "API Configuration"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Provider"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Anthropic Claude"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "OpenAI GPT-4"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Google Gemini"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "API Key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Enter API key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Save API Key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Status:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Active"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Inactive"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Provider:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generation Settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Default Tone"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Professional"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Casual"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Technical"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "SEO-Optimized"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Custom Prompt"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "e.g. Generate alt text (max {max_length} characters) describing the subject, colors, and setting. Do not start with 'Image of'. Return only the alt text."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Use {max_length} as a placeholder for your max character setting. Product context is added automatically for WooCommerce images."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Max Character Length"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Language"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "English"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Spanish"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "French"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "German"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Italian"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Portuguese"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Dutch"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Russian"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Japanese"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Chinese"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Korean"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Arabic"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Hindi"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Bengali"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Turkish"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Polish"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Swedish"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Danish"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Finnish"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Norwegian"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Thai"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Vietnamese"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Indonesian"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Malay"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Ukrainian"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Czech"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Greek"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Hebrew"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Romanian"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Hungarian"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt text will be generated in the selected language"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Auto-generate on upload"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Preview before accepting"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Skip images with existing alt text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "File Renaming"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Auto-rename files on upload"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Rename uploaded files to SEO-friendly names based on generated alt text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Max Filename Length"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Characters in filename (default: 120)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Advanced Settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch Size"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Number of images to process per batch"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Request Timeout (seconds)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "WooCommerce Settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Configure alt text generation for WooCommerce products"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Auto-generate on product upload"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Automatically generate alt text when adding product images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Include product information"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Use product name, categories, and SKU in alt text generation"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Default Tone for Products"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "WooCommerce Optimized"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Product SEO (Recommended)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Product Descriptive (Accessibility)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Product Lifestyle (In-Use Photos)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "General"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Custom WooCommerce Prompt"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "e.g. Generate product alt text (max {max_length} characters) with the product name, visible features, and use case. Do not start with 'Image of'. Return only the alt text."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Use {max_length} as a placeholder. Product name, category, and SKU are automatically included as context."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "WooCommerce is not installed. Install WooCommerce to access product image optimization features."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Save Settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to load settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Settings saved successfully"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to save settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Please enter an API key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "API key saved successfully"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to save API key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Welcome to AI Alt Text Generator"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generate accessible alt text for your images using AI. 100% free forever - you use your own API key."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Easy Setup"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Get started in 3 minutes"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "100% Free"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "No paid tiers, ever"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Unlimited"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Process as many images as you want"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Get Started"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Choose Your AI Provider"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Best quality at lowest cost"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Cost: ~$0.0008/image"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "$5 = 6,000+ images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Great quality, widely used"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Cost: ~$0.01/image"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "$5 = 500 images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Google's AI vision model"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Cost: ~$0.0005/image"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "$5 = 10,000+ images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Back"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Continue"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Add Your API Key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "How to get your API key:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Visit"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Create an account and add credits"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generate an API key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Paste it below"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Enter your API key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Connection successful!"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Connection failed:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Connection failed"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Testing..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Test Connection"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Save & Continue"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to test connection"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "API key saved successfully!"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Setup Complete!"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "You're all set to start generating alt text for your images."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Go to Dashboard"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to complete wizard"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch Processing"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Progress"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "%s of %s images processed"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "%s failed"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Review & Edit Alt Text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Troubleshooting Failed Images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "All %s image(s) failed to process. Common causes:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "No API key configured:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Go to Settings and add your API key"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Invalid API key:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Verify your API key is correct"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "API key permissions:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Ensure your API key has access"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Image URL not accessible:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Images must be publicly accessible"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "API rate limit exceeded:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Wait a few minutes and try again"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Network/connection error:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Check your internet connection and firewall settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "To find the exact error:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Enable WordPress debug logging in wp-config.php"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Check wp-content/debug.log for error entries"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "The log will show the specific error message for each failed image"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Go to Settings"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Back to Scanner"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "No active batch job"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "No generated images to review."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Enter alt text..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Save All"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch processing completed with %s successful and %s failed."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch processing completed successfully!"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch processing failed. All %s images failed to process."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch job was cancelled."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to load generated images"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt texts saved successfully."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to save alt texts"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch job cancelled"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to cancel job"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "WooCommerce Not Detected"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Please install and activate WooCommerce to use this feature."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Total Products"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Selected"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "All Products"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Missing Alt"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Has Alt"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Loading products..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "SKU:"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "View Details"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generate"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Product Details"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Product"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "SKU"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Featured Image Alt Text"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Describe for accessibility..."
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Gallery Images (%s)"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to load products"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Generated alt text for %s/%s products"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Batch generation failed"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt text generated successfully"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt text generated"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to generate"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Alt text updated"
+msgstr ""
+
+#: includes/Services/TranslationStrings.php
+msgid "Failed to save"
+msgstr ""

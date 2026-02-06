@@ -34,3 +34,7 @@ function satai_init() {
     $app->run();
 }
 add_action('plugins_loaded', 'satai_init');
+
+add_action('init', function() {
+    load_plugin_textdomain('smart-alt-text-ai', false, dirname(plugin_basename(__FILE__)) . '/languages');
+});

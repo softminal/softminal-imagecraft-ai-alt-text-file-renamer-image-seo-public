@@ -54,10 +54,10 @@ class SettingsController extends Controller
         if (empty($settings)) {
             return $this->response([
                 'success' => false,
-                'message' => 'No settings provided'
+                'message' => __('No settings provided', 'smart-alt-text-ai')
             ], 400);
         }
-        
+
         // Validate settings keys
         $validKeys = array_keys(Settings::all());
         $invalidKeys = [];
@@ -66,19 +66,19 @@ class SettingsController extends Controller
                 $invalidKeys[] = $key;
             }
         }
-        
+
         if (!empty($invalidKeys)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Invalid setting keys: ' . implode(', ', $invalidKeys)
+                'message' => __('Invalid setting keys:', 'smart-alt-text-ai') . ' ' . implode(', ', $invalidKeys)
             ], 400);
         }
-        
+
         try {
             if (Settings::update($settings)) {
                 return $this->response([
                     'success' => true,
-                    'message' => 'Settings updated successfully'
+                    'message' => __('Settings updated successfully', 'smart-alt-text-ai')
                 ]);
             }
             
@@ -98,18 +98,18 @@ class SettingsController extends Controller
                 // All values match, so update was successful (just no changes needed)
                 return $this->response([
                     'success' => true,
-                    'message' => 'Settings updated successfully'
+                    'message' => __('Settings updated successfully', 'smart-alt-text-ai')
                 ]);
             }
             
             return $this->response([
                 'success' => false,
-                'message' => 'Failed to update some settings'
+                'message' => __('Failed to update some settings', 'smart-alt-text-ai')
             ], 400);
         } catch (\Exception $e) {
             return $this->response([
                 'success' => false,
-                'message' => 'Error updating settings: ' . $e->getMessage()
+                'message' => __('Error updating settings:', 'smart-alt-text-ai') . ' ' . $e->getMessage()
             ], 500);
         }
     }
@@ -144,7 +144,7 @@ class SettingsController extends Controller
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Provider and API key are required'
+                'message' => __('Provider and API key are required', 'smart-alt-text-ai')
             ], 400);
         }
         
@@ -152,14 +152,14 @@ class SettingsController extends Controller
         if (!is_string($apiKey) || strlen($apiKey) < 10) {
             return $this->response([
                 'success' => false,
-                'message' => 'Invalid API key format'
+                'message' => __('Invalid API key format', 'smart-alt-text-ai')
             ], 400);
         }
         
         if (!in_array($provider, ['anthropic', 'openai', 'gemini'])) {
             return $this->response([
                 'success' => false,
-                'message' => 'Invalid provider'
+                'message' => __('Invalid provider', 'smart-alt-text-ai')
             ], 400);
         }
         
@@ -194,7 +194,7 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             return $this->response([
                 'success' => false,
-                'message' => 'Failed to encrypt API key: ' . $e->getMessage()
+                'message' => __('Failed to encrypt API key:', 'smart-alt-text-ai') . ' ' . $e->getMessage()
             ], 400);
         }
         
@@ -204,7 +204,7 @@ class SettingsController extends Controller
         if (empty($encryptedKey)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Failed to encrypt API key. Encrypted value is empty.'
+                'message' => __('Failed to encrypt API key. Encrypted value is empty.', 'smart-alt-text-ai')
             ], 400);
         }
         
@@ -213,7 +213,7 @@ class SettingsController extends Controller
         if (!$saved) {
             return $this->response([
                 'success' => false,
-                'message' => 'Failed to save API key to database'
+                'message' => __('Failed to save API key to database', 'smart-alt-text-ai')
             ], 500);
         }
         
@@ -224,7 +224,7 @@ class SettingsController extends Controller
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Invalid table configuration'
+                'message' => __('Invalid table configuration', 'smart-alt-text-ai')
             ], 500);
         }
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Verification query needs real-time data; table name validated above
@@ -233,7 +233,7 @@ class SettingsController extends Controller
         if (empty($dbValue)) {
             return $this->response([
                 'success' => false,
-                'message' => 'API key was not saved correctly. Please try again.'
+                'message' => __('API key was not saved correctly. Please try again.', 'smart-alt-text-ai')
             ], 500);
         }
         
@@ -242,7 +242,7 @@ class SettingsController extends Controller
         
         return $this->response([
             'success' => true,
-            'message' => 'API key saved successfully'
+            'message' => __('API key saved successfully', 'smart-alt-text-ai')
         ]);
     }
     
@@ -259,7 +259,7 @@ class SettingsController extends Controller
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Provider and API key are required'
+                'message' => __('Provider and API key are required', 'smart-alt-text-ai')
             ], 400);
         }
         
@@ -286,20 +286,20 @@ class SettingsController extends Controller
         if (empty($userId) || $userId === 0) {
             return $this->response([
                 'success' => false,
-                'message' => 'User not logged in'
+                'message' => __('User not logged in', 'smart-alt-text-ai')
             ], 401);
         }
         
         if (Settings::completeWizard($userId)) {
             return $this->response([
                 'success' => true,
-                'message' => 'Wizard completed'
+                'message' => __('Wizard completed', 'smart-alt-text-ai')
             ]);
         }
         
         return $this->response([
             'success' => false,
-            'message' => 'Failed to complete wizard'
+            'message' => __('Failed to complete wizard', 'smart-alt-text-ai')
         ], 400);
     }
 }

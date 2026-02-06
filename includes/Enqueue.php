@@ -2,6 +2,8 @@
 
 namespace SmartAltTextAi\Includes;
 
+use SmartAltTextAi\Includes\Services\TranslationStrings;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -50,11 +52,12 @@ class Enqueue {
             );
 
             // Localize script for dev mode
-            wp_localize_script('satai-script', 'altTextAi', [
+            wp_localize_script('satai-script', 'smartAltTextAi', [
                 'apiUrl' => rest_url(SATAI_API_NAMESPACE),
                 'adminUrl' => admin_url(),
                 'nonce' => wp_create_nonce('wp_rest'),
-                'debug' => true
+                'debug' => true,
+                'i18n' => TranslationStrings::get(),
             ]);
         } else {
             // Production mode: Load assets from the assets directory
@@ -62,11 +65,12 @@ class Enqueue {
 
             // Only localize if script was successfully enqueued
             if ($script_enqueued) {
-                wp_localize_script('satai-script', 'altTextAi', [
+                wp_localize_script('satai-script', 'smartAltTextAi', [
                     'apiUrl' => rest_url(SATAI_API_NAMESPACE),
                     'adminUrl' => admin_url(),
                     'nonce' => wp_create_nonce('wp_rest'),
-                    'debug' => false
+                    'debug' => false,
+                    'i18n' => TranslationStrings::get(),
                 ]);
             }
         }

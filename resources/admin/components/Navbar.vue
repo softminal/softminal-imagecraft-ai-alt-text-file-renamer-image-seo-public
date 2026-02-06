@@ -18,11 +18,11 @@
                     :class="{ 'bg-blue-100 text-blue-700': isActive(item.path) }"
                 >
                     <span v-if="item.icon" class="mr-1">{{ item.icon }}</span>
-                    {{ item.name }}
+                    {{ $t(item.name) }}
                 </router-link>
             </div>
             <div v-else class="flex items-center gap-1 text-gray-500 text-sm">
-                Loading...
+                {{ $t('Loading...') }}
             </div>
         </div>
     </nav>

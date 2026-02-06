@@ -18,4 +18,4 @@ define('SATAI_TABLE_PREFIX', 'satai_');
 define('SATAI_API_VERSION', 'v1');
 define('SATAI_API_NAMESPACE', 'smart-alt-text-ai/' . SATAI_API_VERSION);
 
-define('SATAI_DEV_MODE', true);
+define('SATAI_DEV_MODE', false);
