@@ -2,6 +2,8 @@
 
 namespace SmartAltTextAi\Includes\Http\Controllers;
 
+use SmartAltTextAi\Includes\Support\AltTextHelper;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -87,22 +89,23 @@ class ScannerController extends Controller
             ];
         }
         
-        // Get total counts
+        // Count total images (posts_per_page=1 avoids loading all IDs; found_posts gives the total)
         $totalQuery = new \WP_Query([
             'post_type' => 'attachment',
             'post_mime_type' => 'image',
             'post_status' => 'inherit',
-            'posts_per_page' => -1,
-            'fields' => 'ids'
+            'posts_per_page' => 1,
+            'fields' => 'ids',
         ]);
-        
+
+        // Count images missing alt text
         $missingQuery = new \WP_Query([
             'post_type' => 'attachment',
             'post_mime_type' => 'image',
             'post_status' => 'inherit',
-            'posts_per_page' => -1,
+            'posts_per_page' => 1,
             'fields' => 'ids',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; optimized with fields=ids
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; count-only query
             'meta_query' => [
                 'relation' => 'OR',
                 [
@@ -116,7 +119,7 @@ class ScannerController extends Controller
                 ]
             ]
         ]);
-        
+
         $totalImages = $totalQuery->found_posts;
         $missingAlt = $missingQuery->found_posts;
         $hasAlt = $totalImages - $missingAlt;
@@ -173,7 +176,7 @@ class ScannerController extends Controller
                 if (empty($alt)) {
                     continue;
                 }
-                if ($quality === 'generic' && $this->isGenericAlt($alt)) {
+                if ($quality === 'generic' && AltTextHelper::isGeneric($alt)) {
                     $filtered[] = $id;
                 } elseif ($quality === 'too_long' && mb_strlen($alt) > $maxLength) {
                     $filtered[] = $id;
@@ -203,40 +206,4 @@ class ScannerController extends Controller
         ]);
     }
 
-    /**
-     * Check if alt text looks like a generic/placeholder value
-     */
-    private function isGenericAlt(string $alt): bool
-    {
-        $alt = trim($alt);
-
-        if (mb_strlen($alt) < 4) {
-            return true;
-        }
-
-        $lower = strtolower($alt);
-
-        $placeholders = [
-            'image', 'photo', 'picture', 'img', 'untitled',
-            'default', 'placeholder', 'no alt', 'alt text',
-            'thumbnail', 'banner', 'hero', 'logo',
-        ];
-        if (in_array($lower, $placeholders, true)) {
-            return true;
-        }
-
-        if (preg_match('/^(img|dsc|dcim|p\d{3,}|screenshot|screen\s*shot|photo_|vid_)/i', $alt)) {
-            return true;
-        }
-
-        if (preg_match('/^\d+$/', $alt)) {
-            return true;
-        }
-
-        if (preg_match('/\.(jpe?g|png|gif|webp|svg|bmp|tiff?)$/i', $alt)) {
-            return true;
-        }
-
-        return false;
-    }
 }

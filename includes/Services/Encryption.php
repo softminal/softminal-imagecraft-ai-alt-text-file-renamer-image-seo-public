@@ -113,13 +113,22 @@ class Encryption
         }
 
         $key = self::getEncryptionKey();
-        $decoded = base64_decode($data);
+        $decoded = base64_decode($data, true);
 
         if ($decoded === false) {
             throw new \Exception('Failed to decode encrypted data');
         }
 
+        if (strpos($decoded, '::') === false) {
+            throw new \Exception('Invalid encrypted data format');
+        }
+
         list($encrypted, $iv_hex) = explode('::', $decoded, 2);
+
+        if (empty($encrypted) || empty($iv_hex)) {
+            throw new \Exception('Corrupted encrypted data');
+        }
+
         $iv = hex2bin($iv_hex);
 
         if ($iv === false) {

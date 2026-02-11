@@ -567,7 +567,7 @@ const generateAltForImage = async () => {
 
 const editAttachmentUrl = computed(() => {
   if (!selectedImage.value) return ''
-  const adminUrl = typeof window !== 'undefined' && window.wpAiAltText ? window.wpAiAltText.adminUrl : ''
+  const adminUrl = typeof window !== 'undefined' && window.smartAltTextAi ? window.smartAltTextAi.adminUrl : ''
   return adminUrl ? `${adminUrl}post.php?post=${selectedImage.value.id}&action=edit` : ''
 })
 

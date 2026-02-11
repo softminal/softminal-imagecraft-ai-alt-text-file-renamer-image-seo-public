@@ -190,9 +190,13 @@ class Route
 
                         return $controller->$action($request, $params);
                     } catch (\Exception $e) {
+                        $message = (defined('WP_DEBUG') && WP_DEBUG)
+                            ? $e->getMessage()
+                            : __('An unexpected error occurred.', 'smart-alt-text-ai');
+
                         return new \WP_Error(
                             'api_error',
-                            $e->getMessage(),
+                            $message,
                             ['status' => 500]
                         );
                     }

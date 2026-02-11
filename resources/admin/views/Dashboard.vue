@@ -134,6 +134,33 @@
         </div>
       </div>
 
+      <!-- Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Usage & Cost Chart -->
+        <div class="bg-white p-6 rounded-lg shadow border">
+          <h3 class="text-lg font-semibold mb-4">{{ $t('Usage & Cost (Last 30 Days)') }}</h3>
+          <div v-if="loading" class="h-64 flex items-center justify-center text-gray-500">
+            {{ $t('Loading...') }}
+          </div>
+          <div v-else-if="!hasUsageData" class="h-64 flex items-center justify-center text-gray-400">
+            {{ $t('No usage data yet. Generate some alt texts to see trends here.') }}
+          </div>
+          <div v-else ref="usageChartRef" class="h-64"></div>
+        </div>
+
+        <!-- Generation Results Chart -->
+        <div class="bg-white p-6 rounded-lg shadow border">
+          <h3 class="text-lg font-semibold mb-4">{{ $t('Generation Results') }}</h3>
+          <div v-if="loading" class="h-64 flex items-center justify-center text-gray-500">
+            {{ $t('Loading...') }}
+          </div>
+          <div v-else-if="!hasResultsData" class="h-64 flex items-center justify-center text-gray-400">
+            {{ $t('No generation data yet. Results breakdown will appear here.') }}
+          </div>
+          <div v-else ref="resultsChartRef" class="h-64"></div>
+        </div>
+      </div>
+
       <!-- API Status -->
       <div class="bg-white p-6 rounded-lg shadow border mb-6">
         <h3 class="text-lg font-semibold mb-4">{{ $t('API Status') }}</h3>
@@ -216,10 +243,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import Api from '../services/Api'
 import { $t } from '../utils/i18n'
+import { useECharts } from '../composables/useECharts'
 
 const router = useRouter()
 const stats = ref({})
@@ -228,6 +256,117 @@ const loading = ref(true)
 const woocommerceInstalled = ref(false)
 const audit = ref(null)
 const auditLoading = ref(false)
+
+const chartUsage = ref([])
+const chartResults = ref([])
+
+const hasUsageData = computed(() => chartUsage.value.some(d => d.processed > 0 || d.cost > 0))
+const hasResultsData = computed(() => chartResults.value.some(d => d.value > 0))
+
+const { chartRef: usageChartRef, updateOptions: updateUsageOptions } = useECharts()
+const { chartRef: resultsChartRef, updateOptions: updateResultsOptions } = useECharts()
+
+const updateUsageChart = () => {
+  const dates = chartUsage.value.map(d => {
+    const dt = new Date(d.date)
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  })
+  const processed = chartUsage.value.map(d => d.processed)
+  const costs = chartUsage.value.map(d => d.cost)
+
+  updateUsageOptions({
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'cross' },
+    },
+    legend: {
+      data: [$t('Images Processed'), $t('Cost ($)')],
+      bottom: 0,
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '8%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      axisLabel: {
+        rotate: 45,
+        fontSize: 10,
+      },
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: $t('Images'),
+        position: 'left',
+        minInterval: 1,
+      },
+      {
+        type: 'value',
+        name: $t('Cost ($)'),
+        position: 'right',
+        axisLabel: { formatter: '${value}' },
+      },
+    ],
+    series: [
+      {
+        name: $t('Images Processed'),
+        type: 'bar',
+        data: processed,
+        itemStyle: { color: '#3b82f6' },
+      },
+      {
+        name: $t('Cost ($)'),
+        type: 'line',
+        yAxisIndex: 1,
+        data: costs,
+        smooth: true,
+        itemStyle: { color: '#f59e0b' },
+      },
+    ],
+  })
+}
+
+const updateResultsChart = () => {
+  updateResultsOptions({
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)',
+    },
+    legend: {
+      bottom: 0,
+    },
+    series: [
+      {
+        type: 'pie',
+        radius: ['45%', '70%'],
+        center: ['50%', '45%'],
+        avoidLabelOverlap: true,
+        itemStyle: {
+          borderRadius: 6,
+          borderColor: '#fff',
+          borderWidth: 2,
+        },
+        label: {
+          show: true,
+          formatter: '{b}: {c}',
+        },
+        data: chartResults.value.map(item => ({
+          ...item,
+          itemStyle: {
+            color: item.name === 'Accepted' ? '#16a34a'
+              : item.name === 'Rejected' ? '#dc2626'
+              : '#f59e0b',
+          },
+        })),
+      },
+    ],
+  })
+}
 
 const scoreColor = computed(() => {
   const s = audit.value?.score ?? 0
@@ -278,6 +417,9 @@ const loadDashboard = async () => {
     const statsData = await Api.get('/stats/dashboard')
     if (statsData.success) {
       stats.value = statsData.stats
+      recentActivity.value = statsData.recent_activity || []
+      chartUsage.value = statsData.chart_usage || []
+      chartResults.value = statsData.chart_results || []
     }
 
     runAudit()
@@ -292,6 +434,13 @@ const loadDashboard = async () => {
     console.error('Failed to load dashboard:', error)
   } finally {
     loading.value = false
+    await nextTick()
+    if (hasUsageData.value) {
+      updateUsageChart()
+    }
+    if (hasResultsData.value) {
+      updateResultsChart()
+    }
   }
 }
 

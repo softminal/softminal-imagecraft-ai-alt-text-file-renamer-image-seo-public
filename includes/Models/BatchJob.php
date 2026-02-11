@@ -51,7 +51,7 @@ class BatchJob extends Model
      */
     public function getProgress(): float
     {
-        if ($this->total_images == 0) {
+        if ((int) $this->total_images === 0) {
             return 0;
         }
 

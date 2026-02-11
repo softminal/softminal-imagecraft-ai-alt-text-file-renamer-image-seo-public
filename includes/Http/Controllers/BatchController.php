@@ -175,14 +175,10 @@ class BatchController extends Controller
         
         // Get user ID from batch job to ensure we use the correct user's API settings
         $userId = (int) $job->user_id;
-        
+        $generator = new GeneratorController();
+
         foreach ($chunk as $attachmentId) {
             try {
-                // Call GeneratorController directly (bypass REST API layer for internal calls)
-                $generator = new GeneratorController();
-
-                // generateAltText() already handles auto-accept and stats internally
-                // based on the satai_preview_before_accept setting
                 $result = $generator->generateAltText((int) $attachmentId, $tone, $userId);
 
                 if ($result['success'] ?? false) {

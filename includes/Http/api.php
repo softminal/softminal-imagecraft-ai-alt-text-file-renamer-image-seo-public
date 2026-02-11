@@ -64,6 +64,7 @@ Route::prefix('renamer')->group(function () {
 // WooCommerce routes
 Route::prefix('woocommerce')->group(function () {
     Route::get('/products', [WooCommerceController::class, 'getProducts']);
+    Route::get('/categories', [WooCommerceController::class, 'getCategories']);
     Route::get('/stats', [WooCommerceController::class, 'getStats']);
     Route::post('/generate', [WooCommerceController::class, 'generate']);
     Route::post('/generate-gallery', [WooCommerceController::class, 'generateGallery']);

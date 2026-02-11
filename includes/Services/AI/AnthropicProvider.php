@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 class AnthropicProvider extends BaseAIProvider
 {
     private const ENDPOINT = 'https://api.anthropic.com/v1/messages';
-    private const MODEL = 'claude-3-haiku-20240307';
+    private const MODEL = 'claude-3-5-haiku-20241022';
     private const COST_PER_TOKEN = 0.00000025; // $0.00025 per 1K tokens
 
     public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
@@ -21,7 +21,7 @@ class AnthropicProvider extends BaseAIProvider
 
         $data = [
             'model' => self::MODEL,
-            'max_tokens' => 100,
+            'max_tokens' => 200,
             'messages' => [
                 [
                     'role' => 'user',

@@ -45,15 +45,13 @@ class Stats extends Model
     /**
      * Increment stats
      */
-    public function increment(string $field, float $amount = 1): bool
+    public function increment(string $field, float $amount = 1): void
     {
         if (!in_array($field, ['images_processed', 'images_accepted', 'images_rejected', 'total_cost_estimate'])) {
-            return false;
+            return;
         }
 
         $current = (float) ($this->attributes[$field] ?? 0);
         $this->attributes[$field] = $current + $amount;
-
-        return $this->save();
     }
 }

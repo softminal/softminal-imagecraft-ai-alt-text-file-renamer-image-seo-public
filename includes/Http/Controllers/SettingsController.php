@@ -119,13 +119,16 @@ class SettingsController extends Controller
      */
     private static function normalizeForComparison($value)
     {
+        if ($value === '') {
+            return '';
+        }
         if (is_bool($value)) {
             return $value ? '1' : '0';
         }
-        if ($value === '1' || $value === 1 || $value === true) {
+        if ($value === '1' || $value === 1) {
             return '1';
         }
-        if ($value === '0' || $value === 0 || $value === false || $value === '') {
+        if ($value === '0' || $value === 0 || $value === false) {
             return '0';
         }
         return (string) $value;
@@ -218,8 +221,6 @@ class SettingsController extends Controller
         }
         
         // Verify it was actually saved by checking database directly
-        global $wpdb;
-        // Table name is constructed from trusted sources (wpdb prefix + plugin constant + hardcoded table name)
         $tableName = ApiSetting::table();
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
             return $this->response([

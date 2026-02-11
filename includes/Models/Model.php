@@ -500,7 +500,7 @@ abstract class Model
 
         $attributes = [];
         foreach ($this->fillable as $field) {
-            if (isset($this->attributes[$field]) && $this->attributes[$field] !== null && $this->attributes[$field] !== '') {
+            if (array_key_exists($field, $this->attributes) && $this->attributes[$field] !== null) {
                 $attributes[$field] = $this->attributes[$field];
             }
         }
