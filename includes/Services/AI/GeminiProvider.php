@@ -35,7 +35,7 @@ class GeminiProvider extends BaseAIProvider
                 ]
             ],
             'generationConfig' => [
-                'maxOutputTokens' => 200
+                'maxOutputTokens' => 300
             ]
         ];
 

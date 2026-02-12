@@ -21,7 +21,7 @@ class AnthropicProvider extends BaseAIProvider
 
         $data = [
             'model' => self::MODEL,
-            'max_tokens' => 200,
+            'max_tokens' => 300,
             'messages' => [
                 [
                     'role' => 'user',

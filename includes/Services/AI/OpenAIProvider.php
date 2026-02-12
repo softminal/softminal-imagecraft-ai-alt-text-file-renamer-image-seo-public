@@ -38,7 +38,7 @@ class OpenAIProvider extends BaseAIProvider
                     ]
                 ]
             ],
-            'max_tokens' => 200
+            'max_tokens' => 300
         ];
 
         $headers = [

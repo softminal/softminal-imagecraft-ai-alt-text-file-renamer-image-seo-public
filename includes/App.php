@@ -81,7 +81,7 @@ class App
             ['dir' => 'includes/Services', 'files' => ['Encryption.php', 'Settings.php']],
             ['dir' => 'includes/Services/AI', 'priority' => ['BaseAIProvider.php'], 'excludeFiles' => ['AIFactory.php']],
             ['dir' => 'includes/Services/AI', 'files' => ['AIFactory.php']],
-            ['dir' => 'includes/Services', 'files' => ['WooCommerce.php', 'FileRenamer.php']],
+            ['dir' => 'includes/Services', 'files' => ['WooCommerce.php', 'FileRenamer.php', 'SeoIntegration.php']],
 
             // 7. Core files (specific order)
             ['dir' => 'includes/Http', 'files' => ['api.php']],

@@ -179,6 +179,12 @@
         var title = getPostTitle();
         if (title) body.post_title = title;
 
+        // Send the current post ID so the backend can look up SEO focus keyphrase
+        try {
+            var postId = wp.data.select('core/editor').getCurrentPostId();
+            if (postId) body.post_id = postId;
+        } catch (e) {}
+
         fetch(config.apiUrl + '/generator/generate', {
             method: 'POST',
             headers: {

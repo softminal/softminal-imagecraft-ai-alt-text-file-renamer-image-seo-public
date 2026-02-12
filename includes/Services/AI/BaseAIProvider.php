@@ -87,6 +87,12 @@ abstract class BaseAIProvider
             }
         }
 
+        // Append SEO keyphrase instruction if present in context
+        if (!empty($context) && preg_match('/SEO Focus Keyphrase:\s*(.+?)(?:\s*\||$)/', $context, $seoMatches)) {
+            $keyphrase = trim($seoMatches[1]);
+            $prompt .= "\n\nSEO INSTRUCTION: The target keyword for this page is \"{$keyphrase}\". You MUST include this exact keyword or a very close variation in the alt text. Weave it naturally into the description. The alt text must read as a complete, natural sentence — never cut off mid-thought.";
+        }
+
         // Append language instruction for non-English
         $language = Settings::get('satai_language', 'en');
         if ($language !== 'en') {

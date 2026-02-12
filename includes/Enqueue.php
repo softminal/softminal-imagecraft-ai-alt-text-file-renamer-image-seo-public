@@ -148,7 +148,7 @@ class Enqueue {
      */
     public function enqueueMediaButtonAssets($hook) {
         // Only load on pages where the media modal can appear
-        if (!in_array($hook, ['post.php', 'post-new.php', 'upload.php'], true)) {
+        if (!in_array($hook, ['post.php', 'post-new.php', 'upload.php', 'toplevel_page_smart-alt-text-ai'], true)) {
             return;
         }
 

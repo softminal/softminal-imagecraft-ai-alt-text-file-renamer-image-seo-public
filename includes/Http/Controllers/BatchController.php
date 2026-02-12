@@ -5,6 +5,7 @@ namespace SmartAltTextAi\Includes\Http\Controllers;
 use SmartAltTextAi\Includes\Models\BatchJob;
 use SmartAltTextAi\Includes\Models\History;
 use SmartAltTextAi\Includes\Models\Stats;
+use SmartAltTextAi\Includes\Services\SeoIntegration;
 use SmartAltTextAi\Includes\Services\Settings;
 
 if (!defined('ABSPATH')) {
@@ -179,7 +180,8 @@ class BatchController extends Controller
 
         foreach ($chunk as $attachmentId) {
             try {
-                $result = $generator->generateAltText((int) $attachmentId, $tone, $userId);
+                $context = SeoIntegration::buildSeoContext((int) $attachmentId);
+                $result = $generator->generateAltText((int) $attachmentId, $tone, $userId, $context);
 
                 if ($result['success'] ?? false) {
                     $processed++;

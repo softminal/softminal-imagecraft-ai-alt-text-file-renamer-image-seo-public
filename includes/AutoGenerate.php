@@ -6,6 +6,7 @@ use SmartAltTextAi\Includes\Services\Settings;
 use SmartAltTextAi\Includes\Services\StatsTracker;
 use SmartAltTextAi\Includes\Services\AI\AIFactory;
 use SmartAltTextAi\Includes\Services\FileRenamer;
+use SmartAltTextAi\Includes\Services\SeoIntegration;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -76,7 +77,8 @@ class AutoGenerate
         }
 
         $tone = Settings::get('satai_default_tone', 'professional');
-        $result = $aiProvider->generateAltText($imageUrl, $tone);
+        $context = SeoIntegration::buildSeoContext((int) $attachmentId);
+        $result = $aiProvider->generateAltText($imageUrl, $tone, $context);
 
         if (!$result['success']) {
             return;

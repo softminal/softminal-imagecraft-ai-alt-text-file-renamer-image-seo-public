@@ -120,11 +120,16 @@
             attachment_id: attachmentId
         };
 
-        // Detect if we're on a WooCommerce product edit page and pass product_id
+        // Send the current post ID so the backend can look up SEO focus keyphrase
         var postIdInput = document.getElementById('post_ID');
         var postTypeInput = document.getElementById('post_type');
-        if (postIdInput && postTypeInput && postTypeInput.value === 'product') {
-            requestBody.product_id = parseInt(postIdInput.value, 10);
+        if (postIdInput) {
+            requestBody.post_id = parseInt(postIdInput.value, 10);
+
+            // Detect if we're on a WooCommerce product edit page and pass product_id
+            if (postTypeInput && postTypeInput.value === 'product') {
+                requestBody.product_id = requestBody.post_id;
+            }
         }
 
         fetch(url, {

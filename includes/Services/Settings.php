@@ -29,6 +29,8 @@ class Settings
         'satai_woo_default_tone' => 'woo_seo',
         'satai_custom_prompt' => '',
         'satai_woo_custom_prompt' => '',
+        'satai_seo_integration' => '0',
+        'satai_seo_use_keyphrase' => '1',
     ];
 
     /**

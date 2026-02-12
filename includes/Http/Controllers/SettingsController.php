@@ -5,6 +5,7 @@ namespace SmartAltTextAi\Includes\Http\Controllers;
 use SmartAltTextAi\Includes\Models\ApiSetting;
 use SmartAltTextAi\Includes\Services\Settings;
 use SmartAltTextAi\Includes\Services\AI\AIFactory;
+use SmartAltTextAi\Includes\Services\SeoIntegration;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -39,7 +40,12 @@ class SettingsController extends Controller
                 'is_active' => (bool) $apiSetting->is_active,
                 'has_key' => !is_null($apiSetting->api_key_encrypted)
             ] : null,
-            'wizard_completed' => Settings::isWizardCompleted($userId)
+            'wizard_completed' => Settings::isWizardCompleted($userId),
+            'seo_plugin' => SeoIntegration::isActive() ? [
+                'active' => true,
+                'plugin' => SeoIntegration::getActivePlugin(),
+                'label'  => SeoIntegration::getActivePluginLabel(),
+            ] : ['active' => false, 'plugin' => null, 'label' => ''],
         ]);
     }
     

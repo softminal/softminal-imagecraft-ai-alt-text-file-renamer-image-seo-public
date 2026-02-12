@@ -6,6 +6,7 @@ use SmartAltTextAi\Includes\Models\History;
 use SmartAltTextAi\Includes\Services\AI\AIFactory;
 use SmartAltTextAi\Includes\Services\Settings;
 use SmartAltTextAi\Includes\Services\StatsTracker;
+use SmartAltTextAi\Includes\Services\SeoIntegration;
 use SmartAltTextAi\Includes\Services\WooCommerce;
 
 if (!defined('ABSPATH')) {
@@ -42,6 +43,14 @@ class GeneratorController extends Controller
             if (!empty($postTitle)) {
                 $context = 'Page: ' . $postTitle;
             }
+        }
+
+        // Append SEO focus keyphrase context if available
+        // Use explicit post_id from the editor if provided (more reliable than post_parent)
+        $postId = (int) ($params['post_id'] ?? 0);
+        $seoContext = SeoIntegration::buildSeoContext($attachmentId, $postId);
+        if ($seoContext !== null) {
+            $context = $context !== null ? $context . ' | ' . $seoContext : $seoContext;
         }
 
         $result = $this->generateAltText($attachmentId, $tone, null, $context);
