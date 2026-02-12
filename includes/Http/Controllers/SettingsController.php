@@ -5,6 +5,7 @@ namespace SmartAltTextAi\Includes\Http\Controllers;
 use SmartAltTextAi\Includes\Models\ApiSetting;
 use SmartAltTextAi\Includes\Services\Settings;
 use SmartAltTextAi\Includes\Services\AI\AIFactory;
+use SmartAltTextAi\Includes\Services\SeoIntegration;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -39,7 +40,12 @@ class SettingsController extends Controller
                 'is_active' => (bool) $apiSetting->is_active,
                 'has_key' => !is_null($apiSetting->api_key_encrypted)
             ] : null,
-            'wizard_completed' => Settings::isWizardCompleted($userId)
+            'wizard_completed' => Settings::isWizardCompleted($userId),
+            'seo_plugin' => SeoIntegration::isActive() ? [
+                'active' => true,
+                'plugin' => SeoIntegration::getActivePlugin(),
+                'label'  => SeoIntegration::getActivePluginLabel(),
+            ] : ['active' => false, 'plugin' => null, 'label' => ''],
         ]);
     }
     
@@ -119,13 +125,16 @@ class SettingsController extends Controller
      */
     private static function normalizeForComparison($value)
     {
+        if ($value === '') {
+            return '';
+        }
         if (is_bool($value)) {
             return $value ? '1' : '0';
         }
-        if ($value === '1' || $value === 1 || $value === true) {
+        if ($value === '1' || $value === 1) {
             return '1';
         }
-        if ($value === '0' || $value === 0 || $value === false || $value === '') {
+        if ($value === '0' || $value === 0 || $value === false) {
             return '0';
         }
         return (string) $value;
@@ -218,8 +227,6 @@ class SettingsController extends Controller
         }
         
         // Verify it was actually saved by checking database directly
-        global $wpdb;
-        // Table name is constructed from trusted sources (wpdb prefix + plugin constant + hardcoded table name)
         $tableName = ApiSetting::table();
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
             return $this->response([

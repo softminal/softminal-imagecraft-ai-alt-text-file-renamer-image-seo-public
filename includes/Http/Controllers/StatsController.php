@@ -5,6 +5,7 @@ namespace SmartAltTextAi\Includes\Http\Controllers;
 use SmartAltTextAi\Includes\Models\Stats;
 use SmartAltTextAi\Includes\Models\History;
 use SmartAltTextAi\Includes\Models\ApiSetting;
+use SmartAltTextAi\Includes\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -19,22 +20,23 @@ class StatsController extends Controller
     {
         $userId = get_current_user_id();
         
-        // Get total images
+        // Count total images (posts_per_page=1 avoids loading all IDs; found_posts gives the total)
         $totalQuery = new \WP_Query([
             'post_type' => 'attachment',
             'post_mime_type' => 'image',
             'post_status' => 'inherit',
-            'posts_per_page' => -1,
-            'fields' => 'ids'
+            'posts_per_page' => 1,
+            'fields' => 'ids',
         ]);
-        
+
+        // Count images missing alt text
         $missingQuery = new \WP_Query([
             'post_type' => 'attachment',
             'post_mime_type' => 'image',
             'post_status' => 'inherit',
-            'posts_per_page' => -1,
+            'posts_per_page' => 1,
             'fields' => 'ids',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; optimized with fields=ids
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; count-only query
             'meta_query' => [
                 'relation' => 'OR',
                 [
@@ -48,38 +50,81 @@ class StatsController extends Controller
                 ]
             ]
         ]);
-        
+
         $totalImages = $totalQuery->found_posts;
         $missingAlt = $missingQuery->found_posts;
         
-        // Get this month's stats
-        $thisMonth = gmdate('Y-m');
-        $monthStats = Stats::where('user_id', $userId)
-            ->andWhere('date', 'LIKE', $thisMonth . '%')
+        // Get all stats for user in a single query, ordered by date
+        $allStats = Stats::where('user_id', $userId)
+            ->orderBy('date', 'ASC')
             ->get();
-        
-        $thisMonthProcessed = 0;
-        $thisMonthCost = 0;
-        foreach ($monthStats as $stat) {
-            $thisMonthProcessed += $stat->images_processed;
-            $thisMonthCost += (float) $stat->total_cost_estimate;
-        }
-        
-        // Get total processed
-        $allStats = Stats::where('user_id', $userId)->get();
+
+        $thisMonth = gmdate('Y-m');
         $totalProcessed = 0;
         $totalCost = 0;
+        $thisMonthProcessed = 0;
+        $thisMonthCost = 0;
+        $statsByDate = [];
+
         foreach ($allStats as $stat) {
-            $totalProcessed += $stat->images_processed;
-            $totalCost += (float) $stat->total_cost_estimate;
+            $processed = (int) $stat->images_processed;
+            $cost = (float) $stat->total_cost_estimate;
+
+            $totalProcessed += $processed;
+            $totalCost += $cost;
+
+            if (strpos($stat->date, $thisMonth) === 0) {
+                $thisMonthProcessed += $processed;
+                $thisMonthCost += $cost;
+            }
+
+            $statsByDate[$stat->date] = [
+                'processed' => $processed,
+                'cost' => $cost,
+            ];
         }
-        
-        // Get success rate
-        $accepted = History::where('user_id', $userId)
-            ->andWhere('status', 'accepted')
-            ->get();
+
+        // Build chart_usage: last 30 days with zero-fill for missing dates
+        $chartUsage = [];
+        $today = gmdate('Y-m-d');
+        for ($i = 29; $i >= 0; $i--) {
+            $date = gmdate('Y-m-d', strtotime("-{$i} days", strtotime($today)));
+            $entry = $statsByDate[$date] ?? null;
+            $chartUsage[] = [
+                'date' => $date,
+                'processed' => $entry ? $entry['processed'] : 0,
+                'cost' => $entry ? $entry['cost'] : 0,
+            ];
+        }
+
+        // Get history and compute chart_results in a single loop
         $totalHistory = History::where('user_id', $userId)->get();
-        $successRate = count($totalHistory) > 0 ? round((count($accepted) / count($totalHistory)) * 100, 2) : 0;
+        $acceptedCount = 0;
+        $rejectedCount = 0;
+        $pendingCount = 0;
+
+        foreach ($totalHistory as $history) {
+            switch ($history->status) {
+                case 'accepted':
+                    $acceptedCount++;
+                    break;
+                case 'rejected':
+                    $rejectedCount++;
+                    break;
+                default:
+                    $pendingCount++;
+                    break;
+            }
+        }
+
+        $historyTotal = count($totalHistory);
+        $successRate = $historyTotal > 0 ? round(($acceptedCount / $historyTotal) * 100, 2) : 0;
+
+        $chartResults = [
+            ['name' => 'Accepted', 'value' => $acceptedCount],
+            ['name' => 'Rejected', 'value' => $rejectedCount],
+            ['name' => 'Pending', 'value' => $pendingCount],
+        ];
         
         // Get API status
         $apiSetting = ApiSetting::getActive($userId);
@@ -91,6 +136,24 @@ class StatsController extends Controller
             'provider' => null
         ];
         
+        // Get recent activity
+        $recentData = History::getRecent($userId, 10);
+        $recentActivity = [];
+        if (!empty($recentData['data'])) {
+            foreach ($recentData['data'] as $history) {
+                $attachmentId = $history->attachment_id;
+                $thumbnail = wp_get_attachment_image_src($attachmentId, 'thumbnail');
+                $recentActivity[] = [
+                    'id' => $history->id,
+                    'attachment_id' => $attachmentId,
+                    'filename' => basename(get_attached_file($attachmentId) ?: ''),
+                    'thumbnail' => $thumbnail ? $thumbnail[0] : null,
+                    'generated_alt' => $history->generated_alt,
+                    'status' => $history->status,
+                ];
+            }
+        }
+
         return $this->response([
             'success' => true,
             'stats' => [
@@ -103,7 +166,10 @@ class StatsController extends Controller
                 'this_month_cost' => round($thisMonthCost, 4),
                 'total_cost' => round($totalCost, 4),
                 'api_status' => $apiStatus
-            ]
+            ],
+            'recent_activity' => $recentActivity,
+            'chart_usage' => $chartUsage,
+            'chart_results' => $chartResults
         ]);
     }
 
@@ -144,7 +210,7 @@ class StatsController extends Controller
 
             $issues = [];
 
-            if ($this->isGenericAlt($alt)) {
+            if (AltTextHelper::isGeneric($alt)) {
                 $generic++;
                 $issues[] = 'generic';
                 if (count($genericExamples) < 5) {
@@ -196,45 +262,4 @@ class StatsController extends Controller
         ]);
     }
 
-    /**
-     * Check if alt text looks like a generic/placeholder value
-     */
-    private function isGenericAlt(string $alt): bool
-    {
-        $alt = trim($alt);
-
-        // Too short to be useful
-        if (mb_strlen($alt) < 4) {
-            return true;
-        }
-
-        $lower = strtolower($alt);
-
-        // Common placeholder words
-        $placeholders = [
-            'image', 'photo', 'picture', 'img', 'untitled',
-            'default', 'placeholder', 'no alt', 'alt text',
-            'thumbnail', 'banner', 'hero', 'logo',
-        ];
-        if (in_array($lower, $placeholders, true)) {
-            return true;
-        }
-
-        // Filename patterns: IMG_1234, DSC_0001, Screenshot 2024, DCIM, P1010234
-        if (preg_match('/^(img|dsc|dcim|p\d{3,}|screenshot|screen\s*shot|photo_|vid_)/i', $alt)) {
-            return true;
-        }
-
-        // Just a number or ID
-        if (preg_match('/^\d+$/', $alt)) {
-            return true;
-        }
-
-        // File extension still in alt text
-        if (preg_match('/\.(jpe?g|png|gif|webp|svg|bmp|tiff?)$/i', $alt)) {
-            return true;
-        }
-
-        return false;
-    }
 }

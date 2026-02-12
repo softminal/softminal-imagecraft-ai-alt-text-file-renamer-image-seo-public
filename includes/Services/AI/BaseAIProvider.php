@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-    abstract class BaseAIProvider
+abstract class BaseAIProvider
 {
     protected string $apiKey;
     protected int $timeout;
@@ -43,14 +43,18 @@ if (!defined('ABSPATH')) {
      */
     protected function getPrompt(string $tone, ?string $context = null): string
     {
+        $maxLength = (int) Settings::get('satai_max_length', 150);
+
+        $rules = "Rules: Stay under {$maxLength} characters. Never start with \"Image of\", \"Photo of\", \"Picture of\", or \"A photo\". Do not wrap in quotation marks. Return only the alt text, nothing else.";
+
         $basePrompts = [
-            'professional' => "Analyze this image and generate a concise, professional alt text (max 125 characters) for accessibility. Describe the main subject, action, and relevant context. Do not start with \"Image of\" or \"Photo of\". Focus on what's important for someone who cannot see the image. Return only the alt text, nothing else.",
-            'casual' => "Look at this image and write a friendly, conversational alt text (max 125 characters) that describes what's happening. Keep it natural and easy to understand. Don't start with \"Image of\" or \"Picture of\". Return only the alt text, nothing else.",
-            'technical' => "Analyze this image and create a detailed, technical alt text (max 125 characters) describing specific elements, composition, and technical aspects. Be precise and informative. Do not use phrases like \"Image of\". Return only the alt text, nothing else.",
-            'seo' => "Generate SEO-friendly alt text (max 125 characters) for this image. Include relevant keywords naturally while accurately describing the image. Make it descriptive and keyword-rich without keyword stuffing. Do not start with \"Image of\". Return only the alt text, nothing else.",
-            'woo_seo' => "Generate SEO-optimized product alt text (max 125 characters). You MUST include the product name from the context. Describe visible features (color, material, shape). Mention the camera angle if detectable (front, back, side, close-up). Use category keywords from the context naturally. Optimize for Google Image Search. Do not start with \"Image of\". Return only the alt text.",
-            'woo_descriptive' => "Generate descriptive product alt text (max 125 characters) for accessibility. You MUST include the product name from the context. Describe visible physical features: color, material, texture, shape, size. State the camera angle if detectable (front, back, side, close-up, detail). Focus on what a visually impaired shopper needs. Do not start with \"Image of\". Return only the alt text.",
-            'woo_lifestyle' => "Generate lifestyle product alt text (max 125 characters). You MUST include the product name from the context. Describe how the product is used, the setting, and any people or activities shown. Use category keywords naturally. Mention the view angle if detectable. Do not start with \"Image of\". Return only the alt text."
+            'professional' => "Write concise, professional alt text for this image. Describe the main subject, any key action, and relevant context. Focus on what matters most for someone who cannot see the image. {$rules}",
+            'casual' => "Write a friendly, natural-sounding alt text for this image. Describe what is happening in plain, everyday language. {$rules}",
+            'technical' => "Write precise, technical alt text for this image. Describe specific elements, spatial layout, and notable visual details. Be informative and exact. {$rules}",
+            'seo' => "Write SEO-friendly alt text for this image. Weave relevant keywords naturally into an accurate description. Be descriptive and keyword-aware without stuffing. {$rules}",
+            'woo_seo' => "Write SEO-optimized product alt text. You MUST include the exact product name. Describe visible features (color, material, shape) and camera angle if detectable (front, back, side, close-up). Use category keywords naturally. {$rules}",
+            'woo_descriptive' => "Write descriptive product alt text for accessibility. You MUST include the exact product name. Describe visible physical features: color, material, texture, shape, size, and camera angle if detectable. Focus on what a visually impaired shopper needs to know. {$rules}",
+            'woo_lifestyle' => "Write lifestyle product alt text. You MUST include the exact product name. Describe how the product is being used, the setting, and any people or activities shown. Mention the viewing angle if detectable. {$rules}",
         ];
 
         // Resolve prompt text
@@ -59,7 +63,6 @@ if (!defined('ABSPATH')) {
             $customPrompt = Settings::get($settingKey);
 
             if (!empty($customPrompt)) {
-                $maxLength = Settings::get('satai_max_length', 125);
                 $prompt = str_replace('{max_length}', (string) $maxLength, $customPrompt);
             } else {
                 $tone = $tone === 'custom' ? 'professional' : 'woo_seo';
@@ -69,9 +72,25 @@ if (!defined('ABSPATH')) {
             $prompt = $basePrompts[$tone] ?? $basePrompts['professional'];
         }
 
-        // Prepend context
+        // Prepend context with explicit product name extraction
         if (!empty($context)) {
-            $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+            // Extract product name from context string (format: "Product: Name | ...")
+            $productName = null;
+            if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
+                $productName = trim($matches[1]);
+            }
+
+            if ($productName) {
+                $prompt = "This is a product called \"{$productName}\". Additional product info: " . trim($context) . "\n\nIMPORTANT: The alt text MUST contain the product name \"{$productName}\".\n\n" . $prompt;
+            } else {
+                $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+            }
+        }
+
+        // Append SEO keyphrase instruction if present in context
+        if (!empty($context) && preg_match('/SEO Focus Keyphrase:\s*(.+?)(?:\s*\||$)/', $context, $seoMatches)) {
+            $keyphrase = trim($seoMatches[1]);
+            $prompt .= "\n\nSEO INSTRUCTION: The target keyword for this page is \"{$keyphrase}\". You MUST include this exact keyword or a very close variation in the alt text. Weave it naturally into the description. The alt text must read as a complete, natural sentence — never cut off mid-thought.";
         }
 
         // Append language instruction for non-English

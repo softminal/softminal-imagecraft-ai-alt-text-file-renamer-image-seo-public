@@ -38,7 +38,7 @@
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-          <div class="flex gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <button
               @click="filter = 'all'; loadProducts()"
               :class="['px-4 py-2 rounded-lg', filter === 'all' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700']"
@@ -57,6 +57,19 @@
             >
               {{ $t('Has Alt') }}
             </button>
+
+            <div v-if="categories.length > 0" class="border-l border-gray-300 pl-2 ml-1">
+              <select
+                v-model="selectedCategory"
+                @change="loadProducts()"
+                class="px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              >
+                <option :value="0">{{ $t('All Categories') }}</option>
+                <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                  {{ cat.parent > 0 ? '— ' : '' }}{{ cat.name }} ({{ cat.count }})
+                </option>
+              </select>
+            </div>
           </div>
 
           <div class="flex gap-2">
@@ -288,6 +301,8 @@ const productStats = ref({})
 const pagination = ref({})
 const loading = ref(false)
 const filter = ref('all')
+const selectedCategory = ref(0)
+const categories = ref([])
 const selectedProducts = ref([])
 const generatingId = ref(null)
 
@@ -300,10 +315,25 @@ const allSelected = computed(() => {
   return products.value.length > 0 && selectedProducts.value.length === products.value.length
 })
 
+const loadCategories = async () => {
+  try {
+    const result = await Api.get('/woocommerce/categories')
+    if (result.success) {
+      categories.value = result.categories
+    }
+  } catch (error) {
+    // Categories are optional — silently fail
+  }
+}
+
 const loadProducts = async (page = 1) => {
   loading.value = true
   try {
-    const result = await Api.get(`/woocommerce/products?filter=${filter.value}&page=${page}&per_page=18`)
+    let url = `/woocommerce/products?filter=${filter.value}&page=${page}&per_page=18`
+    if (selectedCategory.value > 0) {
+      url += `&category=${selectedCategory.value}`
+    }
+    const result = await Api.get(url)
     if (result.success) {
       woocommerceActive.value = true
       products.value = result.products
@@ -426,13 +456,21 @@ const saveProductAlt = async () => {
   if (!selectedProduct.value) return
   savingAlt.value = true
   try {
-    const product = products.value.find(p => p.id === selectedProduct.value.id)
-    if (product) {
-      product.alt_text = modalAltText.value
-      product.has_alt = !!modalAltText.value
+    const result = await Api.post('/generator/update-alt', {
+      attachment_id: selectedProduct.value.attachment_id || selectedProduct.value.id,
+      alt_text: modalAltText.value || ''
+    })
+    if (result.success) {
+      const product = products.value.find(p => p.id === selectedProduct.value.id)
+      if (product) {
+        product.alt_text = modalAltText.value
+        product.has_alt = !!modalAltText.value
+      }
+      notification.success($t('Alt text updated'))
+      closeProductModal()
+    } else {
+      notification.error(result.message || $t('Failed to save'))
     }
-    notification.success($t('Alt text updated'))
-    closeProductModal()
   } catch (error) {
     notification.error($t('Failed to save'))
   } finally {
@@ -441,6 +479,7 @@ const saveProductAlt = async () => {
 }
 
 onMounted(() => {
+  loadCategories()
   loadProducts()
 })
 </script>

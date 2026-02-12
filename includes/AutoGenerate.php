@@ -2,10 +2,11 @@
 
 namespace SmartAltTextAi\Includes;
 
-use SmartAltTextAi\Includes\Models\Stats;
 use SmartAltTextAi\Includes\Services\Settings;
+use SmartAltTextAi\Includes\Services\StatsTracker;
 use SmartAltTextAi\Includes\Services\AI\AIFactory;
 use SmartAltTextAi\Includes\Services\FileRenamer;
+use SmartAltTextAi\Includes\Services\SeoIntegration;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -46,21 +47,24 @@ class AutoGenerate
             }
         }
 
+        // Capture user ID now (cron context won't have a logged-in user)
+        $userId = get_current_user_id();
+
         // Schedule generation in background
-        wp_schedule_single_event(time() + 5, 'satai_auto_generate', [$attachmentId]);
+        wp_schedule_single_event(time() + 5, 'satai_auto_generate', [$attachmentId, $userId]);
 
         // Schedule rename after alt text is generated
         if (Settings::get('satai_auto_rename', false)) {
-            wp_schedule_single_event(time() + 15, 'satai_auto_rename', [$attachmentId]);
+            wp_schedule_single_event(time() + 15, 'satai_auto_rename', [$attachmentId, $userId]);
         }
     }
 
     /**
      * Generate alt text for attachment
      */
-    public static function generateForAttachment($attachmentId)
+    public static function generateForAttachment($attachmentId, $userId = 0)
     {
-        $userId = get_current_user_id();
+        $userId = $userId ?: get_current_user_id();
         $aiProvider = AIFactory::getProviderForUser($userId);
 
         if (!$aiProvider) {
@@ -73,49 +77,35 @@ class AutoGenerate
         }
 
         $tone = Settings::get('satai_default_tone', 'professional');
-        $result = $aiProvider->generateAltText($imageUrl, $tone);
+        $context = SeoIntegration::buildSeoContext((int) $attachmentId);
+        $result = $aiProvider->generateAltText($imageUrl, $tone, $context);
 
         if (!$result['success']) {
             return;
         }
 
-        // Save to history
-        $apiSetting = \SmartAltTextAi\Includes\Models\ApiSetting::getActive($userId);
-        if ($apiSetting) {
-            // WordPress stores booleans as '1'/'0', so we need to properly check the value
-            $previewSetting = Settings::get('satai_preview_before_accept', '1');
-            $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+        $previewSetting = Settings::get('satai_preview_before_accept', '1');
+        $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+        $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
 
-            $history = \SmartAltTextAi\Includes\Models\History::create([
-                'attachment_id' => $attachmentId,
-                'original_alt' => get_post_meta($attachmentId, '_wp_attachment_image_alt', true),
-                'generated_alt' => $result['alt_text'],
-                'user_id' => $userId,
-                'api_provider' => $apiSetting->api_provider,
-                'tone' => $tone,
-                'status' => $previewBeforeAccept ? 'pending' : 'accepted',
-                'tokens_used' => $result['tokens'] ?? 0,
-                'cost_estimate' => $result['cost'] ?? 0
-            ]);
+        StatsTracker::recordGeneration([
+            'attachment_id' => $attachmentId,
+            'original_alt'  => get_post_meta($attachmentId, '_wp_attachment_image_alt', true),
+            'alt_text'      => $result['alt_text'],
+            'user_id'       => $userId,
+            'tone'          => $tone,
+            'status'        => $initialStatus,
+            'tokens'        => $result['tokens'] ?? 0,
+            'cost'          => $result['cost'] ?? 0,
+        ]);
 
-            // Auto-accept if preview is disabled
-            if (!$previewBeforeAccept) {
-                update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
-                $history->status = 'accepted';
-                $history->save();
-
-                // Update stats
-                $stats = Stats::getOrCreate($userId, gmdate('Y-m-d'));
-                $stats->increment('images_processed');
-                $stats->increment('images_accepted');
-                $stats->total_cost_estimate = (float) $stats->total_cost_estimate + ($result['cost'] ?? 0);
-                $stats->api_provider = $apiSetting->api_provider;
-                $stats->save();
-            }
+        // Auto-accept: write alt text to attachment meta
+        if (!$previewBeforeAccept) {
+            update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
         }
     }
 
-    public static function renameOnUpload($attachmentId)
+    public static function renameOnUpload($attachmentId, $userId = 0)
     {
         if (!Settings::get('satai_auto_rename', false)) {
             return;

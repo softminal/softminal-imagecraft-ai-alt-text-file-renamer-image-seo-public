@@ -287,105 +287,6 @@
       </div>
     </div>
 
-    <!-- Single image modal (WP Media-style view) -->
-    <Teleport to="body">
-      <div
-        v-if="selectedImage"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-        @click.self="closeImageModal"
-      >
-        <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
-          <div class="p-4 border-b flex items-center justify-between shrink-0">
-            <h2 class="text-lg font-bold">{{ $t('Attachment details') }}</h2>
-            <button
-              @click="closeImageModal"
-              class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
-              :aria-label="$t('Close')"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="p-4 overflow-y-auto flex-1">
-            <div class="flex gap-4 flex-col sm:flex-row">
-              <div class="shrink-0">
-                <img
-                  :src="selectedImage.url"
-                  :alt="modalAltText || selectedImage.filename"
-                  class="max-h-64 w-full object-contain rounded-lg border bg-gray-50"
-                />
-              </div>
-              <div class="flex-1 min-w-0 space-y-3">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">{{ $t('File name') }}</label>
-                  <p class="text-sm text-gray-600 truncate" :title="selectedImage.filename">
-                    {{ selectedImage.filename }}
-                  </p>
-                  <button
-                    v-if="selectedImage.has_alt && !renamingId"
-                    @click="renameFile(selectedImage.id)"
-                    :disabled="renamingId === selectedImage.id"
-                    class="mt-2 text-xs flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
-                  >
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                    </svg>
-                    {{ $t('Rename to SEO') }}
-                  </button>
-                </div>
-                <div>
-                  <div class="flex items-center justify-between gap-2 mb-1">
-                    <label class="block text-sm font-medium text-gray-700">{{ $t('Alt text') }}</label>
-                    <button
-                      type="button"
-                      @click="generateAltForImage"
-                      :disabled="generatingAlt"
-                      class="text-sm px-3 py-1.5 rounded-lg text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {{ generatingAlt ? $t('Generating...') : $t('Generate with AI') }}
-                    </button>
-                  </div>
-                  <textarea
-                    v-model="modalAltText"
-                    rows="3"
-                    class="w-full text-sm border rounded-lg p-2 resize-y focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    :placeholder="$t('Describe the image for accessibility...')"
-                  />
-                  <p class="text-xs text-gray-500 mt-1">
-                    {{ $t('Alternative text helps describe the image for screen readers and SEO.') }}
-                  </p>
-                </div>
-                <a
-                  v-if="editAttachmentUrl"
-                  :href="editAttachmentUrl"
-                  target="_blank"
-                  rel="noopener"
-                  class="text-sm text-blue-600 hover:underline"
-                >
-                  {{ $t('Open in WordPress Media Library') }} →
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="p-4 border-t flex justify-end gap-2 shrink-0">
-            <button
-              @click="closeImageModal"
-              class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
-            >
-              {{ $t('Cancel') }}
-            </button>
-            <button
-              @click="saveImageAlt"
-              :disabled="savingImageAlt"
-              class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ savingImageAlt ? $t('Saving...') : $t('Update') }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
   </div>
 </template>
 
@@ -411,12 +312,6 @@ const minSize = ref(0)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 
-// Single image modal (WP Media-style view)
-const selectedImage = ref(null)
-const modalAltText = ref('')
-const savingImageAlt = ref(false)
-const generatingAlt = ref(false)
-const pendingHistoryId = ref(null)
 
 const allSelected = computed(() => {
   return images.value.length > 0 && selectedImages.value.length === images.value.length
@@ -529,80 +424,29 @@ const startBatch = async () => {
 }
 
 function openImageModal(image) {
-  selectedImage.value = image
-  modalAltText.value = image.alt_text || ''
-  pendingHistoryId.value = null
-}
+  if (typeof wp === 'undefined' || !wp.media) return
 
-function closeImageModal() {
-  selectedImage.value = null
-  pendingHistoryId.value = null
-}
+  var frame = wp.media({
+    frame: 'select',
+    title: 'Attachment Details',
+    library: { type: 'image' },
+    button: { text: 'Close' },
+    multiple: false
+  })
 
-const generateAltForImage = async () => {
-  if (!selectedImage.value) return
-  generatingAlt.value = true
-  try {
-    const result = await Api.post('/generator/generate', {
-      attachment_id: selectedImage.value.id,
-      tone: 'professional'
-    })
-    if (result.success && result.alt_text) {
-      modalAltText.value = result.alt_text
-      if (result.history_id) {
-        pendingHistoryId.value = result.history_id
-      } else {
-        pendingHistoryId.value = null
-      }
-      notification.success($t('Alt text generated. Review and click Update to save.'))
-    } else {
-      notification.error(result.message || $t('Failed to generate alt text'))
-    }
-  } catch (error) {
-    notification.error(error.message || $t('Failed to generate alt text'))
-  } finally {
-    generatingAlt.value = false
-  }
-}
+  frame.on('open', function () {
+    var selection = frame.state().get('selection')
+    var attachment = wp.media.attachment(image.id)
+    attachment.fetch()
+    selection.add(attachment)
+  })
 
-const editAttachmentUrl = computed(() => {
-  if (!selectedImage.value) return ''
-  const adminUrl = typeof window !== 'undefined' && window.wpAiAltText ? window.wpAiAltText.adminUrl : ''
-  return adminUrl ? `${adminUrl}post.php?post=${selectedImage.value.id}&action=edit` : ''
-})
+  frame.on('close', function () {
+    // Refresh images + stats when modal closes (user may have edited alt text)
+    loadImages(pagination.value.current_page)
+  })
 
-const saveImageAlt = async () => {
-  if (!selectedImage.value) return
-  savingImageAlt.value = true
-  try {
-    let result
-    if (pendingHistoryId.value) {
-      result = await Api.post('/generator/accept', {
-        history_id: pendingHistoryId.value,
-        alt_text: modalAltText.value || ''
-      })
-    } else {
-      result = await Api.post('/generator/update-alt', {
-        attachment_id: selectedImage.value.id,
-        alt_text: modalAltText.value || ''
-      })
-    }
-    if (result.success) {
-      const img = images.value.find(i => i.id === selectedImage.value.id)
-      if (img) {
-        img.alt_text = modalAltText.value || ''
-        img.has_alt = !!modalAltText.value
-      }
-      notification.success($t('Alt text updated.'))
-      closeImageModal()
-    } else {
-      notification.error(result.message || $t('Failed to update alt text'))
-    }
-  } catch (error) {
-    notification.error(error.message || $t('Failed to update alt text'))
-  } finally {
-    savingImageAlt.value = false
-  }
+  frame.open()
 }
 
 const renameFile = async (imageId) => {

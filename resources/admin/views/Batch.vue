@@ -196,6 +196,7 @@ const loadingResults = ref(false)
 const savingAltTexts = ref(false)
 const reviewModalShownForJob = ref(false)
 let intervalId = null
+let processingChunk = false
 
 const loadJobStatus = async () => {
   if (!jobId.value) return
@@ -207,8 +208,8 @@ const loadJobStatus = async () => {
       prevJobStatus.value = result.job.status
       job.value = result.job
 
-      // If processing, trigger process chunk
-      if (job.value.status === 'processing' || job.value.status === 'pending') {
+      // If processing, trigger process chunk (only if not already processing)
+      if ((job.value.status === 'processing' || job.value.status === 'pending') && !processingChunk) {
         await processChunk()
       }
 
@@ -285,16 +286,17 @@ const saveAllAltTexts = async () => {
 }
 
 const processChunk = async () => {
-  if (!jobId.value) return
+  if (!jobId.value || processingChunk) return
+  processingChunk = true
 
   try {
     await Api.post('/batch/process', {
       job_id: jobId.value
     })
-    // Reload status after processing
-    setTimeout(loadJobStatus, 1000)
   } catch (error) {
     console.error('Failed to process chunk:', error)
+  } finally {
+    processingChunk = false
   }
 }
 

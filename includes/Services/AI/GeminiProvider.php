@@ -35,7 +35,7 @@ class GeminiProvider extends BaseAIProvider
                 ]
             ],
             'generationConfig' => [
-                'maxOutputTokens' => 100
+                'maxOutputTokens' => 300
             ]
         ];
 
@@ -78,10 +78,7 @@ class GeminiProvider extends BaseAIProvider
         $url = self::ENDPOINT . '?key=' . urlencode($this->apiKey);
 
         try {
-            $headers = [
-                'x-goog-api-key' => $this->apiKey,
-            ];
-            $response = $this->makeRequest($url, $data, $headers);
+            $response = $this->makeRequest($url, $data);
             return ['success' => true, 'message' => 'Connection successful'];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];

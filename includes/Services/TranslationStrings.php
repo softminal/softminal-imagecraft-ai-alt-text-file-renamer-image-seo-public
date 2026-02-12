@@ -18,7 +18,8 @@ class TranslationStrings {
             self::settings(),
             self::setupWizard(),
             self::batch(),
-            self::woocommerce()
+            self::woocommerce(),
+            self::seoIntegration()
         );
     }
 
@@ -374,6 +375,19 @@ class TranslationStrings {
             'Failed to generate',
             'Alt text updated',
             'Failed to save',
+        ]);
+    }
+
+    private static function seoIntegration(): array {
+        return self::translate([
+            'SEO Integration',
+            'Detected:',
+            'Use your focus keyphrase to improve alt text SEO relevance.',
+            'Enable SEO integration',
+            'When enabled, the plugin will read SEO data from your SEO plugin to enhance alt text generation.',
+            'Include focus keyphrase in alt text',
+            'The AI will naturally incorporate the focus keyphrase from the parent post/page into the generated alt text. The image must be attached to a post that has a focus keyphrase set.',
+            'No supported SEO plugin detected. Install Yoast SEO, Rank Math, All in One SEO, or SEOPress to enable focus keyphrase integration.',
         ]);
     }
 

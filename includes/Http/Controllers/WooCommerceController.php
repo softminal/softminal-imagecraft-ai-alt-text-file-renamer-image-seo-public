@@ -2,11 +2,9 @@
 
 namespace SmartAltTextAi\Includes\Http\Controllers;
 
-use SmartAltTextAi\Includes\Models\History;
-use SmartAltTextAi\Includes\Models\ApiSetting;
-use SmartAltTextAi\Includes\Models\Stats;
 use SmartAltTextAi\Includes\Services\WooCommerce;
 use SmartAltTextAi\Includes\Services\Settings;
+use SmartAltTextAi\Includes\Services\StatsTracker;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -26,8 +24,9 @@ class WooCommerceController extends Controller
         $perPage = min((int) ($request['per_page'] ?? 20), 50);
         $page = (int) ($request['page'] ?? 1);
         $filter = sanitize_text_field($request['filter'] ?? 'all');
+        $category = (int) ($request['category'] ?? 0);
 
-        $result = WooCommerce::getProducts($perPage, $page, $filter);
+        $result = WooCommerce::getProducts($perPage, $page, $filter, $category);
 
         return $this->response([
             'success' => true,
@@ -55,6 +54,21 @@ class WooCommerceController extends Controller
             'success' => true,
             'is_active' => true,
             'stats' => WooCommerce::getProductStats(),
+        ]);
+    }
+
+    public function getCategories($request)
+    {
+        if (!WooCommerce::isActive()) {
+            return $this->response([
+                'success' => false,
+                'message' => 'WooCommerce is not active'
+            ], 400);
+        }
+
+        return $this->response([
+            'success' => true,
+            'categories' => WooCommerce::getCategories(),
         ]);
     }
 
@@ -135,7 +149,6 @@ class WooCommerceController extends Controller
 
         $contextPrompt = WooCommerce::buildProductContextPrompt($product);
         $userId = get_current_user_id();
-        $apiSetting = ApiSetting::getActive($userId);
 
         foreach ($galleryIds as $index => $attachmentId) {
             $imageUrl = wp_get_attachment_url($attachmentId);
@@ -147,13 +160,13 @@ class WooCommerceController extends Controller
                 continue;
             }
 
-            $altText = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
-            if (!empty($altText) && Settings::get('satai_skip_existing', false)) {
+            $existingAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
+            if (!empty($existingAlt) && Settings::get('satai_skip_existing', false)) {
                 $results[$index] = [
                     'success' => true,
                     'attachment_id' => $attachmentId,
                     'skipped' => true,
-                    'alt_text' => $altText,
+                    'alt_text' => $existingAlt,
                 ];
                 continue;
             }
@@ -161,29 +174,18 @@ class WooCommerceController extends Controller
             $result = $aiProvider->generateAltText($imageUrl, $tone, $contextPrompt);
 
             if ($result['success']) {
-                $originalAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
                 update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
 
-                History::create([
+                StatsTracker::recordGeneration([
                     'attachment_id' => $attachmentId,
-                    'original_alt' => $originalAlt,
-                    'generated_alt' => $result['alt_text'],
-                    'user_id' => $userId,
-                    'api_provider' => $apiSetting ? $apiSetting->api_provider : 'unknown',
-                    'tone' => $tone,
-                    'status' => 'accepted',
-                    'tokens_used' => $result['tokens'] ?? 0,
-                    'cost_estimate' => $result['cost'] ?? 0,
+                    'original_alt'  => $existingAlt,
+                    'alt_text'      => $result['alt_text'],
+                    'user_id'       => $userId,
+                    'tone'          => $tone,
+                    'status'        => 'accepted',
+                    'tokens'        => $result['tokens'] ?? 0,
+                    'cost'          => $result['cost'] ?? 0,
                 ]);
-
-                $stats = Stats::getOrCreate($userId, gmdate('Y-m-d'));
-                $stats->increment('images_processed');
-                $stats->increment('images_accepted');
-                $stats->total_cost_estimate = (float) $stats->total_cost_estimate + ($result['cost'] ?? 0);
-                if ($apiSetting) {
-                    $stats->api_provider = $apiSetting->api_provider;
-                }
-                $stats->save();
 
                 $results[$index] = [
                     'success' => true,

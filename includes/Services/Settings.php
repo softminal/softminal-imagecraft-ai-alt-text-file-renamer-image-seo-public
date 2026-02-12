@@ -14,7 +14,7 @@ class Settings
     private static $defaults = [
         'satai_api_provider' => 'anthropic',
         'satai_default_tone' => 'professional',
-        'satai_max_length' => 125,
+        'satai_max_length' => 150,
         'satai_auto_generate' => '0',
         'satai_preview_before_accept' => '1',
         'satai_skip_existing' => '0',
@@ -29,6 +29,8 @@ class Settings
         'satai_woo_default_tone' => 'woo_seo',
         'satai_custom_prompt' => '',
         'satai_woo_custom_prompt' => '',
+        'satai_seo_integration' => '0',
+        'satai_seo_use_keyphrase' => '1',
     ];
 
     /**
@@ -88,18 +90,21 @@ class Settings
      */
     private static function normalizeValueForComparison($value)
     {
+        // Preserve empty strings so clearing a text field (e.g. custom prompt)
+        // is not treated the same as setting a boolean to false/0.
+        if ($value === '') {
+            return '';
+        }
         // WordPress stores booleans as strings '1'/'0' or integers 1/0
         if (is_bool($value)) {
             return $value ? '1' : '0';
         }
-        // Convert to string for consistent comparison
-        if ($value === '1' || $value === 1 || $value === true) {
+        if ($value === '1' || $value === 1) {
             return '1';
         }
-        if ($value === '0' || $value === 0 || $value === false || $value === '') {
+        if ($value === '0' || $value === 0 || $value === false) {
             return '0';
         }
-        // For other types, convert to string
         return (string) $value;
     }
 

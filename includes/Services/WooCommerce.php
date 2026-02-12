@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
 }
 
 use SmartAltTextAi\Includes\Services\AI\AIFactory;
+use SmartAltTextAi\Includes\Services\StatsTracker;
 
 class WooCommerce
 {
@@ -15,7 +16,7 @@ class WooCommerce
         return class_exists('WooCommerce');
     }
 
-    public static function getProducts(?int $limit = -1, int $page = 1, string $filter = 'all'): array
+    public static function getProducts(?int $limit = -1, int $page = 1, string $filter = 'all', int $category = 0): array
     {
         if (!self::isActive()) {
             return ['products' => [], 'total' => 0, 'pages' => 0];
@@ -28,26 +29,33 @@ class WooCommerce
             'post_status' => 'publish',
         ];
 
+        // Category filter
+        if ($category > 0) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+            $args['tax_query'] = [
+                [
+                    'taxonomy' => 'product_cat',
+                    'field' => 'term_id',
+                    'terms' => $category,
+                ],
+            ];
+        }
+
         switch ($filter) {
             case 'missing':
-                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                $args['meta_query'] = [
-                    [
-                        //phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-                        'key' => '_thumbnail_id',
-                        'compare' => 'EXISTS',
-                    ],
-                ];
-                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-                $args['tax_query'] = [
-                    [
-                        'taxonomy' => 'product_type',
-                        'operator' => 'NOT IN',
-                        'terms' => ['grouped'],
-                    ],
-                ];
+                $hasAltIds = self::getProductIdsWithAlt();
+                if (!empty($hasAltIds)) {
+                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_post__not_in
+                    $args['post__not_in'] = $hasAltIds;
+                }
                 break;
             case 'has_alt':
+                $hasAltIds = self::getProductIdsWithAlt();
+                if (empty($hasAltIds)) {
+                    $args['post__in'] = [0]; // Force no results
+                } else {
+                    $args['post__in'] = $hasAltIds;
+                }
                 break;
         }
 
@@ -102,42 +110,16 @@ class WooCommerce
             ];
         }
 
-        $totalArgs = [
-            'post_type' => 'product',
-            'posts_per_page' => 1,
-            'post_status' => 'publish',
-            'fields' => 'ids',
-        ];
+        global $wpdb;
 
-        $totalQuery = new \WP_Query($totalArgs);
-        $totalProducts = $totalQuery->found_posts;
+        // Total published products
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $totalProducts = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'product' AND post_status = 'publish'"
+        );
 
-        $missingArgs = [
-            'post_type' => 'product',
-            'posts_per_page' => 1,
-            'post_status' => 'publish',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-            'meta_query' => [
-                [
-                    'key' => '_thumbnail_id',
-                    'compare' => 'EXISTS',
-                ],
-            ],
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-            'tax_query' => [
-                [
-                    'taxonomy' => 'product_type',
-                    'operator' => 'NOT IN',
-                    'terms' => ['grouped'],
-                ],
-            ],
-            'fields' => 'ids',
-        ];
-
-        $missingQuery = new \WP_Query($missingArgs);
-        $missingAlt = $missingQuery->found_posts;
-
-        $hasAlt = $totalProducts - $missingAlt;
+        $hasAlt = count(self::getProductIdsWithAlt());
+        $missingAlt = $totalProducts - $hasAlt;
         $percentage = $totalProducts > 0 ? round(($missingAlt / $totalProducts) * 100, 1) : 0;
 
         return [
@@ -146,6 +128,82 @@ class WooCommerce
             'has_alt' => $hasAlt,
             'missing_percentage' => $percentage,
         ];
+    }
+
+    /**
+     * Get IDs of published products whose featured image has non-empty alt text.
+     *
+     * Alt text lives on the attachment post (_wp_attachment_image_alt), not on
+     * the product, so we need a cross-post join to check it.
+     *
+     * @return int[]
+     */
+    private static ?array $productIdsWithAltCache = null;
+
+    private static function getProductIdsWithAlt(): array
+    {
+        if (self::$productIdsWithAltCache !== null) {
+            return self::$productIdsWithAltCache;
+        }
+
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $ids = $wpdb->get_col(
+            "SELECT DISTINCT p.ID
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} thumb
+                 ON p.ID = thumb.post_id AND thumb.meta_key = '_thumbnail_id'
+             INNER JOIN {$wpdb->postmeta} alt
+                 ON thumb.meta_value = alt.post_id
+                 AND alt.meta_key = '_wp_attachment_image_alt'
+                 AND alt.meta_value != ''
+             WHERE p.post_type = 'product' AND p.post_status = 'publish'"
+        );
+
+        self::$productIdsWithAltCache = array_map('intval', $ids);
+
+        return self::$productIdsWithAltCache;
+    }
+
+    /**
+     * Get product categories with product counts.
+     *
+     * @return array
+     */
+    public static function getCategories(): array
+    {
+        if (!self::isActive()) {
+            return [];
+        }
+
+        $terms = get_terms([
+            'taxonomy' => 'product_cat',
+            'hide_empty' => true,
+            'orderby' => 'name',
+            'order' => 'ASC',
+        ]);
+
+        if (is_wp_error($terms)) {
+            return [];
+        }
+
+        $categories = [];
+        foreach ($terms as $term) {
+            // Skip "Uncategorized" if it has the default slug
+            if ($term->slug === 'uncategorized' && $term->count === 0) {
+                continue;
+            }
+            $categories[] = [
+                'id' => $term->term_id,
+                'name' => $term->name,
+                'slug' => $term->slug,
+                'count' => $term->count,
+                'parent' => $term->parent,
+            ];
+        }
+
+        return $categories;
     }
 
     public static function generateProductAltText(int $productId, string $tone = 'professional'): array
@@ -183,30 +241,18 @@ class WooCommerce
 
         $originalAlt = get_post_meta($thumbnailId, '_wp_attachment_image_alt', true);
 
-        $apiSetting = \SmartAltTextAi\Includes\Models\ApiSetting::getActive(get_current_user_id());
-
         update_post_meta($thumbnailId, '_wp_attachment_image_alt', $result['alt_text']);
 
-        $history = \SmartAltTextAi\Includes\Models\History::create([
+        $history = StatsTracker::recordGeneration([
             'attachment_id' => $thumbnailId,
-            'original_alt' => $originalAlt,
-            'generated_alt' => $result['alt_text'],
-            'user_id' => get_current_user_id(),
-            'api_provider' => $apiSetting ? $apiSetting->api_provider : 'unknown',
-            'tone' => $tone,
-            'status' => 'accepted',
-            'tokens_used' => $result['tokens'] ?? 0,
-            'cost_estimate' => $result['cost'] ?? 0,
+            'original_alt'  => $originalAlt,
+            'alt_text'      => $result['alt_text'],
+            'user_id'       => get_current_user_id(),
+            'tone'          => $tone,
+            'status'        => 'accepted',
+            'tokens'        => $result['tokens'] ?? 0,
+            'cost'          => $result['cost'] ?? 0,
         ]);
-
-        $stats = \SmartAltTextAi\Includes\Models\Stats::getOrCreate(get_current_user_id(), gmdate('Y-m-d'));
-        $stats->increment('images_processed');
-        $stats->increment('images_accepted');
-        $stats->total_cost_estimate = (float) $stats->total_cost_estimate + ($result['cost'] ?? 0);
-        if ($apiSetting) {
-            $stats->api_provider = $apiSetting->api_provider;
-        }
-        $stats->save();
 
         return [
             'success' => true,
@@ -258,12 +304,13 @@ class WooCommerce
         $gallery = [];
 
         foreach ($galleryIds as $id) {
+            $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
             $gallery[] = [
                 'id' => $id,
                 'url' => wp_get_attachment_url($id),
                 'thumb_url' => wp_get_attachment_thumb_url($id),
-                'alt_text' => get_post_meta($id, '_wp_attachment_image_alt', true),
-                'has_alt' => !empty(get_post_meta($id, '_wp_attachment_image_alt', true)),
+                'alt_text' => $alt,
+                'has_alt' => !empty($alt),
             ];
         }
 
