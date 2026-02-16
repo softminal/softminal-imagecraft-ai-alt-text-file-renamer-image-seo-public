@@ -1,13 +1,13 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Controllers;
+namespace ImageCraft\Includes\Http\Controllers;
 
-use SmartAltTextAi\Includes\Models\History;
-use SmartAltTextAi\Includes\Services\AI\AIFactory;
-use SmartAltTextAi\Includes\Services\Settings;
-use SmartAltTextAi\Includes\Services\StatsTracker;
-use SmartAltTextAi\Includes\Services\SeoIntegration;
-use SmartAltTextAi\Includes\Services\WooCommerce;
+use ImageCraft\Includes\Models\History;
+use ImageCraft\Includes\Services\AI\AIFactory;
+use ImageCraft\Includes\Services\Settings;
+use ImageCraft\Includes\Services\StatsTracker;
+use ImageCraft\Includes\Services\SeoIntegration;
+use ImageCraft\Includes\Services\WooCommerce;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -22,7 +22,7 @@ class GeneratorController extends Controller
     {
         $params = $request->get_json_params();
         $attachmentId = (int) ($params['attachment_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('satai_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('imgcraft_default_tone', 'professional'));
 
         // Only use WooCommerce product context when product_id is explicitly sent
         // (i.e., user is on a product edit page, not browsing the Media Library directly)
@@ -33,7 +33,7 @@ class GeneratorController extends Controller
 
             // If product context found and no explicit tone was provided, use WooCommerce tone
             if ($context !== null && !isset($params['tone'])) {
-                $tone = Settings::get('satai_woo_default_tone', 'woo_seo');
+                $tone = Settings::get('imgcraft_woo_default_tone', 'woo_seo');
             }
         }
 
@@ -63,7 +63,7 @@ class GeneratorController extends Controller
         if ($context !== null && preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', $context, $matches)) {
             $productName = trim($matches[1]);
             if (stripos($result['alt_text'], $productName) === false) {
-                $maxLength = (int) Settings::get('satai_max_length', 150);
+                $maxLength = (int) Settings::get('imgcraft_max_length', 150);
                 $newAlt = $productName . ' - ' . $result['alt_text'];
                 if (mb_strlen($newAlt) > $maxLength) {
                     $available = $maxLength - mb_strlen($productName) - 3;
@@ -83,7 +83,7 @@ class GeneratorController extends Controller
                 }
 
                 // Update attachment meta if auto-accepted (preview disabled)
-                $previewSetting = Settings::get('satai_preview_before_accept', '1');
+                $previewSetting = Settings::get('imgcraft_preview_before_accept', '1');
                 if ($previewSetting !== '1' && $previewSetting !== 1 && $previewSetting !== true) {
                     update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($newAlt));
                 }
@@ -153,7 +153,7 @@ class GeneratorController extends Controller
         }
         
         // Determine initial status based on preview setting
-        $previewSetting = Settings::get('satai_preview_before_accept', '1');
+        $previewSetting = Settings::get('imgcraft_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
         $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
 

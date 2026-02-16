@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Get the plugin directory
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGIN_NAME="smart-alt-text-ai"
+PLUGIN_NAME="imagecraft"
 BUILD_DIR="$PLUGIN_DIR/build"
 ZIP_NAME="${PLUGIN_NAME}.zip"
 
@@ -91,9 +91,9 @@ if [ -f "$PLUGIN_DIR/composer.json" ]; then
     echo "  ✓ composer.json"
 fi
 
-if [ -f "$PLUGIN_DIR/smart-alt-text-ai.php" ]; then
-    cp "$PLUGIN_DIR/smart-alt-text-ai.php" "$BUILD_DIR/$PLUGIN_NAME/"
-    echo "  ✓ smart-alt-text-ai.php"
+if [ -f "$PLUGIN_DIR/imagecraft.php" ]; then
+    cp "$PLUGIN_DIR/imagecraft.php" "$BUILD_DIR/$PLUGIN_NAME/"
+    echo "  ✓ imagecraft.php"
 fi
 
 # Copy composer.lock if exists

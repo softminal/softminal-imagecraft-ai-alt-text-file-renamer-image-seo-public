@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Sanitizer;
+namespace ImageCraft\Includes\Http\Sanitizer;
 
 if (!defined('ABSPATH')) {
     exit;

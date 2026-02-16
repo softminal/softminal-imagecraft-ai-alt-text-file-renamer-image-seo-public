@@ -1,5 +1,5 @@
 /**
- * Smart Alt Text AI - Media Modal Button
+ * ImageCraft - Media Modal Button
  *
  * Injects a "Generate with AI" button below the Alternative Text field
  * in WordPress media modal attachment details using MutationObserver.
@@ -9,7 +9,7 @@
 (function () {
     'use strict';
 
-    var config = window.sataiMediaButton || {};
+    var config = window.imgcraftMediaButton || {};
     var injectedSpans = new WeakSet();
 
     /**
@@ -68,21 +68,21 @@
      */
     function createButton(altSettingSpan) {
         var wrapper = document.createElement('div');
-        wrapper.className = 'satai-media-btn-wrapper';
+        wrapper.className = 'imgcraft-media-btn-wrapper';
 
         var btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'satai-media-btn';
+        btn.className = 'imgcraft-media-btn';
         btn.innerHTML =
-            '<span class="satai-btn-icon">' +
+            '<span class="imgcraft-btn-icon">' +
                 '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
                     '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' +
                 '</svg>' +
             '</span>' +
-            '<span class="satai-btn-text">' + (config.i18n?.generate || 'Generate with AI') + '</span>';
+            '<span class="imgcraft-btn-text">' + (config.i18n?.generate || 'Generate with AI') + '</span>';
 
         var status = document.createElement('div');
-        status.className = 'satai-media-status';
+        status.className = 'imgcraft-media-status';
         status.style.display = 'none';
 
         wrapper.appendChild(btn);
@@ -108,8 +108,8 @@
 
         // Set loading state
         btn.disabled = true;
-        btn.classList.add('satai-loading');
-        btn.querySelector('.satai-btn-text').textContent = config.i18n?.generating || 'Generating...';
+        btn.classList.add('imgcraft-loading');
+        btn.querySelector('.imgcraft-btn-text').textContent = config.i18n?.generating || 'Generating...';
         status.style.display = 'none';
 
         var url = config.apiUrl + '/generator/generate';
@@ -170,8 +170,8 @@
         })
         .finally(function () {
             btn.disabled = false;
-            btn.classList.remove('satai-loading');
-            btn.querySelector('.satai-btn-text').textContent = config.i18n?.generate || 'Generate with AI';
+            btn.classList.remove('imgcraft-loading');
+            btn.querySelector('.imgcraft-btn-text').textContent = config.i18n?.generate || 'Generate with AI';
         });
     }
 
@@ -180,7 +180,7 @@
      */
     function showStatus(el, type, message) {
         el.textContent = message;
-        el.className = 'satai-media-status satai-status-' + type;
+        el.className = 'imgcraft-media-status imgcraft-status-' + type;
         el.style.display = 'block';
 
         // Auto-hide success messages after 4 seconds

@@ -1,10 +1,10 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services;
+namespace ImageCraft\Includes\Services;
 
-use SmartAltTextAi\Includes\Models\History;
-use SmartAltTextAi\Includes\Models\Stats;
-use SmartAltTextAi\Includes\Models\ApiSetting;
+use ImageCraft\Includes\Models\History;
+use ImageCraft\Includes\Models\Stats;
+use ImageCraft\Includes\Models\ApiSetting;
 
 if (!defined('ABSPATH')) {
     exit;

@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Routes;
+namespace ImageCraft\Includes\Http\Routes;
 
 use WP_Error;
 
@@ -157,9 +157,9 @@ class Route
     public static function registerRoutes($namespace = null) {
         // Use default namespace if not provided
         if ($namespace === null) {
-            $namespace = defined('SATAI_API_NAMESPACE')
-                ? SATAI_API_NAMESPACE
-                : 'smart-alt-text-ai/v1';
+            $namespace = defined('IMGCRAFT_API_NAMESPACE')
+                ? IMGCRAFT_API_NAMESPACE
+                : 'imagecraft/v1';
         }
         if (empty(self::$routes)) {
             return;
@@ -192,7 +192,7 @@ class Route
                     } catch (\Exception $e) {
                         $message = (defined('WP_DEBUG') && WP_DEBUG)
                             ? $e->getMessage()
-                            : __('An unexpected error occurred.', 'smart-alt-text-ai');
+                            : __('An unexpected error occurred.', 'imagecraft');
 
                         return new \WP_Error(
                             'api_error',

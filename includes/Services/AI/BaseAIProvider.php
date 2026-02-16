@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services\AI;
+namespace ImageCraft\Includes\Services\AI;
 
-use SmartAltTextAi\Includes\Services\Settings;
+use ImageCraft\Includes\Services\Settings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -43,7 +43,7 @@ abstract class BaseAIProvider
      */
     protected function getPrompt(string $tone, ?string $context = null): string
     {
-        $maxLength = (int) Settings::get('satai_max_length', 150);
+        $maxLength = (int) Settings::get('imgcraft_max_length', 150);
 
         $rules = "Rules: Stay under {$maxLength} characters. Never start with \"Image of\", \"Photo of\", \"Picture of\", or \"A photo\". Do not wrap in quotation marks. Return only the alt text, nothing else.";
 
@@ -59,7 +59,7 @@ abstract class BaseAIProvider
 
         // Resolve prompt text
         if ($tone === 'custom' || $tone === 'woo_custom') {
-            $settingKey = $tone === 'custom' ? 'satai_custom_prompt' : 'satai_woo_custom_prompt';
+            $settingKey = $tone === 'custom' ? 'imgcraft_custom_prompt' : 'imgcraft_woo_custom_prompt';
             $customPrompt = Settings::get($settingKey);
 
             if (!empty($customPrompt)) {
@@ -94,7 +94,7 @@ abstract class BaseAIProvider
         }
 
         // Append language instruction for non-English
-        $language = Settings::get('satai_language', 'en');
+        $language = Settings::get('imgcraft_language', 'en');
         if ($language !== 'en') {
             $languageName = $this->getLanguageName($language);
             $prompt .= " You MUST write the alt text in {$languageName}.";

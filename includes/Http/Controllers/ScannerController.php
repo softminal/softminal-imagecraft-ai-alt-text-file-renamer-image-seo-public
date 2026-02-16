@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Controllers;
+namespace ImageCraft\Includes\Http\Controllers;
 
-use SmartAltTextAi\Includes\Support\AltTextHelper;
+use ImageCraft\Includes\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -169,7 +169,7 @@ class ScannerController extends Controller
 
         // PHP-level quality filtering
         if ($quality === 'generic' || $quality === 'too_long') {
-            $maxLength = (int) \SmartAltTextAi\Includes\Services\Settings::get('satai_max_length', 125);
+            $maxLength = (int) \ImageCraft\Includes\Services\Settings::get('imgcraft_max_length', 125);
             $filtered = [];
             foreach ($ids as $id) {
                 $alt = get_post_meta($id, '_wp_attachment_image_alt', true);

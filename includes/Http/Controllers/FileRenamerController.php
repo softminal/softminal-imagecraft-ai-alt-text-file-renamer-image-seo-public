@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Controllers;
+namespace ImageCraft\Includes\Http\Controllers;
 
-use SmartAltTextAi\Includes\Services\FileRenamer;
+use ImageCraft\Includes\Services\FileRenamer;
 
 if (!defined('ABSPATH')) {
     exit;

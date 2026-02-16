@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Models\Relations;
+namespace ImageCraft\Includes\Models\Relations;
 
 if (!defined('ABSPATH')) {
     exit;

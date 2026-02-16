@@ -1,15 +1,15 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http;
+namespace ImageCraft\Includes\Http;
 
-use SmartAltTextAi\Includes\Http\Controllers\BatchController;
-use SmartAltTextAi\Includes\Http\Controllers\FileRenamerController;
-use SmartAltTextAi\Includes\Http\Controllers\GeneratorController;
-use SmartAltTextAi\Includes\Http\Controllers\ScannerController;
-use SmartAltTextAi\Includes\Http\Controllers\SettingsController;
-use SmartAltTextAi\Includes\Http\Controllers\StatsController;
-use SmartAltTextAi\Includes\Http\Controllers\WooCommerceController;
-use SmartAltTextAi\Includes\Http\Routes\Route;
+use ImageCraft\Includes\Http\Controllers\BatchController;
+use ImageCraft\Includes\Http\Controllers\FileRenamerController;
+use ImageCraft\Includes\Http\Controllers\GeneratorController;
+use ImageCraft\Includes\Http\Controllers\ScannerController;
+use ImageCraft\Includes\Http\Controllers\SettingsController;
+use ImageCraft\Includes\Http\Controllers\StatsController;
+use ImageCraft\Includes\Http\Controllers\WooCommerceController;
+use ImageCraft\Includes\Http\Routes\Route;
 
 if (!defined('ABSPATH')) {
     exit;

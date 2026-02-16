@@ -1,10 +1,10 @@
-# Spanish (Spain) translation for Smart Alt Text AI
+# Spanish (Spain) translation for ImageCraft
 # Copyright (C) 2024 Softminal
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Smart Alt Text AI 1.0.0\n"
-"Report-Msgid-Bugs-To: https://softminal.github.io/smart-alt-text-ai/\n"
+"Project-Id-Version: ImageCraft 1.0.0\n"
+"Report-Msgid-Bugs-To: https://softminal.github.io/imagecraft/\n"
 "POT-Creation-Date: 2024-02-06 12:00+0000\n"
 "PO-Revision-Date: 2024-02-06 12:00+0000\n"
 "Last-Translator: Softminal <support@softminal.com>\n"

@@ -5,17 +5,17 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin Basic Information
-define('SATAI_VERSION', '1.0.0');
-define('SATAI_DIR', plugin_dir_path(dirname(__FILE__)));
-define('SATAI_URL', plugin_dir_url(dirname(__FILE__)));
-define('SATAI_PLUGIN_BASE', plugin_basename(dirname(__FILE__)));
-define('SATAI_PLUGIN_NAME', 'smart-alt-text-ai');
+define('IMGCRAFT_VERSION', '1.0.0');
+define('IMGCRAFT_DIR', plugin_dir_path(dirname(__FILE__)));
+define('IMGCRAFT_URL', plugin_dir_url(dirname(__FILE__)));
+define('IMGCRAFT_PLUGIN_BASE', plugin_basename(dirname(__FILE__)));
+define('IMGCRAFT_PLUGIN_NAME', 'imagecraft');
 
 // Database Tables
-define('SATAI_TABLE_PREFIX', 'satai_');
+define('IMGCRAFT_TABLE_PREFIX', 'imgcraft_');
 
 // API Information
-define('SATAI_API_VERSION', 'v1');
-define('SATAI_API_NAMESPACE', 'smart-alt-text-ai/' . SATAI_API_VERSION);
+define('IMGCRAFT_API_VERSION', 'v1');
+define('IMGCRAFT_API_NAMESPACE', 'imagecraft/' . IMGCRAFT_API_VERSION);
 
-define('SATAI_DEV_MODE', true);
+define('IMGCRAFT_DEV_MODE', false);

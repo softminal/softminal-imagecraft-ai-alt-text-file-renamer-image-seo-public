@@ -1,10 +1,10 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Controllers;
+namespace ImageCraft\Includes\Http\Controllers;
 
-use SmartAltTextAi\Includes\Services\WooCommerce;
-use SmartAltTextAi\Includes\Services\Settings;
-use SmartAltTextAi\Includes\Services\StatsTracker;
+use ImageCraft\Includes\Services\WooCommerce;
+use ImageCraft\Includes\Services\Settings;
+use ImageCraft\Includes\Services\StatsTracker;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -83,7 +83,7 @@ class WooCommerceController extends Controller
 
         $params = $request->get_json_params();
         $productId = (int) ($params['product_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('satai_woo_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('imgcraft_woo_default_tone', 'professional'));
 
         if (!$productId) {
             return $this->response([
@@ -112,7 +112,7 @@ class WooCommerceController extends Controller
 
         $params = $request->get_json_params();
         $productId = (int) ($params['product_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('satai_woo_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('imgcraft_woo_default_tone', 'professional'));
 
         if (!$productId) {
             return $this->response([
@@ -138,7 +138,7 @@ class WooCommerceController extends Controller
         }
 
         $results = [];
-        $aiProvider = \SmartAltTextAi\Includes\Services\AI\AIFactory::getProviderForUser();
+        $aiProvider = \ImageCraft\Includes\Services\AI\AIFactory::getProviderForUser();
 
         if (!$aiProvider) {
             return $this->response([
@@ -161,7 +161,7 @@ class WooCommerceController extends Controller
             }
 
             $existingAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
-            if (!empty($existingAlt) && Settings::get('satai_skip_existing', false)) {
+            if (!empty($existingAlt) && Settings::get('imgcraft_skip_existing', false)) {
                 $results[$index] = [
                     'success' => true,
                     'attachment_id' => $attachmentId,

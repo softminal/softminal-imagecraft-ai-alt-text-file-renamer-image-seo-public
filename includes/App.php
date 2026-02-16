@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes;
+namespace ImageCraft\Includes;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -9,13 +9,13 @@ if (!defined('ABSPATH')) {
 use Exception;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use SmartAltTextAi\Includes\Enqueue;
-use SmartAltTextAi\Includes\Http\Routes\Router;
-use SmartAltTextAi\Includes\Menu;
+use ImageCraft\Includes\Enqueue;
+use ImageCraft\Includes\Http\Routes\Router;
+use ImageCraft\Includes\Menu;
 
 /**
  * Class App
- * @package SmartAltTextAi\Includes
+ * @package ImageCraft\Includes
  *
  * This class is responsible for loading all the necessary components of the plugin.
  */
@@ -103,7 +103,7 @@ class App
      */
     private function loadDirectory(array $config): void
     {
-        $dir = SATAI_DIR . $config['dir'];
+        $dir = IMGCRAFT_DIR . $config['dir'];
 
         // If specific files are requested, load only those
         if (isset($config['files']) && is_array($config['files'])) {
@@ -199,7 +199,7 @@ class App
     public function loadTextdomain(): void
     {
         load_plugin_textdomain(
-            'smart-alt-text-ai',
+            'imagecraft',
             false,
             dirname(plugin_basename(__FILE__), 2) . '/languages'
         );
@@ -218,8 +218,8 @@ class App
             $this->router->init();
 
             // AutoGenerate should be loaded by now, but verify
-            if (class_exists('\SmartAltTextAi\Includes\AutoGenerate')) {
-                \SmartAltTextAi\Includes\AutoGenerate::init();
+            if (class_exists('\ImageCraft\Includes\AutoGenerate')) {
+                \ImageCraft\Includes\AutoGenerate::init();
             } else {
             }
         } catch (Exception $e) {

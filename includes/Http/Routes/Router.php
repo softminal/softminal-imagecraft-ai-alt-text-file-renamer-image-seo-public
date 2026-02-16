@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Routes;
+namespace ImageCraft\Includes\Http\Routes;
 
-use SmartAltTextAi\Includes\Http\Routes\Route;
+use ImageCraft\Includes\Http\Routes\Route;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 /**
  * Router class for handling API routes.
  *
- * @package SmartAltTextAi\Includes\Http\Routes
+ * @package ImageCraft\Includes\Http\Routes
  */
 class Router {
     /**
@@ -25,7 +25,7 @@ class Router {
      * Initialize the router
      */
     public function __construct() {
-        $this->namespace = SATAI_API_NAMESPACE;
+        $this->namespace = IMGCRAFT_API_NAMESPACE;
     }
 
     /**
@@ -33,7 +33,7 @@ class Router {
      */
     public function init() {
         // Load API route definitions
-        require_once SATAI_DIR . 'includes/Http/api.php';
+        require_once IMGCRAFT_DIR . 'includes/Http/api.php';
 
         // Register routes with WordPress REST API
         add_action('rest_api_init', [$this, 'registerRoutes']);

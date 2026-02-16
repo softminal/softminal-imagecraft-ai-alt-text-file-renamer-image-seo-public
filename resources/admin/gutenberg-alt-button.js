@@ -1,5 +1,5 @@
 /**
- * Smart Alt Text AI - Gutenberg Block Editor Integration
+ * ImageCraft - Gutenberg Block Editor Integration
  *
  * Injects a "Generate with AI" button directly below the existing
  * "Alternative Text" field in the core/image block inspector sidebar.
@@ -12,8 +12,8 @@
 (function () {
     'use strict';
 
-    var config = window.sataiGutenberg || {};
-    var MARKER_CLASS = 'satai-gut-wrapper';
+    var config = window.imgcraftGutenberg || {};
+    var MARKER_CLASS = 'imgcraft-gut-wrapper';
     var debounceTimer = null;
 
     // Persistent state across React re-renders
@@ -93,9 +93,9 @@
         if (state.phase === 'idle' || state.phase === 'success' || state.phase === 'error') {
             var btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'components-button is-secondary satai-gut-btn';
+            btn.className = 'components-button is-secondary imgcraft-gut-btn';
             btn.innerHTML =
-                '<span class="satai-gut-btn-icon">' + svgIcon + '</span>' +
+                '<span class="imgcraft-gut-btn-icon">' + svgIcon + '</span>' +
                 '<span>' + (config.i18n?.generate || 'Generate with AI') + '</span>';
             btn.addEventListener('click', handleGenerate);
             wrapper.appendChild(btn);
@@ -105,10 +105,10 @@
         if (state.phase === 'loading') {
             var busy = document.createElement('button');
             busy.type = 'button';
-            busy.className = 'components-button is-secondary satai-gut-btn satai-gut-loading';
+            busy.className = 'components-button is-secondary imgcraft-gut-btn imgcraft-gut-loading';
             busy.disabled = true;
             busy.innerHTML =
-                '<span class="satai-gut-btn-icon satai-gut-spin">' + svgIcon + '</span>' +
+                '<span class="imgcraft-gut-btn-icon imgcraft-gut-spin">' + svgIcon + '</span>' +
                 '<span>' + (config.i18n?.generating || 'Generating...') + '</span>';
             wrapper.appendChild(busy);
         }
@@ -116,10 +116,10 @@
         // Preview
         if (state.phase === 'preview') {
             var preview = document.createElement('div');
-            preview.className = 'satai-gut-preview';
+            preview.className = 'imgcraft-gut-preview';
 
             var ta = document.createElement('textarea');
-            ta.className = 'components-textarea-control__input satai-gut-preview-ta';
+            ta.className = 'components-textarea-control__input imgcraft-gut-preview-ta';
             ta.value = state.previewText;
             ta.rows = 3;
             ta.addEventListener('input', function (e) {
@@ -128,7 +128,7 @@
             preview.appendChild(ta);
 
             var actions = document.createElement('div');
-            actions.className = 'satai-gut-preview-actions';
+            actions.className = 'imgcraft-gut-preview-actions';
 
             var acceptBtn = document.createElement('button');
             acceptBtn.type = 'button';
@@ -151,9 +151,9 @@
         // Status message
         if (state.message) {
             var msg = document.createElement('div');
-            msg.className = 'satai-gut-status';
-            if (state.phase === 'success') msg.className += ' satai-gut-status-success';
-            if (state.phase === 'error') msg.className += ' satai-gut-status-error';
+            msg.className = 'imgcraft-gut-status';
+            if (state.phase === 'success') msg.className += ' imgcraft-gut-status-success';
+            if (state.phase === 'error') msg.className += ' imgcraft-gut-status-error';
             msg.textContent = state.message;
             wrapper.appendChild(msg);
         }

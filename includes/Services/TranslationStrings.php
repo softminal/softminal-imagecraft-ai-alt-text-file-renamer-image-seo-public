@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services;
+namespace ImageCraft\Includes\Services;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 class TranslationStrings {
 
-    private const TEXT_DOMAIN = 'smart-alt-text-ai';
+    private const TEXT_DOMAIN = 'imagecraft';
 
     public static function get(): array {
         return array_merge(

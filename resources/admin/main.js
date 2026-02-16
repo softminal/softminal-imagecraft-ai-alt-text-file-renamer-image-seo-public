@@ -7,9 +7,9 @@ import '../scss/index.scss';
 
 const app = createApp(App);
 
-app.config.globalProperties.appVars = window.smartAltTextAi || {};
+app.config.globalProperties.appVars = window.imageCraft || {};
 app.config.globalProperties.$t = $t;
 
 app.use(router);
 app.use(notification);
-app.mount('#smart-alt-text-ai-app');
+app.mount('#imagecraft-app');

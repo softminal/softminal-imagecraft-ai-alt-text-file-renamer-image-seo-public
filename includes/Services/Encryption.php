@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services;
+namespace ImageCraft\Includes\Services;
 
 if (!defined('ABSPATH')) {
     exit;

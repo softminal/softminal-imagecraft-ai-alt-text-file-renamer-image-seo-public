@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Models;
+namespace ImageCraft\Includes\Models;
 
-use SmartAltTextAi\Includes\Support\Collection;
+use ImageCraft\Includes\Support\Collection;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -42,7 +42,7 @@ abstract class Model
     {
         global $wpdb;
         $instance = new static();
-        return $wpdb->prefix . SATAI_TABLE_PREFIX . $instance->table;
+        return $wpdb->prefix . IMGCRAFT_TABLE_PREFIX . $instance->table;
     }
 
     /**

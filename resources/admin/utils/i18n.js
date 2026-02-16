@@ -1,7 +1,7 @@
 /**
  * Standalone i18n translation helper.
  *
- * Reads translated strings from window.smartAltTextAi.i18n (populated by
+ * Reads translated strings from window.imageCraft.i18n (populated by
  * wp_localize_script in Enqueue.php). Falls back to the original English key
  * when no translation is found.
  *
@@ -16,7 +16,7 @@
  *   $t('Generate for %s Selected', count)
  */
 export function $t(string) {
-    const i18n = (window.smartAltTextAi && window.smartAltTextAi.i18n) || {}
+    const i18n = (window.imageCraft && window.imageCraft.i18n) || {}
     string = i18n[string] || string
 
     const args = Array.prototype.slice.call(arguments, 1)

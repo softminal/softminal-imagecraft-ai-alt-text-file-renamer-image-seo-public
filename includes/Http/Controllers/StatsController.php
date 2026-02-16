@@ -1,11 +1,11 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Controllers;
+namespace ImageCraft\Includes\Http\Controllers;
 
-use SmartAltTextAi\Includes\Models\Stats;
-use SmartAltTextAi\Includes\Models\History;
-use SmartAltTextAi\Includes\Models\ApiSetting;
-use SmartAltTextAi\Includes\Support\AltTextHelper;
+use ImageCraft\Includes\Models\Stats;
+use ImageCraft\Includes\Models\History;
+use ImageCraft\Includes\Models\ApiSetting;
+use ImageCraft\Includes\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -178,7 +178,7 @@ class StatsController extends Controller
      */
     public function audit($request)
     {
-        $maxLength = (int) \SmartAltTextAi\Includes\Services\Settings::get('satai_max_length', 125);
+        $maxLength = (int) \ImageCraft\Includes\Services\Settings::get('imgcraft_max_length', 125);
 
         // Get all image IDs
         $allQuery = new \WP_Query([

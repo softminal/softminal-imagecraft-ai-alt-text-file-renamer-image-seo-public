@@ -1,13 +1,13 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services;
+namespace ImageCraft\Includes\Services;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-use SmartAltTextAi\Includes\Services\AI\AIFactory;
-use SmartAltTextAi\Includes\Services\StatsTracker;
+use ImageCraft\Includes\Services\AI\AIFactory;
+use ImageCraft\Includes\Services\StatsTracker;
 
 class WooCommerce
 {

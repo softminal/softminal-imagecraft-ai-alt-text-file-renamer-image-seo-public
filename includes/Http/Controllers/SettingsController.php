@@ -1,11 +1,11 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Controllers;
+namespace ImageCraft\Includes\Http\Controllers;
 
-use SmartAltTextAi\Includes\Models\ApiSetting;
-use SmartAltTextAi\Includes\Services\Settings;
-use SmartAltTextAi\Includes\Services\AI\AIFactory;
-use SmartAltTextAi\Includes\Services\SeoIntegration;
+use ImageCraft\Includes\Models\ApiSetting;
+use ImageCraft\Includes\Services\Settings;
+use ImageCraft\Includes\Services\AI\AIFactory;
+use ImageCraft\Includes\Services\SeoIntegration;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -60,7 +60,7 @@ class SettingsController extends Controller
         if (empty($settings)) {
             return $this->response([
                 'success' => false,
-                'message' => __('No settings provided', 'smart-alt-text-ai')
+                'message' => __('No settings provided', 'imagecraft')
             ], 400);
         }
 
@@ -76,7 +76,7 @@ class SettingsController extends Controller
         if (!empty($invalidKeys)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Invalid setting keys:', 'smart-alt-text-ai') . ' ' . implode(', ', $invalidKeys)
+                'message' => __('Invalid setting keys:', 'imagecraft') . ' ' . implode(', ', $invalidKeys)
             ], 400);
         }
 
@@ -84,7 +84,7 @@ class SettingsController extends Controller
             if (Settings::update($settings)) {
                 return $this->response([
                     'success' => true,
-                    'message' => __('Settings updated successfully', 'smart-alt-text-ai')
+                    'message' => __('Settings updated successfully', 'imagecraft')
                 ]);
             }
             
@@ -104,18 +104,18 @@ class SettingsController extends Controller
                 // All values match, so update was successful (just no changes needed)
                 return $this->response([
                     'success' => true,
-                    'message' => __('Settings updated successfully', 'smart-alt-text-ai')
+                    'message' => __('Settings updated successfully', 'imagecraft')
                 ]);
             }
             
             return $this->response([
                 'success' => false,
-                'message' => __('Failed to update some settings', 'smart-alt-text-ai')
+                'message' => __('Failed to update some settings', 'imagecraft')
             ], 400);
         } catch (\Exception $e) {
             return $this->response([
                 'success' => false,
-                'message' => __('Error updating settings:', 'smart-alt-text-ai') . ' ' . $e->getMessage()
+                'message' => __('Error updating settings:', 'imagecraft') . ' ' . $e->getMessage()
             ], 500);
         }
     }
@@ -153,7 +153,7 @@ class SettingsController extends Controller
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Provider and API key are required', 'smart-alt-text-ai')
+                'message' => __('Provider and API key are required', 'imagecraft')
             ], 400);
         }
         
@@ -161,14 +161,14 @@ class SettingsController extends Controller
         if (!is_string($apiKey) || strlen($apiKey) < 10) {
             return $this->response([
                 'success' => false,
-                'message' => __('Invalid API key format', 'smart-alt-text-ai')
+                'message' => __('Invalid API key format', 'imagecraft')
             ], 400);
         }
         
         if (!in_array($provider, ['anthropic', 'openai', 'gemini'])) {
             return $this->response([
                 'success' => false,
-                'message' => __('Invalid provider', 'smart-alt-text-ai')
+                'message' => __('Invalid provider', 'imagecraft')
             ], 400);
         }
         
@@ -203,7 +203,7 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             return $this->response([
                 'success' => false,
-                'message' => __('Failed to encrypt API key:', 'smart-alt-text-ai') . ' ' . $e->getMessage()
+                'message' => __('Failed to encrypt API key:', 'imagecraft') . ' ' . $e->getMessage()
             ], 400);
         }
         
@@ -213,7 +213,7 @@ class SettingsController extends Controller
         if (empty($encryptedKey)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Failed to encrypt API key. Encrypted value is empty.', 'smart-alt-text-ai')
+                'message' => __('Failed to encrypt API key. Encrypted value is empty.', 'imagecraft')
             ], 400);
         }
         
@@ -222,7 +222,7 @@ class SettingsController extends Controller
         if (!$saved) {
             return $this->response([
                 'success' => false,
-                'message' => __('Failed to save API key to database', 'smart-alt-text-ai')
+                'message' => __('Failed to save API key to database', 'imagecraft')
             ], 500);
         }
         
@@ -231,7 +231,7 @@ class SettingsController extends Controller
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Invalid table configuration', 'smart-alt-text-ai')
+                'message' => __('Invalid table configuration', 'imagecraft')
             ], 500);
         }
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Verification query needs real-time data; table name validated above
@@ -240,16 +240,16 @@ class SettingsController extends Controller
         if (empty($dbValue)) {
             return $this->response([
                 'success' => false,
-                'message' => __('API key was not saved correctly. Please try again.', 'smart-alt-text-ai')
+                'message' => __('API key was not saved correctly. Please try again.', 'imagecraft')
             ], 500);
         }
         
         // Sync the preference setting with the active provider
-        Settings::set('satai_api_provider', $provider);
+        Settings::set('imgcraft_api_provider', $provider);
         
         return $this->response([
             'success' => true,
-            'message' => __('API key saved successfully', 'smart-alt-text-ai')
+            'message' => __('API key saved successfully', 'imagecraft')
         ]);
     }
     
@@ -266,7 +266,7 @@ class SettingsController extends Controller
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Provider and API key are required', 'smart-alt-text-ai')
+                'message' => __('Provider and API key are required', 'imagecraft')
             ], 400);
         }
         
@@ -293,20 +293,20 @@ class SettingsController extends Controller
         if (empty($userId) || $userId === 0) {
             return $this->response([
                 'success' => false,
-                'message' => __('User not logged in', 'smart-alt-text-ai')
+                'message' => __('User not logged in', 'imagecraft')
             ], 401);
         }
         
         if (Settings::completeWizard($userId)) {
             return $this->response([
                 'success' => true,
-                'message' => __('Wizard completed', 'smart-alt-text-ai')
+                'message' => __('Wizard completed', 'imagecraft')
             ]);
         }
         
         return $this->response([
             'success' => false,
-            'message' => __('Failed to complete wizard', 'smart-alt-text-ai')
+            'message' => __('Failed to complete wizard', 'imagecraft')
         ], 400);
     }
 }

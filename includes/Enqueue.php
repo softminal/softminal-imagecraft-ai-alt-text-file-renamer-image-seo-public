@@ -1,9 +1,9 @@
 <?php
 
-namespace SmartAltTextAi\Includes;
+namespace ImageCraft\Includes;
 
-use SmartAltTextAi\Includes\Services\Settings;
-use SmartAltTextAi\Includes\Services\TranslationStrings;
+use ImageCraft\Includes\Services\Settings;
+use ImageCraft\Includes\Services\TranslationStrings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -20,7 +20,7 @@ class Enqueue {
 
 
     public function enqueueAdminAssets($hook) {
-        if ($hook !== 'toplevel_page_smart-alt-text-ai') {
+        if ($hook !== 'toplevel_page_imagecraft') {
             return;
         }
 
@@ -29,18 +29,18 @@ class Enqueue {
         $script_dependencies = ['jquery', 'wp-api-fetch', 'wp-i18n'];
 
         // Check if we should use dev mode (Vite dev server running)
-        if (defined('SATAI_DEV_MODE') && SATAI_DEV_MODE) {
+        if (defined('IMGCRAFT_DEV_MODE') && IMGCRAFT_DEV_MODE) {
             // Development mode: Load assets from Vite dev server
             $dev_server_url = self::DEV_SERVER_URL . '/resources/admin/main.js';
             wp_enqueue_script(
-                'satai-script',
+                'imgcraft-script',
                 $dev_server_url,
                 $script_dependencies,
-                SATAI_VERSION,
+                IMGCRAFT_VERSION,
                 true // Load in footer to ensure WordPress scripts load first
             );
             add_filter('script_loader_tag', function ($tag, $handle) {
-                if ('satai-script' === $handle) {
+                if ('imgcraft-script' === $handle) {
                     return str_replace('<script ', '<script type="module" ', $tag);
                 }
                 return $tag;
@@ -48,15 +48,15 @@ class Enqueue {
 
             // Enqueue SCSS from dev server
             wp_enqueue_style(
-                'satai-dev-style',
+                'imgcraft-dev-style',
                 self::DEV_SERVER_URL . '/resources/scss/index.scss',
                 [],
-                SATAI_VERSION
+                IMGCRAFT_VERSION
             );
 
             // Localize script for dev mode
-            wp_localize_script('satai-script', 'smartAltTextAi', [
-                'apiUrl' => rest_url(SATAI_API_NAMESPACE),
+            wp_localize_script('imgcraft-script', 'imageCraft', [
+                'apiUrl' => rest_url(IMGCRAFT_API_NAMESPACE),
                 'adminUrl' => admin_url(),
                 'nonce' => wp_create_nonce('wp_rest'),
                 'debug' => true,
@@ -68,8 +68,8 @@ class Enqueue {
 
             // Only localize if script was successfully enqueued
             if ($script_enqueued) {
-                wp_localize_script('satai-script', 'smartAltTextAi', [
-                    'apiUrl' => rest_url(SATAI_API_NAMESPACE),
+                wp_localize_script('imgcraft-script', 'imageCraft', [
+                    'apiUrl' => rest_url(IMGCRAFT_API_NAMESPACE),
                     'adminUrl' => admin_url(),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'debug' => false,
@@ -81,11 +81,11 @@ class Enqueue {
 
     private function enqueueProductionAssets(array $dependencies = []): bool {
         // Check for manifest in .vite folder first (Vite's default location)
-        $manifest_path = SATAI_DIR . 'assets/.vite/manifest.json';
+        $manifest_path = IMGCRAFT_DIR . 'assets/.vite/manifest.json';
 
         // Fallback to root assets folder
         if (!file_exists($manifest_path)) {
-            $manifest_path = SATAI_DIR . 'assets/manifest.json';
+            $manifest_path = IMGCRAFT_DIR . 'assets/manifest.json';
         }
 
         if (!file_exists($manifest_path)) {
@@ -99,16 +99,16 @@ class Enqueue {
         if (isset($manifest['resources/admin/main.js'])) {
             $main_js = $manifest['resources/admin/main.js']['file'];
             wp_enqueue_script(
-                'satai-script',
-                SATAI_URL . 'assets/' . $main_js,
+                'imgcraft-script',
+                IMGCRAFT_URL . 'assets/' . $main_js,
                 $dependencies,
-                SATAI_VERSION,
+                IMGCRAFT_VERSION,
                 true // Load in footer to ensure WordPress scripts load first
             );
 
             // Add type="module" for production builds
             add_filter('script_loader_tag', function ($tag, $handle) {
-                if ('satai-script' === $handle) {
+                if ('imgcraft-script' === $handle) {
                     return str_replace('<script ', '<script type="module" ', $tag);
                 }
                 return $tag;
@@ -120,10 +120,10 @@ class Enqueue {
             if (isset($manifest['resources/admin/main.js']['css'])) {
                 foreach ($manifest['resources/admin/main.js']['css'] as $css_file) {
                     wp_enqueue_style(
-                        'satai-style',
-                        SATAI_URL . 'assets/' . $css_file,
+                        'imgcraft-style',
+                        IMGCRAFT_URL . 'assets/' . $css_file,
                         [],
-                        SATAI_VERSION
+                        IMGCRAFT_VERSION
                     );
                 }
             }
@@ -133,10 +133,10 @@ class Enqueue {
         if (isset($manifest['resources/scss/index.scss'])) {
             $scss_file = $manifest['resources/scss/index.scss']['file'];
             wp_enqueue_style(
-                'satai-scss',
-                SATAI_URL . 'assets/' . $scss_file,
+                'imgcraft-scss',
+                IMGCRAFT_URL . 'assets/' . $scss_file,
                 [],
-                SATAI_VERSION
+                IMGCRAFT_VERSION
             );
         }
 
@@ -148,7 +148,7 @@ class Enqueue {
      */
     public function enqueueMediaButtonAssets($hook) {
         // Only load on pages where the media modal can appear
-        if (!in_array($hook, ['post.php', 'post-new.php', 'upload.php', 'toplevel_page_smart-alt-text-ai'], true)) {
+        if (!in_array($hook, ['post.php', 'post-new.php', 'upload.php', 'toplevel_page_imagecraft'], true)) {
             return;
         }
 
@@ -163,35 +163,35 @@ class Enqueue {
         }
 
         wp_enqueue_script(
-            'satai-media-button',
-            SATAI_URL . 'resources/admin/media-button.js',
+            'imgcraft-media-button',
+            IMGCRAFT_URL . 'resources/admin/media-button.js',
             ['media-views'],
-            SATAI_VERSION,
+            IMGCRAFT_VERSION,
             true
         );
 
-        wp_localize_script('satai-media-button', 'sataiMediaButton', [
-            'apiUrl' => rest_url(SATAI_API_NAMESPACE),
+        wp_localize_script('imgcraft-media-button', 'imgcraftMediaButton', [
+            'apiUrl' => rest_url(IMGCRAFT_API_NAMESPACE),
             'nonce' => wp_create_nonce('wp_rest'),
-            'defaultTone' => Settings::get('satai_default_tone', 'professional'),
+            'defaultTone' => Settings::get('imgcraft_default_tone', 'professional'),
             'i18n' => [
-                'generate' => __('Generate with AI', 'smart-alt-text-ai'),
-                'generating' => __('Generating...', 'smart-alt-text-ai'),
-                'success' => __('Alt text generated successfully!', 'smart-alt-text-ai'),
-                'error' => __('Failed to generate alt text. Please try again.', 'smart-alt-text-ai'),
-                'noAttachment' => __('Could not detect image. Please select an image first.', 'smart-alt-text-ai'),
+                'generate' => __('Generate with AI', 'imagecraft'),
+                'generating' => __('Generating...', 'imagecraft'),
+                'success' => __('Alt text generated successfully!', 'imagecraft'),
+                'error' => __('Failed to generate alt text. Please try again.', 'imagecraft'),
+                'noAttachment' => __('Could not detect image. Please select an image first.', 'imagecraft'),
             ],
         ]);
 
         // Inline CSS for the media button
         $css = '
-            .satai-media-btn-wrapper {
+            .imgcraft-media-btn-wrapper {
                 padding: 2px 0 8px;
                 /* Align with WP media modal input column (label is ~35%, input is ~65%) */
                 padding-left: 35%;
                 overflow: hidden;
             }
-            .satai-media-btn {
+            .imgcraft-media-btn {
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
@@ -207,43 +207,43 @@ class Enqueue {
                 transition: all 0.2s ease;
                 box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             }
-            .satai-media-btn:hover {
+            .imgcraft-media-btn:hover {
                 background: linear-gradient(135deg, #135e96, #0a4b78);
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
             }
-            .satai-media-btn:focus {
+            .imgcraft-media-btn:focus {
                 outline: 2px solid #2271b1;
                 outline-offset: 2px;
             }
-            .satai-media-btn:disabled {
+            .imgcraft-media-btn:disabled {
                 opacity: 0.7;
                 cursor: not-allowed;
                 box-shadow: none;
             }
-            .satai-media-btn.satai-loading .satai-btn-icon {
-                animation: satai-spin 1s linear infinite;
+            .imgcraft-media-btn.imgcraft-loading .imgcraft-btn-icon {
+                animation: imgcraft-spin 1s linear infinite;
             }
-            .satai-btn-icon {
+            .imgcraft-btn-icon {
                 display: inline-flex;
                 align-items: center;
                 flex-shrink: 0;
             }
-            .satai-btn-icon svg {
+            .imgcraft-btn-icon svg {
                 display: block;
             }
-            @keyframes satai-spin {
+            @keyframes imgcraft-spin {
                 from { transform: rotate(0deg); }
                 to { transform: rotate(360deg); }
             }
-            .satai-media-status {
+            .imgcraft-media-status {
                 margin-top: 6px;
                 font-size: 12px;
                 line-height: 1.4;
             }
-            .satai-status-success {
+            .imgcraft-status-success {
                 color: #00a32a;
             }
-            .satai-status-error {
+            .imgcraft-status-error {
                 color: #d63638;
             }
         ';
@@ -263,78 +263,78 @@ class Enqueue {
         }
 
         wp_enqueue_script(
-            'satai-gutenberg-alt-button',
-            SATAI_URL . 'resources/admin/gutenberg-alt-button.js',
+            'imgcraft-gutenberg-alt-button',
+            IMGCRAFT_URL . 'resources/admin/gutenberg-alt-button.js',
             ['wp-data', 'wp-block-editor'],
-            SATAI_VERSION,
+            IMGCRAFT_VERSION,
             true
         );
 
-        $previewSetting = Settings::get('satai_preview_before_accept', '1');
+        $previewSetting = Settings::get('imgcraft_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
 
-        wp_localize_script('satai-gutenberg-alt-button', 'sataiGutenberg', [
-            'apiUrl' => rest_url(SATAI_API_NAMESPACE),
+        wp_localize_script('imgcraft-gutenberg-alt-button', 'imgcraftGutenberg', [
+            'apiUrl' => rest_url(IMGCRAFT_API_NAMESPACE),
             'nonce' => wp_create_nonce('wp_rest'),
             'previewBeforeAccept' => $previewBeforeAccept,
             'i18n' => [
-                'generate' => __('Generate with AI', 'smart-alt-text-ai'),
-                'generating' => __('Generating...', 'smart-alt-text-ai'),
-                'accept' => __('Accept', 'smart-alt-text-ai'),
-                'reject' => __('Reject', 'smart-alt-text-ai'),
-                'success' => __('Alt text generated!', 'smart-alt-text-ai'),
-                'error' => __('Failed to generate alt text.', 'smart-alt-text-ai'),
+                'generate' => __('Generate with AI', 'imagecraft'),
+                'generating' => __('Generating...', 'imagecraft'),
+                'accept' => __('Accept', 'imagecraft'),
+                'reject' => __('Reject', 'imagecraft'),
+                'success' => __('Alt text generated!', 'imagecraft'),
+                'error' => __('Failed to generate alt text.', 'imagecraft'),
             ],
         ]);
 
         // Inline CSS for the injected button and preview
-        wp_register_style('satai-gutenberg-style', false);
-        wp_enqueue_style('satai-gutenberg-style');
-        wp_add_inline_style('satai-gutenberg-style', '
-            .satai-gut-wrapper {
+        wp_register_style('imgcraft-gutenberg-style', false);
+        wp_enqueue_style('imgcraft-gutenberg-style');
+        wp_add_inline_style('imgcraft-gutenberg-style', '
+            .imgcraft-gut-wrapper {
                 margin-top: 8px;
             }
-            .satai-gut-btn {
+            .imgcraft-gut-btn {
                 display: inline-flex !important;
                 align-items: center;
                 gap: 6px;
             }
-            .satai-gut-btn-icon {
+            .imgcraft-gut-btn-icon {
                 display: inline-flex;
                 align-items: center;
                 flex-shrink: 0;
             }
-            .satai-gut-btn-icon svg {
+            .imgcraft-gut-btn-icon svg {
                 display: block;
             }
-            .satai-gut-spin {
-                animation: satai-gut-spin 1s linear infinite;
+            .imgcraft-gut-spin {
+                animation: imgcraft-gut-spin 1s linear infinite;
             }
-            @keyframes satai-gut-spin {
+            @keyframes imgcraft-gut-spin {
                 from { transform: rotate(0deg); }
                 to { transform: rotate(360deg); }
             }
-            .satai-gut-status {
+            .imgcraft-gut-status {
                 margin-top: 6px;
                 font-size: 12px;
                 line-height: 1.4;
             }
-            .satai-gut-status-success {
+            .imgcraft-gut-status-success {
                 color: #00a32a;
             }
-            .satai-gut-status-error {
+            .imgcraft-gut-status-error {
                 color: #d63638;
             }
-            .satai-gut-preview {
+            .imgcraft-gut-preview {
                 margin-top: 8px;
             }
-            .satai-gut-preview-ta {
+            .imgcraft-gut-preview-ta {
                 width: 100%;
                 min-height: 70px;
                 margin-bottom: 8px;
                 font-size: 13px;
             }
-            .satai-gut-preview-actions {
+            .imgcraft-gut-preview-actions {
                 display: flex;
                 gap: 8px;
             }

@@ -1,10 +1,10 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services\AI;
+namespace ImageCraft\Includes\Services\AI;
 
-use SmartAltTextAi\Includes\Models\ApiSetting;
-use SmartAltTextAi\Includes\Services\Encryption;
-use SmartAltTextAi\Includes\Services\Settings;
+use ImageCraft\Includes\Models\ApiSetting;
+use ImageCraft\Includes\Services\Encryption;
+use ImageCraft\Includes\Services\Settings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -17,7 +17,7 @@ class AIFactory
      */
     public static function create(string $provider, string $apiKey, int $timeout = 60): BaseAIProvider
     {
-        $timeout = Settings::get('satai_request_timeout', $timeout);
+        $timeout = Settings::get('imgcraft_request_timeout', $timeout);
         switch (strtolower($provider)) {
             case 'anthropic':
                 return new AnthropicProvider($apiKey, $timeout);

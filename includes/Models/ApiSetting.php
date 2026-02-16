@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Models;
+namespace ImageCraft\Includes\Models;
 
-use SmartAltTextAi\Includes\Services\Encryption;
+use ImageCraft\Includes\Services\Encryption;
 
 if (!defined('ABSPATH')) {
     exit;

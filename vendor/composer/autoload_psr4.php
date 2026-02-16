@@ -6,5 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'SmartAltTextAi\\' => array($baseDir . '/includes'),
+    'ImageCraft\\' => array($baseDir . '/includes'),
 );
