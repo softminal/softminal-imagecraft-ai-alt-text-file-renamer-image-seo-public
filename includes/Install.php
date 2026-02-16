@@ -40,7 +40,7 @@ class Install
 
         $sql = [
             // Table 1: API Settings
-            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . IMGCRAFT_TABLE_PREFIX . "alttext_api_settings (
+            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . IMGCRAFT_TABLE_PREFIX . "api_settings (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT UNSIGNED NOT NULL,
                 api_provider VARCHAR(20) NOT NULL,
@@ -54,7 +54,7 @@ class Install
             ) " . self::$charset_collate . ";",
 
             // Table 2: Generation History
-            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . IMGCRAFT_TABLE_PREFIX . "alttext_history (
+            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . IMGCRAFT_TABLE_PREFIX . "history (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 attachment_id BIGINT UNSIGNED NOT NULL,
                 original_alt TEXT,
@@ -73,7 +73,7 @@ class Install
             ) " . self::$charset_collate . ";",
 
             // Table 3: Usage Statistics
-            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . IMGCRAFT_TABLE_PREFIX . "alttext_stats (
+            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . IMGCRAFT_TABLE_PREFIX . "stats (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT UNSIGNED NOT NULL,
                 date DATE NOT NULL,
@@ -87,7 +87,7 @@ class Install
             ) " . self::$charset_collate . ";",
 
             // Table 4: Batch Jobs
-            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . IMGCRAFT_TABLE_PREFIX . "alttext_batch_jobs (
+            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . IMGCRAFT_TABLE_PREFIX . "batch_jobs (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT UNSIGNED NOT NULL,
                 total_images INT NOT NULL,

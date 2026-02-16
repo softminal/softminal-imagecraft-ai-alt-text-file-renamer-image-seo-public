@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 class History extends Model
 {
-    protected $table = 'alttext_history';
+    protected $table = 'history';
     protected $fillable = [
         'attachment_id',
         'original_alt',

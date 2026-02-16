@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 class ApiSetting extends Model
 {
-    protected $table = 'alttext_api_settings';
+    protected $table = 'api_settings';
     protected $fillable = [
         'user_id',
         'api_provider',

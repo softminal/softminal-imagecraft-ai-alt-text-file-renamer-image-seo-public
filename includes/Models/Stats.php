@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 class Stats extends Model
 {
-    protected $table = 'alttext_stats';
+    protected $table = 'stats';
     protected $fillable = [
         'user_id',
         'date',

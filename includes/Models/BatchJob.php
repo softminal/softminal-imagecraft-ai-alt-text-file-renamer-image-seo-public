@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 class BatchJob extends Model
 {
-    protected $table = 'alttext_batch_jobs';
+    protected $table = 'batch_jobs';
     protected $fillable = [
         'user_id',
         'total_images',
