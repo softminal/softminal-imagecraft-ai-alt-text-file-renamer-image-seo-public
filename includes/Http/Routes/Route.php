@@ -13,6 +13,7 @@ class Route
     private static $routes = [];
     private static $prefix = '';
     private static $middleware = [];
+    private static $capability = 'edit_posts';
     private static $namespace = '';
     private static $lastRoute = null;
 
@@ -33,15 +34,23 @@ class Route
         return $instance;
     }
 
+    public function capability(string $capability)
+    {
+        self::$capability = $capability;
+        return $this;
+    }
+
     public function group(callable $callback)
     {
         $previousPrefix = self::$prefix;
         $previousMiddleware = self::$middleware;
+        $previousCapability = self::$capability;
 
         $callback();
 
         self::$prefix = $previousPrefix;
         self::$middleware = $previousMiddleware;
+        self::$capability = $previousCapability;
 
         return $this;
     }
@@ -105,6 +114,7 @@ class Route
             'controller' => $handler,
             'action' => $action,
             'middleware' => self::$middleware,
+            'capability' => self::$capability,
             'parameters' => $parameters,
             'pattern' => implode('/', $pattern)
         ];
@@ -220,7 +230,8 @@ class Route
         }
 
         // Check user capabilities
-        if (!current_user_can('edit_posts')) {
+        $capability = $route['capability'] ?? 'edit_posts';
+        if (!current_user_can($capability)) {
             return new WP_Error(
                 'rest_forbidden',
                 'Insufficient permissions.',

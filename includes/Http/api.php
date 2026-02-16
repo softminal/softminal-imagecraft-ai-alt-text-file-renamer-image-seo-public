@@ -15,8 +15,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Settings routes
-Route::prefix('settings')->group(function () {
+// Settings routes (admin only)
+Route::prefix('settings')->capability('manage_options')->group(function () {
     Route::get('/', [SettingsController::class, 'index']);
     Route::post('/', [SettingsController::class, 'update']);
     Route::post('/api-key', [SettingsController::class, 'saveApiKey']);
@@ -25,13 +25,13 @@ Route::prefix('settings')->group(function () {
 });
 
 // Scanner routes
-Route::prefix('scanner')->group(function () {
+Route::prefix('scanner')->capability('upload_files')->group(function () {
     Route::get('/scan', [ScannerController::class, 'scan']);
     Route::get('/select-all', [ScannerController::class, 'selectAll']);
 });
 
 // Generator routes
-Route::prefix('generator')->group(function () {
+Route::prefix('generator')->capability('upload_files')->group(function () {
     Route::post('/generate', [GeneratorController::class, 'generate']);
     Route::post('/accept', [GeneratorController::class, 'accept']);
     Route::post('/accept-bulk', [GeneratorController::class, 'acceptBulk']);
@@ -39,8 +39,8 @@ Route::prefix('generator')->group(function () {
     Route::post('/reject', [GeneratorController::class, 'reject']);
 });
 
-// Batch routes
-Route::prefix('batch')->group(function () {
+// Batch routes (admin only)
+Route::prefix('batch')->capability('manage_options')->group(function () {
     Route::post('/start', [BatchController::class, 'start']);
     Route::get('/status', [BatchController::class, 'status']);
     Route::get('/results', [BatchController::class, 'results']);
@@ -49,20 +49,20 @@ Route::prefix('batch')->group(function () {
 });
 
 // Stats routes
-Route::prefix('stats')->group(function () {
+Route::prefix('stats')->capability('upload_files')->group(function () {
     Route::get('/dashboard', [StatsController::class, 'dashboard']);
     Route::get('/audit', [StatsController::class, 'audit']);
 });
 
 // File Renamer routes
-Route::prefix('renamer')->group(function () {
+Route::prefix('renamer')->capability('upload_files')->group(function () {
     Route::post('/rename', [FileRenamerController::class, 'rename']);
     Route::post('/rename-bulk', [FileRenamerController::class, 'renameBulk']);
     Route::get('/preview', [FileRenamerController::class, 'preview']);
 });
 
 // WooCommerce routes
-Route::prefix('woocommerce')->group(function () {
+Route::prefix('woocommerce')->capability('manage_woocommerce')->group(function () {
     Route::get('/products', [WooCommerceController::class, 'getProducts']);
     Route::get('/categories', [WooCommerceController::class, 'getCategories']);
     Route::get('/stats', [WooCommerceController::class, 'getStats']);
@@ -70,4 +70,3 @@ Route::prefix('woocommerce')->group(function () {
     Route::post('/generate-gallery', [WooCommerceController::class, 'generateGallery']);
     Route::get('/gallery', [WooCommerceController::class, 'getGallery']);
 });
-
