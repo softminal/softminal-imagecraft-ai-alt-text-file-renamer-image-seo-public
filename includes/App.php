@@ -194,25 +194,12 @@ class App
     }
 
     /**
-     * Load plugin textdomain for translations
-     */
-    public function loadTextdomain(): void
-    {
-        load_plugin_textdomain(
-            'imagecraft',
-            false,
-            dirname(plugin_basename(__FILE__), 2) . '/languages'
-        );
-    }
-
-    /**
      * Run the application
      * @throws Exception
      */
     public function run(): void
     {
         try {
-            $this->loadTextdomain();
             $this->enqueue->init();
             $this->menu->init();
             $this->router->init();

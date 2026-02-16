@@ -35,6 +35,3 @@ function imgcraft_init() {
 }
 add_action('plugins_loaded', 'imgcraft_init');
 
-add_action('init', function() {
-    load_plugin_textdomain('imagecraft', false, dirname(plugin_basename(__FILE__)) . '/languages');
-});

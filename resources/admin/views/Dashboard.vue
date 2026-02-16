@@ -62,7 +62,7 @@
             </div>
             <div>
               <div class="text-lg font-semibold" :class="scoreLabelColor">{{ scoreLabel }}</div>
-              <div class="text-sm text-gray-500">{{ $t('%s of %s images are fully optimized', audit.good, audit.total_images) }}</div>
+              <div class="text-sm text-gray-500">{{ $t('%1$s of %2$s images are fully optimized', audit.good, audit.total_images) }}</div>
             </div>
           </div>
 

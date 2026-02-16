@@ -288,7 +288,7 @@ class Enqueue {
         ]);
 
         // Inline CSS for the injected button and preview
-        wp_register_style('imgcraft-gutenberg-style', false);
+        wp_register_style('imgcraft-gutenberg-style', false, [], IMGCRAFT_VERSION);
         wp_enqueue_style('imgcraft-gutenberg-style');
         wp_add_inline_style('imgcraft-gutenberg-style', '
             .imgcraft-gut-wrapper {

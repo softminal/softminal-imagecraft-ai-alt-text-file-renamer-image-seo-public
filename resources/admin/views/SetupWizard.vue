@@ -4,7 +4,7 @@
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $t('Welcome to AI Alt Text Generator') }}</h1>
         <p class="text-lg text-gray-600 mb-8">
-          {{ $t('Generate accessible alt text for your images using AI. 100% free forever - you use your own API key.') }}
+          {{ $t('Generate accessible alt text for your images using AI. You provide your own API key with no middleman fees.') }}
         </p>
       </div>
 
@@ -16,8 +16,8 @@
         </div>
         <div class="bg-white p-6 rounded-lg shadow border">
           <div class="text-4xl mb-4">💰</div>
-          <h3 class="font-semibold mb-2">{{ $t('100% Free') }}</h3>
-          <p class="text-sm text-gray-600">{{ $t('No paid tiers, ever') }}</p>
+          <h3 class="font-semibold mb-2">{{ $t('BYOK Model') }}</h3>
+          <p class="text-sm text-gray-600">{{ $t('Use your own API key') }}</p>
         </div>
         <div class="bg-white p-6 rounded-lg shadow border">
           <div class="text-4xl mb-4">♾️</div>
@@ -46,7 +46,7 @@
                    selectedProvider === 'anthropic' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
         >
           <h3 class="font-bold text-lg mb-2">{{ $t('Anthropic Claude') }}</h3>
-          <p class="text-sm text-gray-600 mb-4">{{ $t('Best quality at lowest cost') }}</p>
+          <p class="text-sm text-gray-600 mb-4">{{ $t('Low cost with quality results') }}</p>
           <div class="text-xs text-gray-500">
             <div>{{ $t('Cost: ~$0.0008/image') }}</div>
             <div>{{ $t('$5 = 6,000+ images') }}</div>

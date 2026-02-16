@@ -25,7 +25,7 @@ export function $t(string) {
         return string
     }
 
-    const regex = /%(\d*)s|%d/g
+    const regex = /%(\d+\$)?[sd]/g
     let argIndex = 0
 
     string = string.replace(regex, (match, number) => {

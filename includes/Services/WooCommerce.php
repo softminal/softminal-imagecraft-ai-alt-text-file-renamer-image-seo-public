@@ -43,19 +43,12 @@ class WooCommerce
 
         switch ($filter) {
             case 'missing':
-                $hasAltIds = self::getProductIdsWithAlt();
-                if (!empty($hasAltIds)) {
-                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_post__not_in
-                    $args['post__not_in'] = $hasAltIds;
-                }
+                $missingIds = self::getProductIdsMissingAlt();
+                $args['post__in'] = !empty($missingIds) ? $missingIds : [0];
                 break;
             case 'has_alt':
                 $hasAltIds = self::getProductIdsWithAlt();
-                if (empty($hasAltIds)) {
-                    $args['post__in'] = [0]; // Force no results
-                } else {
-                    $args['post__in'] = $hasAltIds;
-                }
+                $args['post__in'] = !empty($hasAltIds) ? $hasAltIds : [0];
                 break;
         }
 
@@ -164,6 +157,33 @@ class WooCommerce
         self::$productIdsWithAltCache = array_map('intval', $ids);
 
         return self::$productIdsWithAltCache;
+    }
+
+    /**
+     * Get IDs of published products whose featured image has no alt text or no featured image.
+     *
+     * @return int[]
+     */
+    private static function getProductIdsMissingAlt(): array
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $ids = $wpdb->get_col(
+            "SELECT DISTINCT p.ID
+             FROM {$wpdb->posts} p
+             LEFT JOIN {$wpdb->postmeta} thumb
+                 ON p.ID = thumb.post_id AND thumb.meta_key = '_thumbnail_id'
+             LEFT JOIN {$wpdb->postmeta} alt
+                 ON thumb.meta_value = alt.post_id
+                 AND alt.meta_key = '_wp_attachment_image_alt'
+                 AND alt.meta_value != ''
+             WHERE p.post_type = 'product'
+                 AND p.post_status = 'publish'
+                 AND (thumb.meta_value IS NULL OR alt.meta_value IS NULL OR alt.meta_value = '')"
+        );
+
+        return array_map('intval', $ids);
     }
 
     /**

@@ -16,7 +16,7 @@
           ></div>
         </div>
         <div class="text-sm text-gray-600 mt-2">
-          {{ $t('%s of %s images processed', job.processed_images, job.total_images) }}
+          {{ $t('%1$s of %2$s images processed', job.processed_images, job.total_images) }}
           <span v-if="job.failed_images > 0" class="text-red-600">
             ({{ $t('%s failed', job.failed_images) }})
           </span>
@@ -224,7 +224,7 @@ const loadJobStatus = async () => {
           }
           // Show appropriate message based on results
           if (job.value.failed_images > 0) {
-            notification.warning($t('Batch processing completed with %s successful and %s failed.', job.value.processed_images, job.value.failed_images))
+            notification.warning($t('Batch processing completed with %1$s successful and %2$s failed.', job.value.processed_images, job.value.failed_images))
           } else {
             notification.success($t('Batch processing completed successfully!'))
           }
