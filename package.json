@@ -1,5 +1,5 @@
 {
-  "name": "smart-alt-text-ai",
+  "name": "imagecraft",
   "version": "1.0.0",
   "description": "A WordPress plugin that generates alt text for images using AI.",
   "main": "resources/admin/main.js",
@@ -21,9 +21,9 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.1.4",
-    "vite-plugin-live-reload": "^3.0.1"
+    "@vitejs/plugin-vue": "^6.0.4",
+    "vite": "^7.3.1",
+    "vite-plugin-live-reload": "^3.0.5"
   },
   "keywords": [
     "wordpress",

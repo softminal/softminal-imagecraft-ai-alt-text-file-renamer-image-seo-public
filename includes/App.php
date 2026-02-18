@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes;
+namespace Softminal\ImageCraft;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -9,13 +9,13 @@ if (!defined('ABSPATH')) {
 use Exception;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use SmartAltTextAi\Includes\Enqueue;
-use SmartAltTextAi\Includes\Http\Routes\Router;
-use SmartAltTextAi\Includes\Menu;
+use Softminal\ImageCraft\Enqueue;
+use Softminal\ImageCraft\Http\Routes\Router;
+use Softminal\ImageCraft\Menu;
 
 /**
  * Class App
- * @package SmartAltTextAi\Includes
+ * @package Softminal\ImageCraft
  *
  * This class is responsible for loading all the necessary components of the plugin.
  */
@@ -103,12 +103,13 @@ class App
      */
     private function loadDirectory(array $config): void
     {
-        $dir = SATAI_DIR . $config['dir'];
+        $dir = ICAIS_DIR . $config['dir'];
 
         // If specific files are requested, load only those
         if (isset($config['files']) && is_array($config['files'])) {
             foreach ($config['files'] as $file) {
                 $filePath = $dir . '/' . $file;
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_exists -- Autoloader runs before WP_Filesystem is available
                 if (file_exists($filePath)) {
                     require_once $filePath;
                 }
@@ -116,6 +117,7 @@ class App
             return;
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_dir -- Autoloader runs before WP_Filesystem is available
         if (!is_dir($dir)) {
             return; // Directory doesn't exist, skip
         }
@@ -194,32 +196,19 @@ class App
     }
 
     /**
-     * Load plugin textdomain for translations
-     */
-    public function loadTextdomain(): void
-    {
-        load_plugin_textdomain(
-            'smart-alt-text-ai',
-            false,
-            dirname(plugin_basename(__FILE__), 2) . '/languages'
-        );
-    }
-
-    /**
      * Run the application
      * @throws Exception
      */
     public function run(): void
     {
         try {
-            $this->loadTextdomain();
             $this->enqueue->init();
             $this->menu->init();
             $this->router->init();
 
             // AutoGenerate should be loaded by now, but verify
-            if (class_exists('\SmartAltTextAi\Includes\AutoGenerate')) {
-                \SmartAltTextAi\Includes\AutoGenerate::init();
+            if (class_exists('\Softminal\ImageCraft\AutoGenerate')) {
+                \Softminal\ImageCraft\AutoGenerate::init();
             } else {
             }
         } catch (Exception $e) {

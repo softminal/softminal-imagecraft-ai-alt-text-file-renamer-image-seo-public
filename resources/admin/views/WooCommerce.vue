@@ -179,7 +179,7 @@
           {{ $t('Previous') }}
         </button>
         <span class="text-sm text-gray-600">
-          {{ $t('Page %s of %s', pagination.current_page, pagination.total_pages) }}
+          {{ $t('Page %1$s of %2$s', pagination.current_page, pagination.total_pages) }}
         </span>
         <button
           @click="loadPage(pagination.current_page + 1)"
@@ -387,7 +387,7 @@ const startBatch = async () => {
     }
 
     const successCount = results.filter(r => r.success).length
-    notification.success($t('Generated alt text for %s/%s products', successCount, selectedProducts.value.length))
+    notification.success($t('Generated alt text for %1$s/%2$s products', successCount, selectedProducts.value.length))
     selectedProducts.value = []
     loadProducts()
   } catch (error) {
@@ -424,7 +424,7 @@ const openProductModal = async (product) => {
       selectedProduct.value.gallery = result.gallery
     }
   } catch (error) {
-    console.log('Failed to load gallery')
+    // Gallery loading failed silently
   }
 }
 

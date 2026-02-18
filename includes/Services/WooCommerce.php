@@ -1,13 +1,13 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services;
+namespace Softminal\ImageCraft\Services;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-use SmartAltTextAi\Includes\Services\AI\AIFactory;
-use SmartAltTextAi\Includes\Services\StatsTracker;
+use Softminal\ImageCraft\Services\AI\AIFactory;
+use Softminal\ImageCraft\Services\StatsTracker;
 
 class WooCommerce
 {
@@ -43,19 +43,12 @@ class WooCommerce
 
         switch ($filter) {
             case 'missing':
-                $hasAltIds = self::getProductIdsWithAlt();
-                if (!empty($hasAltIds)) {
-                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_post__not_in
-                    $args['post__not_in'] = $hasAltIds;
-                }
+                $missingIds = self::getProductIdsMissingAlt();
+                $args['post__in'] = !empty($missingIds) ? $missingIds : [0];
                 break;
             case 'has_alt':
                 $hasAltIds = self::getProductIdsWithAlt();
-                if (empty($hasAltIds)) {
-                    $args['post__in'] = [0]; // Force no results
-                } else {
-                    $args['post__in'] = $hasAltIds;
-                }
+                $args['post__in'] = !empty($hasAltIds) ? $hasAltIds : [0];
                 break;
         }
 
@@ -87,7 +80,7 @@ class WooCommerce
                 'alt_text' => $altText,
                 'has_alt' => !empty($altText),
                 'gallery_ids' => array_values($galleryIds),
-                'price' => $product->get_price_html(),
+                'price' => wp_kses_post($product->get_price_html()),
                 'status' => $product->get_status(),
             ];
         }
@@ -115,7 +108,11 @@ class WooCommerce
         // Total published products
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $totalProducts = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'product' AND post_status = 'publish'"
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
+                'product',
+                'publish'
+            )
         );
 
         $hasAlt = count(self::getProductIdsWithAlt());
@@ -150,20 +147,59 @@ class WooCommerce
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $ids = $wpdb->get_col(
-            "SELECT DISTINCT p.ID
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} thumb
-                 ON p.ID = thumb.post_id AND thumb.meta_key = '_thumbnail_id'
-             INNER JOIN {$wpdb->postmeta} alt
-                 ON thumb.meta_value = alt.post_id
-                 AND alt.meta_key = '_wp_attachment_image_alt'
-                 AND alt.meta_value != ''
-             WHERE p.post_type = 'product' AND p.post_status = 'publish'"
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} alt
+                     ON thumb.meta_value = alt.post_id
+                     AND alt.meta_key = %s
+                     AND alt.meta_value != ''
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_wp_attachment_image_alt',
+                'product',
+                'publish'
+            )
         );
 
         self::$productIdsWithAltCache = array_map('intval', $ids);
 
         return self::$productIdsWithAltCache;
+    }
+
+    /**
+     * Get IDs of published products whose featured image has no alt text or no featured image.
+     *
+     * @return int[]
+     */
+    private static function getProductIdsMissingAlt(): array
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID
+                 FROM {$wpdb->posts} p
+                 LEFT JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 LEFT JOIN {$wpdb->postmeta} alt
+                     ON thumb.meta_value = alt.post_id
+                     AND alt.meta_key = %s
+                     AND alt.meta_value != ''
+                 WHERE p.post_type = %s
+                     AND p.post_status = %s
+                     AND (thumb.meta_value IS NULL OR alt.meta_value IS NULL OR alt.meta_value = '')",
+                '_thumbnail_id',
+                '_wp_attachment_image_alt',
+                'product',
+                'publish'
+            )
+        );
+
+        return array_map('intval', $ids);
     }
 
     /**
@@ -241,7 +277,7 @@ class WooCommerce
 
         $originalAlt = get_post_meta($thumbnailId, '_wp_attachment_image_alt', true);
 
-        update_post_meta($thumbnailId, '_wp_attachment_image_alt', $result['alt_text']);
+        update_post_meta($thumbnailId, '_wp_attachment_image_alt', sanitize_text_field($result['alt_text']));
 
         $history = StatsTracker::recordGeneration([
             'attachment_id' => $thumbnailId,

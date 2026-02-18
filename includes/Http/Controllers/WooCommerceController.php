@@ -1,10 +1,10 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Controllers;
+namespace Softminal\ImageCraft\Http\Controllers;
 
-use SmartAltTextAi\Includes\Services\WooCommerce;
-use SmartAltTextAi\Includes\Services\Settings;
-use SmartAltTextAi\Includes\Services\StatsTracker;
+use Softminal\ImageCraft\Services\WooCommerce;
+use Softminal\ImageCraft\Services\Settings;
+use Softminal\ImageCraft\Services\StatsTracker;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -17,7 +17,7 @@ class WooCommerceController extends Controller
         if (!WooCommerce::isActive()) {
             return $this->response([
                 'success' => false,
-                'message' => 'WooCommerce is not active'
+                'message' => __('WooCommerce is not active', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -45,7 +45,7 @@ class WooCommerceController extends Controller
         if (!WooCommerce::isActive()) {
             return $this->response([
                 'success' => false,
-                'message' => 'WooCommerce is not active',
+                'message' => __('WooCommerce is not active', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'is_active' => false,
             ]);
         }
@@ -62,7 +62,7 @@ class WooCommerceController extends Controller
         if (!WooCommerce::isActive()) {
             return $this->response([
                 'success' => false,
-                'message' => 'WooCommerce is not active'
+                'message' => __('WooCommerce is not active', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -77,18 +77,18 @@ class WooCommerceController extends Controller
         if (!WooCommerce::isActive()) {
             return $this->response([
                 'success' => false,
-                'message' => 'WooCommerce is not active'
+                'message' => __('WooCommerce is not active', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
         $params = $request->get_json_params();
         $productId = (int) ($params['product_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('satai_woo_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('icais_woo_default_tone', 'professional'));
 
         if (!$productId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Product ID is required'
+                'message' => __('Product ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -106,18 +106,18 @@ class WooCommerceController extends Controller
         if (!WooCommerce::isActive()) {
             return $this->response([
                 'success' => false,
-                'message' => 'WooCommerce is not active'
+                'message' => __('WooCommerce is not active', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
         $params = $request->get_json_params();
         $productId = (int) ($params['product_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('satai_woo_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('icais_woo_default_tone', 'professional'));
 
         if (!$productId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Product ID is required'
+                'message' => __('Product ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -125,7 +125,7 @@ class WooCommerceController extends Controller
         if (!$product) {
             return $this->response([
                 'success' => false,
-                'message' => 'Product not found'
+                'message' => __('Product not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 404);
         }
 
@@ -133,17 +133,17 @@ class WooCommerceController extends Controller
         if (empty($galleryIds)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Product has no gallery images'
+                'message' => __('Product has no gallery images', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
         $results = [];
-        $aiProvider = \SmartAltTextAi\Includes\Services\AI\AIFactory::getProviderForUser();
+        $aiProvider = \Softminal\ImageCraft\Services\AI\AIFactory::getProviderForUser();
 
         if (!$aiProvider) {
             return $this->response([
                 'success' => false,
-                'message' => 'No API key configured'
+                'message' => __('No API key configured', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -155,13 +155,13 @@ class WooCommerceController extends Controller
             if (!$imageUrl) {
                 $results[$index] = [
                     'success' => false,
-                    'error' => 'Failed to get image URL',
+                    'error' => __('Failed to get image URL', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 ];
                 continue;
             }
 
             $existingAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
-            if (!empty($existingAlt) && Settings::get('satai_skip_existing', false)) {
+            if (!empty($existingAlt) && Settings::get('icais_skip_existing', false)) {
                 $results[$index] = [
                     'success' => true,
                     'attachment_id' => $attachmentId,
@@ -174,7 +174,7 @@ class WooCommerceController extends Controller
             $result = $aiProvider->generateAltText($imageUrl, $tone, $contextPrompt);
 
             if ($result['success']) {
-                update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
+                update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($result['alt_text']));
 
                 StatsTracker::recordGeneration([
                     'attachment_id' => $attachmentId,
@@ -215,7 +215,7 @@ class WooCommerceController extends Controller
         if (!WooCommerce::isActive()) {
             return $this->response([
                 'success' => false,
-                'message' => 'WooCommerce is not active'
+                'message' => __('WooCommerce is not active', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -224,7 +224,7 @@ class WooCommerceController extends Controller
         if (!$productId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Product ID is required'
+                'message' => __('Product ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 

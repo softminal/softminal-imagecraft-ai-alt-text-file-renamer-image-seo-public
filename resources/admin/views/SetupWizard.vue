@@ -4,7 +4,7 @@
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $t('Welcome to AI Alt Text Generator') }}</h1>
         <p class="text-lg text-gray-600 mb-8">
-          {{ $t('Generate accessible alt text for your images using AI. 100% free forever - you use your own API key.') }}
+          {{ $t('Generate accessible alt text for your images using AI. You provide your own API key with no middleman fees.') }}
         </p>
       </div>
 
@@ -16,8 +16,8 @@
         </div>
         <div class="bg-white p-6 rounded-lg shadow border">
           <div class="text-4xl mb-4">💰</div>
-          <h3 class="font-semibold mb-2">{{ $t('100% Free') }}</h3>
-          <p class="text-sm text-gray-600">{{ $t('No paid tiers, ever') }}</p>
+          <h3 class="font-semibold mb-2">{{ $t('BYOK Model') }}</h3>
+          <p class="text-sm text-gray-600">{{ $t('Use your own API key') }}</p>
         </div>
         <div class="bg-white p-6 rounded-lg shadow border">
           <div class="text-4xl mb-4">♾️</div>
@@ -39,14 +39,14 @@
     <div v-if="currentStep === 2" class="provider-step">
       <h2 class="text-2xl font-bold mb-6">{{ $t('Choose Your AI Provider') }}</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div
           @click="selectedProvider = 'anthropic'"
           :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
                    selectedProvider === 'anthropic' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
         >
           <h3 class="font-bold text-lg mb-2">{{ $t('Anthropic Claude') }}</h3>
-          <p class="text-sm text-gray-600 mb-4">{{ $t('Best quality at lowest cost') }}</p>
+          <p class="text-sm text-gray-600 mb-4">{{ $t('Low cost with quality results') }}</p>
           <div class="text-xs text-gray-500">
             <div>{{ $t('Cost: ~$0.0008/image') }}</div>
             <div>{{ $t('$5 = 6,000+ images') }}</div>
@@ -76,6 +76,31 @@
           <div class="text-xs text-gray-500">
             <div>{{ $t('Cost: ~$0.0005/image') }}</div>
             <div>{{ $t('$5 = 10,000+ images') }}</div>
+          </div>
+        </div>
+
+        <div
+          @click="selectedProvider = 'mistral'"
+          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
+                   selectedProvider === 'mistral' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
+        >
+          <h3 class="font-bold text-lg mb-2">{{ $t('Mistral AI (Pixtral)') }}</h3>
+          <p class="text-sm text-gray-600 mb-4">{{ $t('European AI with strong vision') }}</p>
+          <div class="text-xs text-gray-500">
+            <div>{{ $t('Cost: ~$0.002/image') }}</div>
+            <div>{{ $t('$5 = 2,500+ images') }}</div>
+          </div>
+        </div>
+
+        <div
+          @click="selectedProvider = 'openrouter'"
+          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
+                   selectedProvider === 'openrouter' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
+        >
+          <h3 class="font-bold text-lg mb-2">{{ $t('OpenRouter') }}</h3>
+          <p class="text-sm text-gray-600 mb-4">{{ $t('Access 100+ AI models') }}</p>
+          <div class="text-xs text-gray-500">
+            <div>{{ $t('Cost varies by model') }}</div>
           </div>
         </div>
       </div>
@@ -108,6 +133,12 @@
           </li>
           <li v-if="selectedProvider === 'gemini'">
             {{ $t('Visit') }} <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>
+          </li>
+          <li v-if="selectedProvider === 'mistral'">
+            {{ $t('Visit') }} <a href="https://console.mistral.ai" target="_blank" class="text-blue-600 underline">console.mistral.ai</a>
+          </li>
+          <li v-if="selectedProvider === 'openrouter'">
+            {{ $t('Visit') }} <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-600 underline">openrouter.ai/keys</a>
           </li>
           <li>{{ $t('Create an account and add credits') }}</li>
           <li>{{ $t('Generate an API key') }}</li>

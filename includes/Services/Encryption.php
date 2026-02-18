@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services;
+namespace Softminal\ImageCraft\Services;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -82,6 +82,7 @@ class Encryption
             throw new \Exception('Encryption returned empty string. Data length: ' . esc_html((string) strlen($data)) . ', Key length: ' . esc_html((string) strlen($key)));
         }
 
+        // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Required for safe storage of encrypted API key data
         $result = base64_encode($encrypted . '::' . bin2hex($iv));
 
         if (empty($result)) {
@@ -113,6 +114,7 @@ class Encryption
         }
 
         $key = self::getEncryptionKey();
+        // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Required for decrypting stored API key data
         $decoded = base64_decode($data, true);
 
         if ($decoded === false) {

@@ -1,6 +1,10 @@
 <?php
 
-namespace SmartAltTextAi\Includes;
+namespace Softminal\ImageCraft;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
 
 /**
  * Install class for handling plugin installation
@@ -27,7 +31,7 @@ class Install
     {
         self::init();
         if (!self::createTables()) {
-            wp_die('Could not install AltText AI plugin. Please check error logs.');
+            wp_die(esc_html__('Could not install ImageCraft plugin. Please check error logs.', 'imagecraft-ai-alt-text-file-renamer-image-seo'));
         }
     }
 
@@ -40,7 +44,7 @@ class Install
 
         $sql = [
             // Table 1: API Settings
-            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . SATAI_TABLE_PREFIX . "alttext_api_settings (
+            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . ICAIS_TABLE_PREFIX . "api_settings (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT UNSIGNED NOT NULL,
                 api_provider VARCHAR(20) NOT NULL,
@@ -54,7 +58,7 @@ class Install
             ) " . self::$charset_collate . ";",
 
             // Table 2: Generation History
-            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . SATAI_TABLE_PREFIX . "alttext_history (
+            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . ICAIS_TABLE_PREFIX . "history (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 attachment_id BIGINT UNSIGNED NOT NULL,
                 original_alt TEXT,
@@ -73,7 +77,7 @@ class Install
             ) " . self::$charset_collate . ";",
 
             // Table 3: Usage Statistics
-            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . SATAI_TABLE_PREFIX . "alttext_stats (
+            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . ICAIS_TABLE_PREFIX . "stats (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT UNSIGNED NOT NULL,
                 date DATE NOT NULL,
@@ -87,7 +91,7 @@ class Install
             ) " . self::$charset_collate . ";",
 
             // Table 4: Batch Jobs
-            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . SATAI_TABLE_PREFIX . "alttext_batch_jobs (
+            "CREATE TABLE IF NOT EXISTS " . self::$wpdb->prefix . ICAIS_TABLE_PREFIX . "batch_jobs (
                 id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT UNSIGNED NOT NULL,
                 total_images INT NOT NULL,
@@ -111,8 +115,8 @@ class Install
                 }
             }
 
-            update_option('satai_db_version', '1.0.0');
-            add_user_meta($userId, SATAI_TABLE_PREFIX.'wizard_completed', false);
+            update_option('icais_db_version', '1.0.0');
+            add_user_meta($userId, ICAIS_TABLE_PREFIX.'wizard_completed', false);
             return true;
         } catch (\Exception $e) {
             return false;
@@ -124,7 +128,7 @@ class Install
      */
     public static function deactivate()
     {
-        delete_option('satai_db_version');
+        // Do not delete data on deactivation — users may reactivate
     }
 
     /**
@@ -134,11 +138,61 @@ class Install
     {
         self::init();
 
-        try {
+        $prefix = self::$wpdb->prefix . ICAIS_TABLE_PREFIX;
 
-            // Clean up options
-            delete_option('satai_db_version');
-        } catch (\Exception $e) {
+        // Drop custom tables
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table prefix from trusted constants
+        self::$wpdb->query("DROP TABLE IF EXISTS `{$prefix}api_settings`");
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table prefix from trusted constants
+        self::$wpdb->query("DROP TABLE IF EXISTS `{$prefix}history`");
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table prefix from trusted constants
+        self::$wpdb->query("DROP TABLE IF EXISTS `{$prefix}stats`");
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table prefix from trusted constants
+        self::$wpdb->query("DROP TABLE IF EXISTS `{$prefix}batch_jobs`");
+
+        // Delete all plugin options
+        $optionKeys = [
+            'icais_api_provider',
+            'icais_default_tone',
+            'icais_max_length',
+            'icais_auto_generate',
+            'icais_preview_before_accept',
+            'icais_skip_existing',
+            'icais_batch_size',
+            'icais_request_timeout',
+            'icais_language',
+            'icais_email_on_complete',
+            'icais_auto_rename',
+            'icais_rename_max_length',
+            'icais_woo_auto_generate',
+            'icais_woo_include_product_info',
+            'icais_woo_default_tone',
+            'icais_custom_prompt',
+            'icais_woo_custom_prompt',
+            'icais_seo_integration',
+            'icais_seo_use_keyphrase',
+            'icais_openrouter_model',
+        ];
+
+        foreach ($optionKeys as $key) {
+            delete_option(ICAIS_TABLE_PREFIX . $key);
         }
+        delete_option('icais_db_version');
+
+        // Delete user meta for all users
+        delete_metadata('user', 0, ICAIS_TABLE_PREFIX . 'wizard_completed', '', true);
+
+        // Clean up batch transients
+        global $wpdb;
+        $batchLike = $wpdb->esc_like('_transient_icais_batch_') . '%';
+        $timeoutLike = $wpdb->esc_like('_transient_timeout_icais_batch_') . '%';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+                $batchLike,
+                $timeoutLike
+            )
+        );
     }
 }

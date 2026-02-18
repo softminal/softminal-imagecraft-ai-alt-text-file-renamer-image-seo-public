@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services;
+namespace Softminal\ImageCraft\Services;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -186,12 +186,12 @@ class SeoIntegration
     public static function buildSeoContext(int $attachmentId, int $postId = 0): ?string
     {
         // Check if SEO integration is enabled
-        if (Settings::get('satai_seo_integration', '0') !== '1') {
+        if (Settings::get('icais_seo_integration', '0') !== '1') {
             return null;
         }
 
         // Check if focus keyphrase usage is enabled
-        if (Settings::get('satai_seo_use_keyphrase', '1') !== '1') {
+        if (Settings::get('icais_seo_use_keyphrase', '1') !== '1') {
             return null;
         }
 

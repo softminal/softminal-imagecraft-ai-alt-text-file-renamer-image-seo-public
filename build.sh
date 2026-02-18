@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build script for AltText AI Plugin
+# Build script for ImageCraft Plugin
 # This script builds production assets and creates a zip file ready for distribution
 
 set -e  # Exit on any error
@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Get the plugin directory
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGIN_NAME="smart-alt-text-ai"
+PLUGIN_NAME="imagecraft-ai-alt-text-file-renamer-image-seo"
 BUILD_DIR="$PLUGIN_DIR/build"
 ZIP_NAME="${PLUGIN_NAME}.zip"
 
@@ -85,22 +85,26 @@ if [ -d "$PLUGIN_DIR/languages" ]; then
     echo "  ✓ languages/"
 fi
 
+if [ -d "$PLUGIN_DIR/resources" ]; then
+    cp -r "$PLUGIN_DIR/resources" "$BUILD_DIR/$PLUGIN_NAME/"
+    echo "  ✓ resources/"
+fi
+
 # Copy files
 if [ -f "$PLUGIN_DIR/composer.json" ]; then
     cp "$PLUGIN_DIR/composer.json" "$BUILD_DIR/$PLUGIN_NAME/"
     echo "  ✓ composer.json"
 fi
 
-if [ -f "$PLUGIN_DIR/smart-alt-text-ai.php" ]; then
-    cp "$PLUGIN_DIR/smart-alt-text-ai.php" "$BUILD_DIR/$PLUGIN_NAME/"
-    echo "  ✓ smart-alt-text-ai.php"
+# Dev config files (package.json, vite.config.js, tailwind.config.js, postcss.config.js)
+# are intentionally excluded from the distribution ZIP
+
+if [ -f "$PLUGIN_DIR/imagecraft-ai-alt-text-file-renamer-image-seo.php" ]; then
+    cp "$PLUGIN_DIR/imagecraft-ai-alt-text-file-renamer-image-seo.php" "$BUILD_DIR/$PLUGIN_NAME/"
+    echo "  ✓ imagecraft-ai-alt-text-file-renamer-image-seo.php"
 fi
 
-# Copy composer.lock if exists
-if [ -f "$PLUGIN_DIR/composer.lock" ]; then
-    cp "$PLUGIN_DIR/composer.lock" "$BUILD_DIR/$PLUGIN_NAME/"
-    echo "  ✓ composer.lock"
-fi
+# composer.lock is intentionally excluded from the distribution ZIP
 
 # Copy readme.txt for WordPress.org (not README.md which is for development)
 if [ -f "$PLUGIN_DIR/readme.txt" ]; then
@@ -108,7 +112,21 @@ if [ -f "$PLUGIN_DIR/readme.txt" ]; then
     echo "  ✓ readme.txt"
 fi
 
-# Step 6: Create zip file
+# Copy root index.php for directory browsing protection
+if [ -f "$PLUGIN_DIR/index.php" ]; then
+    cp "$PLUGIN_DIR/index.php" "$BUILD_DIR/$PLUGIN_NAME/"
+    echo "  ✓ index.php"
+fi
+
+# Step 6: Set ICAIS_DEV_MODE to false in the build
+echo -e "${GREEN}🔧 Setting ICAIS_DEV_MODE to false for production...${NC}"
+BUILD_CONSTANTS="$BUILD_DIR/$PLUGIN_NAME/config/constants.php"
+if [ -f "$BUILD_CONSTANTS" ]; then
+    sed -i '' "s/define('ICAIS_DEV_MODE', true);/define('ICAIS_DEV_MODE', false);/" "$BUILD_CONSTANTS"
+    echo "  ✓ ICAIS_DEV_MODE set to false"
+fi
+
+# Step 7: Create zip file
 echo -e "${GREEN}📦 Creating zip file...${NC}"
 cd "$BUILD_DIR"
 
@@ -131,7 +149,7 @@ else
     exit 1
 fi
 
-# Step 7: Cleanup build directory (optional - comment out if you want to keep it)
+# Step 8: Cleanup build directory (optional - comment out if you want to keep it)
 # echo -e "${YELLOW}🧹 Cleaning up...${NC}"
 # rm -rf "$BUILD_DIR/$PLUGIN_NAME"
 

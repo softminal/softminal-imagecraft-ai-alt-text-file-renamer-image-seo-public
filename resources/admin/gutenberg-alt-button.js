@@ -1,5 +1,5 @@
 /**
- * Smart Alt Text AI - Gutenberg Block Editor Integration
+ * ImageCraft - Gutenberg Block Editor Integration
  *
  * Injects a "Generate with AI" button directly below the existing
  * "Alternative Text" field in the core/image block inspector sidebar.
@@ -12,8 +12,8 @@
 (function () {
     'use strict';
 
-    var config = window.sataiGutenberg || {};
-    var MARKER_CLASS = 'satai-gut-wrapper';
+    var config = window.icaisGutenberg || {};
+    var MARKER_CLASS = 'icais-gut-wrapper';
     var debounceTimer = null;
 
     // Persistent state across React re-renders
@@ -93,10 +93,14 @@
         if (state.phase === 'idle' || state.phase === 'success' || state.phase === 'error') {
             var btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'components-button is-secondary satai-gut-btn';
-            btn.innerHTML =
-                '<span class="satai-gut-btn-icon">' + svgIcon + '</span>' +
-                '<span>' + (config.i18n?.generate || 'Generate with AI') + '</span>';
+            btn.className = 'components-button is-secondary icais-gut-btn';
+            var btnIcon = document.createElement('span');
+            btnIcon.className = 'icais-gut-btn-icon';
+            btnIcon.innerHTML = svgIcon;
+            var btnText = document.createElement('span');
+            btnText.textContent = config.i18n?.generate || 'Generate with AI';
+            btn.appendChild(btnIcon);
+            btn.appendChild(btnText);
             btn.addEventListener('click', handleGenerate);
             wrapper.appendChild(btn);
         }
@@ -105,21 +109,25 @@
         if (state.phase === 'loading') {
             var busy = document.createElement('button');
             busy.type = 'button';
-            busy.className = 'components-button is-secondary satai-gut-btn satai-gut-loading';
+            busy.className = 'components-button is-secondary icais-gut-btn icais-gut-loading';
             busy.disabled = true;
-            busy.innerHTML =
-                '<span class="satai-gut-btn-icon satai-gut-spin">' + svgIcon + '</span>' +
-                '<span>' + (config.i18n?.generating || 'Generating...') + '</span>';
+            var busyIcon = document.createElement('span');
+            busyIcon.className = 'icais-gut-btn-icon icais-gut-spin';
+            busyIcon.innerHTML = svgIcon;
+            var busyText = document.createElement('span');
+            busyText.textContent = config.i18n?.generating || 'Generating...';
+            busy.appendChild(busyIcon);
+            busy.appendChild(busyText);
             wrapper.appendChild(busy);
         }
 
         // Preview
         if (state.phase === 'preview') {
             var preview = document.createElement('div');
-            preview.className = 'satai-gut-preview';
+            preview.className = 'icais-gut-preview';
 
             var ta = document.createElement('textarea');
-            ta.className = 'components-textarea-control__input satai-gut-preview-ta';
+            ta.className = 'components-textarea-control__input icais-gut-preview-ta';
             ta.value = state.previewText;
             ta.rows = 3;
             ta.addEventListener('input', function (e) {
@@ -128,7 +136,7 @@
             preview.appendChild(ta);
 
             var actions = document.createElement('div');
-            actions.className = 'satai-gut-preview-actions';
+            actions.className = 'icais-gut-preview-actions';
 
             var acceptBtn = document.createElement('button');
             acceptBtn.type = 'button';
@@ -151,9 +159,9 @@
         // Status message
         if (state.message) {
             var msg = document.createElement('div');
-            msg.className = 'satai-gut-status';
-            if (state.phase === 'success') msg.className += ' satai-gut-status-success';
-            if (state.phase === 'error') msg.className += ' satai-gut-status-error';
+            msg.className = 'icais-gut-status';
+            if (state.phase === 'success') msg.className += ' icais-gut-status-success';
+            if (state.phase === 'error') msg.className += ' icais-gut-status-error';
             msg.textContent = state.message;
             wrapper.appendChild(msg);
         }

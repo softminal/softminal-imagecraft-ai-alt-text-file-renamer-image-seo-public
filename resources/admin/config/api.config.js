@@ -1,8 +1,8 @@
 export default {
-    baseURL: window.smartAltTextAi?.apiUrl || '/wp-json/smart-alt-text-ai/v1',
-    nonce: window.smartAltTextAi?.nonce || '',
+    baseURL: window.icais?.apiUrl || '/wp-json/icais/v1',
+    nonce: window.icais?.nonce || '',
     headers: {
         'Content-Type': 'application/json',
-        'X-WP-Nonce': window.smartAltTextAi?.nonce || ''
+        'X-WP-Nonce': window.icais?.nonce || ''
     }
 }

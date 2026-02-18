@@ -275,7 +275,7 @@
           {{ $t('Previous') }}
         </button>
         <span class="text-sm text-gray-600">
-          {{ $t('Page %s of %s', pagination.current_page, pagination.total_pages) }}
+          {{ $t('Page %1$s of %2$s', pagination.current_page, pagination.total_pages) }}
         </span>
         <button
           @click="loadPage(pagination.current_page + 1)"
@@ -491,7 +491,7 @@ const renameSelectedImages = async () => {
       loadImages()
       selectedImages.value = []
     } else {
-      notification.error($t('Renamed %s/%s files', result.success_count, selectedImages.value.length))
+      notification.error($t('Renamed %1$s/%2$s files', result.success_count, selectedImages.value.length))
     }
   } catch (error) {
     notification.error($t('Bulk rename failed'))

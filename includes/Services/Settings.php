@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services;
+namespace Softminal\ImageCraft\Services;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -12,25 +12,26 @@ if (!defined('ABSPATH')) {
 class Settings
 {
     private static $defaults = [
-        'satai_api_provider' => 'anthropic',
-        'satai_default_tone' => 'professional',
-        'satai_max_length' => 150,
-        'satai_auto_generate' => '0',
-        'satai_preview_before_accept' => '1',
-        'satai_skip_existing' => '0',
-        'satai_batch_size' => 5,
-        'satai_request_timeout' => 60,
-        'satai_language' => 'en',
-        'satai_email_on_complete' => '0',
-        'satai_auto_rename' => '0',
-        'satai_rename_max_length' => 120,
-        'satai_woo_auto_generate' => '0',
-        'satai_woo_include_product_info' => '1',
-        'satai_woo_default_tone' => 'woo_seo',
-        'satai_custom_prompt' => '',
-        'satai_woo_custom_prompt' => '',
-        'satai_seo_integration' => '0',
-        'satai_seo_use_keyphrase' => '1',
+        'icais_api_provider' => 'anthropic',
+        'icais_default_tone' => 'professional',
+        'icais_max_length' => 150,
+        'icais_auto_generate' => '0',
+        'icais_preview_before_accept' => '1',
+        'icais_skip_existing' => '0',
+        'icais_batch_size' => 5,
+        'icais_request_timeout' => 60,
+        'icais_language' => 'en',
+        'icais_email_on_complete' => '0',
+        'icais_auto_rename' => '0',
+        'icais_rename_max_length' => 120,
+        'icais_woo_auto_generate' => '0',
+        'icais_woo_include_product_info' => '1',
+        'icais_woo_default_tone' => 'woo_seo',
+        'icais_custom_prompt' => '',
+        'icais_woo_custom_prompt' => '',
+        'icais_seo_integration' => '0',
+        'icais_seo_use_keyphrase' => '1',
+        'icais_openrouter_model' => 'anthropic/claude-3.5-sonnet',
     ];
 
     /**
@@ -39,7 +40,7 @@ class Settings
     public static function get(string $key, $default = null)
     {
         // Add prefix for WordPress option name
-        $optionKey = SATAI_TABLE_PREFIX . $key;
+        $optionKey = ICAIS_TABLE_PREFIX . $key;
         $value = get_option($optionKey, null);
 
         if ($value === null) {
@@ -67,7 +68,7 @@ class Settings
         }
 
         // Add prefix for WordPress option name
-        $optionKey = SATAI_TABLE_PREFIX . $key;
+        $optionKey = ICAIS_TABLE_PREFIX . $key;
 
         // Update the option
         $result = update_option($optionKey, $value);
@@ -155,7 +156,7 @@ class Settings
             $userId = get_current_user_id();
         }
 
-        return (bool) get_user_meta($userId, SATAI_TABLE_PREFIX.'wizard_completed', true);
+        return (bool) get_user_meta($userId, ICAIS_TABLE_PREFIX.'wizard_completed', true);
     }
 
     /**
@@ -175,6 +176,6 @@ class Settings
 
         // update_user_meta returns meta_id if new, true if updated, false on failure
         // If value already exists and is the same, it returns false, so we need to check differently
-        return update_user_meta($userId, SATAI_TABLE_PREFIX.'wizard_completed', true);
+        return update_user_meta($userId, ICAIS_TABLE_PREFIX.'wizard_completed', true);
     }
 }

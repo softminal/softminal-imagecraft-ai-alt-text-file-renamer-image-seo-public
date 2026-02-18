@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Http\Controllers;
+namespace Softminal\ImageCraft\Http\Controllers;
 
 if (!defined('ABSPATH')) {
     exit;

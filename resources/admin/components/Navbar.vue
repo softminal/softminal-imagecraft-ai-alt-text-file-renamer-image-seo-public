@@ -4,7 +4,7 @@
             <!-- Logo Section -->
             <div class="flex items-center">
                 <span class="self-center text-xl font-semibold whitespace-nowrap text-blue-500">
-                    Smart Alt Text AI
+                    ImageCraft
                 </span>
             </div>
 

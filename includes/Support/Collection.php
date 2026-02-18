@@ -1,8 +1,8 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Support;
+namespace Softminal\ImageCraft\Support;
 
-use SmartAltTextAi\Includes\Models\Model;
+use Softminal\ImageCraft\Models\Model;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -34,7 +34,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate
         return isset($this->items[$offset]);
     }
 
-    public function offsetGet($offset): mixed
+    /**
+     * @return mixed
+     */
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
     {
         return $this->items[$offset] ?? null;
     }

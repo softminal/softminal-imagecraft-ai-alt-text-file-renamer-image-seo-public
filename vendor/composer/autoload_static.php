@@ -9,12 +9,12 @@ class ComposerStaticInitbc6ab1cd982e9fa314688c0353a69e4c
     public static $prefixLengthsPsr4 = array (
         'S' => 
         array (
-            'SmartAltTextAi\\' => 15,
+            'Softminal\\ImageCraft\\' => 21,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'SmartAltTextAi\\' => 
+        'Softminal\\ImageCraft\\' => 
         array (
             0 => __DIR__ . '/../..' . '/includes',
         ),

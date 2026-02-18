@@ -1,6 +1,6 @@
 <?php
 
-namespace SmartAltTextAi\Includes;
+namespace Softminal\ImageCraft;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -13,18 +13,18 @@ class Menu {
 
     public function add_admin_menu() {
         add_menu_page(
-            __('Smart Alt Text', 'smart-alt-text-ai'),
-            __('Smart Alt Text', 'smart-alt-text-ai'),
+            __('ImageCraft', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            __('ImageCraft', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'manage_options',
-            'smart-alt-text-ai',
+            'icais',
             [$this, 'render_dashboard'],
             'dashicons-format-image',
-            20
+            99
         );
     }
 
     public function render_dashboard() {
         wp_enqueue_media();
-        echo '<div id="smart-alt-text-ai-app"></div>';
+        echo wp_kses_post('<div id="icais-app"></div>');
     }
 }

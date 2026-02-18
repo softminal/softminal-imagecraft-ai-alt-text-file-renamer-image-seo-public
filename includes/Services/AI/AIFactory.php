@@ -1,10 +1,10 @@
 <?php
 
-namespace SmartAltTextAi\Includes\Services\AI;
+namespace Softminal\ImageCraft\Services\AI;
 
-use SmartAltTextAi\Includes\Models\ApiSetting;
-use SmartAltTextAi\Includes\Services\Encryption;
-use SmartAltTextAi\Includes\Services\Settings;
+use Softminal\ImageCraft\Models\ApiSetting;
+use Softminal\ImageCraft\Services\Encryption;
+use Softminal\ImageCraft\Services\Settings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -17,7 +17,7 @@ class AIFactory
      */
     public static function create(string $provider, string $apiKey, int $timeout = 60): BaseAIProvider
     {
-        $timeout = Settings::get('satai_request_timeout', $timeout);
+        $timeout = Settings::get('icais_request_timeout', $timeout);
         switch (strtolower($provider)) {
             case 'anthropic':
                 return new AnthropicProvider($apiKey, $timeout);
@@ -27,6 +27,12 @@ class AIFactory
 
             case 'gemini':
                 return new GeminiProvider($apiKey, $timeout);
+
+            case 'mistral':
+                return new MistralProvider($apiKey, $timeout);
+
+            case 'openrouter':
+                return new OpenRouterProvider($apiKey, $timeout);
 
             default:
                 throw new \Exception('Unknown provider: ' . esc_html($provider));
