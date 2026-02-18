@@ -5,17 +5,17 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin Basic Information
-define('IMGCRAFT_VERSION', '1.0.0');
-define('IMGCRAFT_DIR', plugin_dir_path(dirname(__FILE__)));
-define('IMGCRAFT_URL', plugin_dir_url(dirname(__FILE__)));
-define('IMGCRAFT_PLUGIN_BASE', plugin_basename(dirname(__FILE__)));
-define('IMGCRAFT_PLUGIN_NAME', 'imagecraft');
+define('ICAIS_VERSION', '1.0.0');
+define('ICAIS_DIR', plugin_dir_path(dirname(__FILE__)));
+define('ICAIS_URL', plugin_dir_url(dirname(__FILE__)));
+define('ICAIS_PLUGIN_BASE', plugin_basename(dirname(__FILE__)));
+define('ICAIS_PLUGIN_NAME', 'icais');
 
 // Database Tables
-define('IMGCRAFT_TABLE_PREFIX', 'imgcraft_');
+define('ICAIS_TABLE_PREFIX', 'icais_');
 
 // API Information
-define('IMGCRAFT_API_VERSION', 'v1');
-define('IMGCRAFT_API_NAMESPACE', 'imagecraft/' . IMGCRAFT_API_VERSION);
+define('ICAIS_API_VERSION', 'v1');
+define('ICAIS_API_NAMESPACE', 'icais/' . ICAIS_API_VERSION);
 
-define('IMGCRAFT_DEV_MODE', false);
+define('ICAIS_DEV_MODE', false);

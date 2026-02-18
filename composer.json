@@ -1,5 +1,5 @@
 {
-    "name": "imagecraft/imagecraft",
+    "name": "softminal/imagecraft",
     "description": "A WordPress plugin that generates alt text for images using AI.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0+",
@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "ImageCraft\\": "includes/"
+            "Softminal\\ImageCraft\\": "includes/"
         }
     },
     "require": {}

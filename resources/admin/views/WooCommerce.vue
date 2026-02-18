@@ -424,7 +424,7 @@ const openProductModal = async (product) => {
       selectedProduct.value.gallery = result.gallery
     }
   } catch (error) {
-    console.log('Failed to load gallery')
+    // Gallery loading failed silently
   }
 }
 

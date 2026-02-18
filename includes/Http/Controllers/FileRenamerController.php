@@ -1,8 +1,8 @@
 <?php
 
-namespace ImageCraft\Includes\Http\Controllers;
+namespace Softminal\ImageCraft\Http\Controllers;
 
-use ImageCraft\Includes\Services\FileRenamer;
+use Softminal\ImageCraft\Services\FileRenamer;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -21,12 +21,12 @@ class FileRenamerController extends Controller
     {
         $params = $request->get_json_params();
         $attachmentId = (int) ($params['attachment_id'] ?? 0);
-        $customFilename = $params['filename'] ?? '';
+        $customFilename = sanitize_file_name($params['filename'] ?? '');
 
         if (!$attachmentId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Attachment ID is required'
+                'message' => __('Attachment ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -38,7 +38,7 @@ class FileRenamerController extends Controller
 
         return $this->response([
             'success' => true,
-            'message' => 'File renamed successfully',
+            'message' => __('File renamed successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'old_filename' => $result['old_filename'],
             'new_filename' => $result['new_filename']
         ]);
@@ -47,19 +47,19 @@ class FileRenamerController extends Controller
     public function renameBulk($request)
     {
         $params = $request->get_json_params();
-        $attachmentIds = array_map('intval', $params['attachment_ids'] ?? []);
+        $attachmentIds = array_map('absint', $params['attachment_ids'] ?? []);
 
         if (empty($attachmentIds)) {
             return $this->response([
                 'success' => false,
-                'message' => 'No attachments provided'
+                'message' => __('No attachments provided', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
         if (count($attachmentIds) > 50) {
             return $this->response([
                 'success' => false,
-                'message' => 'Maximum 50 images can be renamed at once'
+                'message' => __('Maximum 50 images can be renamed at once', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -80,7 +80,8 @@ class FileRenamerController extends Controller
 
         return $this->response([
             'success' => $errorCount === 0,
-            'message' => sprintf('Renamed %d/%d files', $successCount, count($attachmentIds)),
+            /* translators: %1$d: number of successfully renamed files, %2$d: total number of files */
+            'message' => sprintf(__('Renamed %1$d/%2$d files', 'imagecraft-ai-alt-text-file-renamer-image-seo'), $successCount, count($attachmentIds)),
             'success_count' => $successCount,
             'error_count' => $errorCount,
             'results' => $results
@@ -94,7 +95,7 @@ class FileRenamerController extends Controller
         if (!$attachmentId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Attachment ID is required'
+                'message' => __('Attachment ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 

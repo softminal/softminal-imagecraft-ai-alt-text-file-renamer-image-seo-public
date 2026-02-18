@@ -1,6 +1,6 @@
 <?php
 
-namespace ImageCraft\Includes\Http\Routes;
+namespace Softminal\ImageCraft\Http\Routes;
 
 use WP_Error;
 
@@ -13,7 +13,7 @@ class Route
     private static $routes = [];
     private static $prefix = '';
     private static $middleware = [];
-    private static $capability = 'edit_posts';
+    private static $capability = 'manage_options';
     private static $namespace = '';
     private static $lastRoute = null;
 
@@ -167,9 +167,9 @@ class Route
     public static function registerRoutes($namespace = null) {
         // Use default namespace if not provided
         if ($namespace === null) {
-            $namespace = defined('IMGCRAFT_API_NAMESPACE')
-                ? IMGCRAFT_API_NAMESPACE
-                : 'imagecraft/v1';
+            $namespace = defined('ICAIS_API_NAMESPACE')
+                ? ICAIS_API_NAMESPACE
+                : 'icais/v1';
         }
         if (empty(self::$routes)) {
             return;
@@ -202,7 +202,7 @@ class Route
                     } catch (\Exception $e) {
                         $message = (defined('WP_DEBUG') && WP_DEBUG)
                             ? $e->getMessage()
-                            : __('An unexpected error occurred.', 'imagecraft');
+                            : __('An unexpected error occurred.', 'imagecraft-ai-alt-text-file-renamer-image-seo');
 
                         return new \WP_Error(
                             'api_error',
@@ -224,17 +224,17 @@ class Route
         if (!is_user_logged_in()) {
             return new WP_Error(
                 'rest_unauthorized',
-                'You must be logged in.',
+                __('You must be logged in.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 ['status' => 401]
             );
         }
 
         // Check user capabilities
-        $capability = $route['capability'] ?? 'edit_posts';
+        $capability = $route['capability'] ?? 'manage_options';
         if (!current_user_can($capability)) {
             return new WP_Error(
                 'rest_forbidden',
-                'Insufficient permissions.',
+                __('Insufficient permissions.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 ['status' => 403]
             );
         }
@@ -248,7 +248,7 @@ class Route
                 if (!class_exists($middleware)) {
                     return new WP_Error(
                         'invalid_middleware',
-                        'Invalid middleware configuration',
+                        __('Invalid middleware configuration', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                         ['status' => 500]
                     );
                 }
@@ -262,7 +262,7 @@ class Route
                     if ($result !== true) {
                         return new WP_Error(
                             'middleware_failed',
-                            'Access denied',
+                            __('Access denied', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                             ['status' => 403]
                         );
                     }
@@ -270,7 +270,7 @@ class Route
             } catch (\Exception $e) {
                 return new WP_Error(
                     'server_error',
-                    'Internal server error',
+                    __('Internal server error', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                     ['status' => 500]
                 );
             }

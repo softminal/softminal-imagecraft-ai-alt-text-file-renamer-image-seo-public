@@ -1,8 +1,8 @@
 export default {
-    baseURL: window.imageCraft?.apiUrl || '/wp-json/imagecraft/v1',
-    nonce: window.imageCraft?.nonce || '',
+    baseURL: window.icais?.apiUrl || '/wp-json/icais/v1',
+    nonce: window.icais?.nonce || '',
     headers: {
         'Content-Type': 'application/json',
-        'X-WP-Nonce': window.imageCraft?.nonce || ''
+        'X-WP-Nonce': window.icais?.nonce || ''
     }
 }

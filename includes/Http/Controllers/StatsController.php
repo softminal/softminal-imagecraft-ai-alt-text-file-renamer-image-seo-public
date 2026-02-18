@@ -1,11 +1,11 @@
 <?php
 
-namespace ImageCraft\Includes\Http\Controllers;
+namespace Softminal\ImageCraft\Http\Controllers;
 
-use ImageCraft\Includes\Models\Stats;
-use ImageCraft\Includes\Models\History;
-use ImageCraft\Includes\Models\ApiSetting;
-use ImageCraft\Includes\Support\AltTextHelper;
+use Softminal\ImageCraft\Models\Stats;
+use Softminal\ImageCraft\Models\History;
+use Softminal\ImageCraft\Models\ApiSetting;
+use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -178,7 +178,7 @@ class StatsController extends Controller
      */
     public function audit($request)
     {
-        $maxLength = (int) \ImageCraft\Includes\Services\Settings::get('imgcraft_max_length', 125);
+        $maxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 125);
 
         // Get all image IDs
         $allQuery = new \WP_Query([

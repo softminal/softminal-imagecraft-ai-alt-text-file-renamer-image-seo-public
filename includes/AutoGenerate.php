@@ -1,12 +1,12 @@
 <?php
 
-namespace ImageCraft\Includes;
+namespace Softminal\ImageCraft;
 
-use ImageCraft\Includes\Services\Settings;
-use ImageCraft\Includes\Services\StatsTracker;
-use ImageCraft\Includes\Services\AI\AIFactory;
-use ImageCraft\Includes\Services\FileRenamer;
-use ImageCraft\Includes\Services\SeoIntegration;
+use Softminal\ImageCraft\Services\Settings;
+use Softminal\ImageCraft\Services\StatsTracker;
+use Softminal\ImageCraft\Services\AI\AIFactory;
+use Softminal\ImageCraft\Services\FileRenamer;
+use Softminal\ImageCraft\Services\SeoIntegration;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -20,8 +20,8 @@ class AutoGenerate
     public static function init(): void
     {
         add_action('add_attachment', [self::class, 'onAttachmentAdded']);
-        add_action('imgcraft_auto_generate', [self::class, 'generateForAttachment']);
-        add_action('imgcraft_auto_rename', [self::class, 'renameOnUpload']);
+        add_action('icais_auto_generate', [self::class, 'generateForAttachment']);
+        add_action('icais_auto_rename', [self::class, 'renameOnUpload']);
     }
 
     /**
@@ -30,7 +30,7 @@ class AutoGenerate
     public static function onAttachmentAdded($attachmentId)
     {
         // Check if auto-generate is enabled
-        if (!Settings::get('imgcraft_auto_generate', false)) {
+        if (!Settings::get('icais_auto_generate', false)) {
             return;
         }
 
@@ -40,7 +40,7 @@ class AutoGenerate
         }
 
         // Check if skip existing is enabled and alt text already exists
-        if (Settings::get('imgcraft_skip_existing', false)) {
+        if (Settings::get('icais_skip_existing', false)) {
             $existingAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
             if (!empty($existingAlt)) {
                 return;
@@ -51,11 +51,11 @@ class AutoGenerate
         $userId = get_current_user_id();
 
         // Schedule generation in background
-        wp_schedule_single_event(time() + 5, 'imgcraft_auto_generate', [$attachmentId, $userId]);
+        wp_schedule_single_event(time() + 5, 'icais_auto_generate', [$attachmentId, $userId]);
 
         // Schedule rename after alt text is generated
-        if (Settings::get('imgcraft_auto_rename', false)) {
-            wp_schedule_single_event(time() + 15, 'imgcraft_auto_rename', [$attachmentId, $userId]);
+        if (Settings::get('icais_auto_rename', false)) {
+            wp_schedule_single_event(time() + 15, 'icais_auto_rename', [$attachmentId, $userId]);
         }
     }
 
@@ -76,7 +76,7 @@ class AutoGenerate
             return;
         }
 
-        $tone = Settings::get('imgcraft_default_tone', 'professional');
+        $tone = Settings::get('icais_default_tone', 'professional');
         $context = SeoIntegration::buildSeoContext((int) $attachmentId);
         $result = $aiProvider->generateAltText($imageUrl, $tone, $context);
 
@@ -84,7 +84,7 @@ class AutoGenerate
             return;
         }
 
-        $previewSetting = Settings::get('imgcraft_preview_before_accept', '1');
+        $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
         $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
 
@@ -101,13 +101,13 @@ class AutoGenerate
 
         // Auto-accept: write alt text to attachment meta
         if (!$previewBeforeAccept) {
-            update_post_meta($attachmentId, '_wp_attachment_image_alt', $result['alt_text']);
+            update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($result['alt_text']));
         }
     }
 
     public static function renameOnUpload($attachmentId, $userId = 0)
     {
-        if (!Settings::get('imgcraft_auto_rename', false)) {
+        if (!Settings::get('icais_auto_rename', false)) {
             return;
         }
 

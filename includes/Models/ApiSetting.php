@@ -1,8 +1,8 @@
 <?php
 
-namespace ImageCraft\Includes\Models;
+namespace Softminal\ImageCraft\Models;
 
-use ImageCraft\Includes\Services\Encryption;
+use Softminal\ImageCraft\Services\Encryption;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -70,7 +70,8 @@ class ApiSetting extends Model
 
             // Extract IV from encrypted string for database storage
             // Format: base64(encrypted::hex_iv)
-            $decoded = base64_decode($encrypted);
+            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Required to extract IV from encrypted API key
+            $decoded = base64_decode($encrypted, true);
             if ($decoded !== false) {
                 $parts = explode('::', $decoded, 2);
                 if (isset($parts[1])) {

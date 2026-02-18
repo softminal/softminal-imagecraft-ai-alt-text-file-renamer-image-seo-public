@@ -1,8 +1,8 @@
 <?php
 
-namespace ImageCraft\Includes\Http\Routes;
+namespace Softminal\ImageCraft\Http\Routes;
 
-use ImageCraft\Includes\Http\Routes\Route;
+use Softminal\ImageCraft\Http\Routes\Route;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 /**
  * Router class for handling API routes.
  *
- * @package ImageCraft\Includes\Http\Routes
+ * @package Softminal\ImageCraft\Http\Routes
  */
 class Router {
     /**
@@ -25,7 +25,7 @@ class Router {
      * Initialize the router
      */
     public function __construct() {
-        $this->namespace = IMGCRAFT_API_NAMESPACE;
+        $this->namespace = ICAIS_API_NAMESPACE;
     }
 
     /**
@@ -33,7 +33,7 @@ class Router {
      */
     public function init() {
         // Load API route definitions
-        require_once IMGCRAFT_DIR . 'includes/Http/api.php';
+        require_once ICAIS_DIR . 'includes/Http/api.php';
 
         // Register routes with WordPress REST API
         add_action('rest_api_init', [$this, 'registerRoutes']);
@@ -56,38 +56,9 @@ class Router {
         try {
             // Call the static method on the Route class to register all routes
             Route::registerRoutes($this->namespace);
-
-            // Register a test endpoint to verify the API is working
-            register_rest_route($this->namespace, '/test', [
-                'methods' => 'GET',
-                'callback' => function() {
-                    return [
-                        'status' => 'success',
-                        'message' => 'API is working correctly',
-                    ];
-                },
-                'permission_callback' => function() {
-                    return is_user_logged_in() && current_user_can('manage_options');
-                }
-            ]);
         } catch (\Exception $e) {
-
+            // Route registration failed silently
         }
     }
 
-    /**
-     * Debug the registered routes in admin footer
-     */
-    // public function debugRoutes() {
-    //     if (!current_user_can('manage_options')) {
-    //         return;
-    //     }
-
-    //     echo '<script>console.group("AltText AI API Routes");</script>';
-    //     foreach (Route::getRegisteredRoutes() as $route) {
-    //         $endpoint = $this->namespace . '/' . $route['endpoint'];
-    //         echo '<script>console.log("' . esc_js($route['method']) . ': ' . esc_js($endpoint) . '");</script>';
-    //     }
-    //     echo '<script>console.groupEnd();</script>';
-    // }
 }

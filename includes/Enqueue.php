@@ -1,9 +1,9 @@
 <?php
 
-namespace ImageCraft\Includes;
+namespace Softminal\ImageCraft;
 
-use ImageCraft\Includes\Services\Settings;
-use ImageCraft\Includes\Services\TranslationStrings;
+use Softminal\ImageCraft\Services\Settings;
+use Softminal\ImageCraft\Services\TranslationStrings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -20,7 +20,7 @@ class Enqueue {
 
 
     public function enqueueAdminAssets($hook) {
-        if ($hook !== 'toplevel_page_imagecraft') {
+        if ($hook !== 'toplevel_page_icais') {
             return;
         }
 
@@ -29,18 +29,18 @@ class Enqueue {
         $script_dependencies = ['jquery', 'wp-api-fetch', 'wp-i18n'];
 
         // Check if we should use dev mode (Vite dev server running)
-        if (defined('IMGCRAFT_DEV_MODE') && IMGCRAFT_DEV_MODE) {
+        if (defined('ICAIS_DEV_MODE') && ICAIS_DEV_MODE) {
             // Development mode: Load assets from Vite dev server
             $dev_server_url = self::DEV_SERVER_URL . '/resources/admin/main.js';
             wp_enqueue_script(
-                'imgcraft-script',
+                'icais-script',
                 $dev_server_url,
                 $script_dependencies,
-                IMGCRAFT_VERSION,
+                ICAIS_VERSION,
                 true // Load in footer to ensure WordPress scripts load first
             );
             add_filter('script_loader_tag', function ($tag, $handle) {
-                if ('imgcraft-script' === $handle) {
+                if ('icais-script' === $handle) {
                     return str_replace('<script ', '<script type="module" ', $tag);
                 }
                 return $tag;
@@ -48,15 +48,15 @@ class Enqueue {
 
             // Enqueue SCSS from dev server
             wp_enqueue_style(
-                'imgcraft-dev-style',
+                'icais-dev-style',
                 self::DEV_SERVER_URL . '/resources/scss/index.scss',
                 [],
-                IMGCRAFT_VERSION
+                ICAIS_VERSION
             );
 
             // Localize script for dev mode
-            wp_localize_script('imgcraft-script', 'imageCraft', [
-                'apiUrl' => rest_url(IMGCRAFT_API_NAMESPACE),
+            wp_localize_script('icais-script', 'icais', [
+                'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
                 'adminUrl' => admin_url(),
                 'nonce' => wp_create_nonce('wp_rest'),
                 'debug' => true,
@@ -68,8 +68,8 @@ class Enqueue {
 
             // Only localize if script was successfully enqueued
             if ($script_enqueued) {
-                wp_localize_script('imgcraft-script', 'imageCraft', [
-                    'apiUrl' => rest_url(IMGCRAFT_API_NAMESPACE),
+                wp_localize_script('icais-script', 'icais', [
+                    'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
                     'adminUrl' => admin_url(),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'debug' => false,
@@ -80,35 +80,30 @@ class Enqueue {
     }
 
     private function enqueueProductionAssets(array $dependencies = []): bool {
-        // Check for manifest in .vite folder first (Vite's default location)
-        $manifest_path = IMGCRAFT_DIR . 'assets/.vite/manifest.json';
-
-        // Fallback to root assets folder
-        if (!file_exists($manifest_path)) {
-            $manifest_path = IMGCRAFT_DIR . 'assets/manifest.json';
+        // Check for manifest in .vite folder first (Vite's default location), then root assets folder
+        $manifest = wp_json_file_decode(ICAIS_DIR . 'assets/.vite/manifest.json', ['associative' => true]);
+        if (empty($manifest)) {
+            $manifest = wp_json_file_decode(ICAIS_DIR . 'assets/manifest.json', ['associative' => true]);
         }
-
-        if (!file_exists($manifest_path)) {
+        if (empty($manifest)) {
             return false;
         }
-
-        $manifest = json_decode(file_get_contents($manifest_path), true);
         $script_enqueued = false;
 
         // Enqueue the main JS file
         if (isset($manifest['resources/admin/main.js'])) {
             $main_js = $manifest['resources/admin/main.js']['file'];
             wp_enqueue_script(
-                'imgcraft-script',
-                IMGCRAFT_URL . 'assets/' . $main_js,
+                'icais-script',
+                ICAIS_URL . 'assets/' . $main_js,
                 $dependencies,
-                IMGCRAFT_VERSION,
+                ICAIS_VERSION,
                 true // Load in footer to ensure WordPress scripts load first
             );
 
             // Add type="module" for production builds
             add_filter('script_loader_tag', function ($tag, $handle) {
-                if ('imgcraft-script' === $handle) {
+                if ('icais-script' === $handle) {
                     return str_replace('<script ', '<script type="module" ', $tag);
                 }
                 return $tag;
@@ -120,10 +115,10 @@ class Enqueue {
             if (isset($manifest['resources/admin/main.js']['css'])) {
                 foreach ($manifest['resources/admin/main.js']['css'] as $css_file) {
                     wp_enqueue_style(
-                        'imgcraft-style',
-                        IMGCRAFT_URL . 'assets/' . $css_file,
+                        'icais-style',
+                        ICAIS_URL . 'assets/' . $css_file,
                         [],
-                        IMGCRAFT_VERSION
+                        ICAIS_VERSION
                     );
                 }
             }
@@ -133,10 +128,10 @@ class Enqueue {
         if (isset($manifest['resources/scss/index.scss'])) {
             $scss_file = $manifest['resources/scss/index.scss']['file'];
             wp_enqueue_style(
-                'imgcraft-scss',
-                IMGCRAFT_URL . 'assets/' . $scss_file,
+                'icais-scss',
+                ICAIS_URL . 'assets/' . $scss_file,
                 [],
-                IMGCRAFT_VERSION
+                ICAIS_VERSION
             );
         }
 
@@ -148,7 +143,7 @@ class Enqueue {
      */
     public function enqueueMediaButtonAssets($hook) {
         // Only load on pages where the media modal can appear
-        if (!in_array($hook, ['post.php', 'post-new.php', 'upload.php', 'toplevel_page_imagecraft'], true)) {
+        if (!in_array($hook, ['post.php', 'post-new.php', 'upload.php', 'toplevel_page_icais'], true)) {
             return;
         }
 
@@ -163,35 +158,35 @@ class Enqueue {
         }
 
         wp_enqueue_script(
-            'imgcraft-media-button',
-            IMGCRAFT_URL . 'resources/admin/media-button.js',
+            'icais-media-button',
+            ICAIS_URL . 'resources/admin/media-button.js',
             ['media-views'],
-            IMGCRAFT_VERSION,
+            ICAIS_VERSION,
             true
         );
 
-        wp_localize_script('imgcraft-media-button', 'imgcraftMediaButton', [
-            'apiUrl' => rest_url(IMGCRAFT_API_NAMESPACE),
+        wp_localize_script('icais-media-button', 'icaisMediaButton', [
+            'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
             'nonce' => wp_create_nonce('wp_rest'),
-            'defaultTone' => Settings::get('imgcraft_default_tone', 'professional'),
+            'defaultTone' => Settings::get('icais_default_tone', 'professional'),
             'i18n' => [
-                'generate' => __('Generate with AI', 'imagecraft'),
-                'generating' => __('Generating...', 'imagecraft'),
-                'success' => __('Alt text generated successfully!', 'imagecraft'),
-                'error' => __('Failed to generate alt text. Please try again.', 'imagecraft'),
-                'noAttachment' => __('Could not detect image. Please select an image first.', 'imagecraft'),
+                'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'success' => __('Alt text generated successfully!', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'error' => __('Failed to generate alt text. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'noAttachment' => __('Could not detect image. Please select an image first.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             ],
         ]);
 
         // Inline CSS for the media button
         $css = '
-            .imgcraft-media-btn-wrapper {
+            .icais-media-btn-wrapper {
                 padding: 2px 0 8px;
                 /* Align with WP media modal input column (label is ~35%, input is ~65%) */
                 padding-left: 35%;
                 overflow: hidden;
             }
-            .imgcraft-media-btn {
+            .icais-media-btn {
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
@@ -207,43 +202,43 @@ class Enqueue {
                 transition: all 0.2s ease;
                 box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             }
-            .imgcraft-media-btn:hover {
+            .icais-media-btn:hover {
                 background: linear-gradient(135deg, #135e96, #0a4b78);
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
             }
-            .imgcraft-media-btn:focus {
+            .icais-media-btn:focus {
                 outline: 2px solid #2271b1;
                 outline-offset: 2px;
             }
-            .imgcraft-media-btn:disabled {
+            .icais-media-btn:disabled {
                 opacity: 0.7;
                 cursor: not-allowed;
                 box-shadow: none;
             }
-            .imgcraft-media-btn.imgcraft-loading .imgcraft-btn-icon {
-                animation: imgcraft-spin 1s linear infinite;
+            .icais-media-btn.icais-loading .icais-btn-icon {
+                animation: icais-spin 1s linear infinite;
             }
-            .imgcraft-btn-icon {
+            .icais-btn-icon {
                 display: inline-flex;
                 align-items: center;
                 flex-shrink: 0;
             }
-            .imgcraft-btn-icon svg {
+            .icais-btn-icon svg {
                 display: block;
             }
-            @keyframes imgcraft-spin {
+            @keyframes icais-spin {
                 from { transform: rotate(0deg); }
                 to { transform: rotate(360deg); }
             }
-            .imgcraft-media-status {
+            .icais-media-status {
                 margin-top: 6px;
                 font-size: 12px;
                 line-height: 1.4;
             }
-            .imgcraft-status-success {
+            .icais-status-success {
                 color: #00a32a;
             }
-            .imgcraft-status-error {
+            .icais-status-error {
                 color: #d63638;
             }
         ';
@@ -263,78 +258,78 @@ class Enqueue {
         }
 
         wp_enqueue_script(
-            'imgcraft-gutenberg-alt-button',
-            IMGCRAFT_URL . 'resources/admin/gutenberg-alt-button.js',
+            'icais-gutenberg-alt-button',
+            ICAIS_URL . 'resources/admin/gutenberg-alt-button.js',
             ['wp-data', 'wp-block-editor'],
-            IMGCRAFT_VERSION,
+            ICAIS_VERSION,
             true
         );
 
-        $previewSetting = Settings::get('imgcraft_preview_before_accept', '1');
+        $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
 
-        wp_localize_script('imgcraft-gutenberg-alt-button', 'imgcraftGutenberg', [
-            'apiUrl' => rest_url(IMGCRAFT_API_NAMESPACE),
+        wp_localize_script('icais-gutenberg-alt-button', 'icaisGutenberg', [
+            'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
             'nonce' => wp_create_nonce('wp_rest'),
             'previewBeforeAccept' => $previewBeforeAccept,
             'i18n' => [
-                'generate' => __('Generate with AI', 'imagecraft'),
-                'generating' => __('Generating...', 'imagecraft'),
-                'accept' => __('Accept', 'imagecraft'),
-                'reject' => __('Reject', 'imagecraft'),
-                'success' => __('Alt text generated!', 'imagecraft'),
-                'error' => __('Failed to generate alt text.', 'imagecraft'),
+                'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'accept' => __('Accept', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'reject' => __('Reject', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'success' => __('Alt text generated!', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'error' => __('Failed to generate alt text.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             ],
         ]);
 
         // Inline CSS for the injected button and preview
-        wp_register_style('imgcraft-gutenberg-style', false, [], IMGCRAFT_VERSION);
-        wp_enqueue_style('imgcraft-gutenberg-style');
-        wp_add_inline_style('imgcraft-gutenberg-style', '
-            .imgcraft-gut-wrapper {
+        wp_register_style('icais-gutenberg-style', false, [], ICAIS_VERSION);
+        wp_enqueue_style('icais-gutenberg-style');
+        wp_add_inline_style('icais-gutenberg-style', '
+            .icais-gut-wrapper {
                 margin-top: 8px;
             }
-            .imgcraft-gut-btn {
+            .icais-gut-btn {
                 display: inline-flex !important;
                 align-items: center;
                 gap: 6px;
             }
-            .imgcraft-gut-btn-icon {
+            .icais-gut-btn-icon {
                 display: inline-flex;
                 align-items: center;
                 flex-shrink: 0;
             }
-            .imgcraft-gut-btn-icon svg {
+            .icais-gut-btn-icon svg {
                 display: block;
             }
-            .imgcraft-gut-spin {
-                animation: imgcraft-gut-spin 1s linear infinite;
+            .icais-gut-spin {
+                animation: icais-gut-spin 1s linear infinite;
             }
-            @keyframes imgcraft-gut-spin {
+            @keyframes icais-gut-spin {
                 from { transform: rotate(0deg); }
                 to { transform: rotate(360deg); }
             }
-            .imgcraft-gut-status {
+            .icais-gut-status {
                 margin-top: 6px;
                 font-size: 12px;
                 line-height: 1.4;
             }
-            .imgcraft-gut-status-success {
+            .icais-gut-status-success {
                 color: #00a32a;
             }
-            .imgcraft-gut-status-error {
+            .icais-gut-status-error {
                 color: #d63638;
             }
-            .imgcraft-gut-preview {
+            .icais-gut-preview {
                 margin-top: 8px;
             }
-            .imgcraft-gut-preview-ta {
+            .icais-gut-preview-ta {
                 width: 100%;
                 min-height: 70px;
                 margin-bottom: 8px;
                 font-size: 13px;
             }
-            .imgcraft-gut-preview-actions {
+            .icais-gut-preview-actions {
                 display: flex;
                 gap: 8px;
             }

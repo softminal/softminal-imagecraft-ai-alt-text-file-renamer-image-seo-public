@@ -1,6 +1,6 @@
 <?php
 
-namespace ImageCraft\Includes\Services;
+namespace Softminal\ImageCraft\Services;
 
 /**
  * Database class for handling database operations.
@@ -8,13 +8,13 @@ namespace ImageCraft\Includes\Services;
  * This class is responsible for managing the database operations related to the plugin.
  * It includes methods for activating, deactivating, and uninstalling the plugin.
  *
- * @package ImageCraft\Includes\Services
+ * @package Softminal\ImageCraft\Services
  */
 if (!defined('ABSPATH')) {
     exit;
 }
 
-use ImageCraft\Includes\Install;
+use Softminal\ImageCraft\Install;
 
 class Database
 {

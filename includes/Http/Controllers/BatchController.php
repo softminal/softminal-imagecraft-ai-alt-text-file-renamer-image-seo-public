@@ -1,12 +1,12 @@
 <?php
 
-namespace ImageCraft\Includes\Http\Controllers;
+namespace Softminal\ImageCraft\Http\Controllers;
 
-use ImageCraft\Includes\Models\BatchJob;
-use ImageCraft\Includes\Models\History;
-use ImageCraft\Includes\Models\Stats;
-use ImageCraft\Includes\Services\SeoIntegration;
-use ImageCraft\Includes\Services\Settings;
+use Softminal\ImageCraft\Models\BatchJob;
+use Softminal\ImageCraft\Models\History;
+use Softminal\ImageCraft\Models\Stats;
+use Softminal\ImageCraft\Services\SeoIntegration;
+use Softminal\ImageCraft\Services\Settings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -37,30 +37,30 @@ class BatchController extends Controller
     public function start($request)
     {
         $params = $request->get_json_params();
-        $imageIds = $params['image_ids'] ?? [];
-        
+        $imageIds = array_map('absint', $params['image_ids'] ?? []);
+
         if (empty($imageIds) || !is_array($imageIds)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Image IDs are required'
+                'message' => __('Image IDs are required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
         if (count($imageIds) > 500) {
             return $this->response([
                 'success' => false,
-                'message' => 'Maximum 500 images per batch job'
+                'message' => __('Maximum 500 images per batch job', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
         $userId = get_current_user_id();
-        
+
         // Check for active batch job
         $activeJob = BatchJob::getActive($userId);
         if ($activeJob) {
             return $this->response([
                 'success' => false,
-                'message' => 'A batch job is already in progress',
+                'message' => __('A batch job is already in progress', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'job_id' => $activeJob->id
             ], 400);
         }
@@ -75,7 +75,7 @@ class BatchController extends Controller
         ]);
         
         // Store image IDs in job meta (we'll use transients for this)
-        set_transient('imgcraft_batch_' . $job->id, $imageIds, DAY_IN_SECONDS);
+        set_transient('icais_batch_' . $job->id, $imageIds, DAY_IN_SECONDS);
         
         return $this->response([
             'success' => true,
@@ -95,7 +95,7 @@ class BatchController extends Controller
         if (!$jobId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Job ID is required'
+                'message' => __('Job ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -103,10 +103,10 @@ class BatchController extends Controller
         if (!$job) {
             return $this->response([
                 'success' => false,
-                'message' => 'Job not found'
+                'message' => __('Job not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 404);
         }
-        
+
         // Validate and correct status if needed (fixes existing jobs with incorrect status)
         $job->validateStatus();
         
@@ -136,7 +136,7 @@ class BatchController extends Controller
         if (!$jobId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Job ID is required'
+                'message' => __('Job ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -144,16 +144,16 @@ class BatchController extends Controller
         if (!$job) {
             return $this->response([
                 'success' => false,
-                'message' => 'Job not found'
+                'message' => __('Job not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 404);
         }
-        
+
         // Get image IDs
-        $imageIds = get_transient('imgcraft_batch_' . $jobId);
+        $imageIds = get_transient('icais_batch_' . $jobId);
         if (!$imageIds) {
             return $this->response([
                 'success' => false,
-                'message' => 'Image IDs not found for this job'
+                'message' => __('Image IDs not found for this job', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
         
@@ -165,8 +165,8 @@ class BatchController extends Controller
         }
         
         // Get batch size
-        $batchSize = Settings::get('imgcraft_batch_size', 5);
-        $tone = Settings::get('imgcraft_default_tone', 'professional');
+        $batchSize = Settings::get('icais_batch_size', 5);
+        $tone = Settings::get('icais_default_tone', 'professional');
         
         // Process chunk
         $processed = 0;
@@ -239,7 +239,7 @@ class BatchController extends Controller
         if (!$jobId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Job ID is required'
+                'message' => __('Job ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -247,19 +247,19 @@ class BatchController extends Controller
         if (!$job) {
             return $this->response([
                 'success' => false,
-                'message' => 'Job not found'
+                'message' => __('Job not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 404);
         }
-        
+
         // Mark as cancelled (using 'failed' status for cancelled jobs)
         // Note: We could add a 'cancelled' status in the future if needed
         $job->status = 'failed';
         $job->completed_at = current_time('mysql');
         $job->save();
-        
+
         return $this->response([
             'success' => true,
-            'message' => 'Batch job cancelled'
+            'message' => __('Batch job cancelled', 'imagecraft-ai-alt-text-file-renamer-image-seo')
         ]);
     }
 
@@ -274,7 +274,7 @@ class BatchController extends Controller
         if (!$jobId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Job ID is required'
+                'message' => __('Job ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -282,18 +282,18 @@ class BatchController extends Controller
         if (!$job) {
             return $this->response([
                 'success' => false,
-                'message' => 'Job not found'
+                'message' => __('Job not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 404);
         }
 
         if ($job->status !== 'completed') {
             return $this->response([
                 'success' => false,
-                'message' => 'Job is not completed yet'
+                'message' => __('Job is not completed yet', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
-        $imageIds = get_transient('imgcraft_batch_' . $jobId);
+        $imageIds = get_transient('icais_batch_' . $jobId);
         if (!$imageIds || !is_array($imageIds)) {
             return $this->response([
                 'success' => true,

@@ -12,7 +12,8 @@ class Api {
             
             const response = await fetch(url, {
                 ...options,
-                headers: this.headers
+                headers: this.headers,
+                credentials: 'same-origin'
             })
 
             // Check content type before parsing

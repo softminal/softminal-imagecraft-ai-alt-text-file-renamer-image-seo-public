@@ -6,5 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ImageCraft\\' => array($baseDir . '/includes'),
+    'Softminal\\ImageCraft\\' => array($baseDir . '/includes'),
 );

@@ -1,6 +1,6 @@
 <?php
 
-namespace ImageCraft\Includes\Support;
+namespace Softminal\ImageCraft\Support;
 
 if (!defined('ABSPATH')) {
     exit;

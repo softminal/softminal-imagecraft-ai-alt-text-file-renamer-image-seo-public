@@ -39,7 +39,7 @@
     <div v-if="currentStep === 2" class="provider-step">
       <h2 class="text-2xl font-bold mb-6">{{ $t('Choose Your AI Provider') }}</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div
           @click="selectedProvider = 'anthropic'"
           :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
@@ -78,6 +78,31 @@
             <div>{{ $t('$5 = 10,000+ images') }}</div>
           </div>
         </div>
+
+        <div
+          @click="selectedProvider = 'mistral'"
+          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
+                   selectedProvider === 'mistral' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
+        >
+          <h3 class="font-bold text-lg mb-2">{{ $t('Mistral AI (Pixtral)') }}</h3>
+          <p class="text-sm text-gray-600 mb-4">{{ $t('European AI with strong vision') }}</p>
+          <div class="text-xs text-gray-500">
+            <div>{{ $t('Cost: ~$0.002/image') }}</div>
+            <div>{{ $t('$5 = 2,500+ images') }}</div>
+          </div>
+        </div>
+
+        <div
+          @click="selectedProvider = 'openrouter'"
+          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
+                   selectedProvider === 'openrouter' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
+        >
+          <h3 class="font-bold text-lg mb-2">{{ $t('OpenRouter') }}</h3>
+          <p class="text-sm text-gray-600 mb-4">{{ $t('Access 100+ AI models') }}</p>
+          <div class="text-xs text-gray-500">
+            <div>{{ $t('Cost varies by model') }}</div>
+          </div>
+        </div>
       </div>
 
       <div class="flex justify-between">
@@ -108,6 +133,12 @@
           </li>
           <li v-if="selectedProvider === 'gemini'">
             {{ $t('Visit') }} <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>
+          </li>
+          <li v-if="selectedProvider === 'mistral'">
+            {{ $t('Visit') }} <a href="https://console.mistral.ai" target="_blank" class="text-blue-600 underline">console.mistral.ai</a>
+          </li>
+          <li v-if="selectedProvider === 'openrouter'">
+            {{ $t('Visit') }} <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-600 underline">openrouter.ai/keys</a>
           </li>
           <li>{{ $t('Create an account and add credits') }}</li>
           <li>{{ $t('Generate an API key') }}</li>

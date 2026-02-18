@@ -1,8 +1,8 @@
 <?php
 
-namespace ImageCraft\Includes\Http\Controllers;
+namespace Softminal\ImageCraft\Http\Controllers;
 
-use ImageCraft\Includes\Support\AltTextHelper;
+use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -62,8 +62,8 @@ class ScannerController extends Controller
     public function scan($request)
     {
         $params = $request->get_params();
-        $page = (int) ($params['page'] ?? 1);
-        $perPage = (int) ($params['per_page'] ?? 50);
+        $page = max(1, (int) ($params['page'] ?? 1));
+        $perPage = min(max(1, (int) ($params['per_page'] ?? 50)), 100);
 
         $args = $this->buildQueryArgs($params, [
             'posts_per_page' => $perPage,
@@ -169,7 +169,7 @@ class ScannerController extends Controller
 
         // PHP-level quality filtering
         if ($quality === 'generic' || $quality === 'too_long') {
-            $maxLength = (int) \ImageCraft\Includes\Services\Settings::get('imgcraft_max_length', 125);
+            $maxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 125);
             $filtered = [];
             foreach ($ids as $id) {
                 $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
@@ -188,11 +188,16 @@ class ScannerController extends Controller
         // PHP-level file size filtering (min_size in KB)
         $minSize = (int) ($params['min_size'] ?? 0);
         if ($minSize > 0) {
+            global $wp_filesystem;
+            if (empty($wp_filesystem)) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+                WP_Filesystem();
+            }
             $minBytes = $minSize * 1024;
             $filtered = [];
             foreach ($ids as $id) {
                 $filePath = get_attached_file($id);
-                if ($filePath && file_exists($filePath) && filesize($filePath) >= $minBytes) {
+                if ($filePath && $wp_filesystem->exists($filePath) && $wp_filesystem->size($filePath) >= $minBytes) {
                     $filtered[] = $id;
                 }
             }

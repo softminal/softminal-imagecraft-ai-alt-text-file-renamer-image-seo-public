@@ -1,13 +1,13 @@
 <?php
 
-namespace ImageCraft\Includes\Http\Controllers;
+namespace Softminal\ImageCraft\Http\Controllers;
 
-use ImageCraft\Includes\Models\History;
-use ImageCraft\Includes\Services\AI\AIFactory;
-use ImageCraft\Includes\Services\Settings;
-use ImageCraft\Includes\Services\StatsTracker;
-use ImageCraft\Includes\Services\SeoIntegration;
-use ImageCraft\Includes\Services\WooCommerce;
+use Softminal\ImageCraft\Models\History;
+use Softminal\ImageCraft\Services\AI\AIFactory;
+use Softminal\ImageCraft\Services\Settings;
+use Softminal\ImageCraft\Services\StatsTracker;
+use Softminal\ImageCraft\Services\SeoIntegration;
+use Softminal\ImageCraft\Services\WooCommerce;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -22,7 +22,7 @@ class GeneratorController extends Controller
     {
         $params = $request->get_json_params();
         $attachmentId = (int) ($params['attachment_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('imgcraft_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('icais_default_tone', 'professional'));
 
         // Only use WooCommerce product context when product_id is explicitly sent
         // (i.e., user is on a product edit page, not browsing the Media Library directly)
@@ -33,7 +33,7 @@ class GeneratorController extends Controller
 
             // If product context found and no explicit tone was provided, use WooCommerce tone
             if ($context !== null && !isset($params['tone'])) {
-                $tone = Settings::get('imgcraft_woo_default_tone', 'woo_seo');
+                $tone = Settings::get('icais_woo_default_tone', 'woo_seo');
             }
         }
 
@@ -63,7 +63,7 @@ class GeneratorController extends Controller
         if ($context !== null && preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', $context, $matches)) {
             $productName = trim($matches[1]);
             if (stripos($result['alt_text'], $productName) === false) {
-                $maxLength = (int) Settings::get('imgcraft_max_length', 150);
+                $maxLength = (int) Settings::get('icais_max_length', 150);
                 $newAlt = $productName . ' - ' . $result['alt_text'];
                 if (mb_strlen($newAlt) > $maxLength) {
                     $available = $maxLength - mb_strlen($productName) - 3;
@@ -83,7 +83,7 @@ class GeneratorController extends Controller
                 }
 
                 // Update attachment meta if auto-accepted (preview disabled)
-                $previewSetting = Settings::get('imgcraft_preview_before_accept', '1');
+                $previewSetting = Settings::get('icais_preview_before_accept', '1');
                 if ($previewSetting !== '1' && $previewSetting !== 1 && $previewSetting !== true) {
                     update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($newAlt));
                 }
@@ -107,35 +107,35 @@ class GeneratorController extends Controller
         if (!$attachmentId) {
             return [
                 'success' => false,
-                'message' => 'Attachment ID is required'
+                'message' => __('Attachment ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ];
         }
-        
+
         if (!wp_attachment_is_image($attachmentId)) {
             return [
                 'success' => false,
-                'message' => 'Invalid image attachment'
+                'message' => __('Invalid image attachment', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ];
         }
-        
+
         // Use provided user ID or fall back to current user ID
         if ($userId === null) {
             $userId = get_current_user_id();
         }
-        
+
         $aiProvider = AIFactory::getProviderForUser($userId);
         if (!$aiProvider) {
             return [
                 'success' => false,
-                'message' => 'No API key configured. Please set up your API key in settings.'
+                'message' => __('No API key configured. Please set up your API key in settings.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ];
         }
-        
+
         $imageUrl = wp_get_attachment_url($attachmentId);
         if (!$imageUrl) {
             return [
                 'success' => false,
-                'message' => 'Failed to get image URL'
+                'message' => __('Failed to get image URL', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ];
         }
         
@@ -148,12 +148,12 @@ class GeneratorController extends Controller
         if (!$result['success']) {
             return [
                 'success' => false,
-                'message' => $result['error'] ?? 'Failed to generate alt text'
+                'message' => $result['error'] ?? __('Failed to generate alt text', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ];
         }
         
         // Determine initial status based on preview setting
-        $previewSetting = Settings::get('imgcraft_preview_before_accept', '1');
+        $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
         $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
 
@@ -195,24 +195,32 @@ class GeneratorController extends Controller
         if (!$historyId) {
             return $this->response([
                 'success' => false,
-                'message' => 'History ID is required'
+                'message' => __('History ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
-        
+
         $history = History::find($historyId);
         if (!$history) {
             return $this->response([
                 'success' => false,
-                'message' => 'History not found'
+                'message' => __('History not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 404);
         }
-        
+
+        // Verify ownership
+        if ((int) $history->user_id !== get_current_user_id()) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Not authorized', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 403);
+        }
+
         // Use provided alt text or generated one
-        $finalAltText = !empty($altText) ? $altText : $history->generated_alt;
-        
+        $finalAltText = !empty($altText) ? $altText : sanitize_text_field($history->generated_alt);
+
         // Update attachment alt text
         update_post_meta($history->attachment_id, '_wp_attachment_image_alt', $finalAltText);
-        
+
         // Update history status
         $history->status = 'accepted';
         if (!empty($altText)) {
@@ -224,7 +232,7 @@ class GeneratorController extends Controller
 
         return $this->response([
             'success' => true,
-            'message' => 'Alt text saved successfully'
+            'message' => __('Alt text saved successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo')
         ]);
     }
 
@@ -239,7 +247,7 @@ class GeneratorController extends Controller
         if (empty($items) || !is_array($items)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Items array is required'
+                'message' => __('Items array is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -256,11 +264,19 @@ class GeneratorController extends Controller
 
             $history = History::find($historyId);
             if (!$history) {
-                $errors[] = sprintf('History %d not found', $historyId);
+                /* translators: %d: history record ID */
+                $errors[] = sprintf(__('History %d not found', 'imagecraft-ai-alt-text-file-renamer-image-seo'), $historyId);
                 continue;
             }
 
-            $finalAltText = !empty($altText) ? $altText : $history->generated_alt;
+            // Verify ownership
+            if ((int) $history->user_id !== get_current_user_id()) {
+                /* translators: %d: history record ID */
+                $errors[] = sprintf(__('Not authorized for history %d', 'imagecraft-ai-alt-text-file-renamer-image-seo'), $historyId);
+                continue;
+            }
+
+            $finalAltText = !empty($altText) ? $altText : sanitize_text_field($history->generated_alt);
             update_post_meta($history->attachment_id, '_wp_attachment_image_alt', $finalAltText);
             $history->status = 'accepted';
             if (!empty($altText)) {
@@ -274,7 +290,8 @@ class GeneratorController extends Controller
 
         return $this->response([
             'success' => true,
-            'message' => sprintf('%d alt text(s) saved successfully', $saved),
+            /* translators: %d: number of saved alt texts */
+            'message' => sprintf(__('%d alt text(s) saved successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo'), $saved),
             'saved_count' => $saved,
             'errors' => $errors
         ]);
@@ -292,14 +309,14 @@ class GeneratorController extends Controller
         if (!$attachmentId) {
             return $this->response([
                 'success' => false,
-                'message' => 'Attachment ID is required'
+                'message' => __('Attachment ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
         if (!wp_attachment_is_image($attachmentId)) {
             return $this->response([
                 'success' => false,
-                'message' => 'Invalid image attachment'
+                'message' => __('Invalid image attachment', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -307,7 +324,7 @@ class GeneratorController extends Controller
 
         return $this->response([
             'success' => true,
-            'message' => 'Alt text saved successfully'
+            'message' => __('Alt text saved successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo')
         ]);
     }
 
@@ -318,30 +335,38 @@ class GeneratorController extends Controller
     {
         $params = $request->get_json_params();
         $historyId = (int) ($params['history_id'] ?? 0);
-        
+
         if (!$historyId) {
             return $this->response([
                 'success' => false,
-                'message' => 'History ID is required'
+                'message' => __('History ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
-        
+
         $history = History::find($historyId);
         if (!$history) {
             return $this->response([
                 'success' => false,
-                'message' => 'History not found'
+                'message' => __('History not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 404);
         }
-        
+
+        // Verify ownership
+        if ((int) $history->user_id !== get_current_user_id()) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Not authorized', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 403);
+        }
+
         $history->status = 'rejected';
         $history->save();
 
         StatsTracker::recordReject($history->user_id);
-        
+
         return $this->response([
             'success' => true,
-            'message' => 'Alt text rejected'
+            'message' => __('Alt text rejected', 'imagecraft-ai-alt-text-file-renamer-image-seo')
         ]);
     }
 

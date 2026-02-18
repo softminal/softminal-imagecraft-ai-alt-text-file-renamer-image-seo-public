@@ -1,8 +1,8 @@
 <?php
 
-namespace ImageCraft\Includes\Services\AI;
+namespace Softminal\ImageCraft\Services\AI;
 
-use ImageCraft\Includes\Services\Settings;
+use Softminal\ImageCraft\Services\Settings;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -43,7 +43,7 @@ abstract class BaseAIProvider
      */
     protected function getPrompt(string $tone, ?string $context = null): string
     {
-        $maxLength = (int) Settings::get('imgcraft_max_length', 150);
+        $maxLength = (int) Settings::get('icais_max_length', 150);
 
         $rules = "Rules: Stay under {$maxLength} characters. Never start with \"Image of\", \"Photo of\", \"Picture of\", or \"A photo\". Do not wrap in quotation marks. Return only the alt text, nothing else.";
 
@@ -59,7 +59,7 @@ abstract class BaseAIProvider
 
         // Resolve prompt text
         if ($tone === 'custom' || $tone === 'woo_custom') {
-            $settingKey = $tone === 'custom' ? 'imgcraft_custom_prompt' : 'imgcraft_woo_custom_prompt';
+            $settingKey = $tone === 'custom' ? 'icais_custom_prompt' : 'icais_woo_custom_prompt';
             $customPrompt = Settings::get($settingKey);
 
             if (!empty($customPrompt)) {
@@ -94,7 +94,7 @@ abstract class BaseAIProvider
         }
 
         // Append language instruction for non-English
-        $language = Settings::get('imgcraft_language', 'en');
+        $language = Settings::get('icais_language', 'en');
         if ($language !== 'en') {
             $languageName = $this->getLanguageName($language);
             $prompt .= " You MUST write the alt text in {$languageName}.";
@@ -212,12 +212,19 @@ abstract class BaseAIProvider
      */
     protected function getImageData(string $imageUrl): array
     {
+        // Initialize WP_Filesystem early for all filesystem operations
+        global $wp_filesystem;
+        if (empty($wp_filesystem)) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+
         // Try to get local file path if URL is from this WordPress site
         $localPath = $this->getLocalFilePath($imageUrl);
 
-        if ($localPath && file_exists($localPath)) {
+        if ($localPath && $wp_filesystem->exists($localPath)) {
             // Read from local file system (no SSL issues)
-            $imageContent = file_get_contents($localPath);
+            $imageContent = $wp_filesystem->get_contents($localPath);
             if ($imageContent === false) {
                 throw new \Exception('Failed to read local image file');
             }
@@ -243,6 +250,7 @@ abstract class BaseAIProvider
             }
         }
 
+        // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Required for encoding image data for AI vision API requests
         $base64 = base64_encode($imageContent);
         $mimeType = $this->getMimeType($imageUrl);
 
@@ -260,6 +268,12 @@ abstract class BaseAIProvider
      */
     protected function getLocalFilePath(string $url): ?string
     {
+        global $wp_filesystem;
+        if (empty($wp_filesystem)) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+
         $uploadDir = wp_upload_dir();
         $uploadUrl = $uploadDir['baseurl'];
         $uploadPath = $uploadDir['basedir'];
@@ -271,7 +285,7 @@ abstract class BaseAIProvider
             $relativePath = ltrim($relativePath, '/');
             $localPath = trailingslashit($uploadPath) . $relativePath;
 
-            if (file_exists($localPath)) {
+            if ($wp_filesystem->exists($localPath)) {
                 return $localPath;
             }
         }
@@ -290,7 +304,7 @@ abstract class BaseAIProvider
             $urlPath = wp_parse_url($url, PHP_URL_PATH);
             if ($urlPath && strpos($urlPath, '/wp-content/') === 0) {
                 $localPath = ABSPATH . ltrim($urlPath, '/');
-                if (file_exists($localPath)) {
+                if ($wp_filesystem->exists($localPath)) {
                     return $localPath;
                 }
             }

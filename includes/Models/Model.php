@@ -1,8 +1,8 @@
 <?php
 
-namespace ImageCraft\Includes\Models;
+namespace Softminal\ImageCraft\Models;
 
-use ImageCraft\Includes\Support\Collection;
+use Softminal\ImageCraft\Support\Collection;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -30,7 +30,7 @@ abstract class Model
     /**
      * Object cache settings (tune as needed)
      */
-    private string $cacheGroup = 'satai';
+    private string $cacheGroup = 'icais';
     private int $cacheTtl = 60; // seconds
 
     /**
@@ -42,7 +42,7 @@ abstract class Model
     {
         global $wpdb;
         $instance = new static();
-        return $wpdb->prefix . IMGCRAFT_TABLE_PREFIX . $instance->table;
+        return $wpdb->prefix . ICAIS_TABLE_PREFIX . $instance->table;
     }
 
     /**

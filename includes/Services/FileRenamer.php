@@ -1,6 +1,6 @@
 <?php
 
-namespace ImageCraft\Includes\Services;
+namespace Softminal\ImageCraft\Services;
 
 if (!defined('ABSPATH')) {
     exit;

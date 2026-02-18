@@ -16,15 +16,15 @@ try {
     // Read the constants file
     let content = readFileSync(constantsPath, 'utf8');
 
-    // Replace the IMGCRAFT_DEV_MODE definition
-    const regex = /define\('IMGCRAFT_DEV_MODE',\s*(true|false)\);/;
+    // Replace the ICAIS_DEV_MODE definition
+    const regex = /define\('ICAIS_DEV_MODE',\s*(true|false)\);/;
 
     if (regex.test(content)) {
-        content = content.replace(regex, `define('IMGCRAFT_DEV_MODE', ${devMode});`);
+        content = content.replace(regex, `define('ICAIS_DEV_MODE', ${devMode});`);
         writeFileSync(constantsPath, content, 'utf8');
-        console.log(`✓ Updated IMGCRAFT_DEV_MODE to ${devMode} (${mode} mode)`);
+        console.log(`✓ Updated ICAIS_DEV_MODE to ${devMode} (${mode} mode)`);
     } else {
-        console.warn('⚠ Could not find IMGCRAFT_DEV_MODE definition in constants.php');
+        console.warn('⚠ Could not find ICAIS_DEV_MODE definition in constants.php');
     }
 } catch (error) {
     console.error('✗ Error updating constants.php:', error.message);

@@ -1,10 +1,10 @@
 <?php
 
-namespace ImageCraft\Includes\Services;
+namespace Softminal\ImageCraft\Services;
 
-use ImageCraft\Includes\Models\History;
-use ImageCraft\Includes\Models\Stats;
-use ImageCraft\Includes\Models\ApiSetting;
+use Softminal\ImageCraft\Models\History;
+use Softminal\ImageCraft\Models\Stats;
+use Softminal\ImageCraft\Models\ApiSetting;
 
 if (!defined('ABSPATH')) {
     exit;

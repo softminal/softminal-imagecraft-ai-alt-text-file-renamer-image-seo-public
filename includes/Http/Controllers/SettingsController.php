@@ -1,11 +1,11 @@
 <?php
 
-namespace ImageCraft\Includes\Http\Controllers;
+namespace Softminal\ImageCraft\Http\Controllers;
 
-use ImageCraft\Includes\Models\ApiSetting;
-use ImageCraft\Includes\Services\Settings;
-use ImageCraft\Includes\Services\AI\AIFactory;
-use ImageCraft\Includes\Services\SeoIntegration;
+use Softminal\ImageCraft\Models\ApiSetting;
+use Softminal\ImageCraft\Services\Settings;
+use Softminal\ImageCraft\Services\AI\AIFactory;
+use Softminal\ImageCraft\Services\SeoIntegration;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -19,18 +19,13 @@ class SettingsController extends Controller
     public function index($request)
     {
         $userId = get_current_user_id();
-        
-        // Suppress database errors and handle gracefully
-        global $wpdb;
-        $wpdb->suppress_errors = true;
-        
+
         $apiSetting = null;
         try {
             $apiSetting = ApiSetting::getActive($userId);
         } catch (\Exception $e) {
+            // Table may not exist yet during activation
         }
-        
-        $wpdb->suppress_errors = false;
         
         return $this->response([
             'success' => true,
@@ -56,11 +51,11 @@ class SettingsController extends Controller
     {
         $params = $request->get_json_params();
         $settings = $params['settings'] ?? [];
-        
+
         if (empty($settings)) {
             return $this->response([
                 'success' => false,
-                'message' => __('No settings provided', 'imagecraft')
+                'message' => __('No settings provided', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -69,22 +64,39 @@ class SettingsController extends Controller
         $invalidKeys = [];
         foreach (array_keys($settings) as $key) {
             if (!in_array($key, $validKeys)) {
-                $invalidKeys[] = $key;
+                $invalidKeys[] = sanitize_text_field($key);
             }
         }
 
         if (!empty($invalidKeys)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Invalid setting keys:', 'imagecraft') . ' ' . implode(', ', $invalidKeys)
+                'message' => __('Invalid setting keys:', 'imagecraft-ai-alt-text-file-renamer-image-seo') . ' ' . implode(', ', $invalidKeys)
             ], 400);
+        }
+
+        // Sanitize setting values based on type
+        $intKeys = ['icais_max_length', 'icais_batch_size', 'icais_request_timeout', 'icais_rename_max_length'];
+        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_email_on_complete', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase'];
+        $textareaKeys = ['icais_custom_prompt', 'icais_woo_custom_prompt'];
+
+        foreach ($settings as $key => $value) {
+            if (in_array($key, $intKeys, true)) {
+                $settings[$key] = absint($value);
+            } elseif (in_array($key, $boolKeys, true)) {
+                $settings[$key] = $value ? '1' : '0';
+            } elseif (in_array($key, $textareaKeys, true)) {
+                $settings[$key] = sanitize_textarea_field(wp_unslash($value));
+            } else {
+                $settings[$key] = sanitize_text_field(wp_unslash($value));
+            }
         }
 
         try {
             if (Settings::update($settings)) {
                 return $this->response([
                     'success' => true,
-                    'message' => __('Settings updated successfully', 'imagecraft')
+                    'message' => __('Settings updated successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo')
                 ]);
             }
             
@@ -104,18 +116,20 @@ class SettingsController extends Controller
                 // All values match, so update was successful (just no changes needed)
                 return $this->response([
                     'success' => true,
-                    'message' => __('Settings updated successfully', 'imagecraft')
+                    'message' => __('Settings updated successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo')
                 ]);
             }
             
             return $this->response([
                 'success' => false,
-                'message' => __('Failed to update some settings', 'imagecraft')
+                'message' => __('Failed to update some settings', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         } catch (\Exception $e) {
             return $this->response([
                 'success' => false,
-                'message' => __('Error updating settings:', 'imagecraft') . ' ' . $e->getMessage()
+                'message' => (defined('WP_DEBUG') && WP_DEBUG)
+                    ? __('Error updating settings:', 'imagecraft-ai-alt-text-file-renamer-image-seo') . ' ' . $e->getMessage()
+                    : __('An error occurred while updating settings.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 500);
         }
     }
@@ -147,13 +161,12 @@ class SettingsController extends Controller
     {
         $params = $request->get_json_params();
         $provider = sanitize_text_field($params['provider'] ?? '');
-        // Don't sanitize API key - it may contain special characters that sanitize_text_field would remove
-        $apiKey = trim($params['api_key'] ?? '');
+        $apiKey = sanitize_text_field(wp_unslash($params['api_key'] ?? ''));
         
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Provider and API key are required', 'imagecraft')
+                'message' => __('Provider and API key are required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
         
@@ -161,14 +174,14 @@ class SettingsController extends Controller
         if (!is_string($apiKey) || strlen($apiKey) < 10) {
             return $this->response([
                 'success' => false,
-                'message' => __('Invalid API key format', 'imagecraft')
+                'message' => __('Invalid API key format', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
         
-        if (!in_array($provider, ['anthropic', 'openai', 'gemini'])) {
+        if (!in_array($provider, ['anthropic', 'openai', 'gemini', 'mistral', 'openrouter'])) {
             return $this->response([
                 'success' => false,
-                'message' => __('Invalid provider', 'imagecraft')
+                'message' => __('Invalid provider', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
         
@@ -180,7 +193,9 @@ class SettingsController extends Controller
         $wpdb->update(
             ApiSetting::table(),
             ['is_active' => 0],
-            ['user_id' => $userId]
+            ['user_id' => $userId],
+            ['%d'],
+            ['%d']
         );
         
         // Get or create API setting
@@ -203,7 +218,9 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             return $this->response([
                 'success' => false,
-                'message' => __('Failed to encrypt API key:', 'imagecraft') . ' ' . $e->getMessage()
+                'message' => (defined('WP_DEBUG') && WP_DEBUG)
+                    ? __('Failed to encrypt API key:', 'imagecraft-ai-alt-text-file-renamer-image-seo') . ' ' . $e->getMessage()
+                    : __('Failed to encrypt API key. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
         
@@ -213,7 +230,7 @@ class SettingsController extends Controller
         if (empty($encryptedKey)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Failed to encrypt API key. Encrypted value is empty.', 'imagecraft')
+                'message' => __('Failed to encrypt API key. Encrypted value is empty.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
         
@@ -222,7 +239,7 @@ class SettingsController extends Controller
         if (!$saved) {
             return $this->response([
                 'success' => false,
-                'message' => __('Failed to save API key to database', 'imagecraft')
+                'message' => __('Failed to save API key to database', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 500);
         }
         
@@ -231,7 +248,7 @@ class SettingsController extends Controller
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Invalid table configuration', 'imagecraft')
+                'message' => __('Invalid table configuration', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 500);
         }
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Verification query needs real-time data; table name validated above
@@ -240,16 +257,16 @@ class SettingsController extends Controller
         if (empty($dbValue)) {
             return $this->response([
                 'success' => false,
-                'message' => __('API key was not saved correctly. Please try again.', 'imagecraft')
+                'message' => __('API key was not saved correctly. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 500);
         }
         
         // Sync the preference setting with the active provider
-        Settings::set('imgcraft_api_provider', $provider);
+        Settings::set('icais_api_provider', $provider);
         
         return $this->response([
             'success' => true,
-            'message' => __('API key saved successfully', 'imagecraft')
+            'message' => __('API key saved successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo')
         ]);
     }
     
@@ -260,13 +277,12 @@ class SettingsController extends Controller
     {
         $params = $request->get_json_params();
         $provider = sanitize_text_field($params['provider'] ?? '');
-        // Don't sanitize API key - it may contain special characters that sanitize_text_field would remove
-        $apiKey = trim($params['api_key'] ?? '');
+        $apiKey = sanitize_text_field(wp_unslash($params['api_key'] ?? ''));
         
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
                 'success' => false,
-                'message' => __('Provider and API key are required', 'imagecraft')
+                'message' => __('Provider and API key are required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
         
@@ -278,7 +294,9 @@ class SettingsController extends Controller
         } catch (\Exception $e) {
             return $this->response([
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => (defined('WP_DEBUG') && WP_DEBUG)
+                    ? $e->getMessage()
+                    : __('API connection test failed. Please check your API key.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
     }
@@ -293,20 +311,20 @@ class SettingsController extends Controller
         if (empty($userId) || $userId === 0) {
             return $this->response([
                 'success' => false,
-                'message' => __('User not logged in', 'imagecraft')
+                'message' => __('User not logged in', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 401);
         }
         
         if (Settings::completeWizard($userId)) {
             return $this->response([
                 'success' => true,
-                'message' => __('Wizard completed', 'imagecraft')
+                'message' => __('Wizard completed', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ]);
         }
         
         return $this->response([
             'success' => false,
-            'message' => __('Failed to complete wizard', 'imagecraft')
+            'message' => __('Failed to complete wizard', 'imagecraft-ai-alt-text-file-renamer-image-seo')
         ], 400);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace ImageCraft\Includes;
+namespace Softminal\ImageCraft;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -9,13 +9,13 @@ if (!defined('ABSPATH')) {
 use Exception;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use ImageCraft\Includes\Enqueue;
-use ImageCraft\Includes\Http\Routes\Router;
-use ImageCraft\Includes\Menu;
+use Softminal\ImageCraft\Enqueue;
+use Softminal\ImageCraft\Http\Routes\Router;
+use Softminal\ImageCraft\Menu;
 
 /**
  * Class App
- * @package ImageCraft\Includes
+ * @package Softminal\ImageCraft
  *
  * This class is responsible for loading all the necessary components of the plugin.
  */
@@ -103,12 +103,13 @@ class App
      */
     private function loadDirectory(array $config): void
     {
-        $dir = IMGCRAFT_DIR . $config['dir'];
+        $dir = ICAIS_DIR . $config['dir'];
 
         // If specific files are requested, load only those
         if (isset($config['files']) && is_array($config['files'])) {
             foreach ($config['files'] as $file) {
                 $filePath = $dir . '/' . $file;
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_exists -- Autoloader runs before WP_Filesystem is available
                 if (file_exists($filePath)) {
                     require_once $filePath;
                 }
@@ -116,6 +117,7 @@ class App
             return;
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_dir -- Autoloader runs before WP_Filesystem is available
         if (!is_dir($dir)) {
             return; // Directory doesn't exist, skip
         }
@@ -205,8 +207,8 @@ class App
             $this->router->init();
 
             // AutoGenerate should be loaded by now, but verify
-            if (class_exists('\ImageCraft\Includes\AutoGenerate')) {
-                \ImageCraft\Includes\AutoGenerate::init();
+            if (class_exists('\Softminal\ImageCraft\AutoGenerate')) {
+                \Softminal\ImageCraft\AutoGenerate::init();
             } else {
             }
         } catch (Exception $e) {

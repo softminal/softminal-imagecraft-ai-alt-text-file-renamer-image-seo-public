@@ -1,15 +1,15 @@
 <?php
 
-namespace ImageCraft\Includes\Http;
+namespace Softminal\ImageCraft\Http;
 
-use ImageCraft\Includes\Http\Controllers\BatchController;
-use ImageCraft\Includes\Http\Controllers\FileRenamerController;
-use ImageCraft\Includes\Http\Controllers\GeneratorController;
-use ImageCraft\Includes\Http\Controllers\ScannerController;
-use ImageCraft\Includes\Http\Controllers\SettingsController;
-use ImageCraft\Includes\Http\Controllers\StatsController;
-use ImageCraft\Includes\Http\Controllers\WooCommerceController;
-use ImageCraft\Includes\Http\Routes\Route;
+use Softminal\ImageCraft\Http\Controllers\BatchController;
+use Softminal\ImageCraft\Http\Controllers\FileRenamerController;
+use Softminal\ImageCraft\Http\Controllers\GeneratorController;
+use Softminal\ImageCraft\Http\Controllers\ScannerController;
+use Softminal\ImageCraft\Http\Controllers\SettingsController;
+use Softminal\ImageCraft\Http\Controllers\StatsController;
+use Softminal\ImageCraft\Http\Controllers\WooCommerceController;
+use Softminal\ImageCraft\Http\Routes\Route;
 
 if (!defined('ABSPATH')) {
     exit;
