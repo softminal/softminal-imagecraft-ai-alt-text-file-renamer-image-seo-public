@@ -87,8 +87,8 @@ class App
             ['dir' => 'includes/Http', 'files' => ['api.php']],
             ['dir' => 'includes', 'files' => ['Enqueue.php', 'Menu.php']],
 
-            // 8. AutoGenerate (loads last as it depends on everything)
-            ['dir' => 'includes', 'files' => ['AutoGenerate.php']],
+            // 8. AutoGenerate and AdminNotice (load last as they depend on everything)
+            ['dir' => 'includes', 'files' => ['AutoGenerate.php', 'AdminNotice.php']],
         ];
 
         foreach ($loadOrder as $config) {
@@ -209,7 +209,10 @@ class App
             // AutoGenerate should be loaded by now, but verify
             if (class_exists('\Softminal\ImageCraft\AutoGenerate')) {
                 \Softminal\ImageCraft\AutoGenerate::init();
-            } else {
+            }
+
+            if (class_exists('\Softminal\ImageCraft\AdminNotice')) {
+                \Softminal\ImageCraft\AdminNotice::init();
             }
         } catch (Exception $e) {
             throw $e;

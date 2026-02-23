@@ -321,6 +321,7 @@ const buildFilterParams = () => {
   let params = `filter=${filter.value}`
   if (dateFrom.value) params += `&date_from=${dateFrom.value}`
   if (dateTo.value) params += `&date_to=${dateTo.value}`
+  if (minSize.value > 0) params += `&min_size=${minSize.value}`
   return params
 }
 

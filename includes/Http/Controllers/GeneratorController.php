@@ -441,6 +441,10 @@ class GeneratorController extends Controller
             return null;
         }
 
+        if (!Settings::get('icais_woo_include_product_info', true)) {
+            return null;
+        }
+
         return WooCommerce::buildProductContextPrompt($product);
     }
 }

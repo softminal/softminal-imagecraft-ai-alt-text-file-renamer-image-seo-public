@@ -64,31 +64,93 @@ class ScannerController extends Controller
         $params = $request->get_params();
         $page = max(1, (int) ($params['page'] ?? 1));
         $perPage = min(max(1, (int) ($params['per_page'] ?? 50)), 100);
+        $minSize = (int) ($params['min_size'] ?? 0);
 
-        $args = $this->buildQueryArgs($params, [
-            'posts_per_page' => $perPage,
-            'paged' => $page,
-        ]);
+        // When min_size filter is active, we need PHP-level filtering
+        // so fetch all matching IDs first, filter by size, then paginate manually
+        if ($minSize > 0) {
+            $allArgs = $this->buildQueryArgs($params, [
+                'posts_per_page' => -1,
+                'fields' => 'ids',
+            ]);
+            $allQuery = new \WP_Query($allArgs);
+            $allIds = $allQuery->posts;
 
-        $query = new \WP_Query($args);
-        
-        $images = [];
-        foreach ($query->posts as $post) {
-            $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
-            $thumbnail = wp_get_attachment_image_src($post->ID, 'thumbnail');
-            
-            $images[] = [
-                'id' => $post->ID,
-                'title' => $post->post_title,
-                'filename' => basename(get_attached_file($post->ID)),
-                'url' => wp_get_attachment_url($post->ID),
-                'thumbnail' => $thumbnail ? $thumbnail[0] : null,
-                'alt_text' => $alt ?: '',
-                'has_alt' => !empty($alt),
-                'date' => $post->post_date
+            // Filter by file size
+            $minBytes = $minSize * 1024;
+            $filteredIds = [];
+            foreach ($allIds as $id) {
+                $filePath = get_attached_file($id);
+                if ($filePath && file_exists($filePath) && filesize($filePath) >= $minBytes) {
+                    $filteredIds[] = $id;
+                }
+            }
+
+            $totalFiltered = count($filteredIds);
+            $totalPages = $totalFiltered > 0 ? (int) ceil($totalFiltered / $perPage) : 1;
+            $offset = ($page - 1) * $perPage;
+            $pageIds = array_slice($filteredIds, $offset, $perPage);
+
+            $images = [];
+            foreach ($pageIds as $postId) {
+                $post = get_post($postId);
+                if (!$post) {
+                    continue;
+                }
+                $alt = get_post_meta($postId, '_wp_attachment_image_alt', true);
+                $thumbnail = wp_get_attachment_image_src($postId, 'thumbnail');
+
+                $images[] = [
+                    'id' => $postId,
+                    'title' => $post->post_title,
+                    'filename' => basename(get_attached_file($postId)),
+                    'url' => wp_get_attachment_url($postId),
+                    'thumbnail' => $thumbnail ? $thumbnail[0] : null,
+                    'alt_text' => $alt ?: '',
+                    'has_alt' => !empty($alt),
+                    'date' => $post->post_date
+                ];
+            }
+
+            $paginationData = [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total' => $totalFiltered,
+                'total_pages' => $totalPages
+            ];
+        } else {
+            $args = $this->buildQueryArgs($params, [
+                'posts_per_page' => $perPage,
+                'paged' => $page,
+            ]);
+
+            $query = new \WP_Query($args);
+
+            $images = [];
+            foreach ($query->posts as $post) {
+                $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
+                $thumbnail = wp_get_attachment_image_src($post->ID, 'thumbnail');
+
+                $images[] = [
+                    'id' => $post->ID,
+                    'title' => $post->post_title,
+                    'filename' => basename(get_attached_file($post->ID)),
+                    'url' => wp_get_attachment_url($post->ID),
+                    'thumbnail' => $thumbnail ? $thumbnail[0] : null,
+                    'alt_text' => $alt ?: '',
+                    'has_alt' => !empty($alt),
+                    'date' => $post->post_date
+                ];
+            }
+
+            $paginationData = [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total' => $query->found_posts,
+                'total_pages' => $query->max_num_pages
             ];
         }
-        
+
         // Count total images (posts_per_page=1 avoids loading all IDs; found_posts gives the total)
         $totalQuery = new \WP_Query([
             'post_type' => 'attachment',
@@ -123,16 +185,11 @@ class ScannerController extends Controller
         $totalImages = $totalQuery->found_posts;
         $missingAlt = $missingQuery->found_posts;
         $hasAlt = $totalImages - $missingAlt;
-        
+
         return $this->response([
             'success' => true,
             'images' => $images,
-            'pagination' => [
-                'current_page' => $page,
-                'per_page' => $perPage,
-                'total' => $query->found_posts,
-                'total_pages' => $query->max_num_pages
-            ],
+            'pagination' => $paginationData,
             'stats' => [
                 'total_images' => $totalImages,
                 'missing_alt' => $missingAlt,

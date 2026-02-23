@@ -2,6 +2,7 @@
 
 namespace Softminal\ImageCraft\Http;
 
+use Softminal\ImageCraft\AdminNotice;
 use Softminal\ImageCraft\Http\Controllers\BatchController;
 use Softminal\ImageCraft\Http\Controllers\FileRenamerController;
 use Softminal\ImageCraft\Http\Controllers\GeneratorController;
@@ -59,6 +60,11 @@ Route::prefix('renamer')->capability('upload_files')->group(function () {
     Route::post('/rename', [FileRenamerController::class, 'rename']);
     Route::post('/rename-bulk', [FileRenamerController::class, 'renameBulk']);
     Route::get('/preview', [FileRenamerController::class, 'preview']);
+});
+
+// Notice routes
+Route::prefix('notice')->capability('edit_posts')->group(function () {
+    Route::post('/dismiss', [AdminNotice::class, 'dismiss']);
 });
 
 // WooCommerce routes

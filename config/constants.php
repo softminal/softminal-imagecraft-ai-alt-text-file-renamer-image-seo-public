@@ -18,4 +18,4 @@ define('ICAIS_TABLE_PREFIX', 'icais_');
 define('ICAIS_API_VERSION', 'v1');
 define('ICAIS_API_NAMESPACE', 'icais/' . ICAIS_API_VERSION);
 
-define('ICAIS_DEV_MODE', false);
+define('ICAIS_DEV_MODE', true);

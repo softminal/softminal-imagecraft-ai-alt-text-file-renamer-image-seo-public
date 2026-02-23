@@ -16,6 +16,24 @@ class Enqueue {
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueMediaButtonAssets']);
         add_action('enqueue_block_editor_assets', [$this, 'enqueueBlockEditorAssets']);
+        add_action('admin_enqueue_scripts', [$this, 'removeExternalNotices']);
+    }
+
+    /**
+     * Remove all external plugin notices and content on ImageCraft pages
+     */
+    public function removeExternalNotices($hook) {
+        if ($hook !== 'toplevel_page_icais') {
+            return;
+        }
+
+        remove_all_actions('admin_notices');
+        remove_all_actions('all_admin_notices');
+
+        // Re-add our own review notice
+        if (class_exists('\Softminal\ImageCraft\AdminNotice')) {
+            add_action('admin_notices', ['\Softminal\ImageCraft\AdminNotice', 'displayReviewNotice']);
+        }
     }
 
 
@@ -175,6 +193,11 @@ class Enqueue {
                 'success' => __('Alt text generated successfully!', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'error' => __('Failed to generate alt text. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'noAttachment' => __('Could not detect image. Please select an image first.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'rename' => __('Rename File', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'renaming' => __('Renaming...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                /* translators: %s: new filename */
+                'renameSuccess' => __('File renamed to: %s', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'renameError' => __('Failed to rename file.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             ],
         ]);
 
@@ -240,6 +263,15 @@ class Enqueue {
             }
             .icais-status-error {
                 color: #d63638;
+            }
+            .icais-rename-btn {
+                background: linear-gradient(135deg, #00a32a, #008a20) !important;
+            }
+            .icais-rename-btn:hover {
+                background: linear-gradient(135deg, #008a20, #006818) !important;
+            }
+            .icais-rename-btn:focus {
+                outline-color: #00a32a !important;
             }
         ';
         wp_add_inline_style('media-views', $css);

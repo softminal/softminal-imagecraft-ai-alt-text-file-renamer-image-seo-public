@@ -1,6 +1,6 @@
 === ImageCraft – AI Alt Text, File Renamer & Image SEO ===
 Contributors: softminal, diptosoftminal
-Tags: accessibility, alt text, ai, images, seo
+Tags: accessibility, alt text, ai, images, seo, renamer, images
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4

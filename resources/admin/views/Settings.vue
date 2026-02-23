@@ -42,6 +42,12 @@
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           :placeholder="$t('Enter API key')"
         />
+        <p v-if="apiDocsUrl" class="text-xs text-gray-500 mt-1">
+          {{ $t('Get your API key from') }}
+          <a :href="apiDocsUrl" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+            {{ apiDocsLabel }} &rarr;
+          </a>
+        </p>
         <button
           @click="saveApiKey"
           class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
@@ -79,10 +85,10 @@
           v-model="settings.icais_custom_prompt"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           rows="4"
-          :placeholder="$t('e.g. Generate alt text (max {max_length} characters) describing the subject, colors, and setting. Do not start with \'Image of\'. Return only the alt text.')"
+          :placeholder="$t('e.g. Generate alt text describing the subject, colors, and setting. Do not start with \'Image of\'. Return only the alt text.')"
         ></textarea>
         <p class="text-xs text-gray-500 mt-1">
-          {{ $t('Use {max_length} as a placeholder for your max character setting. Product context is added automatically for WooCommerce images.') }}
+          {{ $t('The max character length setting above will be applied automatically. Product context is added automatically for WooCommerce images.') }}
         </p>
       </div>
 
@@ -297,10 +303,10 @@
           v-model="settings.icais_woo_custom_prompt"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           rows="4"
-          :placeholder="$t('e.g. Generate product alt text (max {max_length} characters) with the product name, visible features, and use case. Do not start with \'Image of\'. Return only the alt text.')"
+          :placeholder="$t('e.g. Generate product alt text with the product name, visible features, and use case. Do not start with \'Image of\'. Return only the alt text.')"
         ></textarea>
         <p class="text-xs text-gray-500 mt-1">
-          {{ $t('Use {max_length} as a placeholder. Product name, category, and SKU are automatically included as context.') }}
+          {{ $t('The max character length setting will be applied automatically. Product name, category, and SKU are automatically included as context.') }}
         </p>
       </div>
     </div>
@@ -371,7 +377,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { clearSettingsCache } from '../router'
@@ -383,6 +389,24 @@ const apiSetting = ref(null)
 const saving = ref(false)
 const woocommerceInstalled = ref(false)
 const seoPlugin = ref(null)
+
+const providerDocs = {
+  anthropic: { url: 'https://console.anthropic.com/settings/keys', label: 'Anthropic Console' },
+  openai: { url: 'https://platform.openai.com/api-keys', label: 'OpenAI Platform' },
+  gemini: { url: 'https://aistudio.google.com/apikey', label: 'Google AI Studio' },
+  mistral: { url: 'https://console.mistral.ai/api-keys', label: 'Mistral Console' },
+  openrouter: { url: 'https://openrouter.ai/keys', label: 'OpenRouter' },
+}
+
+const apiDocsUrl = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return providerDocs[provider]?.url || null
+})
+
+const apiDocsLabel = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return providerDocs[provider]?.label || ''
+})
 
 const loadSettings = async () => {
   try {
