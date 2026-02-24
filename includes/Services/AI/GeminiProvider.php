@@ -8,8 +8,30 @@ if (!defined('ABSPATH')) {
 
 class GeminiProvider extends BaseAIProvider
 {
-    private const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+    private const BASE_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/';
     private const COST_PER_1K_TOKENS = 0.0005;
+
+    public static function getAvailableModels(): array
+    {
+        return [
+            'gemini-2.5-flash',
+            'gemini-2.5-flash-lite',
+            'gemini-2.5-pro',
+            'gemini-3-flash-preview',
+            'gemini-3-pro-preview',
+            'gemini-3.1-pro-preview',
+        ];
+    }
+
+    public static function getDefaultModel(): string
+    {
+        return 'gemini-2.5-flash';
+    }
+
+    private function getEndpoint(): string
+    {
+        return self::BASE_ENDPOINT . $this->model . ':generateContent';
+    }
 
     public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
     {
@@ -39,10 +61,10 @@ class GeminiProvider extends BaseAIProvider
             ]
         ];
 
-        $url = self::ENDPOINT . '?key=' . urlencode($this->apiKey);
+        $headers = $this->getHeaders();
 
         try {
-            $response = $this->makeRequest($url, $data);
+            $response = $this->makeRequest($this->getEndpoint(), $data, $headers);
             $altText = $this->extractAltText($response);
             $tokens = $this->estimateTokens($response);
             $cost = $this->calculateCost($tokens);
@@ -75,10 +97,10 @@ class GeminiProvider extends BaseAIProvider
             ]
         ];
 
-        $url = self::ENDPOINT . '?key=' . urlencode($this->apiKey);
+        $headers = $this->getHeaders();
 
         try {
-            $response = $this->makeRequest($url, $data);
+            $response = $this->makeRequest($this->getEndpoint(), $data, $headers);
             return ['success' => true, 'message' => 'Connection successful'];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
@@ -99,6 +121,13 @@ class GeminiProvider extends BaseAIProvider
         return ($tokens / 1000) * self::COST_PER_1K_TOKENS;
     }
 
+
+    private function getHeaders(): array
+    {
+        return [
+            'x-goog-api-key' => $this->apiKey,
+        ];
+    }
 
     private function estimateTokens(array $response): int
     {

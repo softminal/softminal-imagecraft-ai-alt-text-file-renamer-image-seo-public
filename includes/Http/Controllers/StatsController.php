@@ -2,9 +2,9 @@
 
 namespace Softminal\ImageCraft\Http\Controllers;
 
-use Softminal\ImageCraft\Models\Stats;
-use Softminal\ImageCraft\Models\History;
 use Softminal\ImageCraft\Models\ApiSetting;
+use Softminal\ImageCraft\Models\History;
+use Softminal\ImageCraft\Models\Stats;
 use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
@@ -19,40 +19,10 @@ class StatsController extends Controller
     public function dashboard($request)
     {
         $userId = get_current_user_id();
-        
-        // Count total images (posts_per_page=1 avoids loading all IDs; found_posts gives the total)
-        $totalQuery = new \WP_Query([
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-        ]);
 
-        // Count images missing alt text
-        $missingQuery = new \WP_Query([
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; count-only query
-            'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'compare' => 'NOT EXISTS'
-                ],
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'value' => '',
-                    'compare' => '='
-                ]
-            ]
-        ]);
-
-        $totalImages = $totalQuery->found_posts;
-        $missingAlt = $missingQuery->found_posts;
+        $imageCounts = AltTextHelper::getImageCounts();
+        $totalImages = $imageCounts['total'];
+        $missingAlt = $imageCounts['missing'];
         
         // Get all stats for user in a single query, ordered by date
         $allStats = Stats::where('user_id', $userId)
@@ -97,27 +67,37 @@ class StatsController extends Controller
             ];
         }
 
-        // Get history and compute chart_results in a single loop
-        $totalHistory = History::where('user_id', $userId)->get();
+        // Count history statuses with a single grouped query instead of loading all rows
+        global $wpdb;
+        $historyTable = esc_sql(History::table());
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Aggregation query; table escaped via esc_sql()
+        $statusCounts = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT status, COUNT(*) AS cnt FROM `{$historyTable}` WHERE user_id = %d GROUP BY status",
+                $userId
+            ),
+            ARRAY_A
+        );
+
         $acceptedCount = 0;
         $rejectedCount = 0;
         $pendingCount = 0;
-
-        foreach ($totalHistory as $history) {
-            switch ($history->status) {
+        foreach ($statusCounts ?: [] as $row) {
+            $cnt = (int) $row['cnt'];
+            switch ($row['status']) {
                 case 'accepted':
-                    $acceptedCount++;
+                    $acceptedCount = $cnt;
                     break;
                 case 'rejected':
-                    $rejectedCount++;
+                    $rejectedCount = $cnt;
                     break;
                 default:
-                    $pendingCount++;
+                    $pendingCount += $cnt;
                     break;
             }
         }
 
-        $historyTotal = count($totalHistory);
+        $historyTotal = $acceptedCount + $rejectedCount + $pendingCount;
         $successRate = $historyTotal > 0 ? round(($acceptedCount / $historyTotal) * 100, 2) : 0;
 
         $chartResults = [

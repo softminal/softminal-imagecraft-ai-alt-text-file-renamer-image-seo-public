@@ -118,13 +118,12 @@ if [ -f "$PLUGIN_DIR/index.php" ]; then
     echo "  ✓ index.php"
 fi
 
-# Step 6: Set ICAIS_DEV_MODE to false in the build
-echo -e "${GREEN}🔧 Setting ICAIS_DEV_MODE to false for production...${NC}"
-BUILD_CONSTANTS="$BUILD_DIR/$PLUGIN_NAME/config/constants.php"
-if [ -f "$BUILD_CONSTANTS" ]; then
-    sed -i '' "s/define('ICAIS_DEV_MODE', true);/define('ICAIS_DEV_MODE', false);/" "$BUILD_CONSTANTS"
-    echo "  ✓ ICAIS_DEV_MODE set to false"
+# Step 6: Ensure .dev sentinel file is NOT in the build (controls ICAIS_DEV_MODE)
+echo -e "${GREEN}🔧 Ensuring dev mode is off for production...${NC}"
+if [ -f "$BUILD_DIR/$PLUGIN_NAME/.dev" ]; then
+    rm "$BUILD_DIR/$PLUGIN_NAME/.dev"
 fi
+echo "  ✓ .dev sentinel removed (ICAIS_DEV_MODE will be false)"
 
 # Step 7: Create zip file
 echo -e "${GREEN}📦 Creating zip file...${NC}"

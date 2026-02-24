@@ -56,4 +56,46 @@ class AltTextHelper
 
         return false;
     }
+
+    /**
+     * Get total image count and missing-alt count in a single helper.
+     *
+     * @return array{total: int, missing: int}
+     */
+    public static function getImageCounts(): array
+    {
+        $totalQuery = new \WP_Query([
+            'post_type' => 'attachment',
+            'post_mime_type' => 'image',
+            'post_status' => 'inherit',
+            'posts_per_page' => 1,
+            'fields' => 'ids',
+        ]);
+
+        $missingQuery = new \WP_Query([
+            'post_type' => 'attachment',
+            'post_mime_type' => 'image',
+            'post_status' => 'inherit',
+            'posts_per_page' => 1,
+            'fields' => 'ids',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Count-only query for images missing alt text
+            'meta_query' => [
+                'relation' => 'OR',
+                [
+                    'key' => '_wp_attachment_image_alt',
+                    'compare' => 'NOT EXISTS',
+                ],
+                [
+                    'key' => '_wp_attachment_image_alt',
+                    'value' => '',
+                    'compare' => '=',
+                ],
+            ],
+        ]);
+
+        return [
+            'total' => (int) $totalQuery->found_posts,
+            'missing' => (int) $missingQuery->found_posts,
+        ];
+    }
 }

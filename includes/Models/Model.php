@@ -28,9 +28,10 @@ abstract class Model
     private static array $validOperators = ['=', '!=', '>', '<', '>=', '<=', 'LIKE', 'NOT LIKE', 'IN'];
 
     /**
-     * Object cache settings (tune as needed)
+     * Object cache settings (tune as needed).
+     * Group is namespaced to the plugin to avoid collisions in shared caches.
      */
-    private string $cacheGroup = 'icais';
+    private string $cacheGroup = 'icais_models';
     private int $cacheTtl = 60; // seconds
 
     /**

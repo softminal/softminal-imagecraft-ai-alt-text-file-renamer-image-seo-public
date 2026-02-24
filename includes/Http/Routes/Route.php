@@ -65,16 +65,6 @@ class Route
         return self::addRoute('POST', $endpoint, $controller);
     }
 
-    public static function put($endpoint, $controller)
-    {
-        return self::addRoute('PUT', $endpoint, $controller);
-    }
-
-    public static function delete($endpoint, $controller)
-    {
-        return self::addRoute('DELETE', $endpoint, $controller);
-    }
-
     private static function addRoute($method, $endpoint, $controller, $params = [])
     {
         $endpoint = self::$prefix . '/' . trim($endpoint, '/');
@@ -125,45 +115,6 @@ class Route
         return new static();
     }
 
-    public static function resource($controller)
-    {
-        // Define common RESTful routes for a resource
-        // GET /resource - List all resources
-        self::get('', $controller);
-
-        // GET /resource/{id} - Get a single resource
-        self::get('{id}', [$controller, 'show']);
-
-        // POST /resource - Create a resource
-        self::post('', [$controller, 'store']);
-
-        // PUT /resource/{id} - Update a resource
-        self::put('{id}', [$controller, 'update']);
-
-        // DELETE /resource/{id} - Delete a resource
-        self::delete('{id}', [$controller, 'destroy']);
-
-        return new static();
-    }
-
-    public static function getWithId($endpoint, $controller, $params = [])
-    {
-        if (strpos($endpoint, '{id}') === false) {
-            $endpoint = '{id}/' . trim($endpoint, '/');
-        }
-
-        return self::addRoute('GET', $endpoint, $controller, $params);
-    }
-
-    public static function postWithId($endpoint, $controller, $params = [])
-    {
-        if (strpos($endpoint, '{id}') === false) {
-            $endpoint = '{id}/' . trim($endpoint, '/');
-        }
-
-        return self::addRoute('POST', $endpoint, $controller, $params);
-    }
-
     public static function registerRoutes($namespace = null) {
         // Use default namespace if not provided
         if ($namespace === null) {
@@ -200,13 +151,14 @@ class Route
 
                         return $controller->$action($request, $params);
                     } catch (\Exception $e) {
-                        $message = (defined('WP_DEBUG') && WP_DEBUG)
-                            ? $e->getMessage()
-                            : __('An unexpected error occurred.', 'imagecraft-ai-alt-text-file-renamer-image-seo');
+                        if (defined('WP_DEBUG') && WP_DEBUG) {
+                            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+                            error_log('ImageCraft API error: ' . $e->getMessage());
+                        }
 
                         return new \WP_Error(
                             'api_error',
-                            $message,
+                            __('An unexpected error occurred.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                             ['status' => 500]
                         );
                     }

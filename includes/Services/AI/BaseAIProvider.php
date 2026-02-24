@@ -12,12 +12,28 @@ abstract class BaseAIProvider
 {
     protected string $apiKey;
     protected int $timeout;
+    protected string $model;
 
-    public function __construct(string $apiKey, int $timeout = 60)
+    public function __construct(string $apiKey, int $timeout = 60, ?string $model = null)
     {
         $this->apiKey = $apiKey;
         $this->timeout = $timeout;
+        $this->model = $model ?? static::getDefaultModel();
     }
+
+    /**
+     * Get available models for this provider
+     *
+     * @return array Array of model identifiers
+     */
+    abstract public static function getAvailableModels(): array;
+
+    /**
+     * Get default model for this provider
+     *
+     * @return string Default model identifier
+     */
+    abstract public static function getDefaultModel(): string;
 
     /**
      * Generate alt text for an image
@@ -229,7 +245,10 @@ abstract class BaseAIProvider
                 throw new \Exception('Failed to read local image file');
             }
         } else {
-            // Use WordPress HTTP API for remote URLs (handles SSL better)
+            // Validate URL before fetching to prevent SSRF
+            $this->validateImageUrl($imageUrl);
+
+            // Use WordPress HTTP API for remote URLs
             $response = wp_remote_get($imageUrl, [
                 'timeout' => $this->timeout,
                 'sslverify' => !$this->isLocalDevelopment(),
@@ -250,9 +269,21 @@ abstract class BaseAIProvider
             }
         }
 
+        // Reject images larger than 20 MB to prevent memory exhaustion
+        $maxBytes = 20 * 1024 * 1024;
+        if (strlen($imageContent) > $maxBytes) {
+            throw new \Exception('Image file is too large (max 20 MB)');
+        }
+
+        // Validate actual image content via magic bytes (defense-in-depth)
+        $detectedMime = $this->detectMimeFromContent($imageContent);
+        if ($detectedMime === null) {
+            throw new \Exception('File does not appear to be a supported image format');
+        }
+
         // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Required for encoding image data for AI vision API requests
         $base64 = base64_encode($imageContent);
-        $mimeType = $this->getMimeType($imageUrl);
+        $mimeType = $detectedMime;
 
         return [
             'base64' => $base64,
@@ -337,7 +368,83 @@ abstract class BaseAIProvider
     }
 
     /**
-     * Get MIME type from URL
+     * Validate a remote image URL to prevent SSRF attacks.
+     *
+     * Blocks requests to private/reserved IP ranges (RFC 1918, link-local, loopback)
+     * and non-HTTP(S) schemes.
+     *
+     * @param string $url The URL to validate.
+     * @throws \Exception If the URL is unsafe.
+     */
+    protected function validateImageUrl(string $url): void
+    {
+        $scheme = wp_parse_url($url, PHP_URL_SCHEME);
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            throw new \Exception('Invalid image URL scheme');
+        }
+
+        $host = wp_parse_url($url, PHP_URL_HOST);
+        if (empty($host)) {
+            throw new \Exception('Invalid image URL: missing host');
+        }
+
+        // Allow same-site URLs (they should have been handled as local files above,
+        // but fall through here if the local path didn't resolve)
+        $siteHost = wp_parse_url(site_url(), PHP_URL_HOST);
+        if ($host === $siteHost) {
+            return;
+        }
+
+        // Resolve the hostname to an IP and reject private/reserved ranges
+        $ip = gethostbyname($host);
+        if ($ip === $host) {
+            throw new \Exception('Could not resolve image URL hostname');
+        }
+
+        // FILTER_FLAG_NO_PRIV_RANGE  → blocks 10.x, 172.16-31.x, 192.168.x
+        // FILTER_FLAG_NO_RES_RANGE   → blocks 0.0.0.0, 127.x, 169.254.x, 240.x+
+        if (false === filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            throw new \Exception('Image URL resolves to a disallowed IP address');
+        }
+    }
+
+    /**
+     * Detect MIME type from file content using magic bytes.
+     *
+     * @param string $content Raw file content
+     * @return string|null Detected MIME type, or null if not a supported image
+     */
+    protected function detectMimeFromContent(string $content): ?string
+    {
+        if (strlen($content) < 4) {
+            return null;
+        }
+
+        // JPEG: starts with FF D8 FF
+        if (strncmp($content, "\xFF\xD8\xFF", 3) === 0) {
+            return 'image/jpeg';
+        }
+
+        // PNG: starts with 89 50 4E 47 0D 0A 1A 0A
+        if (strncmp($content, "\x89PNG\r\n\x1A\n", 8) === 0) {
+            return 'image/png';
+        }
+
+        // GIF: starts with GIF87a or GIF89a
+        if (strncmp($content, 'GIF87a', 6) === 0 || strncmp($content, 'GIF89a', 6) === 0) {
+            return 'image/gif';
+        }
+
+        // WebP: RIFF....WEBP
+        if (strlen($content) >= 12 && strncmp($content, 'RIFF', 4) === 0 && substr($content, 8, 4) === 'WEBP') {
+            return 'image/webp';
+        }
+
+        return null;
+    }
+
+    /**
+     * Get MIME type from URL extension (fallback only).
      *
      * @param string $url Image URL
      * @return string MIME type
@@ -351,7 +458,6 @@ abstract class BaseAIProvider
             'png' => 'image/png',
             'gif' => 'image/gif',
             'webp' => 'image/webp',
-            'svg' => 'image/svg+xml'
         ];
 
         return $mimeTypes[$extension] ?? 'image/jpeg';

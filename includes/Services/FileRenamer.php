@@ -157,6 +157,12 @@ class FileRenamer
             $newFilePath = wp_normalize_path(dirname($file) . '/' . $newFilename);
         }
 
+        // Verify the new path is still within wp_upload_dir (prevents path traversal)
+        $normalizedNewPath = wp_normalize_path(realpath(dirname($newFilePath)) ?: dirname($newFilePath));
+        if (strpos($normalizedNewPath, $normalizedBase) !== 0) {
+            return ['success' => false, 'error' => 'Rename target is outside the uploads directory'];
+        }
+
         $oldUrl = (string) wp_get_attachment_url($attachmentId);
 
         // Ensure destination directory exists

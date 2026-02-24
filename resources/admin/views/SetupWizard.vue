@@ -146,6 +146,16 @@
         </ul>
       </div>
 
+      <div v-if="showModelSelector" class="mb-6">
+        <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
+        <select
+          v-model="currentSelectedModel"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
+        </select>
+      </div>
+
       <div class="mb-6">
         <label class="block text-sm font-medium mb-2">{{ $t('API Key') }}</label>
         <input
@@ -203,7 +213,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
@@ -216,6 +226,37 @@ const apiKey = ref('')
 const testing = ref(false)
 const saving = ref(false)
 const testResult = ref(null)
+const availableModels = ref({})
+const selectedModels = ref({})
+
+const currentModels = computed(() => {
+  return availableModels.value[selectedProvider.value] || []
+})
+
+const showModelSelector = computed(() => {
+  return currentModels.value.length > 1 && selectedProvider.value !== 'openrouter'
+})
+
+const currentSelectedModel = computed({
+  get() {
+    const provider = selectedProvider.value
+    return selectedModels.value[provider] || currentModels.value[0] || ''
+  },
+  set(val) {
+    selectedModels.value[selectedProvider.value] = val
+  }
+})
+
+onMounted(async () => {
+  try {
+    const result = await Api.get('/settings')
+    if (result.available_models) {
+      availableModels.value = result.available_models
+    }
+  } catch (e) {
+    // Non-critical, model selector just won't show
+  }
+})
 
 const testConnection = async () => {
   if (!apiKey.value) return
@@ -224,10 +265,14 @@ const testConnection = async () => {
   testResult.value = null
 
   try {
-    const result = await Api.post('/settings/test-api', {
+    const payload = {
       provider: selectedProvider.value,
       api_key: apiKey.value
-    })
+    }
+    if (showModelSelector.value) {
+      payload.model = currentSelectedModel.value
+    }
+    const result = await Api.post('/settings/test-api', payload)
 
     testResult.value = result
     if (result.success) {
@@ -253,6 +298,14 @@ const saveApiKey = async () => {
       provider: selectedProvider.value,
       api_key: apiKey.value
     })
+
+    // Save selected model if applicable
+    if (showModelSelector.value && currentSelectedModel.value) {
+      const modelKey = 'icais_' + selectedProvider.value + '_model'
+      await Api.post('/settings', {
+        settings: { [modelKey]: currentSelectedModel.value }
+      })
+    }
 
     notification.success($t('API key saved successfully!'))
     currentStep.value = 4

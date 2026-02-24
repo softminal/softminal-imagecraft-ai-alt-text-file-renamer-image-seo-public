@@ -151,39 +151,9 @@ class ScannerController extends Controller
             ];
         }
 
-        // Count total images (posts_per_page=1 avoids loading all IDs; found_posts gives the total)
-        $totalQuery = new \WP_Query([
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-        ]);
-
-        // Count images missing alt text
-        $missingQuery = new \WP_Query([
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; count-only query
-            'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'compare' => 'NOT EXISTS'
-                ],
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'value' => '',
-                    'compare' => '='
-                ]
-            ]
-        ]);
-
-        $totalImages = $totalQuery->found_posts;
-        $missingAlt = $missingQuery->found_posts;
+        $imageCounts = AltTextHelper::getImageCounts();
+        $totalImages = $imageCounts['total'];
+        $missingAlt = $imageCounts['missing'];
         $hasAlt = $totalImages - $missingAlt;
 
         return $this->response([

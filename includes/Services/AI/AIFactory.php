@@ -3,7 +3,6 @@
 namespace Softminal\ImageCraft\Services\AI;
 
 use Softminal\ImageCraft\Models\ApiSetting;
-use Softminal\ImageCraft\Services\Encryption;
 use Softminal\ImageCraft\Services\Settings;
 
 if (!defined('ABSPATH')) {
@@ -12,31 +11,34 @@ if (!defined('ABSPATH')) {
 
 class AIFactory
 {
+    private static $providerClasses = [
+        'anthropic' => AnthropicProvider::class,
+        'openai' => OpenAIProvider::class,
+        'gemini' => GeminiProvider::class,
+        // 'mistral' => MistralProvider::class,       // Planned for next release
+        // 'openrouter' => OpenRouterProvider::class,  // Planned for next release
+    ];
+
     /**
      * Create AI provider instance
      */
-    public static function create(string $provider, string $apiKey, int $timeout = 60): BaseAIProvider
+    public static function create(string $provider, string $apiKey, int $timeout = 60, ?string $model = null): BaseAIProvider
     {
-        $timeout = Settings::get('icais_request_timeout', $timeout);
-        switch (strtolower($provider)) {
-            case 'anthropic':
-                return new AnthropicProvider($apiKey, $timeout);
+        $timeout = (int) Settings::get('icais_request_timeout', $timeout);
+        $providerKey = strtolower($provider);
 
-            case 'openai':
-                return new OpenAIProvider($apiKey, $timeout);
-
-            case 'gemini':
-                return new GeminiProvider($apiKey, $timeout);
-
-            case 'mistral':
-                return new MistralProvider($apiKey, $timeout);
-
-            case 'openrouter':
-                return new OpenRouterProvider($apiKey, $timeout);
-
-            default:
-                throw new \Exception('Unknown provider: ' . esc_html($provider));
+        if (!isset(self::$providerClasses[$providerKey])) {
+            throw new \Exception('Unknown provider: ' . esc_html($provider));
         }
+
+        $class = self::$providerClasses[$providerKey];
+
+        // Validate model against the provider's allowed list
+        if ($model !== null && !in_array($model, $class::getAvailableModels(), true)) {
+            $model = null; // Fall back to provider default
+        }
+
+        return new $class($apiKey, $timeout, $model);
     }
 
     /**
@@ -57,6 +59,40 @@ class AIFactory
         if (is_null($apiSetting->api_key_encrypted)) {
             return null;
         }
-        return self::create($apiSetting->api_provider, Encryption::decrypt($apiSetting->api_key_encrypted));
+
+        $provider = $apiSetting->api_provider;
+        $model = Settings::get('icais_' . $provider . '_model');
+
+        $apiKey = $apiSetting->getApiKey();
+        if ($apiKey === null) {
+            return null;
+        }
+
+        return self::create($provider, $apiKey, 60, $model);
+    }
+
+    /**
+     * Get available models for all or a specific provider
+     *
+     * @param string|null $provider Provider name, or null for all providers
+     * @return array Keyed by provider name
+     */
+    public static function getAvailableModels(?string $provider = null): array
+    {
+        if ($provider !== null) {
+            $providerKey = strtolower($provider);
+            if (!isset(self::$providerClasses[$providerKey])) {
+                return [];
+            }
+            $class = self::$providerClasses[$providerKey];
+            return [$providerKey => $class::getAvailableModels()];
+        }
+
+        $models = [];
+        foreach (self::$providerClasses as $key => $class) {
+            $models[$key] = $class::getAvailableModels();
+        }
+
+        return $models;
     }
 }

@@ -41,6 +41,8 @@ class SettingsController extends Controller
                 'plugin' => SeoIntegration::getActivePlugin(),
                 'label'  => SeoIntegration::getActivePluginLabel(),
             ] : ['active' => false, 'plugin' => null, 'label' => ''],
+            'available_models' => AIFactory::getAvailableModels(),
+            'plugin_version' => defined('ICAIS_VERSION') ? ICAIS_VERSION : '0.0.0',
         ]);
     }
     
@@ -80,9 +82,20 @@ class SettingsController extends Controller
         $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_email_on_complete', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase'];
         $textareaKeys = ['icais_custom_prompt', 'icais_woo_custom_prompt'];
 
+        // Server-side caps for integer settings to prevent DoS
+        $intCaps = [
+            'icais_batch_size' => 50,
+            'icais_request_timeout' => 300,
+            'icais_max_length' => 500,
+            'icais_rename_max_length' => 500,
+        ];
+
         foreach ($settings as $key => $value) {
             if (in_array($key, $intKeys, true)) {
                 $settings[$key] = absint($value);
+                if (isset($intCaps[$key])) {
+                    $settings[$key] = min($settings[$key], $intCaps[$key]);
+                }
             } elseif (in_array($key, $boolKeys, true)) {
                 $settings[$key] = $value ? '1' : '0';
             } elseif (in_array($key, $textareaKeys, true)) {
@@ -106,7 +119,7 @@ class SettingsController extends Controller
             $allMatch = true;
             foreach ($settings as $key => $value) {
                 $currentValue = $allSettings[$key] ?? null;
-                if (self::normalizeForComparison($currentValue) !== self::normalizeForComparison($value)) {
+                if (Settings::normalizeValueForComparison($currentValue) !== Settings::normalizeValueForComparison($value)) {
                     $allMatch = false;
                     break;
                 }
@@ -125,33 +138,15 @@ class SettingsController extends Controller
                 'message' => __('Failed to update some settings', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         } catch (\Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+                error_log('ImageCraft settings update error: ' . $e->getMessage());
+            }
             return $this->response([
                 'success' => false,
-                'message' => (defined('WP_DEBUG') && WP_DEBUG)
-                    ? __('Error updating settings:', 'imagecraft-ai-alt-text-file-renamer-image-seo') . ' ' . $e->getMessage()
-                    : __('An error occurred while updating settings.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('An error occurred while updating settings.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 500);
         }
-    }
-    
-    /**
-     * Normalize value for comparison
-     */
-    private static function normalizeForComparison($value)
-    {
-        if ($value === '') {
-            return '';
-        }
-        if (is_bool($value)) {
-            return $value ? '1' : '0';
-        }
-        if ($value === '1' || $value === 1) {
-            return '1';
-        }
-        if ($value === '0' || $value === 0 || $value === false) {
-            return '0';
-        }
-        return (string) $value;
     }
     
     /**
@@ -161,15 +156,18 @@ class SettingsController extends Controller
     {
         $params = $request->get_json_params();
         $provider = sanitize_text_field($params['provider'] ?? '');
-        $apiKey = sanitize_text_field(wp_unslash($params['api_key'] ?? ''));
-        
+
+        // Minimal processing for API key — avoid sanitize_text_field which may be
+        // hooked by WAFs/plugins and could log the key value
+        $apiKey = isset($params['api_key']) ? wp_unslash($params['api_key']) : '';
+
         if (empty($provider) || empty($apiKey)) {
             return $this->response([
                 'success' => false,
                 'message' => __('Provider and API key are required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
-        
+
         // Basic validation - API keys should be non-empty strings
         if (!is_string($apiKey) || strlen($apiKey) < 10) {
             return $this->response([
@@ -210,17 +208,26 @@ class SettingsController extends Controller
                 'is_active' => 1
             ]);
         } else {
+            // Verify ownership (defense-in-depth; query already scopes by user_id)
+            if ((int) $apiSetting->user_id !== $userId) {
+                return $this->response([
+                    'success' => false,
+                    'message' => __('Not authorized', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                ], 403);
+            }
             $apiSetting->is_active = 1;
         }
         
         try {
             $apiSetting->setApiKey($apiKey);
         } catch (\Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+                error_log('ImageCraft API key encryption error: ' . $e->getMessage());
+            }
             return $this->response([
                 'success' => false,
-                'message' => (defined('WP_DEBUG') && WP_DEBUG)
-                    ? __('Failed to encrypt API key:', 'imagecraft-ai-alt-text-file-renamer-image-seo') . ' ' . $e->getMessage()
-                    : __('Failed to encrypt API key. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('Failed to encrypt API key. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
         
@@ -263,7 +270,15 @@ class SettingsController extends Controller
         
         // Sync the preference setting with the active provider
         Settings::set('icais_api_provider', $provider);
-        
+
+        /**
+         * Fires after an API key is saved or rotated.
+         *
+         * @param int    $userId   The user who changed the key.
+         * @param string $provider The AI provider slug (e.g. 'openai', 'anthropic').
+         */
+        do_action('icais_api_key_saved', $userId, $provider);
+
         return $this->response([
             'success' => true,
             'message' => __('API key saved successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo')
@@ -275,28 +290,52 @@ class SettingsController extends Controller
      */
     public function testApi($request)
     {
+        // Rate limit: max 5 test requests per minute per user
+        $userId = get_current_user_id();
+        $transientKey = 'icais_test_api_' . $userId;
+        $attempts = (int) get_transient($transientKey);
+        if ($attempts >= 5) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Too many test requests. Please wait a minute before trying again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 429);
+        }
+        set_transient($transientKey, $attempts + 1, MINUTE_IN_SECONDS);
+
         $params = $request->get_json_params();
         $provider = sanitize_text_field($params['provider'] ?? '');
-        $apiKey = sanitize_text_field(wp_unslash($params['api_key'] ?? ''));
-        
-        if (empty($provider) || empty($apiKey)) {
+
+        // Minimal processing for API key — avoid sanitize_text_field which may be
+        // hooked by WAFs/plugins and could log the key value
+        $apiKey = isset($params['api_key']) ? wp_unslash($params['api_key']) : '';
+        if (!is_string($apiKey) || strlen($apiKey) < 10) {
             return $this->response([
                 'success' => false,
-                'message' => __('Provider and API key are required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('Invalid API key format', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
-        
-        try {
-            $aiProvider = AIFactory::create($provider, $apiKey);
-            $result = $aiProvider->testConnection();
-            
-            return $this->response($result);
-        } catch (\Exception $e) {
+
+        if (empty($provider)) {
             return $this->response([
                 'success' => false,
-                'error' => (defined('WP_DEBUG') && WP_DEBUG)
-                    ? $e->getMessage()
-                    : __('API connection test failed. Please check your API key.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('Provider is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        try {
+            $model = sanitize_text_field($params['model'] ?? '');
+            $aiProvider = AIFactory::create($provider, $apiKey, 60, $model ?: null);
+            $result = $aiProvider->testConnection();
+
+            return $this->response($result);
+        } catch (\Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+                error_log('ImageCraft API test error: ' . $e->getMessage());
+            }
+            return $this->response([
+                'success' => false,
+                'error' => __('API connection test failed. Please check your API key.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
     }

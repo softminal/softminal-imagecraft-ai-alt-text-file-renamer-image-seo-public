@@ -178,7 +178,16 @@ class BatchController extends Controller
         $userId = (int) $job->user_id;
         $generator = new GeneratorController();
 
+        // Wall-clock time guard: bail before the PHP request times out
+        $startTime = time();
+        $maxSeconds = max(30, (int) Settings::get('icais_request_timeout', 60) * 2);
+
         foreach ($chunk as $attachmentId) {
+            // Check elapsed time before each image to avoid request timeout
+            if ((time() - $startTime) >= $maxSeconds) {
+                break;
+            }
+
             try {
                 $context = SeoIntegration::buildSeoContext((int) $attachmentId);
                 $result = $generator->generateAltText((int) $attachmentId, $tone, $userId, $context);
@@ -301,9 +310,13 @@ class BatchController extends Controller
             ]);
         }
 
+        // Prime WP post caches in a single query to avoid N+1
+        $intIds = array_map('intval', $imageIds);
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Priming post caches for batch result display
+        _prime_post_caches($intIds, true, true);
+
         $images = [];
-        foreach ($imageIds as $attachmentId) {
-            $attachmentId = (int) $attachmentId;
+        foreach ($intIds as $attachmentId) {
             if (!wp_attachment_is_image($attachmentId)) {
                 continue;
             }

@@ -14,9 +14,24 @@
           <option value="anthropic">{{ $t('Anthropic Claude') }}</option>
           <option value="openai">{{ $t('OpenAI GPT-4') }}</option>
           <option value="gemini">{{ $t('Google Gemini') }}</option>
-          <option value="mistral">{{ $t('Mistral AI (Pixtral)') }}</option>
-          <option value="openrouter">{{ $t('OpenRouter') }}</option>
+          <!-- <option value="mistral">{{ $t('Mistral AI (Pixtral)') }}</option>
+          <option value="openrouter">{{ $t('OpenRouter') }}</option> -->
         </select>
+      </div>
+
+      <div v-if="showModelSelector" class="mb-4">
+        <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
+        <select
+          v-model="settings[modelSettingKey]"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        >
+          <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
+        </select>
+        <p v-if="pricingUrl" class="text-xs text-gray-500 mt-1">
+          <a :href="pricingUrl" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+            {{ $t('View pricing') }} &rarr;
+          </a>
+        </p>
       </div>
 
       <div v-if="settings.icais_api_provider === 'openrouter'" class="mb-4">
@@ -48,12 +63,30 @@
             {{ apiDocsLabel }} &rarr;
           </a>
         </p>
-        <button
-          @click="saveApiKey"
-          class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          {{ $t('Save API Key') }}
-        </button>
+        <div class="mt-2 flex items-center gap-3">
+          <button
+            @click="testConnection"
+            :disabled="!apiKey || testing"
+            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+          >
+            {{ testing ? $t('Testing...') : $t('Test Connection') }}
+          </button>
+          <button
+            @click="saveApiKey"
+            :disabled="!apiKey || !testResult?.success"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ $t('Save API Key') }}
+          </button>
+        </div>
+        <div v-if="testResult" class="mt-2">
+          <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded text-sm">
+            {{ $t('Connection successful!') }}
+          </div>
+          <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded text-sm">
+            {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
+          </div>
+        </div>
       </div>
 
       <div v-if="apiSetting" class="text-sm text-gray-600">
@@ -387,20 +420,43 @@ const settings = ref({})
 const apiKey = ref('')
 const apiSetting = ref(null)
 const saving = ref(false)
+const testing = ref(false)
+const testResult = ref(null)
 const woocommerceInstalled = ref(false)
 const seoPlugin = ref(null)
+const availableModels = ref({})
+
+const currentModels = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return availableModels.value[provider] || []
+})
+
+const modelSettingKey = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return 'icais_' + provider + '_model'
+})
+
+const showModelSelector = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return currentModels.value.length > 1 && provider !== 'openrouter'
+})
 
 const providerDocs = {
-  anthropic: { url: 'https://console.anthropic.com/settings/keys', label: 'Anthropic Console' },
-  openai: { url: 'https://platform.openai.com/api-keys', label: 'OpenAI Platform' },
-  gemini: { url: 'https://aistudio.google.com/apikey', label: 'Google AI Studio' },
-  mistral: { url: 'https://console.mistral.ai/api-keys', label: 'Mistral Console' },
-  openrouter: { url: 'https://openrouter.ai/keys', label: 'OpenRouter' },
+  anthropic: { url: 'https://console.anthropic.com/settings/keys', label: 'Anthropic Console', pricingUrl: 'https://www.anthropic.com/pricing#702702' },
+  openai: { url: 'https://platform.openai.com/api-keys', label: 'OpenAI Platform', pricingUrl: 'https://openai.com/api/pricing/' },
+  gemini: { url: 'https://aistudio.google.com/apikey', label: 'Google AI Studio', pricingUrl: 'https://ai.google.dev/pricing' },
+  mistral: { url: 'https://console.mistral.ai/api-keys', label: 'Mistral Console', pricingUrl: 'https://mistral.ai/products/pricing/' },
+  openrouter: { url: 'https://openrouter.ai/keys', label: 'OpenRouter', pricingUrl: 'https://openrouter.ai/models' },
 }
 
 const apiDocsUrl = computed(() => {
   const provider = settings.value.icais_api_provider
   return providerDocs[provider]?.url || null
+})
+
+const pricingUrl = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return providerDocs[provider]?.pricingUrl || null
 })
 
 const apiDocsLabel = computed(() => {
@@ -415,6 +471,7 @@ const loadSettings = async () => {
       settings.value = result.settings
       apiSetting.value = result.api_setting
       seoPlugin.value = result.seo_plugin || null
+      availableModels.value = result.available_models || {}
 
       if (result.api_setting && result.api_setting.is_active) {
         settings.value.icais_api_provider = result.api_setting.provider
@@ -468,6 +525,38 @@ const saveApiKey = async () => {
     }
   } catch (error) {
     notification.error($t('Failed to save API key'))
+  }
+}
+
+const testConnection = async () => {
+  if (!apiKey.value) {
+    notification.error($t('Please enter an API key'))
+    return
+  }
+
+  testing.value = true
+  testResult.value = null
+
+  try {
+    const payload = {
+      provider: settings.value.icais_api_provider,
+      api_key: apiKey.value
+    }
+    if (showModelSelector.value) {
+      payload.model = settings.value[modelSettingKey.value]
+    }
+    const result = await Api.post('/settings/test-api', payload)
+    testResult.value = result
+    if (result.success) {
+      notification.success($t('Connection successful!'))
+    } else {
+      notification.error(result.error || $t('Connection failed'))
+    }
+  } catch (error) {
+    testResult.value = { success: false, error: error.message }
+    notification.error($t('Failed to test connection'))
+  } finally {
+    testing.value = false
   }
 }
 
