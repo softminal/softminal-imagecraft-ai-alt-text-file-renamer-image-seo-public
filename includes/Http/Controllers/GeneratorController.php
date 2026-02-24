@@ -226,7 +226,12 @@ class GeneratorController extends Controller
         if (!empty($altText)) {
             $history->generated_alt = $finalAltText;
         }
-        $history->save();
+        if (!$history->save()) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Failed to update history record', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 500);
+        }
 
         StatsTracker::recordAccept($history->user_id);
 
@@ -360,7 +365,12 @@ class GeneratorController extends Controller
         }
 
         $history->status = 'rejected';
-        $history->save();
+        if (!$history->save()) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Failed to update history record', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 500);
+        }
 
         StatsTracker::recordReject($history->user_id);
 
@@ -422,18 +432,23 @@ class GeneratorController extends Controller
             }
         }
 
-        // Check 3: Attachment is in a product's gallery
+        // Check 3: Attachment is in a product's gallery (comma-separated IDs in meta)
         if (!$product) {
             global $wpdb;
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $foundProductId = $wpdb->get_var($wpdb->prepare(
-                "SELECT post_id FROM {$wpdb->postmeta}
-                WHERE meta_key = '_product_image_gallery' AND meta_value LIKE %s
-                LIMIT 1",
+            $galleryRows = $wpdb->get_results($wpdb->prepare(
+                "SELECT post_id, meta_value FROM {$wpdb->postmeta}
+                WHERE meta_key = '_product_image_gallery' AND meta_value LIKE %s",
                 '%' . $wpdb->esc_like((string) $attachmentId) . '%'
             ));
-            if ($foundProductId && get_post_type($foundProductId) === 'product') {
-                $product = wc_get_product($foundProductId);
+            // Post-verify: LIKE can match partial IDs (e.g. "5" in "15,25")
+            // so check that the attachment ID is an exact entry in the CSV
+            foreach ($galleryRows ?: [] as $row) {
+                $galleryIds = array_map('intval', explode(',', $row->meta_value));
+                if (in_array($attachmentId, $galleryIds, true) && get_post_type($row->post_id) === 'product') {
+                    $product = wc_get_product($row->post_id);
+                    break;
+                }
             }
         }
 

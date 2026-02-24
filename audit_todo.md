@@ -150,88 +150,88 @@
 
 - **T-L1-1: Router guard field path discrepancy** — Router guard checks `result.wizard_completed` but the API returns it nested under `result.data.wizard_completed` (via the Controller response wrapper). May cause wizard redirect loop on some setups.
   - Files: `resources/admin/router.js`, `includes/Http/Controllers/SettingsController.php`
-  - Fix: Verify the actual response structure and align the guard check.
+  - Fix: Verified — no issue. `Controller::response()` returns `WP_REST_Response` which serializes the data directly. `Api.get()` parses the JSON, so `settings.wizard_completed` correctly accesses the top-level key. No wrapper exists.
 - **T-L1-2: WooCommerce attachment_id fallback** — Scanner.vue sends `item.id` (the post/product ID) as `attachment_id` when `item.featured_image` is missing. The backend expects an attachment ID, not a post ID.
   - File: `resources/admin/views/Scanner.vue`
-  - Fix: Skip generation if no valid attachment ID is available.
+  - Fix: Verified — no issue. Scanner.vue images come from `ScannerController::scan()` which queries `post_type = 'attachment'`. All `image.id` values are valid attachment IDs, never post/product IDs.
 - **T-L1-3: Capability mismatch on batch start** — Scanner.vue sends batch start requests, but the batch endpoint may require `manage_options` while Scanner only requires `upload_files`.
   - Files: `resources/admin/views/Scanner.vue`, `includes/Http/api.php`
-  - Fix: Align capability requirements or check in the frontend before calling.
+  - Fix: By design. Batch operations (processing hundreds of images) intentionally require `manage_options` for admin-level access control. Scanner viewing requires only `upload_files`. Non-admin users get a clear 403 error from the REST API. The separation is intentional security design.
 - **T-L1-4: Missing response error handling** — Several API calls in Vue components don't handle non-success responses (e.g., `saveSettings()` in Settings.vue doesn't check `result.success`).
   - Files: Various Vue components
-  - Fix: Add consistent error handling for all API calls.
+  - Fix: Added `else` branches to `saveSettings()` and `saveApiKey()` in Settings.vue to show `result.message` on non-success responses. Scanner.vue already had adequate error handling.
 
 ### Layer 2: REST Routes → Controllers
 
 - **T-L2-1: CLAUDE.md namespace incorrect** — Documentation says `/wp-json/imagecraft/v1` but actual namespace may be `icais/v1`.
   - File: `CLAUDE.md`, `config/constants.php`
-  - Fix: Update CLAUDE.md to reflect actual `IMGCRAFT_API_NAMESPACE` value.
+  - Fix: Updated CLAUDE.md — namespace corrected to `icais/v1`, table prefix to `icais_`, constant names to `ICAIS_*`, PHP namespace to `Softminal\ImageCraft\`.
 - **T-L2-2: 8+ undocumented REST routes** — Several routes registered in `api.php` are not listed in the CLAUDE.md route table (e.g., renamer endpoints, WooCommerce endpoints).
   - Files: `CLAUDE.md`, `includes/Http/api.php`
-  - Fix: Update documentation to list all routes.
+  - Fix: Updated CLAUDE.md route table to list all 27 endpoints across 7 route groups (settings, scanner, generator, batch, stats, renamer, notice, woocommerce) with capability requirements.
 - **T-L2-3: Parameter name mismatch in renamer** — Frontend sends one parameter name but the controller expects a different one for rename preview.
   - Files: Renamer Vue component, `RenamerController.php`
-  - Fix: Align parameter names between frontend and backend.
+  - Fix: Updated `FileRenamerController::preview()` to accept both `attachment_id` and `id` via `$request->get_params()` for backwards compatibility.
 
 ### Layer 3: Controllers → Services
 
 - **T-L3-1: Unchecked save() return values** — Multiple controllers call `$model->save()` without checking the return value, silently dropping failures.
   - Files: `GeneratorController.php`, `BatchController.php`, `StatsController.php`
-  - Fix: Check return value and handle failures.
+  - Fix: Added return value checks on critical `$history->save()` calls in `GeneratorController::accept()` and `GeneratorController::reject()`, returning 500 error on failure. Non-critical saves (stats tracking) remain unchecked as they are best-effort.
 - **T-L3-2: Inconsistent timeout defaults** — `AIFactory::create()` defaults to 60, `AIFactory::getProviderForUser()` also defaults to 60, but `Settings` default for `icais_request_timeout` may differ.
   - Files: `includes/Services/AI/AIFactory.php`, `includes/Services/Settings.php`
-  - Fix: Use a single source of truth for the default timeout.
+  - Fix: Already consistent — `Settings::$defaults['icais_request_timeout'] = 60` matches the `AIFactory::create()` parameter default. `create()` always reads from Settings as the single source of truth via `Settings::get('icais_request_timeout', $timeout)`. Added clarifying comment.
 - **T-L3-3: Multiple unchecked Encryption::decrypt()** — If decryption fails (corrupted data, changed salts), it may return garbage or throw. Callers don't handle this.
   - File: `includes/Services/AI/AIFactory.php`
-  - Fix: Wrap in try-catch, return null provider if decryption fails.
+  - Fix: Already addressed in security pass (S-H6). `ApiSetting::getApiKey()` wraps `Encryption::decrypt()` in try-catch and returns null on failure. `AIFactory::getProviderForUser()` checks for null.
 
 ### Layer 4: Services → AI Providers
 
 - **T-L4-1: Anthropic missing null coalesce on input_tokens** — If the API response doesn't include `usage.input_tokens`, it will generate a PHP notice.
   - File: `includes/Services/AI/AnthropicProvider.php`
-  - Fix: Add `?? 0` fallback on token counts.
+  - Fix: Added `?? 0` fallback: `($response['usage']['input_tokens'] ?? 0) + ($response['usage']['output_tokens'] ?? 0)`.
 - **T-L4-2: Mistral testConnection uses hardcoded model** — `testConnection()` in MistralProvider uses a local `$model` variable or constant instead of `$this->model`.
   - File: `includes/Services/AI/MistralProvider.php`
-  - Fix: Use `$this->model` consistently.
+  - Fix: Already addressed in optimization pass (O-DU1). `ChatCompletionsProvider` base class provides `testConnection()` using `$this->getTestModel()` which defaults to `$this->model`.
 - **T-L4-3: Header format inconsistency** — Some providers use string headers (`'Authorization: Bearer ...'`), others use associative arrays (`['Authorization' => 'Bearer ...']`). `makeRequest()` in BaseAIProvider must handle both.
   - Files: All provider files
-  - Fix: Standardize on one header format (preferably associative arrays for `wp_remote_post`).
+  - Fix: Already addressed. `BaseAIProvider::makeRequest()` normalizes both header formats (string `'Key: value'` and associative `['Key' => 'value']`) into the associative array format required by `wp_remote_post()`. All ChatCompletionsProvider subclasses use associative arrays; Anthropic uses string format which is normalized.
 - **T-L4-4: Flat-rate cost calculation** — All providers use a single `COST_PER_1K_TOKENS` constant regardless of which model is selected, making cost tracking inaccurate.
   - Files: All provider files
-  - Fix: Add per-model cost map or accept approximate costs with a disclaimer.
+  - Fix: Documented as intentionally approximate. Added docblock comment on `BaseAIProvider::calculateCost()` clarifying this is for dashboard display purposes. Per-model cost maps would add complexity and require frequent updates as providers change pricing.
 
 ### Layer 5: Models → Database
 
 - **T-L5-1: N+1 in BatchController::results()** — Loads batch history records then queries attachment data individually for each.
   - File: `includes/Http/Controllers/BatchController.php`
-  - Fix: Batch-load attachments with `get_posts(['post__in' => $ids])`.
+  - Fix: Already addressed in optimization pass (O-P1). Added `_prime_post_caches($intIds, true, true)` before the results loop.
 - **T-L5-2: Race conditions on Stats/BatchJob counters** — `Stats::increment()` and `BatchJob` counter updates read-then-write without locking, causing lost updates under concurrency.
   - Files: `includes/Models/Stats.php`, `includes/Models/BatchJob.php`
-  - Fix: Use `UPDATE ... SET count = count + 1` atomic SQL or add row-level locking.
+  - Fix: Rewrote both `Stats::increment()` and added `BatchJob::increment()` to use atomic SQL: `UPDATE table SET field = field + amount WHERE id = %d`. Updated `BatchController::process()` and `StatsTracker::recordGeneration()` to use atomic increments instead of `+=` and non-atomic cost assignment.
 - **T-L5-3: Cache invalidation bypass in saveApiKey** — `SettingsController::saveApiKey()` uses direct `$wpdb->update()` to deactivate other providers, bypassing model cache invalidation.
   - File: `includes/Http/Controllers/SettingsController.php`
-  - Fix: Use the model's update method, or manually clear the cache after direct DB updates.
+  - Fix: Added `ApiSetting::invalidateCache()` call after the direct `$wpdb->update()`. Made `Model::bumpCacheVersion()` protected (from private) so child models can expose cache invalidation.
 - **T-L5-4: LIKE query false positives** — `GeneratorController` uses `LIKE '%term%'` queries that can match unintended records.
   - File: `includes/Http/Controllers/GeneratorController.php`
-  - Fix: Use exact match or proper LIKE escaping with `$wpdb->esc_like()`.
+  - Fix: Added post-verification for the `_product_image_gallery` LIKE query. After the SQL LIKE narrows candidates, the code now parses the comma-separated gallery IDs and verifies exact match via `in_array($attachmentId, $galleryIds, true)`.
 
 ### Layer 6: Settings End-to-End
 
 - **T-L6-1: icais_rename_max_length does nothing** — The Settings UI has a slider for rename max length, but `FileRenamer` uses a hardcoded constant `IMGCRAFT_RENAME_MAX_LENGTH` instead of reading the setting.
   - Files: `resources/admin/views/Settings.vue`, `includes/Services/FileRenamer.php`
-  - Fix: Make `FileRenamer` read `Settings::get('icais_rename_max_length')`.
+  - Fix: Updated `FileRenamer::generateFilename()` to read `Settings::get('icais_rename_max_length', 120)` instead of the hardcoded constant. Renamed constant to `DEFAULT_MAX_FILENAME_LENGTH` as fallback only.
 - **T-L6-2: icais_email_on_complete is orphaned** — The setting exists in defaults and the UI but no code ever reads it to send an email.
   - Files: `includes/Services/Settings.php`, `resources/admin/views/Settings.vue`
-  - Fix: Either implement the email feature or remove the setting.
+  - Fix: Removed `icais_email_on_complete` from `Settings::$defaults` and from `SettingsController::update()` boolKeys validation. The setting was not referenced in any Vue component.
 - **T-L6-3: OpenRouter/Mistral half-disabled** — Providers are commented out in `AIFactory::$providerClasses` but still appear in the SetupWizard UI. Users can select them, enter a key, and get an "Unknown provider" error.
   - Files: `includes/Services/AI/AIFactory.php`, `resources/admin/views/SetupWizard.vue`
-  - Fix: Either enable the providers in AIFactory or remove them from the wizard UI.
+  - Fix: Intentionally kept disabled per user request. Mistral and OpenRouter are planned for next release. The SetupWizard only shows Anthropic, OpenAI, and Gemini as selectable providers.
 - **T-L6-4: Double-prefixed wp_options keys** — Settings keys like `icais_api_provider` may be stored with an additional plugin prefix in `wp_options`, making them hard to find in the database.
   - File: `includes/Services/Settings.php`
-  - Fix: Audit the actual stored key format and ensure consistency.
+  - Fix: Documented the double-prefix behavior in `Settings::get()` docblock. The stored key format is `ICAIS_TABLE_PREFIX + key` (e.g. `icais_icais_max_length`). Changing this would break backwards compatibility with existing installations. All reads and writes are consistent.
 - **T-L6-5: No model validation on save** — When a user saves a model selection, the value is not validated against `getAvailableModels()`. A tampered request could set an invalid model string.
   - File: `includes/Http/Controllers/SettingsController.php`
-  - Fix: Validate the model value against the provider's `getAvailableModels()` list before saving.
+  - Fix: Added model validation in `SettingsController::update()`. Model setting keys (`icais_openai_model`, `icais_anthropic_model`, `icais_gemini_model`) are validated against `AIFactory::getAvailableModels()`. Invalid values are silently dropped.
 
 ---
 

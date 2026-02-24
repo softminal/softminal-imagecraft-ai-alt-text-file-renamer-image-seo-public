@@ -149,7 +149,7 @@ abstract class Model
         return $ver ? (int) $ver : 1;
     }
 
-    private static function bumpCacheVersion(): void
+    protected static function bumpCacheVersion(): void
     {
         $instance = new static();
         $key = 'model_cache_ver:' . static::table();

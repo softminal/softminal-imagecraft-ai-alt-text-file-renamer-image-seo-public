@@ -24,7 +24,6 @@ class Settings
         'icais_batch_size' => 5,
         'icais_request_timeout' => 60,
         'icais_language' => 'en',
-        'icais_email_on_complete' => '0',
         'icais_auto_rename' => '0',
         'icais_rename_max_length' => 120,
         'icais_woo_auto_generate' => '0',
@@ -42,10 +41,13 @@ class Settings
 
     /**
      * Get a setting value
+     *
+     * Note: The stored wp_options key is ICAIS_TABLE_PREFIX + $key (e.g. 'icais_icais_max_length').
+     * The defaults array uses icais_ prefixed keys for namespacing. This results in a double prefix
+     * in wp_options, which is intentional for backwards compatibility with existing installations.
      */
     public static function get(string $key, $default = null)
     {
-        // Add prefix for WordPress option name
         $optionKey = ICAIS_TABLE_PREFIX . $key;
         $value = get_option($optionKey, null);
 

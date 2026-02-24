@@ -64,7 +64,7 @@ class AnthropicProvider extends BaseAIProvider
         try {
             $response = $this->makeRequest(self::ENDPOINT, $data, $headers);
             $altText = $this->extractAltText($response);
-            $tokens = $response['usage']['input_tokens'] + ($response['usage']['output_tokens'] ?? 0);
+            $tokens = ($response['usage']['input_tokens'] ?? 0) + ($response['usage']['output_tokens'] ?? 0);
             $cost = $this->calculateCost($tokens);
 
             return [

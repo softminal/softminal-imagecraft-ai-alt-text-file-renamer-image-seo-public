@@ -20,6 +20,14 @@ class ApiSetting extends Model
     ];
 
     /**
+     * Invalidate model cache (use after direct $wpdb updates that bypass Model::save()).
+     */
+    public static function invalidateCache(): void
+    {
+        static::bumpCacheVersion();
+    }
+
+    /**
      * Get active API setting for current user
      */
     public static function getActive(?int $userId = null)

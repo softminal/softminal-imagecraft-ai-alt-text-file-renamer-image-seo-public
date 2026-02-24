@@ -215,7 +215,10 @@ abstract class BaseAIProvider
     abstract protected function extractAltText(array $response): string;
 
     /**
-     * Calculate cost estimate
+     * Calculate approximate cost estimate.
+     *
+     * Uses a flat rate per token regardless of which model is selected.
+     * This is intentionally approximate for dashboard display purposes.
      */
     abstract protected function calculateCost(int $tokens): float;
 

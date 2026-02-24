@@ -79,7 +79,7 @@ class SettingsController extends Controller
 
         // Sanitize setting values based on type
         $intKeys = ['icais_max_length', 'icais_batch_size', 'icais_request_timeout', 'icais_rename_max_length'];
-        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_email_on_complete', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase'];
+        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase'];
         $textareaKeys = ['icais_custom_prompt', 'icais_woo_custom_prompt'];
 
         // Server-side caps for integer settings to prevent DoS
@@ -89,6 +89,9 @@ class SettingsController extends Controller
             'icais_max_length' => 500,
             'icais_rename_max_length' => 500,
         ];
+
+        // Model setting keys that need validation against available models
+        $modelKeys = ['icais_openai_model', 'icais_anthropic_model', 'icais_gemini_model'];
 
         foreach ($settings as $key => $value) {
             if (in_array($key, $intKeys, true)) {
@@ -102,6 +105,16 @@ class SettingsController extends Controller
                 $settings[$key] = sanitize_textarea_field(wp_unslash($value));
             } else {
                 $settings[$key] = sanitize_text_field(wp_unslash($value));
+            }
+
+            // Validate model selections against available models
+            if (in_array($key, $modelKeys, true) && !empty($settings[$key])) {
+                $providerSlug = str_replace(['icais_', '_model'], '', $key);
+                $availableModels = AIFactory::getAvailableModels($providerSlug);
+                $modelList = $availableModels[$providerSlug] ?? [];
+                if (!in_array($settings[$key], $modelList, true)) {
+                    unset($settings[$key]); // Drop invalid model value
+                }
             }
         }
 
@@ -195,6 +208,8 @@ class SettingsController extends Controller
             ['%d'],
             ['%d']
         );
+        // Invalidate model cache after direct DB update (bypasses Model::save())
+        ApiSetting::invalidateCache();
         
         // Get or create API setting
         $apiSetting = ApiSetting::where('user_id', $userId)

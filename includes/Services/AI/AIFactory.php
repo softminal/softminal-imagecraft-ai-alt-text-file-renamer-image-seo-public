@@ -24,6 +24,7 @@ class AIFactory
      */
     public static function create(string $provider, string $apiKey, int $timeout = 60, ?string $model = null): BaseAIProvider
     {
+        // Single source of truth: always read timeout from Settings, fallback to parameter
         $timeout = (int) Settings::get('icais_request_timeout', $timeout);
         $providerKey = strtolower($provider);
 

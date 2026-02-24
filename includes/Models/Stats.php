@@ -43,15 +43,33 @@ class Stats extends Model
     }
 
     /**
-     * Increment stats
+     * Atomically increment a stats counter using SQL to prevent race conditions.
      */
     public function increment(string $field, float $amount = 1): void
     {
-        if (!in_array($field, ['images_processed', 'images_accepted', 'images_rejected', 'total_cost_estimate'])) {
+        $allowed = ['images_processed', 'images_accepted', 'images_rejected', 'total_cost_estimate'];
+        if (!in_array($field, $allowed, true)) {
             return;
         }
 
-        $current = (float) ($this->attributes[$field] ?? 0);
-        $this->attributes[$field] = $current + $amount;
+        if (!isset($this->attributes['id'])) {
+            return;
+        }
+
+        global $wpdb;
+        $safeTable = esc_sql(static::table());
+        $safeField = esc_sql($field);
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Atomic increment; column from allow-list; table via esc_sql()
+        $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE `{$safeTable}` SET `{$safeField}` = `{$safeField}` + %f WHERE id = %d",
+                $amount,
+                (int) $this->attributes['id']
+            )
+        );
+
+        // Keep in-memory attribute in sync
+        $this->attributes[$field] = (float) ($this->attributes[$field] ?? 0) + $amount;
     }
 }

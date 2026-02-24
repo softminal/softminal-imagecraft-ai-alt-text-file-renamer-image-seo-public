@@ -157,11 +157,14 @@ class BatchController extends Controller
             ], 400);
         }
         
-        // Update job status
+        // Update job status (targeted update to avoid touching counter fields)
         if ($job->status === 'pending') {
             $job->status = 'processing';
             $job->started_at = current_time('mysql');
-            $job->save();
+            global $wpdb;
+            $safeTable = esc_sql(BatchJob::table());
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Targeted status update
+            $wpdb->update($safeTable, ['status' => 'processing', 'started_at' => $job->started_at], ['id' => (int) $job->id], ['%s', '%s'], ['%d']);
         }
         
         // Get batch size
@@ -202,17 +205,21 @@ class BatchController extends Controller
             }
         }
         
-        // Update job
-        $job->processed_images += $processed;
-        $job->failed_images += $failed;
-        
-        // Check if complete
+        // Atomically update counters to prevent race conditions
+        if ($processed > 0) {
+            $job->increment('processed_images', $processed);
+        }
+        if ($failed > 0) {
+            $job->increment('failed_images', $failed);
+        }
+
+        // Check if complete and update status via targeted SQL
+        // (avoid full save() which would overwrite the atomically-incremented counters)
         if ($job->processed_images + $job->failed_images >= $job->total_images) {
-            // If all images failed, mark as failed; otherwise completed
             $processed = (int) $job->processed_images;
             $failed = (int) $job->failed_images;
             $total = (int) $job->total_images;
-            
+
             if ($failed === $total && $processed === 0) {
                 $job->status = 'failed';
             } else {
@@ -220,8 +227,22 @@ class BatchController extends Controller
             }
             $job->completed_at = current_time('mysql');
         }
-        
-        $job->save();
+
+        // Only update status fields, NOT the counter fields (which were atomically incremented)
+        global $wpdb;
+        $safeTable = esc_sql(BatchJob::table());
+        $updateData = ['status' => $job->status];
+        $updateFormats = ['%s'];
+        if ($job->started_at) {
+            $updateData['started_at'] = $job->started_at;
+            $updateFormats[] = '%s';
+        }
+        if ($job->completed_at) {
+            $updateData['completed_at'] = $job->completed_at;
+            $updateFormats[] = '%s';
+        }
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Targeted update of status fields only; counter fields updated atomically via increment()
+        $wpdb->update($safeTable, $updateData, ['id' => (int) $job->id], $updateFormats, ['%d']);
         
         return $this->response([
             'success' => true,

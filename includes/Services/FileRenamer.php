@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 class FileRenamer
 {
-    private const MAX_FILENAME_LENGTH = 120;
+    private const DEFAULT_MAX_FILENAME_LENGTH = 120;
 
     /**
      * Build a safe slug-like filename (no extension).
@@ -19,7 +19,7 @@ class FileRenamer
             $altText = 'image';
         }
 
-        $maxLength = $maxLength ?? self::MAX_FILENAME_LENGTH;
+        $maxLength = $maxLength ?? (int) Settings::get('icais_rename_max_length', self::DEFAULT_MAX_FILENAME_LENGTH);
 
         $text = strtolower($altText);
 

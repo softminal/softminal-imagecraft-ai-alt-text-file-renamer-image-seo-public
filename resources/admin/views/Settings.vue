@@ -14,8 +14,6 @@
           <option value="anthropic">{{ $t('Anthropic Claude') }}</option>
           <option value="openai">{{ $t('OpenAI GPT-4') }}</option>
           <option value="gemini">{{ $t('Google Gemini') }}</option>
-          <!-- <option value="mistral">{{ $t('Mistral AI (Pixtral)') }}</option>
-          <option value="openrouter">{{ $t('OpenRouter') }}</option> -->
         </select>
       </div>
 
@@ -34,20 +32,6 @@
         </p>
       </div>
 
-      <div v-if="settings.icais_api_provider === 'openrouter'" class="mb-4">
-        <label class="block text-sm font-medium mb-2">{{ $t('OpenRouter Model') }}</label>
-        <select
-          v-model="settings.icais_openrouter_model"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="anthropic/claude-3.5-sonnet">Anthropic Claude 3.5 Sonnet</option>
-          <option value="openai/gpt-4o">OpenAI GPT-4o</option>
-          <option value="google/gemini-2.0-flash-exp">Google Gemini 2.0 Flash</option>
-          <option value="mistralai/pixtral-large-latest">Mistral Pixtral Large</option>
-          <option value="meta-llama/llama-3.2-90b-vision-instruct">Meta Llama 3.2 90B Vision</option>
-          <option value="qwen/qwen-2.5-vl-72b-instruct">Qwen 2.5 VL 72B</option>
-        </select>
-      </div>
 
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">{{ $t('API Key') }}</label>
@@ -437,16 +421,13 @@ const modelSettingKey = computed(() => {
 })
 
 const showModelSelector = computed(() => {
-  const provider = settings.value.icais_api_provider
-  return currentModels.value.length > 1 && provider !== 'openrouter'
+  return currentModels.value.length > 1
 })
 
 const providerDocs = {
   anthropic: { url: 'https://console.anthropic.com/settings/keys', label: 'Anthropic Console', pricingUrl: 'https://www.anthropic.com/pricing#702702' },
   openai: { url: 'https://platform.openai.com/api-keys', label: 'OpenAI Platform', pricingUrl: 'https://openai.com/api/pricing/' },
   gemini: { url: 'https://aistudio.google.com/apikey', label: 'Google AI Studio', pricingUrl: 'https://ai.google.dev/pricing' },
-  mistral: { url: 'https://console.mistral.ai/api-keys', label: 'Mistral Console', pricingUrl: 'https://mistral.ai/products/pricing/' },
-  openrouter: { url: 'https://openrouter.ai/keys', label: 'OpenRouter', pricingUrl: 'https://openrouter.ai/models' },
 }
 
 const apiDocsUrl = computed(() => {
@@ -498,6 +479,8 @@ const saveSettings = async () => {
     if (result.success) {
       notification.success($t('Settings saved successfully'))
       clearSettingsCache()
+    } else {
+      notification.error(result.message || $t('Failed to save settings'))
     }
   } catch (error) {
     notification.error($t('Failed to save settings'))
@@ -522,6 +505,8 @@ const saveApiKey = async () => {
       apiKey.value = ''
       clearSettingsCache()
       loadSettings()
+    } else {
+      notification.error(result.message || $t('Failed to save API key'))
     }
   } catch (error) {
     notification.error($t('Failed to save API key'))
