@@ -8,17 +8,17 @@ Stable tag: 1.0.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Generate SEO-aware and WooCommerce-context-aware alt text using your own API key from Anthropic, OpenAI, Google Gemini, Mistral AI, or OpenRouter.
+Generate SEO-aware and WooCommerce-context-aware alt text using your own API key from Anthropic, OpenAI, or Google Gemini.
 
 == Description ==
 
-ImageCraft is a Bring Your Own Key (BYOK) plugin that generates alt text for WordPress images using Anthropic Claude, OpenAI GPT-4, Google Gemini, Mistral AI Pixtral, or OpenRouter (100+ models). You provide your own API key and pay only for direct API usage — no middleman service, no subscriptions, no per-image credits.
+ImageCraft is a Bring Your Own Key (BYOK) plugin that generates alt text for WordPress images using Anthropic Claude, OpenAI GPT-4, or Google Gemini. You provide your own API key and pay only for direct API usage — no middleman service, no subscriptions, no per-image credits.
 
 **What makes this plugin different?**
 
 Most alt text plugins in the directory either route requests through their own paid service or support only a single AI provider. ImageCraft takes a different approach by combining multi-provider BYOK with SEO and WooCommerce awareness:
 
-* **5 AI providers, your choice** — Switch between Anthropic Claude, OpenAI GPT-4, Google Gemini, Mistral AI Pixtral, and OpenRouter (100+ models) using your own API keys. Compare quality and cost, and pick what works for your site.
+* **3 AI providers, your choice** — Switch between Anthropic Claude, OpenAI GPT-4, and Google Gemini using your own API keys. Compare quality and cost, and pick what works for your site.
 * **SEO keyphrase-aware generation** — Integrates with Yoast SEO, Rank Math, All in One SEO, and SEOPress to pull the focus keyphrase from your posts and include it in the generated alt text. This means your alt text aligns with your existing SEO strategy without manual effort.
 * **WooCommerce product-context generation** — Sends product name, SKU, categories, tags, and price as context to the AI, so generated alt text is relevant to the product — not just a generic image description. Includes 3 dedicated WooCommerce tone modes (Product SEO, Product Descriptive, Product Lifestyle) and a custom prompt option.
 * **SEO image audit** — Scans your media library and scores alt text quality. Detects missing alt text, generic/placeholder text (e.g. "image", "IMG_1234"), filename-based alt text, and text that exceeds recommended length.
@@ -44,8 +44,6 @@ You pay only for API usage to your chosen provider:
 * Anthropic Claude: ~$0.0008 per image
 * OpenAI GPT-4: ~$0.01 per image
 * Google Gemini: ~$0.001 per image
-* Mistral AI Pixtral: ~$0.002 per image
-* OpenRouter: varies by model
 
 **Privacy & Security**
 
@@ -84,21 +82,6 @@ Used to generate alt text via the Google Gemini API.
 * [Terms of Service](https://ai.google.dev/gemini-api/terms)
 * [Privacy Policy](https://policies.google.com/privacy)
 
-= Mistral AI (Pixtral) =
-
-Used to generate alt text via the Mistral AI chat completions API.
-
-* Endpoint: `https://api.mistral.ai/v1/chat/completions`
-* [Terms of Service](https://mistral.ai/terms/)
-* [Privacy Policy](https://mistral.ai/terms/#privacy-policy)
-
-= OpenRouter =
-
-Used to generate alt text via the OpenRouter API, which routes requests to your chosen AI model.
-
-* Endpoint: `https://openrouter.ai/api/v1/chat/completions`
-* [Terms of Service](https://openrouter.ai/terms)
-* [Privacy Policy](https://openrouter.ai/privacy)
 
 == Source Code ==
 
@@ -124,11 +107,11 @@ To build from source:
 
 = How does pricing work? =
 
-The plugin itself has no premium tiers or subscriptions. You pay only for the API usage to your chosen provider (Anthropic, OpenAI, Google Gemini, Mistral AI, or OpenRouter). See the "Typical API Costs" section above for estimates.
+The plugin itself has no premium tiers or subscriptions. You pay only for the API usage to your chosen provider (Anthropic, OpenAI, or Google Gemini). See the "Typical API Costs" section above for estimates.
 
 = Which AI provider should I choose? =
 
-Anthropic Claude offers a good balance of quality and cost. OpenAI, Google Gemini, and Mistral AI are also well-supported options. OpenRouter gives you access to 100+ models through a single API key. You can test each provider using the built-in connection test.
+Anthropic Claude offers a good balance of quality and cost. OpenAI and Google Gemini are also well-supported options. You can test each provider using the built-in connection test.
 
 = Is my API key safe? =
 
@@ -154,7 +137,7 @@ Yes. The plugin supports 30+ languages including Spanish, French, German, Japane
 
 = 1.0.0 =
 * Initial release
-* Anthropic Claude, OpenAI GPT-4, Google Gemini, Mistral AI Pixtral, and OpenRouter support
+* Anthropic Claude, OpenAI GPT-4, and Google Gemini support
 * Media library scanner with advanced filters
 * Batch processing with progress tracking
 * Auto-generate on upload
