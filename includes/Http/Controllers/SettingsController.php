@@ -217,11 +217,14 @@ class SettingsController extends Controller
             ->first();
         
         if (!$apiSetting) {
-            $apiSetting = ApiSetting::create([
-                'user_id' => $userId,
-                'api_provider' => $provider,
-                'is_active' => 1
-            ]);
+            // Don't use create() here — it would INSERT immediately without
+            // the required NOT NULL fields (api_key_encrypted, encryption_iv),
+            // which fails on MySQL strict mode. Instead, build the model in
+            // memory and let the single save() below persist all fields at once.
+            $apiSetting = new ApiSetting();
+            $apiSetting->user_id = $userId;
+            $apiSetting->api_provider = $provider;
+            $apiSetting->is_active = 1;
         } else {
             // Verify ownership (defense-in-depth; query already scopes by user_id)
             if ((int) $apiSetting->user_id !== $userId) {

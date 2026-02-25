@@ -43,7 +43,11 @@ class AIFactory
     }
 
     /**
-     * Get provider for current user
+     * Get provider for current user.
+     *
+     * Returns null when the provider cannot be resolved. When WP_DEBUG is
+     * enabled the specific failure reason is written to the error log so
+     * site admins can diagnose "API key not configured" issues.
      */
     public static function getProviderForUser(?int $userId = null): ?BaseAIProvider
     {
@@ -54,10 +58,18 @@ class AIFactory
         $apiSetting = ApiSetting::getActive($userId);
 
         if (!$apiSetting) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+                error_log('ImageCraft: No active API setting found for user ' . $userId);
+            }
             return null;
         }
 
-        if (is_null($apiSetting->api_key_encrypted)) {
+        if (is_null($apiSetting->api_key_encrypted) || $apiSetting->api_key_encrypted === '') {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+                error_log('ImageCraft: API setting found (id=' . ($apiSetting->id ?? '?') . ') but api_key_encrypted is empty for user ' . $userId);
+            }
             return null;
         }
 
@@ -66,6 +78,10 @@ class AIFactory
 
         $apiKey = $apiSetting->getApiKey();
         if ($apiKey === null) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+                error_log('ImageCraft: Decryption failed for API setting id=' . ($apiSetting->id ?? '?') . ', provider=' . $provider . ', user=' . $userId);
+            }
             return null;
         }
 

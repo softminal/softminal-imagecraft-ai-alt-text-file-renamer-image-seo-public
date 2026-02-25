@@ -581,6 +581,11 @@ abstract class Model
         return null;
     }
 
+    public function __isset($key)
+    {
+        return array_key_exists($key, $this->attributes) || array_key_exists($key, $this->relations);
+    }
+
     public function __set($key, $value)
     {
         if (in_array($key, $this->fillable, true)) {
