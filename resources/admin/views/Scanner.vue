@@ -41,6 +41,18 @@
           >
             {{ $t('Has Alt Text') }}
           </button>
+          <button
+            @click="filter = 'generic'; loadImages()"
+            :class="['px-4 py-2 rounded-lg', filter === 'generic' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700']"
+          >
+            {{ $t('Generic / Placeholder') }}
+          </button>
+          <button
+            @click="filter = 'too_long'; loadImages()"
+            :class="['px-4 py-2 rounded-lg', filter === 'too_long' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700']"
+          >
+            {{ $t('Too Long') }}<template v-if="scanStats.max_length"> (&gt;{{ scanStats.max_length }})</template>
+          </button>
         </div>
 
         <div class="flex gap-2">
@@ -201,7 +213,9 @@
           :key="image.id"
           @click="toggleSelect(image.id)"
           :class="['image-card p-2 rounded-lg border-2 cursor-pointer transition',
-                   selectedImages.includes(image.id) ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
+                   selectedImages.includes(image.id) ? 'border-blue-600 bg-blue-50'
+                   : isAltTooLong(image) ? 'border-orange-400'
+                   : 'border-gray-200']"
         >
           <div class="relative mb-2">
             <div
@@ -292,12 +306,13 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 
 const router = useRouter()
+const route = useRoute()
 const images = ref([])
 const scanStats = ref({})
 const pagination = ref({})
@@ -316,6 +331,10 @@ const bulkSelectCount = ref(null)
 const allSelected = computed(() => {
   return images.value.length > 0 && selectedImages.value.length === images.value.length
 })
+
+const isAltTooLong = (image) => {
+  return image.alt_text && scanStats.value.max_length && image.alt_text.length > scanStats.value.max_length
+}
 
 const buildFilterParams = () => {
   let params = `filter=${filter.value}`
@@ -500,6 +519,10 @@ const renameSelectedImages = async () => {
 }
 
 onMounted(() => {
+  const queryFilter = route.query.filter
+  if (queryFilter && ['missing', 'has_alt', 'generic', 'too_long'].includes(queryFilter)) {
+    filter.value = queryFilter
+  }
   loadImages()
 })
 </script>

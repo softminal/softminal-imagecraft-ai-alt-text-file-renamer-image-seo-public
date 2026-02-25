@@ -34,7 +34,7 @@ class ScannerController extends Controller
                 ['key' => '_wp_attachment_image_alt', 'compare' => 'NOT EXISTS'],
                 ['key' => '_wp_attachment_image_alt', 'value' => '', 'compare' => '='],
             ];
-        } elseif ($filter === 'has_alt') {
+        } elseif ($filter === 'has_alt' || $filter === 'generic' || $filter === 'too_long') {
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
             $args['meta_query'] = [
                 ['key' => '_wp_attachment_image_alt', 'compare' => 'EXISTS'],
@@ -65,10 +65,12 @@ class ScannerController extends Controller
         $page = max(1, (int) ($params['page'] ?? 1));
         $perPage = min(max(1, (int) ($params['per_page'] ?? 50)), 100);
         $minSize = (int) ($params['min_size'] ?? 0);
+        $filter = sanitize_text_field($params['filter'] ?? 'all');
+        $needsPhpFilter = $minSize > 0 || $filter === 'generic' || $filter === 'too_long';
 
-        // When min_size filter is active, we need PHP-level filtering
-        // so fetch all matching IDs first, filter by size, then paginate manually
-        if ($minSize > 0) {
+        // When min_size/generic/too_long filter is active, we need PHP-level filtering
+        // so fetch all matching IDs first, filter, then paginate manually
+        if ($needsPhpFilter) {
             $allArgs = $this->buildQueryArgs($params, [
                 'posts_per_page' => -1,
                 'fields' => 'ids',
@@ -76,15 +78,38 @@ class ScannerController extends Controller
             $allQuery = new \WP_Query($allArgs);
             $allIds = $allQuery->posts;
 
-            // Filter by file size
-            $minBytes = $minSize * 1024;
-            $filteredIds = [];
-            foreach ($allIds as $id) {
-                $filePath = get_attached_file($id);
-                if ($filePath && file_exists($filePath) && filesize($filePath) >= $minBytes) {
-                    $filteredIds[] = $id;
+            // PHP-level filtering for generic/too_long alt text
+            if ($filter === 'generic' || $filter === 'too_long') {
+                $maxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 125);
+                $qualityFiltered = [];
+                foreach ($allIds as $id) {
+                    $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
+                    if (empty($alt)) {
+                        continue;
+                    }
+                    if ($filter === 'generic' && AltTextHelper::isGeneric($alt)) {
+                        $qualityFiltered[] = $id;
+                    } elseif ($filter === 'too_long' && mb_strlen($alt) > $maxLength) {
+                        $qualityFiltered[] = $id;
+                    }
                 }
+                $allIds = $qualityFiltered;
             }
+
+            // Filter by file size
+            if ($minSize > 0) {
+                $minBytes = $minSize * 1024;
+                $sizeFiltered = [];
+                foreach ($allIds as $id) {
+                    $filePath = get_attached_file($id);
+                    if ($filePath && file_exists($filePath) && filesize($filePath) >= $minBytes) {
+                        $sizeFiltered[] = $id;
+                    }
+                }
+                $allIds = $sizeFiltered;
+            }
+
+            $filteredIds = $allIds;
 
             $totalFiltered = count($filteredIds);
             $totalPages = $totalFiltered > 0 ? (int) ceil($totalFiltered / $perPage) : 1;
@@ -164,7 +189,8 @@ class ScannerController extends Controller
                 'total_images' => $totalImages,
                 'missing_alt' => $missingAlt,
                 'has_alt' => $hasAlt,
-                'missing_percentage' => $totalImages > 0 ? round(($missingAlt / $totalImages) * 100, 2) : 0
+                'missing_percentage' => $totalImages > 0 ? round(($missingAlt / $totalImages) * 100, 2) : 0,
+                'max_length' => (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 150),
             ]
         ]);
     }

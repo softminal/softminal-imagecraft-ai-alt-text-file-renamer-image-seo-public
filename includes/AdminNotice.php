@@ -55,15 +55,15 @@ class AdminNotice
         ?>
         <div class="notice notice-info is-dismissible icais-review-notice">
             <p>
-                <strong><?php echo esc_html__("You've generated over 8 alt texts with ImageCraft — that's awesome!", 'flavor'); ?></strong><br>
-                <?php echo esc_html__('If you find the plugin helpful, we\'d love a quick review on WordPress.org. It helps us grow and keep improving!', 'flavor'); ?>
+                <strong><?php echo esc_html__("You've generated over 8 alt texts with ImageCraft — that's awesome!", 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?></strong><br>
+                <?php echo esc_html__('If you find the plugin helpful, we\'d love a quick review on WordPress.org. It helps us grow and keep improving!', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
             </p>
             <p>
                 <a href="<?php echo esc_url($reviewUrl); ?>" target="_blank" rel="noopener noreferrer" class="button button-primary">
-                    &#11088; <?php echo esc_html__('Leave a Review', 'flavor'); ?>
+                    &#11088; <?php echo esc_html__('Leave a Review', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
                 </a>
                 <a href="#" class="button button-link icais-dismiss-review" style="margin-left: 10px;">
-                    <?php echo esc_html__('Maybe Later', 'flavor'); ?>
+                    <?php echo esc_html__('Maybe Later', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
                 </a>
             </p>
         </div>

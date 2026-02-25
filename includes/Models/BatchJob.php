@@ -59,13 +59,12 @@ class BatchJob extends Model
         $safeTable = esc_sql(static::table());
         $safeField = esc_sql($field);
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Atomic increment; column from allow-list; table via esc_sql()
+        // Build SQL with safe identifiers first, then prepare value placeholders.
+        $sql = sprintf('UPDATE `%s` SET `%s` = `%s` + %%d WHERE id = %%d', $safeTable, $safeField, $safeField);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic increment; column from allow-list; table via esc_sql()
         $wpdb->query(
-            $wpdb->prepare(
-                "UPDATE `{$safeTable}` SET `{$safeField}` = `{$safeField}` + %d WHERE id = %d",
-                $amount,
-                (int) $this->attributes['id']
-            )
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Identifiers escaped via esc_sql(); values via $wpdb->prepare()
+            $wpdb->prepare($sql, $amount, (int) $this->attributes['id'])
         );
 
         // Keep in-memory attribute in sync

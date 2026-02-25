@@ -78,6 +78,7 @@ class Enqueue {
                 'adminUrl' => admin_url(),
                 'nonce' => wp_create_nonce('wp_rest'),
                 'debug' => true,
+                'pluginUrl' => ICAIS_URL,
                 'i18n' => TranslationStrings::get(),
             ]);
         } else {
@@ -91,6 +92,7 @@ class Enqueue {
                     'adminUrl' => admin_url(),
                     'nonce' => wp_create_nonce('wp_rest'),
                     'debug' => false,
+                    'pluginUrl' => ICAIS_URL,
                     'i18n' => TranslationStrings::get(),
                 ]);
             }

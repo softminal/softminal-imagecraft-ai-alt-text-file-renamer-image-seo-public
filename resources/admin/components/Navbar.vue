@@ -2,11 +2,9 @@
     <nav class="main_nav_soft_carousel bg-white border-b border-gray-200 px-4 py-2.5 left-0 right-0 top-0 z-50">
         <div class="flex flex-wrap justify-between items-center">
             <!-- Logo Section -->
-            <div class="flex items-center">
-                <span class="self-center text-xl font-semibold whitespace-nowrap text-blue-500">
-                    ImageCraft
-                </span>
-            </div>
+            <router-link to="/" class="flex items-center bg-inherit outline-none focus:outline-none focus:shadow-none">
+                <img :src="asset('imagecraft-logo.png')" alt="ImageCraft" class="h-16" />
+            </router-link>
 
             <!-- Navigation Menu -->
             <div v-if="menuItems && menuItems.length > 0" class="flex items-center gap-1">
@@ -14,7 +12,7 @@
                     v-for="(item, index) in menuItems"
                     :key="index"
                     :to="item.path"
-                    class="px-4 py-2 text-sm outline-none focus:shadow-none font-medium text-gray-700 rounded-lg hover:bg-blue-100 transition-colors"
+                    class="nav-link px-4 py-2 text-sm outline-none focus:shadow-none font-medium text-gray-700 rounded-lg hover:bg-blue-100 transition-colors"
                     :class="{ 'bg-blue-100 text-blue-700': isActive(item.path) }"
                 >
                     <span v-if="item.icon" class="mr-1">{{ item.icon }}</span>
@@ -32,6 +30,9 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Api from '../services/Api'
+import { useAsset } from '../composables/useAsset'
+
+const { asset } = useAsset()
 
 const route = useRoute()
 
@@ -61,7 +62,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.router-link-active {
+.nav-link.router-link-active {
     @apply bg-blue-100 text-blue-700;
 }
 

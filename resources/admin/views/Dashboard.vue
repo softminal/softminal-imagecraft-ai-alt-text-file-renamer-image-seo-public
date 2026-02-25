@@ -72,64 +72,27 @@
               <div class="text-2xl font-bold text-green-700">{{ audit.good }}</div>
               <div class="text-xs text-green-600">{{ $t('Good') }}</div>
             </div>
-            <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+            <router-link
+              to="/scanner?filter=missing"
+              class="bg-red-50 border border-red-200 rounded-lg p-3 text-center hover:shadow-md transition cursor-pointer block"
+            >
               <div class="text-2xl font-bold text-red-700">{{ audit.missing }}</div>
               <div class="text-xs text-red-600">{{ $t('Missing Alt Text') }}</div>
-            </div>
-            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
+            </router-link>
+            <router-link
+              to="/scanner?filter=generic"
+              class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center hover:shadow-md transition cursor-pointer block"
+            >
               <div class="text-2xl font-bold text-yellow-700">{{ audit.generic }}</div>
               <div class="text-xs text-yellow-600">{{ $t('Generic / Placeholder') }}</div>
-            </div>
-            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 text-center">
+            </router-link>
+            <router-link
+              to="/scanner?filter=too_long"
+              class="bg-orange-50 border border-orange-200 rounded-lg p-3 text-center hover:shadow-md transition cursor-pointer block"
+            >
               <div class="text-2xl font-bold text-orange-700">{{ audit.too_long }}</div>
               <div class="text-xs text-orange-600">{{ $t('Too Long') }} (&gt;{{ audit.max_length }})</div>
-            </div>
-          </div>
-
-          <!-- Generic Examples -->
-          <div v-if="audit.generic_examples.length" class="mt-4">
-            <div class="text-sm font-medium text-gray-700 mb-2">{{ $t('Generic alt text found:') }}</div>
-            <div class="space-y-2">
-              <div
-                v-for="item in audit.generic_examples"
-                :key="item.id"
-                class="flex items-center gap-3 p-2 bg-yellow-50 border border-yellow-100 rounded-lg text-sm"
-              >
-                <img
-                  v-if="item.thumbnail"
-                  :src="item.thumbnail"
-                  class="w-10 h-10 object-cover rounded"
-                  :alt="item.filename"
-                />
-                <div class="flex-1 min-w-0">
-                  <div class="text-gray-600 truncate">{{ item.filename }}</div>
-                  <div class="text-yellow-700 font-mono truncate">"{{ item.alt_text }}"</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Too Long Examples -->
-          <div v-if="audit.too_long_examples.length" class="mt-4">
-            <div class="text-sm font-medium text-gray-700 mb-2">{{ $t('Alt text exceeding %s characters:', audit.max_length) }}</div>
-            <div class="space-y-2">
-              <div
-                v-for="item in audit.too_long_examples"
-                :key="item.id"
-                class="flex items-center gap-3 p-2 bg-orange-50 border border-orange-100 rounded-lg text-sm"
-              >
-                <img
-                  v-if="item.thumbnail"
-                  :src="item.thumbnail"
-                  class="w-10 h-10 object-cover rounded"
-                  :alt="item.filename"
-                />
-                <div class="flex-1 min-w-0">
-                  <div class="text-gray-600 truncate">{{ item.filename }} <span class="text-orange-600">({{ $t('%s chars', item.length) }})</span></div>
-                  <div class="text-orange-700 font-mono truncate">"{{ item.alt_text }}"</div>
-                </div>
-              </div>
-            </div>
+            </router-link>
           </div>
         </div>
       </div>

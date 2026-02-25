@@ -40,6 +40,21 @@ abstract class ChatCompletionsProvider extends BaseAIProvider
         return $this->model;
     }
 
+    /**
+     * Get the correct max tokens parameter name for the current model.
+     *
+     * OpenAI GPT-5+ and o-series models require 'max_completion_tokens'
+     * instead of the legacy 'max_tokens' parameter.
+     */
+    protected function getMaxTokensParam(): string
+    {
+        if (preg_match('/^(gpt-5|o[1-9])/', $this->model)) {
+            return 'max_completion_tokens';
+        }
+
+        return 'max_tokens';
+    }
+
     public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
     {
         $prompt = $this->getPrompt($tone, $context);
@@ -64,7 +79,7 @@ abstract class ChatCompletionsProvider extends BaseAIProvider
                     ],
                 ],
             ],
-            'max_tokens' => 300,
+            $this->getMaxTokensParam() => 300,
         ];
 
         try {
@@ -97,7 +112,7 @@ abstract class ChatCompletionsProvider extends BaseAIProvider
                     'content' => 'Say "OK"',
                 ],
             ],
-            'max_tokens' => 10,
+            $this->getMaxTokensParam() => 10,
         ];
 
         try {

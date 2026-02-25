@@ -70,12 +70,11 @@ class StatsController extends Controller
         // Count history statuses with a single grouped query instead of loading all rows
         global $wpdb;
         $historyTable = esc_sql(History::table());
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Aggregation query; table escaped via esc_sql()
+        $sql = sprintf('SELECT status, COUNT(*) AS cnt FROM `%s` WHERE user_id = %%d GROUP BY status', $historyTable);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregation query; table escaped via esc_sql()
         $statusCounts = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT status, COUNT(*) AS cnt FROM `{$historyTable}` WHERE user_id = %d GROUP BY status",
-                $userId
-            ),
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Identifier escaped via esc_sql(); values via $wpdb->prepare()
+            $wpdb->prepare($sql, $userId),
             ARRAY_A
         );
 
@@ -158,7 +157,7 @@ class StatsController extends Controller
      */
     public function audit($request)
     {
-        $maxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 125);
+        $maxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length');
 
         // Get all image IDs
         $allQuery = new \WP_Query([
@@ -177,9 +176,6 @@ class StatsController extends Controller
         $tooLong = 0;
         $good = 0;
 
-        $genericExamples = [];
-        $tooLongExamples = [];
-
         foreach ($imageIds as $id) {
             $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
 
@@ -188,38 +184,19 @@ class StatsController extends Controller
                 continue;
             }
 
-            $issues = [];
+            $hasIssue = false;
 
             if (AltTextHelper::isGeneric($alt)) {
                 $generic++;
-                $issues[] = 'generic';
-                if (count($genericExamples) < 5) {
-                    $thumbnail = wp_get_attachment_image_src($id, 'thumbnail');
-                    $genericExamples[] = [
-                        'id' => $id,
-                        'alt_text' => $alt,
-                        'filename' => basename(get_attached_file($id)),
-                        'thumbnail' => $thumbnail ? $thumbnail[0] : null,
-                    ];
-                }
+                $hasIssue = true;
             }
 
             if (mb_strlen($alt) > $maxLength) {
                 $tooLong++;
-                $issues[] = 'too_long';
-                if (count($tooLongExamples) < 5) {
-                    $thumbnail = wp_get_attachment_image_src($id, 'thumbnail');
-                    $tooLongExamples[] = [
-                        'id' => $id,
-                        'alt_text' => $alt,
-                        'length' => mb_strlen($alt),
-                        'filename' => basename(get_attached_file($id)),
-                        'thumbnail' => $thumbnail ? $thumbnail[0] : null,
-                    ];
-                }
+                $hasIssue = true;
             }
 
-            if (empty($issues)) {
+            if (!$hasIssue) {
                 $good++;
             }
         }
@@ -236,8 +213,6 @@ class StatsController extends Controller
                 'too_long' => $tooLong,
                 'score' => $score,
                 'max_length' => $maxLength,
-                'generic_examples' => $genericExamples,
-                'too_long_examples' => $tooLongExamples,
             ],
         ]);
     }
