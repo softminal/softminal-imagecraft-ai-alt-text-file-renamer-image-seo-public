@@ -58,44 +58,32 @@ class AltTextHelper
     }
 
     /**
-     * Get total image count and missing-alt count in a single helper.
+     * Get total image count and missing-alt count in a single query.
+     *
+     * Uses a single SQL round-trip with LEFT JOIN + SUM(CASE) instead of
+     * two separate WP_Query calls.
      *
      * @return array{total: int, missing: int}
      */
     public static function getImageCounts(): array
     {
-        $totalQuery = new \WP_Query([
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-        ]);
+        global $wpdb;
 
-        $missingQuery = new \WP_Query([
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Count-only query for images missing alt text
-            'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'compare' => 'NOT EXISTS',
-                ],
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'value' => '',
-                    'compare' => '=',
-                ],
-            ],
-        ]);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Lightweight aggregation; not worth caching for a single page load
+        $row = $wpdb->get_row(
+            "SELECT COUNT(*) AS total,
+                    SUM(CASE WHEN pm.meta_value IS NULL OR pm.meta_value = '' THEN 1 ELSE 0 END) AS missing
+             FROM {$wpdb->posts} p
+             LEFT JOIN {$wpdb->postmeta} pm
+                    ON pm.post_id = p.ID AND pm.meta_key = '_wp_attachment_image_alt'
+             WHERE p.post_type = 'attachment'
+               AND p.post_status = 'inherit'
+               AND p.post_mime_type LIKE 'image/%'"
+        );
 
         return [
-            'total' => (int) $totalQuery->found_posts,
-            'missing' => (int) $missingQuery->found_posts,
+            'total' => (int) ($row->total ?? 0),
+            'missing' => (int) ($row->missing ?? 0),
         ];
     }
 }

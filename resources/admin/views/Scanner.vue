@@ -24,31 +24,31 @@
       <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
         <div class="flex gap-2">
           <button
-            @click="filter = 'all'; loadImages()"
+            @click="filter = 'all'; debouncedLoadImages()"
             :class="['px-4 py-2 rounded-lg', filter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700']"
           >
             {{ $t('All Images') }}
           </button>
           <button
-            @click="filter = 'missing'; loadImages()"
+            @click="filter = 'missing'; debouncedLoadImages()"
             :class="['px-4 py-2 rounded-lg', filter === 'missing' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700']"
           >
             {{ $t('Missing Alt Text') }}
           </button>
           <button
-            @click="filter = 'has_alt'; loadImages()"
+            @click="filter = 'has_alt'; debouncedLoadImages()"
             :class="['px-4 py-2 rounded-lg', filter === 'has_alt' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700']"
           >
             {{ $t('Has Alt Text') }}
           </button>
           <button
-            @click="filter = 'generic'; loadImages()"
+            @click="filter = 'generic'; debouncedLoadImages()"
             :class="['px-4 py-2 rounded-lg', filter === 'generic' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700']"
           >
             {{ $t('Generic / Placeholder') }}
           </button>
           <button
-            @click="filter = 'too_long'; loadImages()"
+            @click="filter = 'too_long'; debouncedLoadImages()"
             :class="['px-4 py-2 rounded-lg', filter === 'too_long' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700']"
           >
             {{ $t('Too Long') }}<template v-if="scanStats.max_length"> (&gt;{{ scanStats.max_length }})</template>
@@ -208,75 +208,17 @@
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
-        <div
+        <ImageCard
           v-for="image in images"
           :key="image.id"
-          @click="toggleSelect(image.id)"
-          :class="['image-card p-2 rounded-lg border-2 cursor-pointer transition',
-                   selectedImages.includes(image.id) ? 'border-blue-600 bg-blue-50'
-                   : isAltTooLong(image) ? 'border-orange-400'
-                   : 'border-gray-200']"
-        >
-          <div class="relative mb-2">
-            <div
-              class="cursor-pointer"
-              @click.stop="openImageModal(image)"
-            >
-              <img
-                :src="image.thumbnail || image.url"
-                :alt="image.alt_text || image.filename"
-                class="w-full h-24 object-cover rounded"
-              />
-            </div>
-            <input
-              type="checkbox"
-              :checked="selectedImages.includes(image.id)"
-              @click.stop="toggleSelect(image.id)"
-              class="absolute top-1 right-1"
-            />
-          </div>
-          <div class="text-xs truncate" :title="image.filename">
-            {{ image.filename }}
-          </div>
-          <div class="text-xs mt-1" :class="image.has_alt ? 'text-green-600' : 'text-orange-600'">
-            {{ image.has_alt ? $t('Has alt') : $t('Missing') }}
-          </div>
-          <div
-            v-if="image.alt_text"
-            class="text-xs mt-1 text-gray-600 line-clamp-2 break-words"
-            :title="image.alt_text"
-          >
-            {{ image.alt_text }}
-          </div>
-          <div v-else class="text-xs mt-1 text-gray-400 italic">
-            {{ $t('No alt text') }}
-          </div>
-          <div v-if="image.has_alt && renamingId !== image.id" class="mt-2">
-            <button
-              @click.stop="renameFile(image.id)"
-              class="text-xs flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
-            >
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-              {{ $t('Rename') }}
-            </button>
-          </div>
-          <div v-if="renamingId === image.id" class="mt-2">
-            <span class="text-xs text-gray-500 flex items-center gap-1">
-              <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-              </svg>
-              {{ $t('Renaming...') }}
-            </span>
-          </div>
-          <div v-if="image.new_filename" class="mt-1">
-            <span class="text-xs text-green-600">
-              ✓ {{ image.new_filename }}
-            </span>
-          </div>
-        </div>
+          :image="image"
+          :selected="selectedImages.includes(image.id)"
+          :renaming="renamingId === image.id"
+          :alt-too-long="isAltTooLong(image)"
+          @toggle-select="toggleSelect"
+          @open-modal="openImageModal"
+          @rename="renameFile"
+        />
       </div>
 
       <!-- Pagination -->
@@ -305,11 +247,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
+import { debounce } from '../utils/debounce'
+import ImageCard from '../components/Scanner/ImageCard.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -327,6 +271,8 @@ const minSize = ref(0)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 
+// AbortController for cancelling stale requests
+let loadAbortController = null
 
 const allSelected = computed(() => {
   return images.value.length > 0 && selectedImages.value.length === images.value.length
@@ -345,20 +291,33 @@ const buildFilterParams = () => {
 }
 
 const loadImages = async (page = 1) => {
+  // Abort any in-flight request before starting a new one
+  if (loadAbortController) {
+    loadAbortController.abort()
+  }
+  loadAbortController = new AbortController()
+
   loading.value = true
   try {
-    const result = await Api.get(`/scanner/scan?${buildFilterParams()}&page=${page}&per_page=48`)
+    const result = await Api.get(
+      `/scanner/scan?${buildFilterParams()}&page=${page}&per_page=48`,
+      { signal: loadAbortController.signal }
+    )
     if (result.success) {
       images.value = result.images
       scanStats.value = result.stats
       pagination.value = result.pagination
     }
   } catch (error) {
+    if (error.name === 'AbortError') return
     notification.error($t('Failed to load images'))
   } finally {
     loading.value = false
   }
 }
+
+// Debounced version for rapid filter clicks
+const debouncedLoadImages = debounce(() => loadImages(), 300)
 
 const loadPage = (page) => {
   if (page >= 1 && page <= pagination.value.total_pages) {
@@ -524,5 +483,11 @@ onMounted(() => {
     filter.value = queryFilter
   }
   loadImages()
+})
+
+onUnmounted(() => {
+  if (loadAbortController) {
+    loadAbortController.abort()
+  }
 })
 </script>

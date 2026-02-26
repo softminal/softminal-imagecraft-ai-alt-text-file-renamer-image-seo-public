@@ -29,7 +29,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import Api from '../services/Api'
+import { getSettingsCache, getSettings } from '../router'
 import { useAsset } from '../composables/useAsset'
 
 const { asset } = useAsset()
@@ -51,8 +51,10 @@ const isActive = (path) => {
 
 onMounted(async () => {
     try {
-        const wooStats = await Api.get('/woocommerce/stats')
-        if (!wooStats.is_active) {
+        // Use cached settings from router guard (already fetched) or fetch fresh
+        const cached = getSettingsCache()
+        const settings = cached || await getSettings()
+        if (!settings.woo_active) {
             menuItems.value = menuItems.value.filter(item => item.path !== '/woocommerce')
         }
     } catch (e) {

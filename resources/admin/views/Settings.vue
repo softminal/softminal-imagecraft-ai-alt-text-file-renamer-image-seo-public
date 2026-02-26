@@ -453,17 +453,11 @@ const loadSettings = async () => {
       apiSetting.value = result.api_setting
       seoPlugin.value = result.seo_plugin || null
       availableModels.value = result.available_models || {}
+      woocommerceInstalled.value = result.woo_active || false
 
       if (result.api_setting && result.api_setting.is_active) {
         settings.value.icais_api_provider = result.api_setting.provider
       }
-    }
-
-    try {
-      const wooStats = await Api.get('/woocommerce/stats')
-      woocommerceInstalled.value = wooStats.is_active || false
-    } catch (e) {
-      woocommerceInstalled.value = false
     }
   } catch (error) {
     notification.error($t('Failed to load settings'))

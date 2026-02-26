@@ -42,6 +42,7 @@ class SettingsController extends Controller
                 'label'  => SeoIntegration::getActivePluginLabel(),
             ] : ['active' => false, 'plugin' => null, 'label' => ''],
             'available_models' => AIFactory::getAvailableModels(),
+            'woo_active' => class_exists('WooCommerce'),
             'plugin_version' => defined('ICAIS_VERSION') ? ICAIS_VERSION : '0.0.0',
         ]);
     }

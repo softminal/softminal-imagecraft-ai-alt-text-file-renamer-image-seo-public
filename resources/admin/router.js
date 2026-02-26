@@ -84,4 +84,23 @@ export const clearSettingsCache = () => {
     settingsCacheTime = 0;
 };
 
+/**
+ * Get settings from cache or fetch fresh. Deduplicates with the router guard.
+ */
+export const getSettings = async () => {
+    const now = Date.now();
+    if (settingsCache && (now - settingsCacheTime) < CACHE_DURATION) {
+        return settingsCache;
+    }
+    const result = await Api.get('/settings');
+    settingsCache = result;
+    settingsCacheTime = now;
+    return result;
+};
+
+/**
+ * Return the current cached settings (or null if not yet fetched).
+ */
+export const getSettingsCache = () => settingsCache;
+
 export default router;

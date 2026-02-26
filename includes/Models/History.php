@@ -22,6 +22,16 @@ class History extends Model
     ];
 
     /**
+     * Invalidate model cache (public wrapper for bumpCacheVersion).
+     *
+     * Useful after bulk direct-DB updates that bypass Model::save().
+     */
+    public static function invalidateCache(): void
+    {
+        static::bumpCacheVersion();
+    }
+
+    /**
      * Get history for an attachment
      */
     public static function getForAttachment(int $attachmentId)
