@@ -96,6 +96,10 @@ To build from source:
 3. Run `npm run dev` for development (Vite dev server on port 4000)
 4. Run `npm run prod` to build production assets into `assets/`
 
+== How to Use ImageCraft ==
+
+https://www.youtube.com/watch?v=VVhnzSmrjLE
+
 == Installation ==
 
 1. Upload the plugin files to `/wp-content/plugins/imagecraft-ai-alt-text-file-renamer-image-seo/`
@@ -127,11 +131,11 @@ Yes. The plugin supports 30+ languages including Spanish, French, German, Japane
 
 == Screenshots ==
 
-1. Setup wizard - Get started in minutes
-2. Dashboard - Overview of your images with SEO audit score
-3. Scanner - Scan and filter your media library
-4. Batch processing - Generate alt text for all images
-5. Settings - Customize tone, language, and prompts
+1. Dashboard - Image SEO audit score, stats cards, usage & cost chart, and generation results overview
+2. Media Library - Generate alt text and rename files directly from the WordPress media modal with one click
+3. WooCommerce Products - Browse products with alt text status, filter by category, and generate alt text per product
+4. Settings - API configuration with provider and model selection, API key management, and connection testing
+5. Gutenberg Editor - Generate alt text with AI directly from the block editor image settings panel
 
 == Changelog ==
 

@@ -496,9 +496,7 @@ const saveApiKey = async () => {
     })
     if (result.success) {
       notification.success($t('API key saved successfully'))
-      apiKey.value = ''
-      clearSettingsCache()
-      loadSettings()
+      setTimeout(() => window.location.reload(), 1000)
     } else {
       notification.error(result.message || $t('Failed to save API key'))
     }

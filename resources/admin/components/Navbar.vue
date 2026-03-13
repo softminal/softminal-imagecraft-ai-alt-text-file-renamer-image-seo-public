@@ -3,7 +3,7 @@
         <div class="flex flex-wrap justify-between items-center">
             <!-- Logo Section -->
             <router-link to="/" class="flex items-center bg-inherit outline-none focus:outline-none focus:shadow-none">
-                <img :src="asset('imagecraft-logo.png')" alt="ImageCraft" class="h-16" />
+                <img :src="asset('imagecraft-logo.png')" alt="ImageCraft" class="h-12" />
             </router-link>
 
             <!-- Navigation Menu -->
@@ -39,8 +39,6 @@ const route = useRoute()
 const menuItems = ref([
     { name: 'Dashboard', path: '/' },
     { name: 'Scanner', path: '/scanner' },
-    { name: 'WooCommerce', path: '/woocommerce', icon: '🛒' },
-    { name: 'Settings', path: '/settings' }
 ])
 
 const isActive = (path) => {
@@ -54,11 +52,14 @@ onMounted(async () => {
         // Use cached settings from router guard (already fetched) or fetch fresh
         const cached = getSettingsCache()
         const settings = cached || await getSettings()
-        if (!settings.woo_active) {
-            menuItems.value = menuItems.value.filter(item => item.path !== '/woocommerce')
+        if (settings.woo_active) {
+            menuItems.value.push({ name: 'WooCommerce', path: '/woocommerce', icon: '🛒' })
         }
+       
     } catch (e) {
-        menuItems.value = menuItems.value.filter(item => item.path !== '/woocommerce')
+        notification.error($t('Failed to load settings'))
+    } finally {
+        menuItems.value.push({ name: 'Settings', path: '/settings' })
     }
 })
 </script>

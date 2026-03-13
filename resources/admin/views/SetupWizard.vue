@@ -184,12 +184,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 
-const router = useRouter()
 const currentStep = ref(1)
 const selectedProvider = ref('anthropic')
 const apiKey = ref('')
@@ -277,21 +275,17 @@ const saveApiKey = async () => {
       })
     }
 
+    // Mark wizard as completed before reload so router guard allows dashboard
+    await Api.post('/settings/wizard/complete')
     notification.success($t('API key saved successfully!'))
-    currentStep.value = 4
+    setTimeout(() => {
+      window.location.hash = '#/'
+      window.location.reload()
+    }, 1000)
   } catch (error) {
     notification.error($t('Failed to save API key'))
   } finally {
     saving.value = false
-  }
-}
-
-const completeWizard = async () => {
-  try {
-    await Api.post('/settings/wizard/complete')
-    router.push('/')
-  } catch (error) {
-    notification.error($t('Failed to complete wizard'))
   }
 }
 </script>

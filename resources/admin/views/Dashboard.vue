@@ -40,6 +40,12 @@
           {{ $t('Scanning media library...') }}
         </div>
 
+        <div v-else-if="audit && audit.total_images === 0" class="text-center py-8 text-gray-500">
+          <div class="text-4xl mb-3">🖼️</div>
+          <div class="text-lg font-medium text-gray-600">{{ $t('No images found') }}</div>
+          <div class="text-sm mt-1">{{ $t('Upload images to your media library to see the SEO audit.') }}</div>
+        </div>
+
         <div v-else-if="audit">
           <!-- Score -->
           <div class="flex items-center gap-6 mb-6">
@@ -408,6 +414,6 @@ const loadDashboard = async () => {
 }
 
 onMounted(() => {
-  loadDashboard()
+  loadDashboard();
 })
 </script>
