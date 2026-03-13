@@ -4,7 +4,6 @@ namespace Softminal\ImageCraft\Http\Controllers;
 
 use Softminal\ImageCraft\Models\BatchJob;
 use Softminal\ImageCraft\Models\History;
-use Softminal\ImageCraft\Models\Stats;
 use Softminal\ImageCraft\Services\SeoIntegration;
 use Softminal\ImageCraft\Services\Settings;
 
@@ -171,10 +170,13 @@ class BatchController extends Controller
         $batchSize = Settings::get('icais_batch_size', 5);
         $tone = Settings::get('icais_default_tone', 'professional');
         
+        // Re-fetch to get accurate counter values before calculating chunk offset
+        $job = BatchJob::find($job->id);
+
         // Process chunk
         $processed = 0;
         $failed = 0;
-        $startIndex = $job->processed_images;
+        $startIndex = (int) $job->processed_images + (int) $job->failed_images;
         $chunk = array_slice($imageIds, $startIndex, $batchSize);
         
         // Get user ID from batch job to ensure we use the correct user's API settings
@@ -213,14 +215,12 @@ class BatchController extends Controller
             $job->increment('failed_images', $failed);
         }
 
-        // Check if complete and update status via targeted SQL
-        // (avoid full save() which would overwrite the atomically-incremented counters)
-        if ($job->processed_images + $job->failed_images >= $job->total_images) {
-            $processed = (int) $job->processed_images;
-            $failed = (int) $job->failed_images;
-            $total = (int) $job->total_images;
+        // Re-fetch job from DB to get true counter values after concurrent increments
+        $job = BatchJob::find($job->id);
 
-            if ($failed === $total && $processed === 0) {
+        // Check if complete and update status
+        if ($job->processed_images + $job->failed_images >= $job->total_images) {
+            if ((int) $job->failed_images === (int) $job->total_images && (int) $job->processed_images === 0) {
                 $job->status = 'failed';
             } else {
                 $job->status = 'completed';
