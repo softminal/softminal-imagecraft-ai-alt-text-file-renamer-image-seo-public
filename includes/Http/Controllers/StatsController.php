@@ -2,9 +2,9 @@
 
 namespace Softminal\ImageCraft\Http\Controllers;
 
-use Softminal\ImageCraft\Models\Stats;
-use Softminal\ImageCraft\Models\History;
 use Softminal\ImageCraft\Models\ApiSetting;
+use Softminal\ImageCraft\Models\History;
+use Softminal\ImageCraft\Models\Stats;
 use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
@@ -19,40 +19,10 @@ class StatsController extends Controller
     public function dashboard($request)
     {
         $userId = get_current_user_id();
-        
-        // Count total images (posts_per_page=1 avoids loading all IDs; found_posts gives the total)
-        $totalQuery = new \WP_Query([
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-        ]);
 
-        // Count images missing alt text
-        $missingQuery = new \WP_Query([
-            'post_type' => 'attachment',
-            'post_mime_type' => 'image',
-            'post_status' => 'inherit',
-            'posts_per_page' => 1,
-            'fields' => 'ids',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required to find images missing alt text; count-only query
-            'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'compare' => 'NOT EXISTS'
-                ],
-                [
-                    'key' => '_wp_attachment_image_alt',
-                    'value' => '',
-                    'compare' => '='
-                ]
-            ]
-        ]);
-
-        $totalImages = $totalQuery->found_posts;
-        $missingAlt = $missingQuery->found_posts;
+        $imageCounts = AltTextHelper::getImageCounts();
+        $totalImages = $imageCounts['total'];
+        $missingAlt = $imageCounts['missing'];
         
         // Get all stats for user in a single query, ordered by date
         $allStats = Stats::where('user_id', $userId)
@@ -97,27 +67,36 @@ class StatsController extends Controller
             ];
         }
 
-        // Get history and compute chart_results in a single loop
-        $totalHistory = History::where('user_id', $userId)->get();
+        // Count history statuses with a single grouped query instead of loading all rows
+        global $wpdb;
+        $historyTable = esc_sql(History::table());
+        $sql = sprintf('SELECT status, COUNT(*) AS cnt FROM `%s` WHERE user_id = %%d GROUP BY status', $historyTable);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregation query; table escaped via esc_sql()
+        $statusCounts = $wpdb->get_results(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Identifier escaped via esc_sql(); values via $wpdb->prepare()
+            $wpdb->prepare($sql, $userId),
+            ARRAY_A
+        );
+
         $acceptedCount = 0;
         $rejectedCount = 0;
         $pendingCount = 0;
-
-        foreach ($totalHistory as $history) {
-            switch ($history->status) {
+        foreach ($statusCounts ?: [] as $row) {
+            $cnt = (int) $row['cnt'];
+            switch ($row['status']) {
                 case 'accepted':
-                    $acceptedCount++;
+                    $acceptedCount = $cnt;
                     break;
                 case 'rejected':
-                    $rejectedCount++;
+                    $rejectedCount = $cnt;
                     break;
                 default:
-                    $pendingCount++;
+                    $pendingCount += $cnt;
                     break;
             }
         }
 
-        $historyTotal = count($totalHistory);
+        $historyTotal = $acceptedCount + $rejectedCount + $pendingCount;
         $successRate = $historyTotal > 0 ? round(($acceptedCount / $historyTotal) * 100, 2) : 0;
 
         $chartResults = [
@@ -140,6 +119,15 @@ class StatsController extends Controller
         $recentData = History::getRecent($userId, 10);
         $recentActivity = [];
         if (!empty($recentData['data'])) {
+            // Prime post + meta caches for attachment IDs to avoid N+1 queries
+            $attachmentIds = [];
+            foreach ($recentData['data'] as $history) {
+                $attachmentIds[] = (int) $history->attachment_id;
+            }
+            if (!empty($attachmentIds)) {
+                _prime_post_caches($attachmentIds, true, true);
+            }
+
             foreach ($recentData['data'] as $history) {
                 $attachmentId = $history->attachment_id;
                 $thumbnail = wp_get_attachment_image_src($attachmentId, 'thumbnail');
@@ -178,7 +166,7 @@ class StatsController extends Controller
      */
     public function audit($request)
     {
-        $maxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 125);
+        $maxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length');
 
         // Get all image IDs
         $allQuery = new \WP_Query([
@@ -192,13 +180,15 @@ class StatsController extends Controller
         $totalImages = $allQuery->found_posts;
         $imageIds = $allQuery->posts;
 
+        // Batch-prime postmeta to avoid N+1 queries in classification loop
+        if (!empty($imageIds)) {
+            update_meta_cache('post', $imageIds);
+        }
+
         $missing = 0;
         $generic = 0;
         $tooLong = 0;
         $good = 0;
-
-        $genericExamples = [];
-        $tooLongExamples = [];
 
         foreach ($imageIds as $id) {
             $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
@@ -208,38 +198,19 @@ class StatsController extends Controller
                 continue;
             }
 
-            $issues = [];
+            $hasIssue = false;
 
             if (AltTextHelper::isGeneric($alt)) {
                 $generic++;
-                $issues[] = 'generic';
-                if (count($genericExamples) < 5) {
-                    $thumbnail = wp_get_attachment_image_src($id, 'thumbnail');
-                    $genericExamples[] = [
-                        'id' => $id,
-                        'alt_text' => $alt,
-                        'filename' => basename(get_attached_file($id)),
-                        'thumbnail' => $thumbnail ? $thumbnail[0] : null,
-                    ];
-                }
+                $hasIssue = true;
             }
 
             if (mb_strlen($alt) > $maxLength) {
                 $tooLong++;
-                $issues[] = 'too_long';
-                if (count($tooLongExamples) < 5) {
-                    $thumbnail = wp_get_attachment_image_src($id, 'thumbnail');
-                    $tooLongExamples[] = [
-                        'id' => $id,
-                        'alt_text' => $alt,
-                        'length' => mb_strlen($alt),
-                        'filename' => basename(get_attached_file($id)),
-                        'thumbnail' => $thumbnail ? $thumbnail[0] : null,
-                    ];
-                }
+                $hasIssue = true;
             }
 
-            if (empty($issues)) {
+            if (!$hasIssue) {
                 $good++;
             }
         }
@@ -256,8 +227,6 @@ class StatsController extends Controller
                 'too_long' => $tooLong,
                 'score' => $score,
                 'max_length' => $maxLength,
-                'generic_examples' => $genericExamples,
-                'too_long_examples' => $tooLongExamples,
             ],
         ]);
     }

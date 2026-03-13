@@ -20,6 +20,14 @@ class ApiSetting extends Model
     ];
 
     /**
+     * Invalidate model cache (use after direct $wpdb updates that bypass Model::save()).
+     */
+    public static function invalidateCache(): void
+    {
+        static::bumpCacheVersion();
+    }
+
+    /**
      * Get active API setting for current user
      */
     public static function getActive(?int $userId = null)
@@ -48,6 +56,10 @@ class ApiSetting extends Model
             }
             return $decrypted;
         } catch (\Exception $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+                error_log('ImageCraft: API key decryption failed for setting id=' . ($this->id ?? '?') . ': ' . $e->getMessage());
+            }
             return null;
         }
     }

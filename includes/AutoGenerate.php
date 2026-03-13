@@ -30,8 +30,21 @@ class AutoGenerate
     public static function onAttachmentAdded($attachmentId)
     {
         // Check if auto-generate is enabled
-        if (!Settings::get('icais_auto_generate', false)) {
-            return;
+        // For WooCommerce product images, respect the WooCommerce-specific setting
+        $isWooProduct = false;
+        $attachment = get_post($attachmentId);
+        if ($attachment && $attachment->post_parent > 0 && get_post_type($attachment->post_parent) === 'product') {
+            $isWooProduct = true;
+        }
+
+        if ($isWooProduct) {
+            if (!Settings::get('icais_woo_auto_generate', false)) {
+                return;
+            }
+        } else {
+            if (!Settings::get('icais_auto_generate', false)) {
+                return;
+            }
         }
 
         // Check if it's an image

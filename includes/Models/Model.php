@@ -28,9 +28,10 @@ abstract class Model
     private static array $validOperators = ['=', '!=', '>', '<', '>=', '<=', 'LIKE', 'NOT LIKE', 'IN'];
 
     /**
-     * Object cache settings (tune as needed)
+     * Object cache settings (tune as needed).
+     * Group is namespaced to the plugin to avoid collisions in shared caches.
      */
-    private string $cacheGroup = 'icais';
+    private string $cacheGroup = 'icais_models';
     private int $cacheTtl = 60; // seconds
 
     /**
@@ -148,7 +149,7 @@ abstract class Model
         return $ver ? (int) $ver : 1;
     }
 
-    private static function bumpCacheVersion(): void
+    protected static function bumpCacheVersion(): void
     {
         $instance = new static();
         $key = 'model_cache_ver:' . static::table();
@@ -578,6 +579,11 @@ abstract class Model
         }
 
         return null;
+    }
+
+    public function __isset($key)
+    {
+        return array_key_exists($key, $this->attributes) || array_key_exists($key, $this->relations);
     }
 
     public function __set($key, $value)

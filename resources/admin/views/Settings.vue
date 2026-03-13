@@ -14,25 +14,24 @@
           <option value="anthropic">{{ $t('Anthropic Claude') }}</option>
           <option value="openai">{{ $t('OpenAI GPT-4') }}</option>
           <option value="gemini">{{ $t('Google Gemini') }}</option>
-          <option value="mistral">{{ $t('Mistral AI (Pixtral)') }}</option>
-          <option value="openrouter">{{ $t('OpenRouter') }}</option>
         </select>
       </div>
 
-      <div v-if="settings.icais_api_provider === 'openrouter'" class="mb-4">
-        <label class="block text-sm font-medium mb-2">{{ $t('OpenRouter Model') }}</label>
+      <div v-if="showModelSelector" class="mb-4">
+        <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
         <select
-          v-model="settings.icais_openrouter_model"
+          v-model="settings[modelSettingKey]"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
         >
-          <option value="anthropic/claude-3.5-sonnet">Anthropic Claude 3.5 Sonnet</option>
-          <option value="openai/gpt-4o">OpenAI GPT-4o</option>
-          <option value="google/gemini-2.0-flash-exp">Google Gemini 2.0 Flash</option>
-          <option value="mistralai/pixtral-large-latest">Mistral Pixtral Large</option>
-          <option value="meta-llama/llama-3.2-90b-vision-instruct">Meta Llama 3.2 90B Vision</option>
-          <option value="qwen/qwen-2.5-vl-72b-instruct">Qwen 2.5 VL 72B</option>
+          <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
         </select>
+        <p v-if="pricingUrl" class="text-xs text-gray-500 mt-1">
+          <a :href="pricingUrl" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+            {{ $t('View pricing') }} &rarr;
+          </a>
+        </p>
       </div>
+
 
       <div class="mb-4">
         <label class="block text-sm font-medium mb-2">{{ $t('API Key') }}</label>
@@ -42,12 +41,36 @@
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           :placeholder="$t('Enter API key')"
         />
-        <button
-          @click="saveApiKey"
-          class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          {{ $t('Save API Key') }}
-        </button>
+        <p v-if="apiDocsUrl" class="text-xs text-gray-500 mt-1">
+          {{ $t('Get your API key from') }}
+          <a :href="apiDocsUrl" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+            {{ apiDocsLabel }} &rarr;
+          </a>
+        </p>
+        <div class="mt-2 flex items-center gap-3">
+          <button
+            @click="testConnection"
+            :disabled="!apiKey || testing"
+            class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+          >
+            {{ testing ? $t('Testing...') : $t('Test Connection') }}
+          </button>
+          <button
+            @click="saveApiKey"
+            :disabled="!apiKey || !testResult?.success"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ $t('Save API Key') }}
+          </button>
+        </div>
+        <div v-if="testResult" class="mt-2">
+          <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded text-sm">
+            {{ $t('Connection successful!') }}
+          </div>
+          <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded text-sm">
+            {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
+          </div>
+        </div>
       </div>
 
       <div v-if="apiSetting" class="text-sm text-gray-600">
@@ -79,10 +102,10 @@
           v-model="settings.icais_custom_prompt"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           rows="4"
-          :placeholder="$t('e.g. Generate alt text (max {max_length} characters) describing the subject, colors, and setting. Do not start with \'Image of\'. Return only the alt text.')"
+          :placeholder="$t('e.g. Generate alt text describing the subject, colors, and setting. Do not start with \'Image of\'. Return only the alt text.')"
         ></textarea>
         <p class="text-xs text-gray-500 mt-1">
-          {{ $t('Use {max_length} as a placeholder for your max character setting. Product context is added automatically for WooCommerce images.') }}
+          {{ $t('The max character length setting above will be applied automatically. Product context is added automatically for WooCommerce images.') }}
         </p>
       </div>
 
@@ -297,10 +320,10 @@
           v-model="settings.icais_woo_custom_prompt"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
           rows="4"
-          :placeholder="$t('e.g. Generate product alt text (max {max_length} characters) with the product name, visible features, and use case. Do not start with \'Image of\'. Return only the alt text.')"
+          :placeholder="$t('e.g. Generate product alt text with the product name, visible features, and use case. Do not start with \'Image of\'. Return only the alt text.')"
         ></textarea>
         <p class="text-xs text-gray-500 mt-1">
-          {{ $t('Use {max_length} as a placeholder. Product name, category, and SKU are automatically included as context.') }}
+          {{ $t('The max character length setting will be applied automatically. Product name, category, and SKU are automatically included as context.') }}
         </p>
       </div>
     </div>
@@ -371,7 +394,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { clearSettingsCache } from '../router'
@@ -381,8 +404,46 @@ const settings = ref({})
 const apiKey = ref('')
 const apiSetting = ref(null)
 const saving = ref(false)
+const testing = ref(false)
+const testResult = ref(null)
 const woocommerceInstalled = ref(false)
 const seoPlugin = ref(null)
+const availableModels = ref({})
+
+const currentModels = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return availableModels.value[provider] || []
+})
+
+const modelSettingKey = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return 'icais_' + provider + '_model'
+})
+
+const showModelSelector = computed(() => {
+  return currentModels.value.length > 1
+})
+
+const providerDocs = {
+  anthropic: { url: 'https://console.anthropic.com/settings/keys', label: 'Anthropic Console', pricingUrl: 'https://www.anthropic.com/pricing#702702' },
+  openai: { url: 'https://platform.openai.com/api-keys', label: 'OpenAI Platform', pricingUrl: 'https://openai.com/api/pricing/' },
+  gemini: { url: 'https://aistudio.google.com/apikey', label: 'Google AI Studio', pricingUrl: 'https://ai.google.dev/pricing' },
+}
+
+const apiDocsUrl = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return providerDocs[provider]?.url || null
+})
+
+const pricingUrl = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return providerDocs[provider]?.pricingUrl || null
+})
+
+const apiDocsLabel = computed(() => {
+  const provider = settings.value.icais_api_provider
+  return providerDocs[provider]?.label || ''
+})
 
 const loadSettings = async () => {
   try {
@@ -391,17 +452,12 @@ const loadSettings = async () => {
       settings.value = result.settings
       apiSetting.value = result.api_setting
       seoPlugin.value = result.seo_plugin || null
+      availableModels.value = result.available_models || {}
+      woocommerceInstalled.value = result.woo_active || false
 
       if (result.api_setting && result.api_setting.is_active) {
         settings.value.icais_api_provider = result.api_setting.provider
       }
-    }
-
-    try {
-      const wooStats = await Api.get('/woocommerce/stats')
-      woocommerceInstalled.value = wooStats.is_active || false
-    } catch (e) {
-      woocommerceInstalled.value = false
     }
   } catch (error) {
     notification.error($t('Failed to load settings'))
@@ -417,6 +473,8 @@ const saveSettings = async () => {
     if (result.success) {
       notification.success($t('Settings saved successfully'))
       clearSettingsCache()
+    } else {
+      notification.error(result.message || $t('Failed to save settings'))
     }
   } catch (error) {
     notification.error($t('Failed to save settings'))
@@ -438,12 +496,44 @@ const saveApiKey = async () => {
     })
     if (result.success) {
       notification.success($t('API key saved successfully'))
-      apiKey.value = ''
-      clearSettingsCache()
-      loadSettings()
+      setTimeout(() => window.location.reload(), 1000)
+    } else {
+      notification.error(result.message || $t('Failed to save API key'))
     }
   } catch (error) {
     notification.error($t('Failed to save API key'))
+  }
+}
+
+const testConnection = async () => {
+  if (!apiKey.value) {
+    notification.error($t('Please enter an API key'))
+    return
+  }
+
+  testing.value = true
+  testResult.value = null
+
+  try {
+    const payload = {
+      provider: settings.value.icais_api_provider,
+      api_key: apiKey.value
+    }
+    if (showModelSelector.value) {
+      payload.model = settings.value[modelSettingKey.value]
+    }
+    const result = await Api.post('/settings/test-api', payload)
+    testResult.value = result
+    if (result.success) {
+      notification.success($t('Connection successful!'))
+    } else {
+      notification.error(result.error || $t('Connection failed'))
+    }
+  } catch (error) {
+    testResult.value = { success: false, error: error.message }
+    notification.error($t('Failed to test connection'))
+  } finally {
+    testing.value = false
   }
 }
 

@@ -11,6 +11,7 @@
 
     var config = window.icaisMediaButton || {};
     var injectedSpans = new WeakSet();
+    var injectedRenameSpans = new WeakSet();
 
     /**
      * Get the current attachment ID from the media modal
@@ -208,12 +209,121 @@
     }
 
     /**
-     * Scan DOM for alt text setting fields and inject buttons
+     * Create the Rename File button element
+     */
+    function createRenameButton() {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'icais-media-btn-wrapper icais-rename-btn-wrapper';
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'icais-media-btn icais-rename-btn';
+        var iconSpan = document.createElement('span');
+        iconSpan.className = 'icais-btn-icon';
+        iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+        var textSpan = document.createElement('span');
+        textSpan.className = 'icais-btn-text';
+        textSpan.textContent = config.i18n?.rename || 'Rename File';
+        btn.appendChild(iconSpan);
+        btn.appendChild(textSpan);
+
+        var status = document.createElement('div');
+        status.className = 'icais-media-status';
+        status.style.display = 'none';
+
+        wrapper.appendChild(btn);
+        wrapper.appendChild(status);
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            handleRename(btn, status);
+        });
+
+        return wrapper;
+    }
+
+    /**
+     * Handle the rename button click
+     */
+    function handleRename(btn, status) {
+        var attachmentId = getAttachmentId();
+        if (!attachmentId) {
+            showStatus(status, 'error', config.i18n?.noAttachment || 'Could not detect image. Please select an image first.');
+            return;
+        }
+
+        // Set loading state
+        btn.disabled = true;
+        btn.classList.add('icais-loading');
+        btn.querySelector('.icais-btn-text').textContent = config.i18n?.renaming || 'Renaming...';
+        status.style.display = 'none';
+
+        var url = config.apiUrl + '/renamer/rename';
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': config.nonce
+            },
+            body: JSON.stringify({ attachment_id: attachmentId })
+        })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            if (data.success) {
+                var msg = (config.i18n?.renameSuccess || 'File renamed to: %s').replace('%s', data.new_filename);
+                showStatus(status, 'success', msg);
+
+                // Update the title input in the media modal to reflect the new filename
+                var titleInput = document.querySelector('.setting[data-setting="title"] input, [data-setting="title"] input');
+                if (titleInput) {
+                    var newTitle = data.new_filename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+                    titleInput.value = newTitle;
+                    titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    titleInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    titleInput.dispatchEvent(new Event('keyup', { bubbles: true }));
+                }
+            } else {
+                showStatus(status, 'error', data.message || config.i18n?.renameError || 'Failed to rename file.');
+            }
+        })
+        .catch(function () {
+            showStatus(status, 'error', config.i18n?.renameError || 'Failed to rename file.');
+        })
+        .finally(function () {
+            btn.disabled = false;
+            btn.classList.remove('icais-loading');
+            btn.querySelector('.icais-btn-text').textContent = config.i18n?.rename || 'Rename File';
+        });
+    }
+
+    /**
+     * Inject rename button after the title setting field (as a sibling)
+     */
+    function injectRenameButton(settingSpan) {
+        if (injectedRenameSpans.has(settingSpan)) {
+            return;
+        }
+        injectedRenameSpans.add(settingSpan);
+
+        var buttonEl = createRenameButton();
+        settingSpan.parentNode.insertBefore(buttonEl, settingSpan.nextSibling);
+    }
+
+    /**
+     * Scan DOM for alt text and title setting fields and inject buttons
      */
     function scanAndInject() {
         var altSettings = document.querySelectorAll('.setting[data-setting="alt"], span[data-setting="alt"]');
         for (var i = 0; i < altSettings.length; i++) {
             injectButton(altSettings[i]);
+        }
+
+        var titleSettings = document.querySelectorAll('.setting[data-setting="title"], span[data-setting="title"]');
+        for (var j = 0; j < titleSettings.length; j++) {
+            injectRenameButton(titleSettings[j]);
         }
     }
 

@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 
 class FileRenamer
 {
-    private const MAX_FILENAME_LENGTH = 120;
+    private const DEFAULT_MAX_FILENAME_LENGTH = 120;
 
     /**
      * Build a safe slug-like filename (no extension).
@@ -19,7 +19,7 @@ class FileRenamer
             $altText = 'image';
         }
 
-        $maxLength = $maxLength ?? self::MAX_FILENAME_LENGTH;
+        $maxLength = $maxLength ?? (int) Settings::get('icais_rename_max_length', self::DEFAULT_MAX_FILENAME_LENGTH);
 
         $text = strtolower($altText);
 
@@ -155,6 +155,12 @@ class FileRenamer
             $newBaseName = $this->handleDuplicateFilename(dirname($file), $newBaseName, $extension, $fs);
             $newFilename = $newBaseName . '.' . $extension;
             $newFilePath = wp_normalize_path(dirname($file) . '/' . $newFilename);
+        }
+
+        // Verify the new path is still within wp_upload_dir (prevents path traversal)
+        $normalizedNewPath = wp_normalize_path(realpath(dirname($newFilePath)) ?: dirname($newFilePath));
+        if (strpos($normalizedNewPath, $normalizedBase) !== 0) {
+            return ['success' => false, 'error' => 'Rename target is outside the uploads directory'];
         }
 
         $oldUrl = (string) wp_get_attachment_url($attachmentId);

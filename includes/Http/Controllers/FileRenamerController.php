@@ -90,7 +90,8 @@ class FileRenamerController extends Controller
 
     public function preview($request)
     {
-        $attachmentId = (int) ($request['id'] ?? 0);
+        $params = $request->get_params();
+        $attachmentId = (int) ($params['attachment_id'] ?? $params['id'] ?? 0);
 
         if (!$attachmentId) {
             return $this->response([

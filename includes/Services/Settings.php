@@ -11,6 +11,9 @@ if (!defined('ABSPATH')) {
  */
 class Settings
 {
+    /** @var array|null In-memory cache for the current request */
+    private static $allCache = null;
+
     private static $defaults = [
         'icais_api_provider' => 'anthropic',
         'icais_default_tone' => 'professional',
@@ -21,7 +24,6 @@ class Settings
         'icais_batch_size' => 5,
         'icais_request_timeout' => 60,
         'icais_language' => 'en',
-        'icais_email_on_complete' => '0',
         'icais_auto_rename' => '0',
         'icais_rename_max_length' => 120,
         'icais_woo_auto_generate' => '0',
@@ -32,14 +34,20 @@ class Settings
         'icais_seo_integration' => '0',
         'icais_seo_use_keyphrase' => '1',
         'icais_openrouter_model' => 'anthropic/claude-3.5-sonnet',
+        'icais_openai_model' => 'gpt-4o-mini',
+        'icais_anthropic_model' => 'claude-haiku-4-5',
+        'icais_gemini_model' => 'gemini-2.5-flash',
     ];
 
     /**
      * Get a setting value
+     *
+     * Note: The stored wp_options key is ICAIS_TABLE_PREFIX + $key (e.g. 'icais_icais_max_length').
+     * The defaults array uses icais_ prefixed keys for namespacing. This results in a double prefix
+     * in wp_options, which is intentional for backwards compatibility with existing installations.
      */
     public static function get(string $key, $default = null)
     {
-        // Add prefix for WordPress option name
         $optionKey = ICAIS_TABLE_PREFIX . $key;
         $value = get_option($optionKey, null);
 
@@ -70,6 +78,9 @@ class Settings
         // Add prefix for WordPress option name
         $optionKey = ICAIS_TABLE_PREFIX . $key;
 
+        // Bust the request-level cache
+        self::$allCache = null;
+
         // Update the option
         $result = update_option($optionKey, $value);
 
@@ -89,7 +100,7 @@ class Settings
     /**
      * Normalize value for comparison (handles WordPress option storage quirks)
      */
-    private static function normalizeValueForComparison($value)
+    public static function normalizeValueForComparison($value)
     {
         // Preserve empty strings so clearing a text field (e.g. custom prompt)
         // is not treated the same as setting a boolean to false/0.
@@ -110,16 +121,21 @@ class Settings
     }
 
     /**
-     * Get all settings
+     * Get all settings (cached for the current request)
      */
     public static function all(): array
     {
+        if (self::$allCache !== null) {
+            return self::$allCache;
+        }
+
         $settings = [];
 
         foreach (self::$defaults as $key => $default) {
             $settings[$key] = self::get($key);
         }
 
+        self::$allCache = $settings;
         return $settings;
     }
 

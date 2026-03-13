@@ -268,7 +268,9 @@ class WooCommerce
             return ['success' => false, 'error' => 'No API key configured'];
         }
 
-        $contextPrompt = self::buildProductContextPrompt($product);
+        $contextPrompt = Settings::get('icais_woo_include_product_info', true)
+            ? self::buildProductContextPrompt($product)
+            : null;
         $result = $aiProvider->generateAltText($imageUrl, $tone, $contextPrompt);
 
         if (!$result['success']) {

@@ -29,3 +29,6 @@ build/
 wp-content/debug.log
 
 CLAUDE.md
+
+# Dev mode sentinel (never ship to production)
+.dev

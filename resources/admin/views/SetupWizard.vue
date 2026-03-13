@@ -79,30 +79,6 @@
           </div>
         </div>
 
-        <div
-          @click="selectedProvider = 'mistral'"
-          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'mistral' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
-        >
-          <h3 class="font-bold text-lg mb-2">{{ $t('Mistral AI (Pixtral)') }}</h3>
-          <p class="text-sm text-gray-600 mb-4">{{ $t('European AI with strong vision') }}</p>
-          <div class="text-xs text-gray-500">
-            <div>{{ $t('Cost: ~$0.002/image') }}</div>
-            <div>{{ $t('$5 = 2,500+ images') }}</div>
-          </div>
-        </div>
-
-        <div
-          @click="selectedProvider = 'openrouter'"
-          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'openrouter' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
-        >
-          <h3 class="font-bold text-lg mb-2">{{ $t('OpenRouter') }}</h3>
-          <p class="text-sm text-gray-600 mb-4">{{ $t('Access 100+ AI models') }}</p>
-          <div class="text-xs text-gray-500">
-            <div>{{ $t('Cost varies by model') }}</div>
-          </div>
-        </div>
       </div>
 
       <div class="flex justify-between">
@@ -134,16 +110,20 @@
           <li v-if="selectedProvider === 'gemini'">
             {{ $t('Visit') }} <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>
           </li>
-          <li v-if="selectedProvider === 'mistral'">
-            {{ $t('Visit') }} <a href="https://console.mistral.ai" target="_blank" class="text-blue-600 underline">console.mistral.ai</a>
-          </li>
-          <li v-if="selectedProvider === 'openrouter'">
-            {{ $t('Visit') }} <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-600 underline">openrouter.ai/keys</a>
-          </li>
           <li>{{ $t('Create an account and add credits') }}</li>
           <li>{{ $t('Generate an API key') }}</li>
           <li>{{ $t('Paste it below') }}</li>
         </ul>
+      </div>
+
+      <div v-if="showModelSelector" class="mb-6">
+        <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
+        <select
+          v-model="currentSelectedModel"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
+        </select>
       </div>
 
       <div class="mb-6">
@@ -203,19 +183,48 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 
-const router = useRouter()
 const currentStep = ref(1)
 const selectedProvider = ref('anthropic')
 const apiKey = ref('')
 const testing = ref(false)
 const saving = ref(false)
 const testResult = ref(null)
+const availableModels = ref({})
+const selectedModels = ref({})
+
+const currentModels = computed(() => {
+  return availableModels.value[selectedProvider.value] || []
+})
+
+const showModelSelector = computed(() => {
+  return currentModels.value.length > 1 && selectedProvider.value !== 'openrouter'
+})
+
+const currentSelectedModel = computed({
+  get() {
+    const provider = selectedProvider.value
+    return selectedModels.value[provider] || currentModels.value[0] || ''
+  },
+  set(val) {
+    selectedModels.value[selectedProvider.value] = val
+  }
+})
+
+onMounted(async () => {
+  try {
+    const result = await Api.get('/settings')
+    if (result.available_models) {
+      availableModels.value = result.available_models
+    }
+  } catch (e) {
+    // Non-critical, model selector just won't show
+  }
+})
 
 const testConnection = async () => {
   if (!apiKey.value) return
@@ -224,10 +233,14 @@ const testConnection = async () => {
   testResult.value = null
 
   try {
-    const result = await Api.post('/settings/test-api', {
+    const payload = {
       provider: selectedProvider.value,
       api_key: apiKey.value
-    })
+    }
+    if (showModelSelector.value) {
+      payload.model = currentSelectedModel.value
+    }
+    const result = await Api.post('/settings/test-api', payload)
 
     testResult.value = result
     if (result.success) {
@@ -254,21 +267,25 @@ const saveApiKey = async () => {
       api_key: apiKey.value
     })
 
+    // Save selected model if applicable
+    if (showModelSelector.value && currentSelectedModel.value) {
+      const modelKey = 'icais_' + selectedProvider.value + '_model'
+      await Api.post('/settings', {
+        settings: { [modelKey]: currentSelectedModel.value }
+      })
+    }
+
+    // Mark wizard as completed before reload so router guard allows dashboard
+    await Api.post('/settings/wizard/complete')
     notification.success($t('API key saved successfully!'))
-    currentStep.value = 4
+    setTimeout(() => {
+      window.location.hash = '#/'
+      window.location.reload()
+    }, 1000)
   } catch (error) {
     notification.error($t('Failed to save API key'))
   } finally {
     saving.value = false
-  }
-}
-
-const completeWizard = async () => {
-  try {
-    await Api.post('/settings/wizard/complete')
-    router.push('/')
-  } catch (error) {
-    notification.error($t('Failed to complete wizard'))
   }
 }
 </script>

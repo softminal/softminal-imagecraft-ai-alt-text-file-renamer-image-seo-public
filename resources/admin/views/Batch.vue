@@ -195,7 +195,12 @@ const reviewImages = ref([])
 const loadingResults = ref(false)
 const savingAltTexts = ref(false)
 const reviewModalShownForJob = ref(false)
-let intervalId = null
+let pollTimeoutId = null
+let pollCount = 0
+let currentPollInterval = 2000
+const MIN_POLL_INTERVAL = 2000
+const MAX_POLL_INTERVAL = 10000
+const RAMP_AFTER_POLLS = 10
 let processingChunk = false
 
 const loadJobStatus = async () => {
@@ -205,6 +210,10 @@ const loadJobStatus = async () => {
     const result = await Api.get(`/batch/status?job_id=${jobId.value}`)
     if (result.success) {
       const wasProcessing = prevJobStatus.value === 'processing' || prevJobStatus.value === 'pending'
+      // Reset poll interval on status change for faster feedback
+      if (prevJobStatus.value !== null && prevJobStatus.value !== result.job.status) {
+        resetPollInterval()
+      }
       prevJobStatus.value = result.job.status
       job.value = result.job
 
@@ -314,14 +323,35 @@ const cancelJob = async () => {
   }
 }
 
+const scheduleNextPoll = () => {
+  pollCount++
+  // After RAMP_AFTER_POLLS polls, increase interval by 1s per poll, capped at MAX
+  if (pollCount > RAMP_AFTER_POLLS) {
+    currentPollInterval = Math.min(currentPollInterval + 1000, MAX_POLL_INTERVAL)
+  }
+  pollTimeoutId = setTimeout(async () => {
+    await loadJobStatus()
+    // Continue polling if still active (loadJobStatus calls stopPolling on completion)
+    if (pollTimeoutId !== null) {
+      scheduleNextPoll()
+    }
+  }, currentPollInterval)
+}
+
+const resetPollInterval = () => {
+  pollCount = 0
+  currentPollInterval = MIN_POLL_INTERVAL
+}
+
 const startPolling = () => {
-  intervalId = setInterval(loadJobStatus, 2000)
+  resetPollInterval()
+  scheduleNextPoll()
 }
 
 const stopPolling = () => {
-  if (intervalId) {
-    clearInterval(intervalId)
-    intervalId = null
+  if (pollTimeoutId !== null) {
+    clearTimeout(pollTimeoutId)
+    pollTimeoutId = null
   }
 }
 

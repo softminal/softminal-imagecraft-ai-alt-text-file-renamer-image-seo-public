@@ -147,7 +147,9 @@ class WooCommerceController extends Controller
             ], 400);
         }
 
-        $contextPrompt = WooCommerce::buildProductContextPrompt($product);
+        $contextPrompt = Settings::get('icais_woo_include_product_info', true)
+            ? WooCommerce::buildProductContextPrompt($product)
+            : null;
         $userId = get_current_user_id();
 
         foreach ($galleryIds as $index => $attachmentId) {

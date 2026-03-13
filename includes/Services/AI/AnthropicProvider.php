@@ -9,8 +9,21 @@ if (!defined('ABSPATH')) {
 class AnthropicProvider extends BaseAIProvider
 {
     private const ENDPOINT = 'https://api.anthropic.com/v1/messages';
-    private const MODEL = 'claude-3-5-haiku-20241022';
     private const COST_PER_TOKEN = 0.00000025; // $0.00025 per 1K tokens
+
+    public static function getAvailableModels(): array
+    {
+        return [
+            'claude-haiku-4-5',
+            'claude-sonnet-4-6',
+            'claude-opus-4-6',
+        ];
+    }
+
+    public static function getDefaultModel(): string
+    {
+        return 'claude-haiku-4-5';
+    }
 
     public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
     {
@@ -20,7 +33,7 @@ class AnthropicProvider extends BaseAIProvider
         $imageData = $this->getImageData($imageUrl);
 
         $data = [
-            'model' => self::MODEL,
+            'model' => $this->model,
             'max_tokens' => 300,
             'messages' => [
                 [
@@ -51,7 +64,7 @@ class AnthropicProvider extends BaseAIProvider
         try {
             $response = $this->makeRequest(self::ENDPOINT, $data, $headers);
             $altText = $this->extractAltText($response);
-            $tokens = $response['usage']['input_tokens'] + ($response['usage']['output_tokens'] ?? 0);
+            $tokens = ($response['usage']['input_tokens'] ?? 0) + ($response['usage']['output_tokens'] ?? 0);
             $cost = $this->calculateCost($tokens);
 
             return [
@@ -72,7 +85,7 @@ class AnthropicProvider extends BaseAIProvider
     {
         // Test with a simple text-only request
         $data = [
-            'model' => self::MODEL,
+            'model' => $this->model,
             'max_tokens' => 10,
             'messages' => [
                 [

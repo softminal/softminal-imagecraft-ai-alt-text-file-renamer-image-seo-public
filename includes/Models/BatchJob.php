@@ -46,6 +46,32 @@ class BatchJob extends Model
     }
 
     /**
+     * Atomically increment a counter field using SQL to prevent race conditions.
+     */
+    public function increment(string $field, int $amount = 1): void
+    {
+        $allowed = ['processed_images', 'failed_images'];
+        if (!in_array($field, $allowed, true) || !isset($this->attributes['id'])) {
+            return;
+        }
+
+        global $wpdb;
+        $safeTable = esc_sql(static::table());
+        $safeField = esc_sql($field);
+
+        // Build SQL with safe identifiers first, then prepare value placeholders.
+        $sql = sprintf('UPDATE `%s` SET `%s` = `%s` + %%d WHERE id = %%d', $safeTable, $safeField, $safeField);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic increment; column from allow-list; table via esc_sql()
+        $wpdb->query(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Identifiers escaped via esc_sql(); values via $wpdb->prepare()
+            $wpdb->prepare($sql, $amount, (int) $this->attributes['id'])
+        );
+
+        // Keep in-memory attribute in sync
+        $this->attributes[$field] = (int) ($this->attributes[$field] ?? 0) + $amount;
+    }
+
+    /**
      * Get progress percentage
      * Progress is based on total attempted (processed + failed) vs total images
      */

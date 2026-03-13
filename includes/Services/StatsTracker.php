@@ -63,11 +63,23 @@ class StatsTracker
             $stats->increment('images_accepted');
         }
 
-        $stats->total_cost_estimate = (float) $stats->total_cost_estimate + $cost;
-        if ($apiSetting) {
-            $stats->api_provider = $apiSetting->api_provider;
+        if ($cost > 0) {
+            $stats->increment('total_cost_estimate', $cost);
         }
-        $stats->save();
+
+        // Update api_provider via targeted SQL to avoid overwriting atomic increments
+        if ($apiSetting && isset($stats->id)) {
+            global $wpdb;
+            $safeTable = esc_sql(Stats::table());
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Targeted update of non-counter field; table via esc_sql()
+            $wpdb->update(
+                $safeTable,
+                ['api_provider' => $apiSetting->api_provider],
+                ['id' => (int) $stats->id],
+                ['%s'],
+                ['%d']
+            );
+        }
 
         return $history;
     }
@@ -79,7 +91,7 @@ class StatsTracker
     {
         $stats = Stats::getOrCreate($userId, gmdate('Y-m-d'));
         $stats->increment('images_accepted');
-        $stats->save();
+        // No save() needed — increment() performs atomic SQL update
     }
 
     /**
@@ -89,6 +101,6 @@ class StatsTracker
     {
         $stats = Stats::getOrCreate($userId, gmdate('Y-m-d'));
         $stats->increment('images_rejected');
-        $stats->save();
+        // No save() needed — increment() performs atomic SQL update
     }
 }

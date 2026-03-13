@@ -18,4 +18,7 @@ define('ICAIS_TABLE_PREFIX', 'icais_');
 define('ICAIS_API_VERSION', 'v1');
 define('ICAIS_API_NAMESPACE', 'icais/' . ICAIS_API_VERSION);
 
-define('ICAIS_DEV_MODE', false);
+// Dev mode: auto-detect based on presence of a .dev file in the plugin root.
+// Create a file named ".dev" in the plugin directory to enable Vite dev server.
+// This file MUST NOT be shipped in production builds.
+define('ICAIS_DEV_MODE', file_exists(ICAIS_DIR . '.dev'));

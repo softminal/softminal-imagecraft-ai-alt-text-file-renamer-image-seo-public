@@ -49,12 +49,6 @@ const CACHE_DURATION = 5000; // 5 seconds
 
 // Check wizard completion on route change
 router.beforeEach(async (to, from, next) => {
-    // Skip check for wizard route
-    if (to.path === '/wizard') {
-        next();
-        return;
-    }
-    
     try {
         // Use cached settings if available and fresh
         let settings;
@@ -66,11 +60,15 @@ router.beforeEach(async (to, from, next) => {
             settingsCache = settings;
             settingsCacheTime = now;
         }
-        
-        if (!settings.wizard_completed || !settings.api_setting?.has_key) {
-            next('/wizard');
+
+        const isComplete = settings.wizard_completed && settings.api_setting?.has_key;
+
+        if (to.path === '/wizard') {
+            // Redirect completed users away from wizard to dashboard
+            isComplete ? next('/') : next();
         } else {
-            next();
+            // Redirect incomplete users to wizard
+            isComplete ? next() : next('/wizard');
         }
     } catch (error) {
         // If API fails, allow navigation (might be first load)
@@ -83,5 +81,24 @@ export const clearSettingsCache = () => {
     settingsCache = null;
     settingsCacheTime = 0;
 };
+
+/**
+ * Get settings from cache or fetch fresh. Deduplicates with the router guard.
+ */
+export const getSettings = async () => {
+    const now = Date.now();
+    if (settingsCache && (now - settingsCacheTime) < CACHE_DURATION) {
+        return settingsCache;
+    }
+    const result = await Api.get('/settings');
+    settingsCache = result;
+    settingsCacheTime = now;
+    return result;
+};
+
+/**
+ * Return the current cached settings (or null if not yet fetched).
+ */
+export const getSettingsCache = () => settingsCache;
 
 export default router;

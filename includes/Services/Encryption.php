@@ -22,6 +22,16 @@ class Encryption
             throw new \Exception('WordPress security keys not defined');
         }
 
+        // Reject default/placeholder WordPress salts — they provide no security
+        $placeholder = 'put your unique phrase here';
+        if (AUTH_KEY === $placeholder || SECURE_AUTH_KEY === $placeholder) {
+            throw new \Exception(
+                'WordPress security salts are still set to their default values. '
+                . 'Please generate unique salts at https://api.wordpress.org/secret-key/1.1/salt/ '
+                . 'and add them to your wp-config.php.'
+            );
+        }
+
         return hash('sha256', AUTH_KEY . SECURE_AUTH_KEY);
     }
 
