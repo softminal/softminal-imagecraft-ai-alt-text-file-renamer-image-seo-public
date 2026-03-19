@@ -29,6 +29,8 @@ build/
 wp-content/debug.log
 
 CLAUDE.md
+comparison.md
+roadmap.md
 
 # Dev mode sentinel (never ship to production)
 .dev
