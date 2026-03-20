@@ -120,42 +120,104 @@ abstract class BaseAIProvider
     }
 
     /**
+     * Single source of truth for all supported languages.
+     *
+     * Every other consumer (getSupportedLanguages, getLanguageName,
+     * SettingsController validation, frontend dropdown) derives from this map.
+     *
+     * @return array<string, string> ISO code => English name
+     */
+    public static function getLanguageMap(): array
+    {
+        return [
+            'af' => 'Afrikaans',
+            'am' => 'Amharic',
+            'ar' => 'Arabic',
+            'az' => 'Azerbaijani',
+            'bg' => 'Bulgarian',
+            'bn' => 'Bengali',
+            'bs' => 'Bosnian',
+            'ca' => 'Catalan',
+            'cs' => 'Czech',
+            'cy' => 'Welsh',
+            'da' => 'Danish',
+            'de' => 'German',
+            'el' => 'Greek',
+            'en' => 'English',
+            'es' => 'Spanish',
+            'et' => 'Estonian',
+            'fa' => 'Persian',
+            'fi' => 'Finnish',
+            'fil' => 'Filipino',
+            'fr' => 'French',
+            'ga' => 'Irish',
+            'gl' => 'Galician',
+            'gu' => 'Gujarati',
+            'he' => 'Hebrew',
+            'hi' => 'Hindi',
+            'hr' => 'Croatian',
+            'hu' => 'Hungarian',
+            'hy' => 'Armenian',
+            'id' => 'Indonesian',
+            'is' => 'Icelandic',
+            'it' => 'Italian',
+            'ja' => 'Japanese',
+            'ka' => 'Georgian',
+            'kk' => 'Kazakh',
+            'km' => 'Khmer',
+            'kn' => 'Kannada',
+            'ko' => 'Korean',
+            'lt' => 'Lithuanian',
+            'lv' => 'Latvian',
+            'mk' => 'Macedonian',
+            'mn' => 'Mongolian',
+            'mr' => 'Marathi',
+            'ms' => 'Malay',
+            'ne' => 'Nepali',
+            'nl' => 'Dutch',
+            'no' => 'Norwegian',
+            'pa' => 'Punjabi',
+            'pl' => 'Polish',
+            'ps' => 'Pashto',
+            'pt' => 'Portuguese',
+            'ro' => 'Romanian',
+            'ru' => 'Russian',
+            'si' => 'Sinhala',
+            'sk' => 'Slovak',
+            'sl' => 'Slovenian',
+            'sq' => 'Albanian',
+            'sr' => 'Serbian',
+            'sv' => 'Swedish',
+            'sw' => 'Swahili',
+            'ta' => 'Tamil',
+            'te' => 'Telugu',
+            'th' => 'Thai',
+            'tr' => 'Turkish',
+            'uk' => 'Ukrainian',
+            'ur' => 'Urdu',
+            'uz' => 'Uzbek',
+            'vi' => 'Vietnamese',
+            'zh' => 'Chinese',
+            'zu' => 'Zulu',
+        ];
+    }
+
+    /**
+     * Get all supported language codes.
+     *
+     * @return string[]
+     */
+    public static function getSupportedLanguages(): array
+    {
+        return array_keys(self::getLanguageMap());
+    }
+
+    /**
      * Get human-readable language name from ISO code
      */
     protected function getLanguageName(string $code): string
     {
-        $languages = [
-            'en' => 'English',
-            'es' => 'Spanish',
-            'fr' => 'French',
-            'de' => 'German',
-            'it' => 'Italian',
-            'pt' => 'Portuguese',
-            'nl' => 'Dutch',
-            'ru' => 'Russian',
-            'ja' => 'Japanese',
-            'zh' => 'Chinese',
-            'ko' => 'Korean',
-            'ar' => 'Arabic',
-            'hi' => 'Hindi',
-            'bn' => 'Bengali',
-            'tr' => 'Turkish',
-            'pl' => 'Polish',
-            'sv' => 'Swedish',
-            'da' => 'Danish',
-            'fi' => 'Finnish',
-            'no' => 'Norwegian',
-            'th' => 'Thai',
-            'vi' => 'Vietnamese',
-            'id' => 'Indonesian',
-            'ms' => 'Malay',
-            'uk' => 'Ukrainian',
-            'cs' => 'Czech',
-            'el' => 'Greek',
-            'he' => 'Hebrew',
-            'ro' => 'Romanian',
-            'hu' => 'Hungarian',
-        ];
+        $languages = self::getLanguageMap();
 
         return $languages[$code] ?? $code;
     }

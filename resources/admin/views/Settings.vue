@@ -126,36 +126,7 @@
           v-model="settings.icais_language"
           class="w-full px-4 py-2 border border-gray-300 rounded-lg"
         >
-          <option value="en">{{ $t('English') }}</option>
-          <option value="es">{{ $t('Spanish') }}</option>
-          <option value="fr">{{ $t('French') }}</option>
-          <option value="de">{{ $t('German') }}</option>
-          <option value="it">{{ $t('Italian') }}</option>
-          <option value="pt">{{ $t('Portuguese') }}</option>
-          <option value="nl">{{ $t('Dutch') }}</option>
-          <option value="ru">{{ $t('Russian') }}</option>
-          <option value="ja">{{ $t('Japanese') }}</option>
-          <option value="zh">{{ $t('Chinese') }}</option>
-          <option value="ko">{{ $t('Korean') }}</option>
-          <option value="ar">{{ $t('Arabic') }}</option>
-          <option value="hi">{{ $t('Hindi') }}</option>
-          <option value="bn">{{ $t('Bengali') }}</option>
-          <option value="tr">{{ $t('Turkish') }}</option>
-          <option value="pl">{{ $t('Polish') }}</option>
-          <option value="sv">{{ $t('Swedish') }}</option>
-          <option value="da">{{ $t('Danish') }}</option>
-          <option value="fi">{{ $t('Finnish') }}</option>
-          <option value="no">{{ $t('Norwegian') }}</option>
-          <option value="th">{{ $t('Thai') }}</option>
-          <option value="vi">{{ $t('Vietnamese') }}</option>
-          <option value="id">{{ $t('Indonesian') }}</option>
-          <option value="ms">{{ $t('Malay') }}</option>
-          <option value="uk">{{ $t('Ukrainian') }}</option>
-          <option value="cs">{{ $t('Czech') }}</option>
-          <option value="el">{{ $t('Greek') }}</option>
-          <option value="he">{{ $t('Hebrew') }}</option>
-          <option value="ro">{{ $t('Romanian') }}</option>
-          <option value="hu">{{ $t('Hungarian') }}</option>
+          <option v-for="(name, code) in sortedLanguages" :key="code" :value="code">{{ $t(name) }}</option>
         </select>
         <p class="text-xs text-gray-500 mt-1">
           {{ $t('Alt text will be generated in the selected language') }}
@@ -409,6 +380,13 @@ const testResult = ref(null)
 const woocommerceInstalled = ref(false)
 const seoPlugin = ref(null)
 const availableModels = ref({})
+const availableLanguages = ref({})
+
+const sortedLanguages = computed(() => {
+  const entries = Object.entries(availableLanguages.value)
+  entries.sort((a, b) => a[1].localeCompare(b[1]))
+  return Object.fromEntries(entries)
+})
 
 const currentModels = computed(() => {
   const provider = settings.value.icais_api_provider
@@ -453,6 +431,7 @@ const loadSettings = async () => {
       apiSetting.value = result.api_setting
       seoPlugin.value = result.seo_plugin || null
       availableModels.value = result.available_models || {}
+      availableLanguages.value = result.available_languages || {}
       woocommerceInstalled.value = result.woo_active || false
 
       if (result.api_setting && result.api_setting.is_active) {

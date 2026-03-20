@@ -42,6 +42,7 @@ class SettingsController extends Controller
                 'label'  => SeoIntegration::getActivePluginLabel(),
             ] : ['active' => false, 'plugin' => null, 'label' => ''],
             'available_models' => AIFactory::getAvailableModels(),
+            'available_languages' => \Softminal\ImageCraft\Services\AI\BaseAIProvider::getLanguageMap(),
             'woo_active' => class_exists('WooCommerce'),
             'plugin_version' => defined('ICAIS_VERSION') ? ICAIS_VERSION : '0.0.0',
         ]);
@@ -106,6 +107,13 @@ class SettingsController extends Controller
                 $settings[$key] = sanitize_textarea_field(wp_unslash($value));
             } else {
                 $settings[$key] = sanitize_text_field(wp_unslash($value));
+            }
+
+            // Validate language against supported list — correct invalid values to default
+            if ($key === 'icais_language') {
+                if (empty($settings[$key]) || !in_array($settings[$key], \Softminal\ImageCraft\Services\AI\BaseAIProvider::getSupportedLanguages(), true)) {
+                    $settings[$key] = 'en';
+                }
             }
 
             // Validate model selections against available models
