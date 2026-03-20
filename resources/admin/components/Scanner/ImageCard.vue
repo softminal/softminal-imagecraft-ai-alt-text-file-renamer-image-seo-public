@@ -51,7 +51,7 @@
         {{ $t('Rename') }}
       </button>
       <div v-if="altTooLong" class="bg-orange-100 py-1 px-2 rounded-md text-orange-400">
-         Too long
+         {{$t("Too long")}}
       </div>
     </div>
     <div v-if="renaming" class="mt-2">
