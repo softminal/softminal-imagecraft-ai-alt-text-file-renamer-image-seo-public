@@ -31,6 +31,8 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getSettingsCache, getSettings } from '../router'
 import { useAsset } from '../composables/useAsset'
+import { notification } from '../plugins/notification'
+import { $t } from '../utils/i18n'
 
 const { asset } = useAsset()
 
