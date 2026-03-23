@@ -17,7 +17,8 @@ class TranslationStrings {
             self::setupWizard(),
             self::batch(),
             self::woocommerce(),
-            self::seoIntegration()
+            self::seoIntegration(),
+            self::help()
         );
     }
 
@@ -307,6 +308,7 @@ class TranslationStrings {
     private static function setupWizard(): array {
         return [
             // Welcome
+            'Watch How It Works' => __('Watch How It Works', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Welcome to AI Alt Text Generator' => __('Welcome to AI Alt Text Generator', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Generate accessible alt text for your images using AI. You provide your own API key with no middleman fees.' => __('Generate accessible alt text for your images using AI. You provide your own API key with no middleman fees.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Easy Setup' => __('Easy Setup', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
@@ -320,19 +322,11 @@ class TranslationStrings {
             // Provider
             'Choose Your AI Provider' => __('Choose Your AI Provider', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Low cost with quality results' => __('Low cost with quality results', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            'Cost: ~$0.0008/image' => __('Cost: ~$0.0008/image', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            '$5 = 6,000+ images' => __('$5 = 6,000+ images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Best balance of quality and cost' => __('Best balance of quality and cost', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Great quality, widely used' => __('Great quality, widely used', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            'Cost: ~$0.01/image' => __('Cost: ~$0.01/image', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            '$5 = 500 images' => __('$5 = 500 images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Excellent results, higher cost' => __('Excellent results, higher cost', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             "Google's AI vision model" => __("Google's AI vision model", 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            'Cost: ~$0.0005/image' => __('Cost: ~$0.0005/image', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            '$5 = 10,000+ images' => __('$5 = 10,000+ images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            'European AI with strong vision' => __('European AI with strong vision', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            'Cost: ~$0.002/image' => __('Cost: ~$0.002/image', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            '$5 = 2,500+ images' => __('$5 = 2,500+ images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            'Access 100+ AI models' => __('Access 100+ AI models', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-            'Cost varies by model' => __('Cost varies by model', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Most affordable option' => __('Most affordable option', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Back' => __('Back', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Continue' => __('Continue', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
 
@@ -455,6 +449,35 @@ class TranslationStrings {
             'Include focus keyphrase in alt text' => __('Include focus keyphrase in alt text', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'The AI will naturally incorporate the focus keyphrase from the parent post/page into the generated alt text. The image must be attached to a post that has a focus keyphrase set.' => __('The AI will naturally incorporate the focus keyphrase from the parent post/page into the generated alt text. The image must be attached to a post that has a focus keyphrase set.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'No supported SEO plugin detected. Install Yoast SEO, Rank Math, All in One SEO, or SEOPress to enable focus keyphrase integration.' => __('No supported SEO plugin detected. Install Yoast SEO, Rank Math, All in One SEO, or SEOPress to enable focus keyphrase integration.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+        ];
+    }
+
+    private static function help(): array {
+        return [
+            'Help' => __('Help', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Help & Support' => __('Help & Support', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            '24/7 Dedicated Support' => __('24/7 Dedicated Support', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Our support team is here to help you with any questions, issues, or feature requests.' => __('Our support team is here to help you with any questions, issues, or feature requests.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Whether you need help setting up your API key, configuring WooCommerce, or troubleshooting batch processing — we\'ve got you covered.' => __('Whether you need help setting up your API key, configuring WooCommerce, or troubleshooting batch processing — we\'ve got you covered.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Contact Support' => __('Contact Support', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Give Your Love' => __('Give Your Love', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Your love is our motivation! A quick review helps us grow and keep improving ImageCraft for everyone.' => __('Your love is our motivation! A quick review helps us grow and keep improving ImageCraft for everyone.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'If ImageCraft has helped your workflow, please take a moment to share your experience on WordPress.org.' => __('If ImageCraft has helped your workflow, please take a moment to share your experience on WordPress.org.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Leave a Review' => __('Leave a Review', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Quick Links' => __('Quick Links', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'WordPress.org Plugin Page' => __('WordPress.org Plugin Page', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'View plugin details and changelog' => __('View plugin details and changelog', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Knowledge Base' => __('Knowledge Base', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Guides, tutorials, and FAQs' => __('Guides, tutorials, and FAQs', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Community Forum' => __('Community Forum', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Ask questions and get help from the community' => __('Ask questions and get help from the community', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Plugin Information' => __('Plugin Information', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Version' => __('Version', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Developer' => __('Developer', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'License' => __('License', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Requires WordPress' => __('Requires WordPress', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Video Tutorial' => __('Video Tutorial', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Watch how to set up and use ImageCraft in just a few minutes.' => __('Watch how to set up and use ImageCraft in just a few minutes.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
         ];
     }
 }

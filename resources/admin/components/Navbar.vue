@@ -62,6 +62,7 @@ onMounted(async () => {
         notification.error($t('Failed to load settings'))
     } finally {
         menuItems.value.push({ name: 'Settings', path: '/settings' })
+        menuItems.value.push({ name: 'Help', path: '/help' })
     }
 })
 </script>

@@ -26,13 +26,28 @@
         </div>
       </div>
 
-      <div class="text-center">
+      <div class="text-center mb-8">
         <button
           @click="currentStep = 2"
           class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
         >
           {{ $t('Get Started') }}
         </button>
+      </div>
+
+      <!-- Video Tutorial -->
+      <div class="bg-white rounded-lg shadow border p-6">
+        <h3 class="font-semibold mb-3 text-center">{{ $t('Watch How It Works') }}</h3>
+        <div class="relative w-full" style="padding-bottom: 56.25%;">
+          <iframe
+            class="absolute inset-0 w-full h-full rounded-lg"
+            src="https://www.youtube.com/embed/VVhnzSmrjLE"
+            title="How to Use ImageCraft"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
       </div>
     </div>
 
@@ -43,39 +58,36 @@
         <div
           @click="selectedProvider = 'anthropic'"
           :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'anthropic' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
+                   selectedProvider === 'anthropic' ? 'border-blue-600 bg-blue-50' : 'bg-white shadow border-gray-200']"
         >
           <h3 class="font-bold text-lg mb-2">{{ $t('Anthropic Claude') }}</h3>
           <p class="text-sm text-gray-600 mb-4">{{ $t('Low cost with quality results') }}</p>
           <div class="text-xs text-gray-500">
-            <div>{{ $t('Cost: ~$0.0008/image') }}</div>
-            <div>{{ $t('$5 = 6,000+ images') }}</div>
+            <div>{{ $t('Best balance of quality and cost') }}</div>
           </div>
         </div>
 
         <div
           @click="selectedProvider = 'openai'"
           :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'openai' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
+                   selectedProvider === 'openai' ? 'border-blue-600 bg-blue-50' : 'bg-white shadow border-gray-200']"
         >
           <h3 class="font-bold text-lg mb-2">{{ $t('OpenAI GPT-4') }}</h3>
           <p class="text-sm text-gray-600 mb-4">{{ $t('Great quality, widely used') }}</p>
           <div class="text-xs text-gray-500">
-            <div>{{ $t('Cost: ~$0.01/image') }}</div>
-            <div>{{ $t('$5 = 500 images') }}</div>
+            <div>{{ $t('Excellent results, higher cost') }}</div>
           </div>
         </div>
 
         <div
           @click="selectedProvider = 'gemini'"
           :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'gemini' ? 'border-blue-600 bg-blue-50' : 'border-gray-200']"
+                   selectedProvider === 'gemini' ? 'border-blue-600 bg-blue-50' : 'bg-white shadow border-gray-200']"
         >
           <h3 class="font-bold text-lg mb-2">{{ $t('Google Gemini') }}</h3>
           <p class="text-sm text-gray-600 mb-4">{{ $t("Google's AI vision model") }}</p>
           <div class="text-xs text-gray-500">
-            <div>{{ $t('Cost: ~$0.0005/image') }}</div>
-            <div>{{ $t('$5 = 10,000+ images') }}</div>
+            <div>{{ $t('Most affordable option') }}</div>
           </div>
         </div>
 

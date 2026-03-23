@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import { Dashboard, Scanner, Batch, Settings } from './views';
 import SetupWizard from './views/SetupWizard.vue';
 import WooCommerce from './views/WooCommerce.vue';
+import Help from './views/Help.vue';
 import Api from './services/Api';
 
 const routes = [
@@ -29,6 +30,11 @@ const routes = [
         path: '/settings',
         name: 'settings',
         component: Settings,
+    },
+    {
+        path: '/help',
+        name: 'help',
+        component: Help,
     },
     {
         path: '/wizard',
