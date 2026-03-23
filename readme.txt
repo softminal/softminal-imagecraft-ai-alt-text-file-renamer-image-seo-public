@@ -4,7 +4,7 @@ Tags: alt text, ai alt text, image seo, accessibility, woocommerce
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -206,6 +206,18 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
+= 1.1.0 =
+* Expanded language support from 30 to 65+ languages
+* Added Help page with dedicated support, review, quick links, and video tutorial
+* Added video tutorial to setup wizard welcome step
+* Added server-side language validation with single source of truth architecture
+* Improved readme with expanded feature descriptions and FAQs
+* Removed hardcoded API prices from wizard (links to provider pricing pages instead)
+* Improved provider card styling in setup wizard
+* Fixed missing imports in Navbar component
+* Fixed hardcoded string in ImageCard component for i18n support
+* Optimized build script to exclude Vue/SCSS source from distribution ZIP
+
 = 1.0.0 =
 * Initial release
 * 3 AI providers: Anthropic Claude, OpenAI GPT-4, Google Gemini with 15+ model options
@@ -227,6 +239,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+65+ language support, Help page with video tutorial, improved setup wizard, and bug fixes.
 
 = 1.0.0 =
 Initial release.
