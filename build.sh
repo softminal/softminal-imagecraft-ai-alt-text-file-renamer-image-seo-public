@@ -85,10 +85,29 @@ if [ -d "$PLUGIN_DIR/languages" ]; then
     echo "  ✓ languages/"
 fi
 
-if [ -d "$PLUGIN_DIR/resources" ]; then
-    cp -r "$PLUGIN_DIR/resources" "$BUILD_DIR/$PLUGIN_NAME/"
-    echo "  ✓ resources/"
+# resources/ — only copy production-required files (not Vue/SCSS source code)
+# Vue app is bundled into assets/ by Vite. Only standalone JS and static images are needed.
+# Future standalone JS files added to resources/admin/ will be picked up automatically.
+RESOURCES_DEST="$BUILD_DIR/$PLUGIN_NAME/resources"
+mkdir -p "$RESOURCES_DEST/admin"
+for jsfile in "$PLUGIN_DIR"/resources/admin/*.js; do
+    [ -f "$jsfile" ] || continue
+    # Skip Vite-bundled entry points (already in assets/)
+    case "$(basename "$jsfile")" in
+        main.js|router.js) continue ;;
+    esac
+    cp "$jsfile" "$RESOURCES_DEST/admin/"
+done
+if [ -d "$PLUGIN_DIR/resources/images" ]; then
+    cp -r "$PLUGIN_DIR/resources/images" "$RESOURCES_DEST/"
 fi
+# Add index.php for directory browsing protection
+for dir in "$RESOURCES_DEST" "$RESOURCES_DEST/admin"; do
+    if [ -f "$PLUGIN_DIR/index.php" ]; then
+        cp "$PLUGIN_DIR/index.php" "$dir/"
+    fi
+done
+echo "  ✓ resources/ (production files only)"
 
 # Copy files
 if [ -f "$PLUGIN_DIR/composer.json" ]; then

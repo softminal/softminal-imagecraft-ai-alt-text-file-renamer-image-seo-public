@@ -78,6 +78,11 @@ class ScannerController extends Controller
             $allQuery = new \WP_Query($allArgs);
             $allIds = $allQuery->posts;
 
+            // Batch-prime postmeta to avoid N+1 queries in filter loops
+            if (!empty($allIds)) {
+                update_meta_cache('post', $allIds);
+            }
+
             // PHP-level filtering for generic/too_long alt text
             if ($filter === 'generic' || $filter === 'too_long') {
                 $maxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 125);
@@ -116,6 +121,11 @@ class ScannerController extends Controller
             $offset = ($page - 1) * $perPage;
             $pageIds = array_slice($filteredIds, $offset, $perPage);
 
+            // Prime post + meta caches for the page slice to avoid N+1 queries
+            if (!empty($pageIds)) {
+                _prime_post_caches($pageIds, true, true);
+            }
+
             $images = [];
             foreach ($pageIds as $postId) {
                 $post = get_post($postId);
@@ -150,6 +160,12 @@ class ScannerController extends Controller
             ]);
 
             $query = new \WP_Query($args);
+
+            // Prime meta cache for the page of posts
+            $queryIds = wp_list_pluck($query->posts, 'ID');
+            if (!empty($queryIds)) {
+                update_meta_cache('post', $queryIds);
+            }
 
             $images = [];
             foreach ($query->posts as $post) {
@@ -219,6 +235,11 @@ class ScannerController extends Controller
 
         $query = new \WP_Query($args);
         $ids = $query->posts;
+
+        // Batch-prime postmeta to avoid N+1 queries in filter loops
+        if (!empty($ids)) {
+            update_meta_cache('post', $ids);
+        }
 
         // PHP-level quality filtering
         if ($quality === 'generic' || $quality === 'too_long') {

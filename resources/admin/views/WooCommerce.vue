@@ -40,19 +40,19 @@
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div class="flex items-center gap-2 flex-wrap">
             <button
-              @click="filter = 'all'; loadProducts()"
+              @click="filter = 'all'; debouncedLoadProducts()"
               :class="['px-4 py-2 rounded-lg', filter === 'all' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700']"
             >
               {{ $t('All Products') }}
             </button>
             <button
-              @click="filter = 'missing'; loadProducts()"
+              @click="filter = 'missing'; debouncedLoadProducts()"
               :class="['px-4 py-2 rounded-lg', filter === 'missing' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700']"
             >
               {{ $t('Missing Alt') }}
             </button>
             <button
-              @click="filter = 'has_alt'; loadProducts()"
+              @click="filter = 'has_alt'; debouncedLoadProducts()"
               :class="['px-4 py-2 rounded-lg', filter === 'has_alt' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700']"
             >
               {{ $t('Has Alt') }}
@@ -293,6 +293,7 @@ import { useRouter } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
+import { debounce } from '../utils/debounce'
 
 const router = useRouter()
 const woocommerceActive = ref(true)
@@ -351,6 +352,9 @@ const loadProducts = async (page = 1) => {
   }
 }
 
+// Debounced version for rapid filter clicks
+const debouncedLoadProducts = debounce(() => loadProducts(), 300)
+
 const loadPage = (page) => {
   if (page >= 1 && page <= pagination.value.total_pages) {
     loadProducts(page)
@@ -379,12 +383,25 @@ const startBatch = async () => {
 
   try {
     const results = []
-    for (const productId of selectedProducts.value) {
-      const result = await Api.post('/woocommerce/generate', {
-        product_id: productId
-      })
-      results.push({ productId, ...result })
+    const queue = [...selectedProducts.value]
+    const concurrency = 3
+
+    const worker = async () => {
+      while (queue.length > 0) {
+        const productId = queue.shift()
+        try {
+          const result = await Api.post('/woocommerce/generate', {
+            product_id: productId
+          })
+          results.push({ productId, ...result })
+        } catch (error) {
+          results.push({ productId, success: false })
+        }
+      }
     }
+
+    // Launch concurrent workers
+    await Promise.all(Array.from({ length: Math.min(concurrency, selectedProducts.value.length) }, () => worker()))
 
     const successCount = results.filter(r => r.success).length
     notification.success($t('Generated alt text for %1$s/%2$s products', successCount, selectedProducts.value.length))

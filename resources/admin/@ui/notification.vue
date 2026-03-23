@@ -1,5 +1,5 @@
 <template>
-  <div class="notification-container fixed top-4 right-4 z-50 space-y-2">
+  <div class="notification-container fixed top-8 right-4 z-50 space-y-2">
     <transition-group name="notification" tag="div">
       <div
         v-for="notification in notifications"

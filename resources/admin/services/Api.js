@@ -9,12 +9,19 @@ class Api {
     async request(endpoint, options = {}) {
         try {
             const url = `${this.baseURL}${endpoint}`
-            
-            const response = await fetch(url, {
+
+            const fetchOptions = {
                 ...options,
                 headers: this.headers,
                 credentials: 'same-origin'
-            })
+            }
+
+            // Pass through AbortController signal if provided
+            if (options.signal) {
+                fetchOptions.signal = options.signal
+            }
+
+            const response = await fetch(url, fetchOptions)
 
             // Check content type before parsing
             const contentType = response.headers.get('content-type')
@@ -59,14 +66,19 @@ class Api {
             return data
 
         } catch (error) {
+            // Don't log abort errors — they're intentional cancellations
+            if (error.name === 'AbortError') {
+                throw error
+            }
             console.error('API Request Failed:', error)
             throw error
         }
     }
 
-    async get(endpoint) {
+    async get(endpoint, options = {}) {
         return this.request(endpoint, {
-            method: 'GET'
+            method: 'GET',
+            ...options
         })
     }
 

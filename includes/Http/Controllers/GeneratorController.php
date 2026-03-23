@@ -259,23 +259,38 @@ class GeneratorController extends Controller
         $saved = 0;
         $errors = [];
 
+        // Collect valid history IDs and batch-fetch them in a single query
+        $idToAlt = [];
         foreach ($items as $item) {
             $historyId = (int) ($item['history_id'] ?? 0);
-            $altText = isset($item['alt_text']) ? sanitize_text_field($item['alt_text']) : '';
-
-            if (!$historyId) {
-                continue;
+            if ($historyId > 0) {
+                $idToAlt[$historyId] = isset($item['alt_text']) ? sanitize_text_field($item['alt_text']) : '';
             }
+        }
 
-            $history = History::find($historyId);
-            if (!$history) {
+        $histories = [];
+        if (!empty($idToAlt)) {
+            $fetched = History::where('id', 'IN', array_keys($idToAlt))->get();
+            foreach ($fetched as $h) {
+                $histories[(int) $h->id] = $h;
+            }
+        }
+
+        global $wpdb;
+        $historyTable = esc_sql(History::table());
+        $currentUserId = get_current_user_id();
+
+        foreach ($idToAlt as $historyId => $altText) {
+            if (!isset($histories[$historyId])) {
                 /* translators: %d: history record ID */
                 $errors[] = sprintf(__('History %d not found', 'imagecraft-ai-alt-text-file-renamer-image-seo'), $historyId);
                 continue;
             }
 
+            $history = $histories[$historyId];
+
             // Verify ownership
-            if ((int) $history->user_id !== get_current_user_id()) {
+            if ((int) $history->user_id !== $currentUserId) {
                 /* translators: %d: history record ID */
                 $errors[] = sprintf(__('Not authorized for history %d', 'imagecraft-ai-alt-text-file-renamer-image-seo'), $historyId);
                 continue;
@@ -283,14 +298,22 @@ class GeneratorController extends Controller
 
             $finalAltText = !empty($altText) ? $altText : sanitize_text_field($history->generated_alt);
             update_post_meta($history->attachment_id, '_wp_attachment_image_alt', $finalAltText);
-            $history->status = 'accepted';
+
+            // Direct DB update to avoid per-row cache bumps
+            $updateData = ['status' => 'accepted'];
             if (!empty($altText)) {
-                $history->generated_alt = $finalAltText;
+                $updateData['generated_alt'] = $finalAltText;
             }
-            $history->save();
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk operation; cache invalidated once after loop
+            $wpdb->update($historyTable, $updateData, ['id' => $historyId]);
 
             StatsTracker::recordAccept($history->user_id);
             $saved++;
+        }
+
+        // Single cache invalidation after all updates
+        if ($saved > 0) {
+            History::invalidateCache();
         }
 
         return $this->response([

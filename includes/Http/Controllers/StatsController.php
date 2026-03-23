@@ -119,6 +119,15 @@ class StatsController extends Controller
         $recentData = History::getRecent($userId, 10);
         $recentActivity = [];
         if (!empty($recentData['data'])) {
+            // Prime post + meta caches for attachment IDs to avoid N+1 queries
+            $attachmentIds = [];
+            foreach ($recentData['data'] as $history) {
+                $attachmentIds[] = (int) $history->attachment_id;
+            }
+            if (!empty($attachmentIds)) {
+                _prime_post_caches($attachmentIds, true, true);
+            }
+
             foreach ($recentData['data'] as $history) {
                 $attachmentId = $history->attachment_id;
                 $thumbnail = wp_get_attachment_image_src($attachmentId, 'thumbnail');
@@ -170,6 +179,11 @@ class StatsController extends Controller
 
         $totalImages = $allQuery->found_posts;
         $imageIds = $allQuery->posts;
+
+        // Batch-prime postmeta to avoid N+1 queries in classification loop
+        if (!empty($imageIds)) {
+            update_meta_cache('post', $imageIds);
+        }
 
         $missing = 0;
         $generic = 0;

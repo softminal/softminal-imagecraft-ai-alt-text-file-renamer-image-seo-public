@@ -40,6 +40,12 @@
           {{ $t('Scanning media library...') }}
         </div>
 
+        <div v-else-if="audit && audit.total_images === 0" class="text-center py-8 text-gray-500">
+          <div class="text-4xl mb-3">🖼️</div>
+          <div class="text-lg font-medium text-gray-600">{{ $t('No images found') }}</div>
+          <div class="text-sm mt-1">{{ $t('Upload images to your media library to see the SEO audit.') }}</div>
+        </div>
+
         <div v-else-if="audit">
           <!-- Score -->
           <div class="flex items-center gap-6 mb-6">
@@ -209,6 +215,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import Api from '../services/Api'
+import { getSettings } from '../router'
 import { $t } from '../utils/i18n'
 import { useECharts } from '../composables/useECharts'
 
@@ -371,27 +378,26 @@ const runAudit = async () => {
 
 const loadDashboard = async () => {
   try {
-    const settings = await Api.get('/settings')
-    if (!settings.wizard_completed || !settings.api_setting?.has_key) {
+    const settingsData = await getSettings()
+    if (!settingsData.wizard_completed || !settingsData.api_setting?.has_key) {
       router.push('/wizard')
       return
     }
 
-    const statsData = await Api.get('/stats/dashboard')
+    // Read WooCommerce status from settings (no extra API call)
+    woocommerceInstalled.value = settingsData.woo_active || false
+
+    // Parallelize dashboard stats and audit
+    const [statsData] = await Promise.all([
+      Api.get('/stats/dashboard'),
+      runAudit()
+    ])
+
     if (statsData.success) {
       stats.value = statsData.stats
       recentActivity.value = statsData.recent_activity || []
       chartUsage.value = statsData.chart_usage || []
       chartResults.value = statsData.chart_results || []
-    }
-
-    runAudit()
-
-    try {
-      const wooStats = await Api.get('/woocommerce/stats')
-      woocommerceInstalled.value = wooStats.is_active || false
-    } catch (e) {
-      woocommerceInstalled.value = false
     }
   } catch (error) {
     console.error('Failed to load dashboard:', error)
@@ -408,6 +414,6 @@ const loadDashboard = async () => {
 }
 
 onMounted(() => {
-  loadDashboard()
+  loadDashboard();
 })
 </script>
