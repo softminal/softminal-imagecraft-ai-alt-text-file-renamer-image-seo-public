@@ -1,6 +1,6 @@
 === ImageCraft – AI Alt Text, File Renamer & Image SEO ===
 Contributors: softminal, diptosoftminal
-Tags: alt text, ai alt text, image seo, accessibility, woocommerce
+Tags: alt text, image alt text, seo images, ai alt text, image optimization
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
@@ -8,7 +8,7 @@ Stable tag: 1.2.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Generate AI alt text for image SEO and accessibility using your own Anthropic, OpenAI, or Gemini API key. No middleman, no per-image fees.
+AI image alt text generator for SEO and accessibility. Use your own Anthropic, OpenAI, or Gemini API key — no middleman, no per-image fees.
 
 == Description ==
 
