@@ -8,7 +8,7 @@ Stable tag: 1.2.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Generate AI-powered alt text for image SEO and accessibility using your own Anthropic, OpenAI, or Gemini API key. Bring Your Own Key — no middleman, no per-image credits.
+Generate AI alt text for image SEO and accessibility using your own Anthropic, OpenAI, or Gemini API key. No middleman, no per-image fees.
 
 == Description ==
 
