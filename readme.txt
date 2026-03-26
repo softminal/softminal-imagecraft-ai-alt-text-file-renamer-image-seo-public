@@ -4,7 +4,7 @@ Tags: alt text, ai alt text, image seo, accessibility, woocommerce
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.2.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,7 +26,7 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * **SEO keyphrase integration** — Pulls the focus keyphrase from Yoast SEO, Rank Math, All in One SEO, or SEOPress and naturally weaves it into generated alt text.
 * **Image SEO audit dashboard** — Scores your media library health. Detects missing, generic/placeholder, and too-long alt text with a visual breakdown.
 * **WooCommerce product awareness** — Sends product name, SKU, categories, and price as context. Includes 3 dedicated product tones (SEO, Descriptive, Lifestyle) plus custom prompt support.
-* **Batch processing** — Process up to 500 images at once with real-time progress tracking. Review and edit all generated alt text in a batch review modal before saving.
+* **Batch processing with resume** — Process up to 500 images at once with real-time progress tracking. Resume interrupted jobs after browser close. Review and edit all generated alt text in a batch review modal before saving.
 * **65+ languages** — Generate alt text in your site's language. Supports English, Spanish, French, German, Japanese, Chinese, Arabic, Hindi, Tamil, Korean, and 55+ more.
 * **3-minute setup wizard** — Guided wizard with provider cost comparison gets you running fast.
 
@@ -44,11 +44,14 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * Dedicated WooCommerce dashboard with category filtering
 * WooCommerce gallery image bulk generation
 * Batch processing up to 500 images with progress bar
+* Resume interrupted batch jobs — pick up where you left off after browser close
+* Single-owner concurrency control — prevents duplicate processing across tabs
 * Batch review & edit modal with inline editing
 * Cross-page bulk selection
 * Advanced filters (date range, file size, alt text quality)
 * Auto-generate on new image uploads
-* Skip images with existing alt text
+* Post type exclusion — skip auto-generation for Pages, custom post types, etc.
+* Skip images with existing alt text (auto-upload and batch processing)
 * 7 tone options: Professional, Casual, Technical, SEO, and 3 WooCommerce tones
 * Custom prompt builder with {max_length} placeholder
 * Max character length control
@@ -206,6 +209,16 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
+= 1.2.0 =
+* New: Resume interrupted batch processing — pick up where you left off after browser close or refresh
+* New: Post type exclusion — exclude Pages, custom post types, or any public post type from auto-generation
+* New: Single-owner concurrency control — prevents duplicate processing when multiple browser tabs are open
+* New: Interrupted batch notification banner on Scanner page
+* Improvement: Skip existing alt text now also applies to batch processing (saves API credits)
+* Improvement: Batch job status validation fixes stuck jobs from older versions
+* Fix: WP object cache now properly invalidated after batch counter updates
+* Fix: Select All checkbox click area limited to checkbox and label only
+
 = 1.0.0 =
 * Initial release
 * 3 AI providers: Anthropic Claude, OpenAI GPT-4, Google Gemini with 15+ model options
@@ -227,6 +240,12 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Resume interrupted batch jobs, exclude post types from auto-generation, and improved batch processing reliability. Fully backwards-compatible — no action required after update.
+
+= 1.1.0 =
+65+ language support, Help page with video tutorial, improved setup wizard, and bug fixes.
 
 = 1.0.0 =
 Initial release.
