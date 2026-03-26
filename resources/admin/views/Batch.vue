@@ -2,6 +2,65 @@
   <div class="batch p-6">
     <h1 class="text-2xl font-bold mb-6">{{ $t('Batch Processing') }}</h1>
 
+    <!-- Resume Banner: shown when visiting /batch without a jobId and an interrupted job exists -->
+    <div v-if="!jobId && interruptedJob" class="bg-amber-50 border border-amber-300 rounded-lg shadow p-6 mb-6">
+      <div class="flex items-start gap-4">
+        <div class="shrink-0 mt-0.5">
+          <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h2 class="text-lg font-semibold text-amber-800 mb-1">{{ $t('Interrupted Batch Job Found') }}</h2>
+          <p class="text-sm text-amber-700 mb-3">
+            {{ $t('A previous batch job was interrupted before completing.') }}
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div class="bg-white rounded-lg p-3 border border-amber-200">
+              <p class="text-xs text-gray-500">{{ $t('Total') }}</p>
+              <p class="text-lg font-bold text-gray-800">{{ interruptedJob.total_images }}</p>
+            </div>
+            <div class="bg-white rounded-lg p-3 border border-amber-200">
+              <p class="text-xs text-gray-500">{{ $t('Processed') }}</p>
+              <p class="text-lg font-bold text-green-600">{{ interruptedJob.processed_images }}</p>
+            </div>
+            <div class="bg-white rounded-lg p-3 border border-amber-200">
+              <p class="text-xs text-gray-500">{{ $t('Failed') }}</p>
+              <p class="text-lg font-bold text-red-600">{{ interruptedJob.failed_images }}</p>
+            </div>
+            <div class="bg-white rounded-lg p-3 border border-amber-200">
+              <p class="text-xs text-gray-500">{{ $t('Remaining') }}</p>
+              <p class="text-lg font-bold text-blue-600">{{ interruptedJob.remaining }}</p>
+            </div>
+          </div>
+          <!-- Progress bar -->
+          <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+            <div
+              class="bg-amber-500 h-2 rounded-full transition-all"
+              :style="{ width: interruptedJob.progress + '%' }"
+            ></div>
+          </div>
+          <div class="flex gap-3">
+            <button
+              @click="resumeJob"
+              :disabled="resuming"
+              class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ resuming ? $t('Resuming...') : $t('Resume') }}
+            </button>
+            <button
+              @click="discardJob"
+              :disabled="resuming"
+              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 disabled:opacity-50"
+            >
+              {{ $t('Discard') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active job display (existing behavior) -->
     <div v-if="job" class="bg-white rounded-lg shadow border p-6">
       <!-- Progress -->
       <div class="mb-6">
@@ -100,7 +159,7 @@
       </div>
     </div>
 
-    <div v-else class="text-center py-12 text-gray-500">
+    <div v-else-if="!interruptedJob && !checkingActive && !resuming" class="text-center py-12 text-gray-500">
       {{ $t('No active batch job') }}
     </div>
 
@@ -203,11 +262,82 @@ const MAX_POLL_INTERVAL = 10000
 const RAMP_AFTER_POLLS = 10
 let processingChunk = false
 
+// Unique client ID for this tab — used for single-owner processing lock
+const clientId = Math.random().toString(36).substring(2) + Date.now().toString(36)
+
+// Whether this tab is the processor (true) or a read-only watcher (false)
+const isProcessor = ref(true)
+
+// Resume-related state
+const interruptedJob = ref(null)
+const checkingActive = ref(false)
+const resuming = ref(false)
+
+const checkForInterruptedJob = async () => {
+  checkingActive.value = true
+  try {
+    const result = await Api.get('/batch/active')
+    if (result.success && result.has_active && !result.is_running) {
+      interruptedJob.value = result.job
+    } else if (result.success && result.has_active && result.is_running) {
+      // Job is actively running in another tab — watch progress (read-only, no processing)
+      isProcessor.value = false
+      jobId.value = result.job.id
+      await loadJobStatus()
+      startPolling()
+    }
+  } catch (error) {
+    // Silently fail — no interrupted job to show
+  } finally {
+    checkingActive.value = false
+  }
+}
+
+const resumeJob = async () => {
+  if (!interruptedJob.value) return
+  resuming.value = true
+
+  try {
+    const result = await Api.post('/batch/resume', {
+      job_id: interruptedJob.value.id
+    })
+
+    if (result.success) {
+      notification.success($t('Resuming batch job...'))
+      // Clear the interrupted banner and switch to active job mode
+      jobId.value = result.job_id
+      interruptedJob.value = null
+      await loadJobStatus()
+      startPolling()
+    }
+  } catch (error) {
+    notification.error(error.message || $t('Failed to resume batch job'))
+  } finally {
+    resuming.value = false
+  }
+}
+
+const discardJob = async () => {
+  if (!interruptedJob.value) return
+
+  try {
+    await Api.post('/batch/cancel', {
+      job_id: interruptedJob.value.id,
+      discard: true
+    })
+    notification.success($t('Batch job discarded'))
+    interruptedJob.value = null
+  } catch (error) {
+    notification.error(error.message || $t('Failed to discard job'))
+  }
+}
+
 const loadJobStatus = async () => {
   if (!jobId.value) return
 
   try {
-    const result = await Api.get(`/batch/status?job_id=${jobId.value}`)
+    const clientParam = isProcessor.value ? `&client_id=${clientId}` : ''
+    const result = await Api.get(`/batch/status?job_id=${jobId.value}${clientParam}`)
     if (result.success) {
       const wasProcessing = prevJobStatus.value === 'processing' || prevJobStatus.value === 'pending'
       // Reset poll interval on status change for faster feedback
@@ -217,8 +347,8 @@ const loadJobStatus = async () => {
       prevJobStatus.value = result.job.status
       job.value = result.job
 
-      // If processing, trigger process chunk (only if not already processing)
-      if ((job.value.status === 'processing' || job.value.status === 'pending') && !processingChunk) {
+      // If processing, trigger process chunk (only if this tab is the processor, not a watcher)
+      if (isProcessor.value && (job.value.status === 'processing' || job.value.status === 'pending') && !processingChunk) {
         await processChunk()
       }
 
@@ -295,15 +425,21 @@ const saveAllAltTexts = async () => {
 }
 
 const processChunk = async () => {
-  if (!jobId.value || processingChunk) return
+  if (!jobId.value || processingChunk || !isProcessor.value) return
   processingChunk = true
 
   try {
     await Api.post('/batch/process', {
-      job_id: jobId.value
+      job_id: jobId.value,
+      client_id: clientId
     })
   } catch (error) {
-    console.error('Failed to process chunk:', error)
+    // 409 = another tab owns this job — downgrade to watcher
+    if (error.status === 409) {
+      isProcessor.value = false
+    } else {
+      console.error('Failed to process chunk:', error)
+    }
   } finally {
     processingChunk = false
   }
@@ -355,9 +491,15 @@ const stopPolling = () => {
   }
 }
 
-onMounted(() => {
-  loadJobStatus()
-  startPolling()
+onMounted(async () => {
+  if (jobId.value) {
+    // Navigated here with a specific job ID (normal flow from Scanner)
+    await loadJobStatus()
+    startPolling()
+  } else {
+    // Navigated here without a job ID — check for interrupted jobs
+    await checkForInterruptedJob()
+  }
 })
 
 onUnmounted(() => {

@@ -33,5 +33,7 @@ CLAUDE.md
 comparison.md
 roadmap.md
 
+.dev
+
 # Dev mode sentinel (never ship to production)
 .dev

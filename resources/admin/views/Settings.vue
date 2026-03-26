@@ -145,6 +145,30 @@
         </label>
       </div>
 
+      <!-- Post type exclusion (only visible when auto-generate is on) -->
+      <div v-if="settings.icais_auto_generate === '1' || settings.icais_auto_generate === 1 || settings.icais_auto_generate === true" class="mb-4 ml-6 p-3 bg-gray-50 rounded-lg border">
+        <p class="text-sm font-medium text-gray-700 mb-2">{{ $t('Exclude post types from auto-generation') }}</p>
+        <p class="text-xs text-gray-500 mb-3">{{ $t('Images uploaded to these post types will not be auto-generated.') }}</p>
+        <div class="flex flex-wrap gap-3">
+          <label
+            v-for="(label, slug) in availablePostTypes"
+            :key="slug"
+            class="inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <input
+              type="checkbox"
+              :value="slug"
+              v-model="excludedPostTypes"
+              class="rounded"
+            />
+            <span class="text-sm text-gray-700">{{ label }}</span>
+          </label>
+        </div>
+        <p v-if="Object.keys(availablePostTypes).length === 0" class="text-xs text-gray-400">
+          {{ $t('No post types available') }}
+        </p>
+      </div>
+
       <div class="mb-4">
         <label class="flex items-center gap-2">
           <input
@@ -381,6 +405,8 @@ const woocommerceInstalled = ref(false)
 const seoPlugin = ref(null)
 const availableModels = ref({})
 const availableLanguages = ref({})
+const availablePostTypes = ref({})
+const excludedPostTypes = ref([])
 
 const sortedLanguages = computed(() => {
   const entries = Object.entries(availableLanguages.value)
@@ -432,7 +458,16 @@ const loadSettings = async () => {
       seoPlugin.value = result.seo_plugin || null
       availableModels.value = result.available_models || {}
       availableLanguages.value = result.available_languages || {}
+      availablePostTypes.value = result.available_post_types || {}
       woocommerceInstalled.value = result.woo_active || false
+
+      // Parse excluded post types from JSON string
+      try {
+        const parsed = JSON.parse(result.settings.icais_excluded_post_types || '[]')
+        excludedPostTypes.value = Array.isArray(parsed) ? parsed : []
+      } catch (e) {
+        excludedPostTypes.value = []
+      }
 
       if (result.api_setting && result.api_setting.is_active) {
         settings.value.icais_api_provider = result.api_setting.provider
@@ -445,6 +480,10 @@ const loadSettings = async () => {
 
 const saveSettings = async () => {
   saving.value = true;
+
+  // Sync excluded post types array into settings as JSON before saving
+  settings.value.icais_excluded_post_types = JSON.stringify(excludedPostTypes.value)
+
   try {
     const result = await Api.post('/settings', {
       settings: settings.value

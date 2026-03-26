@@ -3,6 +3,22 @@
     <div class="mb-6">
       <h1 class="text-2xl font-bold mb-4">{{ $t('Media Library Scanner') }}</h1>
 
+      <!-- Interrupted batch banner -->
+      <div v-if="interruptedBatchId" class="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm text-amber-800">{{ $t('You have an interrupted batch job. Would you like to resume it?') }}</p>
+        </div>
+        <button
+          @click="router.push('/batch')"
+          class="bg-amber-600 text-white px-4 py-1.5 text-sm rounded-lg hover:bg-amber-700 shrink-0"
+        >
+          {{ $t('Resume') }}
+        </button>
+      </div>
+
       <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-white p-4 rounded-lg shadow border">
@@ -196,7 +212,7 @@
 
     <div v-else class="bg-white rounded-lg shadow border">
       <div class="p-4 border-b">
-        <label class="flex items-center gap-2">
+        <label class="inline-flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             :checked="allSelected"
@@ -262,6 +278,7 @@ const scanStats = ref({})
 const pagination = ref({})
 const loading = ref(false)
 const filter = ref('all')
+const interruptedBatchId = ref(null)
 const selectedImages = ref([])
 const renamingId = ref(null)
 const showAdvancedFilters = ref(false)
@@ -398,7 +415,13 @@ const startBatch = async () => {
       router.push(`/batch/${result.job_id}`)
     }
   } catch (error) {
-    notification.error($t('Failed to start batch job'))
+    // If there's an active job, offer to resume it
+    if (error.response?.job_id) {
+      notification.warning($t('A batch job is already in progress.'))
+      router.push(`/batch/${error.response.job_id}`)
+    } else {
+      notification.error(error.message || $t('Failed to start batch job'))
+    }
   }
 }
 
@@ -483,6 +506,14 @@ onMounted(() => {
     filter.value = queryFilter
   }
   loadImages()
+
+  // Check for interrupted batch job (non-blocking)
+  // Only show banner if job is interrupted (no heartbeat), not if actively running
+  Api.get('/batch/active').then(result => {
+    if (result?.success && result.has_active && !result.is_running) {
+      interruptedBatchId.value = result.job.id
+    }
+  }).catch(() => {})
 })
 
 onUnmounted(() => {

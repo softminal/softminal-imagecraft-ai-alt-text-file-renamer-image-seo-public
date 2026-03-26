@@ -37,6 +37,7 @@ class Settings
         'icais_openai_model' => 'gpt-4o-mini',
         'icais_anthropic_model' => 'claude-haiku-4-5',
         'icais_gemini_model' => 'gemini-2.5-flash',
+        'icais_excluded_post_types' => '[]',
     ];
 
     /**

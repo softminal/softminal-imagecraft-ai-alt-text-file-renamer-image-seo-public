@@ -47,6 +47,16 @@ class AutoGenerate
             }
         }
 
+        // Check if the parent post type is excluded from auto-generation
+        if ($attachment && $attachment->post_parent > 0) {
+            $parentPostType = get_post_type($attachment->post_parent);
+            $excludedJson = Settings::get('icais_excluded_post_types', '[]');
+            $excluded = json_decode($excludedJson, true);
+            if (is_array($excluded) && in_array($parentPostType, $excluded, true)) {
+                return;
+            }
+        }
+
         // Check if it's an image
         if (!wp_attachment_is_image($attachmentId)) {
             return;

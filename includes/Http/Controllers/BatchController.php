@@ -14,6 +14,46 @@ if (!defined('ABSPATH')) {
 class BatchController extends Controller
 {
     /**
+     * Heartbeat TTL in seconds.
+     * A job is considered "actively running" if a heartbeat was set within this window.
+     * Must be longer than the maximum poll interval (MAX_POLL_INTERVAL = 10s on the frontend).
+     */
+    private const HEARTBEAT_TTL = 30;
+
+    /**
+     * Set the heartbeat for a batch job, stamped with a client_id so we can
+     * distinguish the owning browser tab from a second tab.
+     */
+    private function setHeartbeat(int $jobId, string $clientId): void
+    {
+        set_transient('icais_batch_hb_' . $jobId, $clientId, self::HEARTBEAT_TTL);
+    }
+
+    /**
+     * Return the client_id that owns the heartbeat, or empty string if expired/missing.
+     */
+    private function getHeartbeatOwner(int $jobId): string
+    {
+        return (string) get_transient('icais_batch_hb_' . $jobId);
+    }
+
+    /**
+     * Check whether a batch job has a fresh heartbeat from any client.
+     */
+    private function hasHeartbeat(int $jobId): bool
+    {
+        return $this->getHeartbeatOwner($jobId) !== '';
+    }
+
+    /**
+     * Delete the heartbeat for a batch job.
+     */
+    private function clearHeartbeat(int $jobId): void
+    {
+        delete_transient('icais_batch_hb_' . $jobId);
+    }
+
+    /**
      * Find batch job and verify ownership
      */
     private function findOwnedJob(int $jobId)
@@ -108,7 +148,17 @@ class BatchController extends Controller
 
         // Validate and correct status if needed (fixes existing jobs with incorrect status)
         $job->validateStatus();
-        
+
+        // Refresh heartbeat only if the caller is the owning processor tab.
+        // Watcher tabs (no client_id or different client_id) just read status without touching the heartbeat.
+        $clientId = sanitize_text_field($params['client_id'] ?? '');
+        if ($clientId !== '' && in_array($job->status, ['pending', 'processing'], true)) {
+            $currentOwner = $this->getHeartbeatOwner($jobId);
+            if ($currentOwner === '' || $currentOwner === $clientId) {
+                $this->setHeartbeat($jobId, $clientId);
+            }
+        }
+
         return $this->response([
             'success' => true,
             'job' => [
@@ -147,6 +197,38 @@ class BatchController extends Controller
             ], 404);
         }
 
+        // Only process jobs that are pending or processing
+        if (!in_array($job->status, ['pending', 'processing'], true)) {
+            return $this->response([
+                'success' => false,
+                'message' => __('This job is no longer active', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        // Enforce single-processor ownership via heartbeat.
+        // Each browser tab sends a unique client_id. The first tab to call process()
+        // claims the lock. Subsequent tabs with a different client_id are rejected
+        // as long as the owning tab's heartbeat is fresh.
+        $clientId = sanitize_text_field($params['client_id'] ?? '');
+        if ($clientId === '') {
+            return $this->response([
+                'success' => false,
+                'message' => __('Client ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $currentOwner = $this->getHeartbeatOwner($jobId);
+        if ($currentOwner !== '' && $currentOwner !== $clientId) {
+            // Another tab owns this job and its heartbeat is still fresh
+            return $this->response([
+                'success' => false,
+                'message' => __('This job is being processed by another window', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 409);
+        }
+
+        // Claim or refresh the heartbeat for this client
+        $this->setHeartbeat($jobId, $clientId);
+
         // Get image IDs
         $imageIds = get_transient('icais_batch_' . $jobId);
         if (!$imageIds) {
@@ -155,7 +237,7 @@ class BatchController extends Controller
                 'message' => __('Image IDs not found for this job', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
-        
+
         // Update job status (targeted update to avoid touching counter fields)
         if ($job->status === 'pending') {
             $job->status = 'processing';
@@ -164,8 +246,9 @@ class BatchController extends Controller
             $safeTable = esc_sql(BatchJob::table());
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Targeted status update
             $wpdb->update($safeTable, ['status' => 'processing', 'started_at' => $job->started_at], ['id' => (int) $job->id], ['%s', '%s'], ['%d']);
+            BatchJob::invalidateCache();
         }
-        
+
         // Get batch size
         $batchSize = Settings::get('icais_batch_size', 5);
         $tone = Settings::get('icais_default_tone', 'professional');
@@ -187,10 +270,21 @@ class BatchController extends Controller
         $startTime = time();
         $maxSeconds = max(30, (int) Settings::get('icais_request_timeout', 60) * 2);
 
+        $skipExisting = (bool) Settings::get('icais_skip_existing', false);
+
         foreach ($chunk as $attachmentId) {
             // Check elapsed time before each image to avoid request timeout
             if ((time() - $startTime) >= $maxSeconds) {
                 break;
+            }
+
+            // Skip images that already have alt text (saves API credits)
+            if ($skipExisting) {
+                $existingAlt = get_post_meta((int) $attachmentId, '_wp_attachment_image_alt', true);
+                if (!empty($existingAlt)) {
+                    $processed++;
+                    continue;
+                }
             }
 
             try {
@@ -243,7 +337,10 @@ class BatchController extends Controller
         }
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Targeted update of status fields only; counter fields updated atomically via increment()
         $wpdb->update($safeTable, $updateData, ['id' => (int) $job->id], $updateFormats, ['%d']);
-        
+
+        // Invalidate cache after direct DB update so next find() reads fresh data
+        BatchJob::invalidateCache();
+
         return $this->response([
             'success' => true,
             'processed' => $processed,
@@ -281,15 +378,188 @@ class BatchController extends Controller
             ], 404);
         }
 
+        // Prevent discarding a job that is actively being processed in another window.
+        // The "Cancel" button in the active-job UI doesn't send discard=true,
+        // so only the "Discard" button from the resume banner is blocked.
+        $isDiscardAction = !empty($params['discard']);
+        if ($isDiscardAction && $this->hasHeartbeat($jobId)) {
+            return $this->response([
+                'success' => false,
+                'message' => __('This job is currently being processed in another window.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 409);
+        }
+
         // Mark as cancelled (using 'failed' status for cancelled jobs)
         // Note: We could add a 'cancelled' status in the future if needed
         $job->status = 'failed';
         $job->completed_at = current_time('mysql');
         $job->save();
 
+        // Clean up the stored image IDs and heartbeat
+        delete_transient('icais_batch_' . $jobId);
+        $this->clearHeartbeat($jobId);
+
         return $this->response([
             'success' => true,
             'message' => __('Batch job cancelled', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+        ]);
+    }
+
+    /**
+     * Check for an interrupted (resumable) batch job for the current user
+     */
+    public function active($request)
+    {
+        $userId = get_current_user_id();
+        $job = BatchJob::getActive($userId);
+
+        if (!$job) {
+            return $this->response([
+                'success' => true,
+                'has_active' => false
+            ]);
+        }
+
+        // Validate and correct status if needed (e.g., all images done but status still 'processing')
+        $job->validateStatus();
+
+        // After validation, job may no longer be active (status corrected to completed/failed)
+        if (!in_array($job->status, ['pending', 'processing'], true)) {
+            return $this->response([
+                'success' => true,
+                'has_active' => false
+            ]);
+        }
+
+        // Check if another browser tab is actively processing this job
+        if ($this->hasHeartbeat((int) $job->id)) {
+            return $this->response([
+                'success' => true,
+                'has_active' => true,
+                'is_running' => true,
+                'job' => [
+                    'id' => $job->id,
+                    'status' => $job->status,
+                    'total_images' => $job->total_images,
+                    'processed_images' => $job->processed_images,
+                    'failed_images' => $job->failed_images,
+                    'progress' => $job->getProgress(),
+                    'remaining' => 0,
+                    'started_at' => $job->started_at
+                ]
+            ]);
+        }
+
+        // No heartbeat — job is interrupted. Check if it can be resumed.
+        $imageIds = get_transient('icais_batch_' . $job->id);
+        $hasImageIds = !empty($imageIds) && is_array($imageIds);
+
+        $totalAttempted = (int) $job->processed_images + (int) $job->failed_images;
+        $remaining = max(0, (int) $job->total_images - $totalAttempted);
+
+        // If transient expired, the job can't be resumed — auto-mark as failed so it stops blocking new jobs
+        if (!$hasImageIds) {
+            $job->status = 'failed';
+            $job->completed_at = current_time('mysql');
+            $job->save();
+
+            return $this->response([
+                'success' => true,
+                'has_active' => false
+            ]);
+        }
+
+        return $this->response([
+            'success' => true,
+            'has_active' => true,
+            'is_running' => false,
+            'job' => [
+                'id' => $job->id,
+                'status' => $job->status,
+                'total_images' => $job->total_images,
+                'processed_images' => $job->processed_images,
+                'failed_images' => $job->failed_images,
+                'progress' => $job->getProgress(),
+                'remaining' => $remaining,
+                'started_at' => $job->started_at
+            ]
+        ]);
+    }
+
+    /**
+     * Resume an interrupted batch job
+     */
+    public function resume($request)
+    {
+        $params = $request->get_json_params();
+        $jobId = (int) ($params['job_id'] ?? 0);
+
+        if (!$jobId) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Job ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $job = $this->findOwnedJob($jobId);
+        if (!$job) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Job not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 404);
+        }
+
+        // Only allow resuming pending/processing jobs
+        if (!in_array($job->status, ['pending', 'processing'], true)) {
+            return $this->response([
+                'success' => false,
+                'message' => __('This job cannot be resumed', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        // Prevent resuming a job that another browser tab is actively processing
+        if ($this->hasHeartbeat($jobId)) {
+            return $this->response([
+                'success' => false,
+                'message' => __('This job is currently being processed in another window.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 409);
+        }
+
+        // Verify transient still has image IDs
+        $imageIds = get_transient('icais_batch_' . $jobId);
+        if (!$imageIds || !is_array($imageIds)) {
+            // Image IDs expired — mark job as failed
+            $job->status = 'failed';
+            $job->completed_at = current_time('mysql');
+            $job->save();
+
+            return $this->response([
+                'success' => false,
+                'message' => __('Image data for this job has expired. Please start a new batch.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        // Refresh the transient TTL so it doesn't expire mid-resume
+        set_transient('icais_batch_' . $jobId, $imageIds, DAY_IN_SECONDS);
+
+        // Ensure status is processing
+        if ($job->status === 'pending') {
+            $job->status = 'processing';
+            $job->started_at = $job->started_at ?: current_time('mysql');
+            global $wpdb;
+            $safeTable = esc_sql(BatchJob::table());
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Targeted status update for resume
+            $wpdb->update($safeTable, ['status' => 'processing', 'started_at' => $job->started_at], ['id' => (int) $job->id], ['%s', '%s'], ['%d']);
+            BatchJob::invalidateCache();
+        }
+
+        return $this->response([
+            'success' => true,
+            'job_id' => $job->id,
+            'total_images' => $job->total_images,
+            'processed_images' => $job->processed_images,
+            'failed_images' => $job->failed_images,
+            'progress' => $job->getProgress()
         ]);
     }
 

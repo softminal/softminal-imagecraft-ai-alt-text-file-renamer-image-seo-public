@@ -30,18 +30,21 @@ class Api {
             if (!response.ok) {
                 // Try to get error message from response
                 let errorMessage = `API Error: ${response.status} ${response.statusText}`
-                
+                let errorData = null
+
                 if (isJson) {
                     try {
-                        const errorData = await response.json()
+                        errorData = await response.json()
                         errorMessage = errorData.message || errorData.error || errorMessage
                     } catch (e) {
                         // If JSON parsing fails, use default message
                     }
-                } else {
                 }
-                
-                throw new Error(errorMessage)
+
+                const error = new Error(errorMessage)
+                error.response = errorData
+                error.status = response.status
+                throw error
             }
 
             // Parse JSON response

@@ -20,6 +20,16 @@ class BatchJob extends Model
     ];
 
     /**
+     * Invalidate model cache (public wrapper for bumpCacheVersion).
+     *
+     * Useful after direct-DB updates that bypass Model::save().
+     */
+    public static function invalidateCache(): void
+    {
+        static::bumpCacheVersion();
+    }
+
+    /**
      * Get active batch job for user
      */
     public static function getActive(?int $userId = null)
@@ -69,6 +79,9 @@ class BatchJob extends Model
 
         // Keep in-memory attribute in sync
         $this->attributes[$field] = (int) ($this->attributes[$field] ?? 0) + $amount;
+
+        // Invalidate object cache so the next find() reads fresh data from DB
+        static::bumpCacheVersion();
     }
 
     /**
@@ -100,10 +113,13 @@ class BatchJob extends Model
             return;
         }
 
-        // If all images failed, status should be 'failed' not 'completed'
+        // If all images failed, status should be 'failed'
         if ($failed === $total && $processed === 0) {
-            if ($this->status === 'completed') {
+            if ($this->status !== 'failed') {
                 $this->status = 'failed';
+                if (!$this->completed_at) {
+                    $this->completed_at = current_time('mysql');
+                }
                 $this->save();
             }
         } elseif ($this->status !== 'completed') {
