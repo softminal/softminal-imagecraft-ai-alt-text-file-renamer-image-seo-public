@@ -44,6 +44,7 @@ class SettingsController extends Controller
             'available_models' => AIFactory::getAvailableModels(),
             'available_languages' => \Softminal\ImageCraft\Services\AI\BaseAIProvider::getLanguageMap(),
             'woo_active' => class_exists('WooCommerce'),
+            'available_post_types' => self::getPublicPostTypes(),
             'plugin_version' => defined('ICAIS_VERSION') ? ICAIS_VERSION : '0.0.0',
         ]);
     }
@@ -83,6 +84,7 @@ class SettingsController extends Controller
         $intKeys = ['icais_max_length', 'icais_batch_size', 'icais_request_timeout', 'icais_rename_max_length'];
         $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase'];
         $textareaKeys = ['icais_custom_prompt', 'icais_woo_custom_prompt'];
+        $jsonArrayKeys = ['icais_excluded_post_types'];
 
         // Server-side caps for integer settings to prevent DoS
         $intCaps = [
@@ -103,6 +105,13 @@ class SettingsController extends Controller
                 }
             } elseif (in_array($key, $boolKeys, true)) {
                 $settings[$key] = $value ? '1' : '0';
+            } elseif (in_array($key, $jsonArrayKeys, true)) {
+                // Accept array or JSON string, sanitize each slug, store as JSON
+                $arr = is_array($value) ? $value : json_decode($value, true);
+                if (!is_array($arr)) {
+                    $arr = [];
+                }
+                $settings[$key] = wp_json_encode(array_values(array_map('sanitize_key', $arr)));
             } elseif (in_array($key, $textareaKeys, true)) {
                 $settings[$key] = sanitize_textarea_field(wp_unslash($value));
             } else {
@@ -392,5 +401,23 @@ class SettingsController extends Controller
             'success' => false,
             'message' => __('Failed to complete wizard', 'imagecraft-ai-alt-text-file-renamer-image-seo')
         ], 400);
+    }
+
+    /**
+     * Get all public post types as slug => label pairs (excluding 'attachment')
+     */
+    private static function getPublicPostTypes(): array
+    {
+        $postTypes = get_post_types(['public' => true], 'objects');
+        $result = [];
+
+        foreach ($postTypes as $slug => $type) {
+            if ($slug === 'attachment') {
+                continue;
+            }
+            $result[$slug] = $type->labels->singular_name ?: $type->label;
+        }
+
+        return $result;
     }
 }

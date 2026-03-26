@@ -262,6 +262,9 @@ class TranslationStrings {
             'Zulu' => __('Zulu', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Alt text will be generated in the selected language' => __('Alt text will be generated in the selected language', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Auto-generate on upload' => __('Auto-generate on upload', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Exclude post types from auto-generation' => __('Exclude post types from auto-generation', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Images uploaded to these post types will not be auto-generated.' => __('Images uploaded to these post types will not be auto-generated.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'No post types available' => __('No post types available', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Preview before accepting' => __('Preview before accepting', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Skip images with existing alt text' => __('Skip images with existing alt text', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
 

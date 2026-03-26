@@ -270,10 +270,21 @@ class BatchController extends Controller
         $startTime = time();
         $maxSeconds = max(30, (int) Settings::get('icais_request_timeout', 60) * 2);
 
+        $skipExisting = (bool) Settings::get('icais_skip_existing', false);
+
         foreach ($chunk as $attachmentId) {
             // Check elapsed time before each image to avoid request timeout
             if ((time() - $startTime) >= $maxSeconds) {
                 break;
+            }
+
+            // Skip images that already have alt text (saves API credits)
+            if ($skipExisting) {
+                $existingAlt = get_post_meta((int) $attachmentId, '_wp_attachment_image_alt', true);
+                if (!empty($existingAlt)) {
+                    $processed++;
+                    continue;
+                }
             }
 
             try {
