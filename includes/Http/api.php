@@ -43,6 +43,8 @@ Route::prefix('generator')->capability('upload_files')->group(function () {
 // Batch routes (admin only)
 Route::prefix('batch')->capability('manage_options')->group(function () {
     Route::post('/start', [BatchController::class, 'start']);
+    Route::get('/active', [BatchController::class, 'active']);
+    Route::post('/resume', [BatchController::class, 'resume']);
     Route::get('/status', [BatchController::class, 'status']);
     Route::get('/results', [BatchController::class, 'results']);
     Route::post('/process', [BatchController::class, 'process']);

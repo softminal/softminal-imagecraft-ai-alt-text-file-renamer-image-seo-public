@@ -79,6 +79,8 @@ class TranslationStrings {
 
     private static function scanner(): array {
         return [
+            // Interrupted batch
+            'You have an interrupted batch job. Would you like to resume it?' => __('You have an interrupted batch job. Would you like to resume it?', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             // Filters & Actions
             'Media Library Scanner' => __('Media Library Scanner', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Has Alt Text' => __('Has Alt Text', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
@@ -402,6 +404,23 @@ class TranslationStrings {
             'Failed to save alt texts' => __('Failed to save alt texts', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Batch job cancelled' => __('Batch job cancelled', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Failed to cancel job' => __('Failed to cancel job', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+
+            // Resume batch
+            'Interrupted Batch Job Found' => __('Interrupted Batch Job Found', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'A previous batch job was interrupted before completing.' => __('A previous batch job was interrupted before completing.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Total' => __('Total', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Processed' => __('Processed', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Failed' => __('Failed', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Remaining' => __('Remaining', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Resume' => __('Resume', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Resuming...' => __('Resuming...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Discard' => __('Discard', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Resuming batch job...' => __('Resuming batch job...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Batch job discarded' => __('Batch job discarded', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Failed to resume batch job' => __('Failed to resume batch job', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Failed to discard job' => __('Failed to discard job', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'A batch job is already in progress.' => __('A batch job is already in progress.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'This job is currently being processed in another window.' => __('This job is currently being processed in another window.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
         ];
     }
 

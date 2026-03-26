@@ -13,6 +13,10 @@
     /* @apply bg-[#d3d3d324]; */
     /* background:#d3d3d324; */
 
+    input[type="checkbox"]{
+        margin: unset;
+    }
+
 }
 
 .php-error #adminmenuwrap {
