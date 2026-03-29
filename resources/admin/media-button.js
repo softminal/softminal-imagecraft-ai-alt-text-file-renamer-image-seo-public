@@ -23,22 +23,15 @@
      * which caused it to reuse the first image's ID for subsequent images.
      */
     function getAttachmentId() {
-        // Method 1: Walk up DOM to find attachment-details and parse edit link
-        // (most reliable — always reflects the currently displayed attachment)
+        // Method 1: URL hash — Media Library grid uses #wp-media-grid/attachment/ID
         try {
-            var details = document.querySelector('.attachment-details');
-            if (details) {
-                var editLink = details.querySelector('a[href*="post="]');
-                if (editLink) {
-                    var match = editLink.href.match(/post=(\d+)/);
-                    if (match) {
-                        return parseInt(match[1], 10);
-                    }
-                }
+            var hashMatch = window.location.hash.match(/attachment\/(\d+)/);
+            if (hashMatch) {
+                return parseInt(hashMatch[1], 10);
             }
         } catch (e) {}
 
-        // Method 2: Check for data-id attribute on selected/viewed attachment in grid
+        // Method 2: data-id on the currently viewed/selected grid thumbnail
         try {
             var selected = document.querySelector('.attachment.details, .attachment.selected');
             if (selected && selected.dataset.id) {
@@ -46,7 +39,24 @@
             }
         } catch (e) {}
 
-        // Method 3: Two-column edit view (attachment details in sidebar)
+        // Method 3: Parse the attachment's own edit link from the details panel.
+        // Use the LAST a[href*="post="] link — the first may be an "Uploaded to" link
+        // pointing to the parent post (e.g., a WooCommerce product), not the attachment.
+        try {
+            var details = document.querySelector('.attachment-details');
+            if (details) {
+                var editLinks = details.querySelectorAll('a[href*="post="]');
+                if (editLinks.length > 0) {
+                    var lastLink = editLinks[editLinks.length - 1];
+                    var match = lastLink.href.match(/post=(\d+)/);
+                    if (match) {
+                        return parseInt(match[1], 10);
+                    }
+                }
+            }
+        } catch (e) {}
+
+        // Method 4: Two-column edit view (attachment details in sidebar)
         try {
             var frame = wp.media.frame;
             if (frame && frame.model && frame.model.get) {
@@ -54,7 +64,7 @@
             }
         } catch (e) {}
 
-        // Method 4: Standard media modal selection (fallback for selection-based modals)
+        // Method 5: Standard media modal selection (fallback for selection-based modals)
         try {
             var frame = wp.media.frame;
             if (frame && frame.state) {

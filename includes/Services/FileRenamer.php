@@ -201,14 +201,23 @@ class FileRenamer
         $this->updateContentReferences($attachmentId, $oldUrl, $newUrl, $newFilename, $sizeFilenameMap);
         $this->updatePostMetaReferences($attachmentId, $oldUrl, $newUrl, $newFilename, $sizeFilenameMap);
 
-        // Update attachment guid to reflect the new URL
+        // Update attachment title (slug → readable, capped at 80 chars) and guid
+        $newTitle = ucwords(str_replace('-', ' ', $newBaseName));
+        if (mb_strlen($newTitle) > 80) {
+            $newTitle = mb_substr($newTitle, 0, 80);
+            $newTitle = preg_replace('/\s+\S*$/', '', $newTitle); // trim to last full word
+        }
+
         global $wpdb;
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct update to avoid wp_update_post hooks/side-effects
         $wpdb->update(
             $wpdb->posts,
-            ['guid' => $newUrl],
+            [
+                'post_title' => $newTitle,
+                'guid'       => $newUrl,
+            ],
             ['ID' => $attachmentId],
-            ['%s'],
+            ['%s', '%s'],
             ['%d']
         );
 
