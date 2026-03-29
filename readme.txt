@@ -214,8 +214,19 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * New: Post type exclusion — exclude Pages, custom post types, or any public post type from auto-generation
 * New: Single-owner concurrency control — prevents duplicate processing when multiple browser tabs are open
 * New: Interrupted batch notification banner on Scanner page
+* New: Gmail-style "Select all matching images" banner — one click to select up to 500 images across all pages for batch processing
+* New: Per-page display options (12, 24, 48, 96) in the media scanner
 * Improvement: Skip existing alt text now also applies to batch processing (saves API credits)
 * Improvement: Batch job status validation fixes stuck jobs from older versions
+* Improvement: Smoother page/filter transitions — existing images stay visible with loading overlay instead of blank "Loading..." screen
+* Fix: File renamer now updates all thumbnail/size URLs in post content (fixes broken responsive images and srcset after rename)
+* Fix: File renamer handles serialized post meta safely (prevents data corruption on rename)
+* Fix: File renamer updates attachment guid to reflect new URL
+* Fix: File renamer no longer auto-overwrites attachment title (fixes "too long title" after rename)
+* Fix: Media modal generate button now always detects the correct image when switching between images without edit mode
+* Fix: Media modal alt text field reference is now queried fresh on each generate click (prevents writing to stale DOM)
+* Fix: Bulk select and cross-page selection properly capped at 500 images across all selection paths
+* Fix: Bulk rename now includes off-page images in cross-page selections
 * Fix: WP object cache now properly invalidated after batch counter updates
 * Fix: Select All checkbox click area limited to checkbox and label only
 
@@ -254,7 +265,7 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 == Upgrade Notice ==
 
 = 1.2.0 =
-Resume interrupted batch jobs, exclude post types from auto-generation, and improved batch processing reliability. Fully backwards-compatible — no action required after update.
+Critical file renamer fixes (broken images, serialized data corruption, stale title), media modal generation bug fix, Gmail-style cross-page selection, and per-page display options. Fully backwards-compatible — no action required after update.
 
 = 1.1.0 =
 65+ language support, Help page with video tutorial, improved setup wizard, and bug fixes.

@@ -191,15 +191,26 @@ class FileRenamer
             wp_update_attachment_metadata($attachmentId, $metadata);
         }
 
-        // Rename thumbnails / intermediate sizes
-        $this->renameThumbnails($attachmentId, $file, $newFilePath, $newBaseName, $extension, $fs);
+        // Rename thumbnails / intermediate sizes (returns old→new filename map)
+        $sizeFilenameMap = $this->renameThumbnails($attachmentId, $file, $newFilePath, $newBaseName, $extension, $fs);
 
         // New URL
         $newUrl = rtrim((string) $uploadDir['baseurl'], '/') . '/' . ltrim($newRelativePath, '/');
 
-        // Update references
-        $this->updateContentReferences($attachmentId, $oldUrl, $newUrl, $newFilename);
-        $this->updatePostMetaReferences($attachmentId, $oldUrl, $newUrl, $newFilename);
+        // Update references in post content and post meta
+        $this->updateContentReferences($attachmentId, $oldUrl, $newUrl, $newFilename, $sizeFilenameMap);
+        $this->updatePostMetaReferences($attachmentId, $oldUrl, $newUrl, $newFilename, $sizeFilenameMap);
+
+        // Update attachment guid to reflect the new URL
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct update to avoid wp_update_post hooks/side-effects
+        $wpdb->update(
+            $wpdb->posts,
+            ['guid' => $newUrl],
+            ['ID' => $attachmentId],
+            ['%s'],
+            ['%d']
+        );
 
         clean_post_cache($attachmentId);
 
@@ -227,11 +238,12 @@ class FileRenamer
         string $newBase,
         string $extension,
         $fs
-    ): void {
+    ): array {
+        $filenameMap = [];
         $metadata = wp_get_attachment_metadata($attachmentId);
 
         if (empty($metadata['sizes']) || !is_array($metadata['sizes'])) {
-            return;
+            return $filenameMap;
         }
 
         $oldDir = dirname($oldFile);
@@ -269,30 +281,33 @@ class FileRenamer
             }
 
             if ($fs->move($oldSizePath, $newSizePath, true)) {
+                $filenameMap[$oldSizeFilename] = $newSizeFilename;
                 $metadata['sizes'][$sizeKey]['file'] = $newSizeFilename;
             }
         }
 
         wp_update_attachment_metadata($attachmentId, $metadata);
+
+        return $filenameMap;
     }
 
     /**
      * Update post content references.
      *
-     * Safer approach:
-     *  - replace full URL old->new (best)
-     *  - also replace basename as fallback (some content stores only basename)
+     * Approach:
+     *  1. Replace full URL old→new (most specific, safest)
+     *  2. Replace path-qualified basenames (/old.jpg → /new.jpg) to catch relative paths
+     *     without matching plain text occurrences of the filename
      */
-    private function updateContentReferences(int $attachmentId, string $oldUrl, string $newUrl, string $newFilename): void
+    private function updateContentReferences(int $attachmentId, string $oldUrl, string $newUrl, string $newFilename, array $sizeFilenameMap = []): void
     {
         global $wpdb;
 
         $oldBasename = basename($oldUrl);
 
-        // Replace full URL
+        // 1. Replace full URL of main file (exact, no false positives)
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk REPLACE across all posts; caching not applicable
         $wpdb->query(
-
             $wpdb->prepare(
                 "UPDATE {$wpdb->posts}
                  SET post_content = REPLACE(post_content, %s, %s)
@@ -306,7 +321,8 @@ class FileRenamer
             )
         );
 
-        // Replace basename fallback
+        // 2. Replace path-qualified basename for main file (catches relative paths like /uploads/.../old.jpg)
+        //    The "/" prefix prevents matching plain text occurrences of the filename
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk REPLACE across all posts; caching not applicable
         $wpdb->query(
             $wpdb->prepare(
@@ -315,32 +331,71 @@ class FileRenamer
                  WHERE post_content LIKE %s
                  AND ID != %d
                  AND post_type NOT IN ('attachment', 'nav_menu_item')",
-                $oldBasename,
-                $newFilename,
-                '%' . $wpdb->esc_like($oldBasename) . '%',
+                '/' . $oldBasename,
+                '/' . $newFilename,
+                '%/' . $wpdb->esc_like($oldBasename) . '%',
                 $attachmentId
             )
         );
+
+        // 3. Replace path-qualified thumbnail/size filenames (fixes responsive images, srcset, sized embeds)
+        foreach ($sizeFilenameMap as $oldSizeFile => $newSizeFile) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bulk REPLACE for thumbnail references in post content
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE {$wpdb->posts}
+                     SET post_content = REPLACE(post_content, %s, %s)
+                     WHERE post_content LIKE %s
+                     AND ID != %d
+                     AND post_type NOT IN ('attachment', 'nav_menu_item')",
+                    '/' . $oldSizeFile,
+                    '/' . $newSizeFile,
+                    '%/' . $wpdb->esc_like($oldSizeFile) . '%',
+                    $attachmentId
+                )
+            );
+        }
     }
 
     /**
      * Update post meta references.
+     * Handles both plain strings and serialized data safely.
      */
-    private function updatePostMetaReferences(int $attachmentId, string $oldUrl, string $newUrl, string $newFilename): void
+    private function updatePostMetaReferences(int $attachmentId, string $oldUrl, string $newUrl, string $newFilename, array $sizeFilenameMap = []): void // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed -- $attachmentId kept for API symmetry
     {
         global $wpdb;
 
         $oldBasename = basename($oldUrl);
 
-        // Find meta rows that contain old URL OR old basename
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time search for meta rows containing old URL; result set varies per rename
+        // Build all old→new replacement pairs (longest first to avoid partial matches)
+        $replacements = [];
+
+        // Full URLs for main file
+        $replacements[$oldUrl] = $newUrl;
+
+        // Full URLs for each thumbnail size
+        $baseUrl    = dirname($oldUrl);
+        $newBaseUrl = dirname($newUrl);
+        foreach ($sizeFilenameMap as $oldSizeFile => $newSizeFile) {
+            $replacements[$baseUrl . '/' . $oldSizeFile] = $newBaseUrl . '/' . $newSizeFile;
+        }
+
+        // Basename fallbacks (after full URLs so longer strings match first)
+        $replacements[$oldBasename] = $newFilename;
+        foreach ($sizeFilenameMap as $oldSizeFile => $newSizeFile) {
+            $replacements[$oldSizeFile] = $newSizeFile;
+        }
+
+        // Search broadly using the old base name stem (catches main file + all sizes)
+        $oldBasenameNoExt = pathinfo($oldBasename, PATHINFO_FILENAME);
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time search for meta rows containing old filename stem
         $metaRows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT post_id, meta_key, meta_value
+                "SELECT meta_id, meta_key, meta_value
                  FROM {$wpdb->postmeta}
-                 WHERE meta_value LIKE %s OR meta_value LIKE %s",
-                '%' . $wpdb->esc_like($oldUrl) . '%',
-                '%' . $wpdb->esc_like($oldBasename) . '%'
+                 WHERE meta_value LIKE %s",
+                '%' . $wpdb->esc_like($oldBasenameNoExt) . '%'
             )
         );
 
@@ -348,33 +403,73 @@ class FileRenamer
             return;
         }
 
+        // Skip meta keys handled elsewhere or that must not be modified
+        $skipKeys = ['_wp_attachment_image_alt', '_wp_attachment_metadata'];
+
         foreach ($metaRows as $row) {
-            // Don't touch alt text itself
-            if ($row->meta_key === '_wp_attachment_image_alt') {
+            if (in_array($row->meta_key, $skipKeys, true)) {
                 continue;
             }
 
-            $value = (string) $row->meta_value;
+            $value    = (string) $row->meta_value;
+            $newValue = $this->replaceUrlsInMetaValue($value, $replacements);
 
-            $newMetaValue = str_replace($oldUrl, $newUrl, $value);
-            $newMetaValue = str_replace($oldBasename, $newFilename, $newMetaValue);
-
-            if ($newMetaValue === $value) {
+            if ($newValue === $value) {
                 continue;
             }
 
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Updating meta rows with new URL references; each row is unique
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Update by meta_id to avoid overwriting duplicate meta_key rows
             $wpdb->update(
                 $wpdb->postmeta,
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-                ['meta_value' => $newMetaValue],
-                [
-                    'post_id' => (int) $row->post_id,
-                    // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-                    'meta_key' => (string) $row->meta_key,
-                ]
+                ['meta_value' => $newValue],
+                ['meta_id' => (int) $row->meta_id]
             );
         }
+    }
+
+    /**
+     * Replace URLs in a meta value, handling serialized PHP data safely.
+     * Plain strings (including JSON) use direct str_replace.
+     * Serialized arrays/objects are unserialized first to preserve length markers.
+     */
+    private function replaceUrlsInMetaValue(string $value, array $replacements): string
+    {
+        $unserialized = @maybe_unserialize($value);
+
+        // Serialized array or object: recurse, replace, re-serialize (preserves string lengths)
+        if (is_array($unserialized) || is_object($unserialized)) {
+            $modified = $this->replaceUrlsRecursive($unserialized, $replacements);
+            return maybe_serialize($modified);
+        }
+
+        // Plain string or JSON: direct replacement is safe
+        $newValue = $value;
+        foreach ($replacements as $old => $new) {
+            $newValue = str_replace($old, $new, $newValue);
+        }
+        return $newValue;
+    }
+
+    /**
+     * Recursively replace URL strings inside arrays and objects.
+     */
+    private function replaceUrlsRecursive($data, array $replacements)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $val) {
+                $data[$key] = $this->replaceUrlsRecursive($val, $replacements);
+            }
+        } elseif (is_object($data)) {
+            foreach (get_object_vars($data) as $key => $val) {
+                $data->$key = $this->replaceUrlsRecursive($val, $replacements);
+            }
+        } elseif (is_string($data)) {
+            foreach ($replacements as $old => $new) {
+                $data = str_replace($old, $new, $data);
+            }
+        }
+        return $data;
     }
 
     /**

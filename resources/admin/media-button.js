@@ -14,32 +14,17 @@
     var injectedRenameSpans = new WeakSet();
 
     /**
-     * Get the current attachment ID from the media modal
+     * Get the current attachment ID from the media modal.
+     *
+     * DOM-based methods are tried first because they always reflect the
+     * currently *viewed* attachment.  The Backbone selection model is a
+     * fallback — in the Media Library grid view, `selection.first()` returns
+     * whichever image has a checked checkbox, NOT the one being viewed,
+     * which caused it to reuse the first image's ID for subsequent images.
      */
     function getAttachmentId() {
-        // Method 1: Standard media modal selection
-        try {
-            var frame = wp.media.frame;
-            if (frame && frame.state) {
-                var selection = frame.state().get('selection');
-                if (selection && selection.first) {
-                    var model = selection.first();
-                    if (model && model.get) {
-                        return model.get('id');
-                    }
-                }
-            }
-        } catch (e) {}
-
-        // Method 2: Two-column edit view (attachment details in sidebar)
-        try {
-            var frame = wp.media.frame;
-            if (frame && frame.model && frame.model.get) {
-                return frame.model.get('id');
-            }
-        } catch (e) {}
-
-        // Method 3: Walk up DOM to find attachment-details and parse edit link
+        // Method 1: Walk up DOM to find attachment-details and parse edit link
+        // (most reliable — always reflects the currently displayed attachment)
         try {
             var details = document.querySelector('.attachment-details');
             if (details) {
@@ -53,11 +38,33 @@
             }
         } catch (e) {}
 
-        // Method 4: Check for data-id attribute on selected attachment
+        // Method 2: Check for data-id attribute on selected/viewed attachment in grid
         try {
-            var selected = document.querySelector('.attachment.selected, .attachment.details');
+            var selected = document.querySelector('.attachment.details, .attachment.selected');
             if (selected && selected.dataset.id) {
                 return parseInt(selected.dataset.id, 10);
+            }
+        } catch (e) {}
+
+        // Method 3: Two-column edit view (attachment details in sidebar)
+        try {
+            var frame = wp.media.frame;
+            if (frame && frame.model && frame.model.get) {
+                return frame.model.get('id');
+            }
+        } catch (e) {}
+
+        // Method 4: Standard media modal selection (fallback for selection-based modals)
+        try {
+            var frame = wp.media.frame;
+            if (frame && frame.state) {
+                var selection = frame.state().get('selection');
+                if (selection && selection.first) {
+                    var model = selection.first();
+                    if (model && model.get) {
+                        return model.get('id');
+                    }
+                }
             }
         } catch (e) {}
 
@@ -67,7 +74,7 @@
     /**
      * Create the Generate with AI button element
      */
-    function createButton(altSettingSpan) {
+    function createButton() {
         var wrapper = document.createElement('div');
         wrapper.className = 'icais-media-btn-wrapper';
 
@@ -92,7 +99,7 @@
 
         btn.addEventListener('click', function (e) {
             e.preventDefault();
-            handleGenerate(btn, status, altSettingSpan);
+            handleGenerate(btn, status);
         });
 
         return wrapper;
@@ -101,7 +108,7 @@
     /**
      * Handle the generate button click
      */
-    function handleGenerate(btn, status, altSettingSpan) {
+    function handleGenerate(btn, status) {
         var attachmentId = getAttachmentId();
         if (!attachmentId) {
             showStatus(status, 'error', config.i18n?.noAttachment || 'Could not detect image. Please select an image first.');
@@ -147,11 +154,9 @@
         })
         .then(function (data) {
             if (data.success) {
-                // Find the textarea inside the alt setting span
-                var textarea = altSettingSpan.querySelector('textarea');
-                if (!textarea) {
-                    textarea = document.querySelector('.setting[data-setting="alt"] textarea, [data-setting="alt"] textarea');
-                }
+                // Always query the DOM fresh — the alt textarea may have been
+                // replaced by WordPress when the user switched images
+                var textarea = document.querySelector('.setting[data-setting="alt"] textarea, [data-setting="alt"] textarea');
 
                 if (textarea) {
                     textarea.value = data.alt_text;
@@ -202,7 +207,7 @@
         }
         injectedSpans.add(settingSpan);
 
-        var buttonEl = createButton(settingSpan);
+        var buttonEl = createButton();
 
         // Insert the button wrapper as a sibling AFTER the alt setting span
         settingSpan.parentNode.insertBefore(buttonEl, settingSpan.nextSibling);
@@ -275,16 +280,6 @@
             if (data.success) {
                 var msg = (config.i18n?.renameSuccess || 'File renamed to: %s').replace('%s', data.new_filename);
                 showStatus(status, 'success', msg);
-
-                // Update the title input in the media modal to reflect the new filename
-                var titleInput = document.querySelector('.setting[data-setting="title"] input, [data-setting="title"] input');
-                if (titleInput) {
-                    var newTitle = data.new_filename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-                    titleInput.value = newTitle;
-                    titleInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    titleInput.dispatchEvent(new Event('change', { bubbles: true }));
-                    titleInput.dispatchEvent(new Event('keyup', { bubbles: true }));
-                }
             } else {
                 showStatus(status, 'error', data.message || config.i18n?.renameError || 'Failed to rename file.');
             }

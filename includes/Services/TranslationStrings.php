@@ -109,6 +109,14 @@ class TranslationStrings {
             '%s images selected across all pages' => __('%s images selected across all pages', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Loading images...' => __('Loading images...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Select All' => __('Select All', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            /* translators: %s: number of images on current page */
+            'All %s images on this page are selected.' => __('All %s images on this page are selected.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            /* translators: %s: total number of matching images */
+            'Select all %s matching images' => __('Select all %s matching images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            /* translators: %s: number of selected images */
+            'All %s matching images are selected.' => __('All %s matching images are selected.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Clear selection' => __('Clear selection', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Show' => __('Show', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Has alt' => __('Has alt', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Missing' => __('Missing', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'No alt text' => __('No alt text', 'imagecraft-ai-alt-text-file-renamer-image-seo'),

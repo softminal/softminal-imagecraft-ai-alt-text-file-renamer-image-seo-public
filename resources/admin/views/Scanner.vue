@@ -142,14 +142,14 @@
               />
             </div>
             <button
-              @click="loadImages()"
+              @click="allPagesSelected = false; selectedImages = []; loadImages()"
               class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
             >
               {{ $t('Apply') }}
             </button>
             <button
               v-if="dateFrom || dateTo || minSize"
-              @click="dateFrom = ''; dateTo = ''; minSize = 0; loadImages()"
+              @click="dateFrom = ''; dateTo = ''; minSize = 0; allPagesSelected = false; selectedImages = []; loadImages()"
               class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
             >
               {{ $t('Clear Filters') }}
@@ -206,11 +206,11 @@
     </div>
 
     <!-- Images Grid -->
-    <div v-if="loading" class="text-center py-12 text-gray-500">
+    <div v-if="loading && images.length === 0" class="text-center py-12 text-gray-500">
       {{ $t('Loading images...') }}
     </div>
 
-    <div v-else class="bg-white rounded-lg shadow border">
+    <div v-else class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
       <div class="p-4 border-b">
         <label class="inline-flex items-center gap-2 cursor-pointer">
           <input
@@ -221,6 +221,32 @@
           />
           <span>{{ $t('Select All') }}</span>
         </label>
+
+        <div
+          v-if="allSelected && pagination.total > images.length && !allPagesSelected"
+          class="ml-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-1 inline-flex items-center gap-2"
+        >
+          <span>{{ $t('All %s images on this page are selected.', images.length) }}</span>
+          <button
+            @click="selectAllPages"
+            :disabled="bulkSelecting"
+            class="font-semibold underline hover:text-blue-900"
+          >
+            {{ bulkSelecting ? $t('Selecting...') : $t('Select all %s matching images', Math.min(pagination.total, 500)) }}
+          </button>
+        </div>
+        <div
+          v-if="allPagesSelected"
+          class="ml-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-1 inline-flex items-center gap-2"
+        >
+          <span>{{ $t('All %s matching images are selected.', selectedImages.length) }}</span>
+          <button
+            @click="selectedImages = []; allPagesSelected = false"
+            class="font-semibold underline hover:text-green-900"
+          >
+            {{ $t('Clear selection') }}
+          </button>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
@@ -238,24 +264,45 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="pagination.total_pages > 1" class="p-4 border-t flex justify-between items-center">
+      <div class="p-4 border-t flex justify-between items-center">
         <button
+          v-if="pagination.total_pages > 1"
           @click="loadPage(pagination.current_page - 1)"
           :disabled="pagination.current_page === 1"
           class="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
         >
           {{ $t('Previous') }}
         </button>
-        <span class="text-sm text-gray-600">
-          {{ $t('Page %1$s of %2$s', pagination.current_page, pagination.total_pages) }}
-        </span>
+        <div v-else></div>
+
+        <div class="flex items-center gap-4">
+          <span v-if="pagination.total_pages > 1" class="text-sm text-gray-600">
+            {{ $t('Page %1$s of %2$s', pagination.current_page, pagination.total_pages) }}
+          </span>
+          <label class="inline-flex items-center gap-1 text-sm text-gray-600">
+            {{ $t('Show') }}
+            <select
+              :value="perPage"
+              @change="perPage = Number($event.target.value); allPagesSelected = false; selectedImages = []; loadImages()"
+              class="border border-gray-300 rounded px-2 py-1 text-sm"
+            >
+              <option :value="12">12</option>
+              <option :value="24">24</option>
+              <option :value="48">48</option>
+              <option :value="96">96</option>
+            </select>
+          </label>
+        </div>
+
         <button
+          v-if="pagination.total_pages > 1"
           @click="loadPage(pagination.current_page + 1)"
           :disabled="pagination.current_page >= pagination.total_pages"
           class="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
         >
           {{ $t('Next') }}
         </button>
+        <div v-else></div>
       </div>
     </div>
 
@@ -285,8 +332,10 @@ const showAdvancedFilters = ref(false)
 const dateFrom = ref('')
 const dateTo = ref('')
 const minSize = ref(0)
+const perPage = ref(48)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
+const allPagesSelected = ref(false)
 
 // AbortController for cancelling stale requests
 let loadAbortController = null
@@ -317,7 +366,7 @@ const loadImages = async (page = 1) => {
   loading.value = true
   try {
     const result = await Api.get(
-      `/scanner/scan?${buildFilterParams()}&page=${page}&per_page=48`,
+      `/scanner/scan?${buildFilterParams()}&page=${page}&per_page=${perPage.value}`,
       { signal: loadAbortController.signal }
     )
     if (result.success) {
@@ -333,8 +382,12 @@ const loadImages = async (page = 1) => {
   }
 }
 
-// Debounced version for rapid filter clicks
-const debouncedLoadImages = debounce(() => loadImages(), 300)
+// Debounced version for rapid filter clicks — resets cross-page selection since criteria changed
+const debouncedLoadImages = debounce(() => {
+  allPagesSelected.value = false
+  selectedImages.value = []
+  loadImages()
+}, 300)
 
 const loadPage = (page) => {
   if (page >= 1 && page <= pagination.value.total_pages) {
@@ -354,8 +407,29 @@ const toggleSelect = (imageId) => {
 const toggleSelectAll = () => {
   if (allSelected.value) {
     selectedImages.value = []
+    allPagesSelected.value = false
   } else {
     selectedImages.value = images.value.map(img => img.id)
+  }
+}
+
+const selectAllPages = async () => {
+  bulkSelecting.value = 'all'
+  try {
+    const params = buildFilterParams()
+    const result = await Api.get(`/scanner/select-all?${params}`)
+    if (result.success) {
+      // Cap at 500 to match the batch job limit
+      const ids = result.image_ids.slice(0, 500)
+      selectedImages.value = ids
+      allPagesSelected.value = true
+      bulkSelectCount.value = ids.length
+      notification.success($t('%s images selected', ids.length))
+    }
+  } catch (error) {
+    notification.error($t('Failed to select images'))
+  } finally {
+    bulkSelecting.value = false
   }
 }
 
@@ -382,12 +456,14 @@ const bulkSelect = async (quality) => {
     }
     const result = await Api.get(`/scanner/select-all?${params}`)
     if (result.success) {
-      selectedImages.value = result.image_ids
-      bulkSelectCount.value = result.total
-      if (result.total === 0) {
+      const ids = result.image_ids.slice(0, 500)
+      selectedImages.value = ids
+      bulkSelectCount.value = ids.length
+      allPagesSelected.value = ids.length > images.value.length
+      if (ids.length === 0) {
         notification.info($t('No images match this filter'))
       } else {
-        notification.success($t('%s images selected', result.total))
+        notification.success($t('%s images selected', ids.length))
       }
     }
   } catch (error) {
@@ -474,26 +550,32 @@ const renameFile = async (imageId) => {
 }
 
 const renameSelectedImages = async () => {
-  const imagesWithAlt = selectedImages.value.filter(id => {
+  // For on-page images, filter to those with alt text.
+  // For off-page (cross-page selected) images, include them — the server
+  // will skip any without alt text and report per-image errors.
+  const onPageIds = new Set(images.value.map(i => i.id))
+  const idsToRename = selectedImages.value.filter(id => {
+    if (!onPageIds.has(id)) return true // off-page: let server decide
     const img = images.value.find(i => i.id === id)
     return img && img.has_alt
   })
 
-  if (imagesWithAlt.length === 0) {
+  if (idsToRename.length === 0) {
     notification.error($t('Selected images must have alt text to rename'))
     return
   }
 
   try {
     const result = await Api.post('/renamer/rename-bulk', {
-      attachment_ids: imagesWithAlt
+      attachment_ids: idsToRename
     })
     if (result.success || result.error_count === 0) {
       notification.success($t('Renamed %s files', result.success_count))
       loadImages()
       selectedImages.value = []
+      allPagesSelected.value = false
     } else {
-      notification.error($t('Renamed %1$s/%2$s files', result.success_count, selectedImages.value.length))
+      notification.error($t('Renamed %1$s/%2$s files', result.success_count, idsToRename.length))
     }
   } catch (error) {
     notification.error($t('Bulk rename failed'))
