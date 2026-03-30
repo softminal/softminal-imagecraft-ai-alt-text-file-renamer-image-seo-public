@@ -113,7 +113,13 @@ abstract class BaseAIProvider
         $language = Settings::get('icais_language', 'en');
         if ($language !== 'en') {
             $languageName = $this->getLanguageName($language);
-            $prompt .= " You MUST write the alt text in {$languageName}.";
+            $prompt .= " You MUST write in {$languageName}.";
+        }
+
+        // When title generation is enabled, ask for structured response with labels
+        $generateTitle = Settings::get('icais_generate_title', '0');
+        if ($generateTitle === '1' || $generateTitle === 1 || $generateTitle === true) {
+            $prompt .= "\n\nYou must provide TWO outputs. Format your response EXACTLY like this:\nALT: [your alt text here]\nTITLE: [SEO title, max 80 characters, concise, keyword-focused, no filler words]";
         }
 
         return $prompt;

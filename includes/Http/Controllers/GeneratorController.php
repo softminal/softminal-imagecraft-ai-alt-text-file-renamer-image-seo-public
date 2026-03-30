@@ -152,6 +152,21 @@ class GeneratorController extends Controller
             ];
         }
         
+        // Parse structured response when title generation is enabled
+        $generatedTitle = null;
+        $generateTitleSetting = Settings::get('icais_generate_title', '0');
+        $titleEnabled = ($generateTitleSetting === '1' || $generateTitleSetting === 1 || $generateTitleSetting === true);
+
+        if ($titleEnabled && preg_match('/ALT:\s*(.+)/i', $result['alt_text'], $altMatch)) {
+            $parsedAlt = trim($altMatch[1]);
+            if (preg_match('/TITLE:\s*(.+)/i', $result['alt_text'], $titleMatch)) {
+                $generatedTitle = trim($titleMatch[1]);
+                // Remove TITLE: line from alt text if it was captured in the ALT match
+                $parsedAlt = trim(preg_replace('/\s*TITLE:.*$/is', '', $parsedAlt));
+            }
+            $result['alt_text'] = $parsedAlt;
+        }
+
         // Determine initial status based on preview setting
         $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
@@ -169,18 +184,27 @@ class GeneratorController extends Controller
             'cost'          => $result['cost'] ?? 0,
         ]);
 
-        // Auto-accept: also write alt text to attachment meta
+        // Auto-accept: also write alt text and title to attachment meta
         if (!$previewBeforeAccept) {
             update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($result['alt_text']));
+            if (!empty($generatedTitle)) {
+                update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($generatedTitle));
+            }
         }
-        
-        return [
+
+        $response = [
             'success' => true,
             'alt_text' => $result['alt_text'],
             'history_id' => $history->id,
             'tokens' => $result['tokens'] ?? 0,
             'cost' => $result['cost'] ?? 0
         ];
+
+        if (!empty($generatedTitle)) {
+            $response['generated_title'] = $generatedTitle;
+        }
+
+        return $response;
     }
     
     /**
@@ -191,7 +215,8 @@ class GeneratorController extends Controller
         $params = $request->get_json_params();
         $historyId = (int) ($params['history_id'] ?? 0);
         $altText = sanitize_text_field($params['alt_text'] ?? '');
-        
+        $generatedTitle = sanitize_text_field($params['generated_title'] ?? '');
+
         if (!$historyId) {
             return $this->response([
                 'success' => false,
@@ -220,6 +245,11 @@ class GeneratorController extends Controller
 
         // Update attachment alt text
         update_post_meta($history->attachment_id, '_wp_attachment_image_alt', $finalAltText);
+
+        // Save generated title if provided
+        if (!empty($generatedTitle)) {
+            update_post_meta($history->attachment_id, '_icais_generated_title', $generatedTitle);
+        }
 
         // Update history status
         $history->status = 'accepted';
@@ -261,10 +291,12 @@ class GeneratorController extends Controller
 
         // Collect valid history IDs and batch-fetch them in a single query
         $idToAlt = [];
+        $idToTitle = [];
         foreach ($items as $item) {
             $historyId = (int) ($item['history_id'] ?? 0);
             if ($historyId > 0) {
                 $idToAlt[$historyId] = isset($item['alt_text']) ? sanitize_text_field($item['alt_text']) : '';
+                $idToTitle[$historyId] = isset($item['generated_title']) ? sanitize_text_field($item['generated_title']) : '';
             }
         }
 
@@ -298,6 +330,12 @@ class GeneratorController extends Controller
 
             $finalAltText = !empty($altText) ? $altText : sanitize_text_field($history->generated_alt);
             update_post_meta($history->attachment_id, '_wp_attachment_image_alt', $finalAltText);
+
+            // Save generated title if provided
+            $title = $idToTitle[$historyId] ?? '';
+            if (!empty($title)) {
+                update_post_meta($history->attachment_id, '_icais_generated_title', $title);
+            }
 
             // Direct DB update to avoid per-row cache bumps
             $updateData = ['status' => 'accepted'];
