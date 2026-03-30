@@ -21,7 +21,7 @@ class FileRenamerController extends Controller
     {
         $params = $request->get_json_params();
         $attachmentId = (int) ($params['attachment_id'] ?? 0);
-        $customFilename = sanitize_file_name($params['filename'] ?? '');
+        $customFilename = sanitize_text_field($params['filename'] ?? '');
 
         if (!$attachmentId) {
             return $this->response([
@@ -34,6 +34,16 @@ class FileRenamerController extends Controller
 
         if (!$result['success']) {
             return $this->response($result, 400);
+        }
+
+        if (!empty($result['already_named'])) {
+            return $this->response([
+                'success' => true,
+                'already_named' => true,
+                'message' => __('File already has the correct name', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'old_filename' => $result['old_filename'],
+                'new_filename' => $result['new_filename']
+            ]);
         }
 
         return $this->response([

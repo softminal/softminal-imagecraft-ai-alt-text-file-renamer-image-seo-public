@@ -21,7 +21,10 @@ class FileRenamer
 
         $maxLength = $maxLength ?? (int) Settings::get('icais_rename_max_length', self::DEFAULT_MAX_FILENAME_LENGTH);
 
-        $text = strtolower($altText);
+        // Transliterate accented/non-Latin characters to ASCII equivalents
+        // e.g. "caffè" → "caffe", "über" → "uber", "piñata" → "pinata"
+        $text = remove_accents($altText);
+        $text = strtolower($text);
 
         // keep only a-z, 0-9, spaces and dashes
         $text = preg_replace('/[^a-z0-9\s-]/', '', $text);
@@ -50,7 +53,7 @@ class FileRenamer
             return ['success' => false, 'error' => 'Attachment is not an image'];
         }
 
-        $customFilename = sanitize_text_field($customFilename ?? '');
+        $customFilename = $customFilename ?? '';
 
         if (!empty($customFilename)) {
             $filename = $this->generateFilename($customFilename);
@@ -60,6 +63,17 @@ class FileRenamer
                 return ['success' => false, 'error' => 'No alt text available for this image'];
             }
             $filename = $this->generateFilename($altText);
+        }
+
+        // Skip rename if the new filename already matches the current filename
+        $currentFile = get_attached_file($attachmentId);
+        if ($currentFile && pathinfo($currentFile, PATHINFO_FILENAME) === $filename) {
+            return [
+                'success'      => true,
+                'already_named' => true,
+                'old_filename' => basename($currentFile),
+                'new_filename' => basename($currentFile),
+            ];
         }
 
         return $this->performRename($attachmentId, $filename);
@@ -270,13 +284,12 @@ class FileRenamer
                 continue;
             }
 
-            // Extract suffix from old size filename: "oldname-150x150" => "-150x150"
+            // Extract WordPress size suffix: "-150x150", "-scaled", "-rotated"
             $oldNoExt = (string) pathinfo($oldSizeFilename, PATHINFO_FILENAME);
 
             $suffix = '';
-            $lastDashPos = strrpos($oldNoExt, '-');
-            if ($lastDashPos !== false) {
-                $suffix = substr($oldNoExt, $lastDashPos); // includes '-150x150'
+            if (preg_match('/(-\d+x\d+|-scaled|-rotated)$/', $oldNoExt, $matches)) {
+                $suffix = $matches[1];
             }
 
             $newSizeFilename = $newBase . $suffix . '.' . $extension;

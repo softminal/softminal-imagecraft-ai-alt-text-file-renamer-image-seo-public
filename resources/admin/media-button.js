@@ -290,6 +290,16 @@
             if (data.success) {
                 var msg = (config.i18n?.renameSuccess || 'File renamed to: %s').replace('%s', data.new_filename);
                 showStatus(status, 'success', msg);
+
+                // Refresh the Backbone model so the media modal shows updated title/URL/filename
+                try {
+                    if (window.wp && wp.media && wp.media.model) {
+                        var attachment = wp.media.model.Attachment.get(attachmentId);
+                        if (attachment) {
+                            attachment.fetch();
+                        }
+                    }
+                } catch (e) {}
             } else {
                 showStatus(status, 'error', data.message || config.i18n?.renameError || 'Failed to rename file.');
             }
