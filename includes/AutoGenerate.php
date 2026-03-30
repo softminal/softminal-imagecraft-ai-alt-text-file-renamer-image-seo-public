@@ -107,6 +107,20 @@ class AutoGenerate
             return;
         }
 
+        // Parse structured ALT:/TITLE: response when title generation is enabled
+        $generatedTitle = null;
+        $generateTitleSetting = Settings::get('icais_generate_title', '0');
+        $titleEnabled = ($generateTitleSetting === '1' || $generateTitleSetting === 1 || $generateTitleSetting === true);
+
+        if ($titleEnabled && preg_match('/ALT:\s*(.+)/i', $result['alt_text'], $altMatch)) {
+            $parsedAlt = trim($altMatch[1]);
+            if (preg_match('/TITLE:\s*(.+)/i', $result['alt_text'], $titleMatch)) {
+                $generatedTitle = trim($titleMatch[1]);
+                $parsedAlt = trim(preg_replace('/\s*TITLE:.*$/is', '', $parsedAlt));
+            }
+            $result['alt_text'] = $parsedAlt;
+        }
+
         $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
         $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
@@ -122,9 +136,12 @@ class AutoGenerate
             'cost'          => $result['cost'] ?? 0,
         ]);
 
-        // Auto-accept: write alt text to attachment meta
+        // Auto-accept: write alt text and title to attachment meta
         if (!$previewBeforeAccept) {
             update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($result['alt_text']));
+            if (!empty($generatedTitle)) {
+                update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($generatedTitle));
+            }
         }
     }
 
