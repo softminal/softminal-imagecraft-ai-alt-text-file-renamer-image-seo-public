@@ -53,6 +53,12 @@ class GeneratorController extends Controller
             $context = $context !== null ? $context . ' | ' . $seoContext : $seoContext;
         }
 
+        // Title-only generation mode (called from media modal "Generate Title" button)
+        $titleOnly = !empty($params['title_only']);
+        if ($titleOnly) {
+            return $this->generateTitleOnly($attachmentId, $context);
+        }
+
         $result = $this->generateAltText($attachmentId, $tone, null, $context);
 
         if (!$result['success']) {
@@ -360,6 +366,64 @@ class GeneratorController extends Controller
             'message' => sprintf(__('%d alt text(s) saved successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo'), $saved),
             'saved_count' => $saved,
             'errors' => $errors
+        ]);
+    }
+
+    /**
+     * Generate title only (no alt text generation).
+     * Used by the media modal "Generate Title" button when generate_title setting is '0'.
+     */
+    private function generateTitleOnly(int $attachmentId, ?string $context): \WP_REST_Response
+    {
+        $userId = get_current_user_id();
+        $aiProvider = AIFactory::getProviderForUser($userId);
+
+        if (!$aiProvider) {
+            return $this->response([
+                'success' => false,
+                'message' => __('No API key configured.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $imageUrl = wp_get_attachment_url($attachmentId);
+        if (!$imageUrl) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Failed to get image URL', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        // Use title-only mode
+        $aiProvider->setTitleOnlyMode(true);
+        $result = $aiProvider->generateAltText($imageUrl, 'professional', $context);
+
+        if (!$result['success']) {
+            return $this->response([
+                'success' => false,
+                'message' => $result['error'] ?? __('Failed to generate title', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $generatedTitle = trim($result['alt_text'] ?? '');
+
+        // Cap at 80 chars
+        if (mb_strlen($generatedTitle) > 80) {
+            $generatedTitle = mb_substr($generatedTitle, 0, 80);
+            $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
+        }
+
+        // Save to meta
+        update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($generatedTitle));
+
+        // Also apply as post_title
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->update($wpdb->posts, ['post_title' => $generatedTitle], ['ID' => $attachmentId], ['%s'], ['%d']);
+        clean_post_cache($attachmentId);
+
+        return $this->response([
+            'success' => true,
+            'generated_title' => $generatedTitle,
         ]);
     }
 

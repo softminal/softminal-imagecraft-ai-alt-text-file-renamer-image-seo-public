@@ -135,6 +135,7 @@ class ScannerController extends Controller
                 $alt = get_post_meta($postId, '_wp_attachment_image_alt', true);
                 $thumbnail = wp_get_attachment_image_src($postId, 'thumbnail');
 
+                $generatedTitle = get_post_meta($postId, '_icais_generated_title', true);
                 $images[] = [
                     'id' => $postId,
                     'title' => $post->post_title,
@@ -143,6 +144,7 @@ class ScannerController extends Controller
                     'thumbnail' => $thumbnail ? $thumbnail[0] : null,
                     'alt_text' => $alt ?: '',
                     'has_alt' => !empty($alt),
+                    'generated_title' => $generatedTitle ?: '',
                     'date' => $post->post_date
                 ];
             }
@@ -172,6 +174,7 @@ class ScannerController extends Controller
                 $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
                 $thumbnail = wp_get_attachment_image_src($post->ID, 'thumbnail');
 
+                $generatedTitle = get_post_meta($post->ID, '_icais_generated_title', true);
                 $images[] = [
                     'id' => $post->ID,
                     'title' => $post->post_title,
@@ -180,6 +183,7 @@ class ScannerController extends Controller
                     'thumbnail' => $thumbnail ? $thumbnail[0] : null,
                     'alt_text' => $alt ?: '',
                     'has_alt' => !empty($alt),
+                    'generated_title' => $generatedTitle ?: '',
                     'date' => $post->post_date
                 ];
             }

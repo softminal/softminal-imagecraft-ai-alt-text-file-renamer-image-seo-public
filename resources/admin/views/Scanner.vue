@@ -83,10 +83,15 @@
             @click="startBatch"
             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
-            {{ $t('Generate for %s Selected', selectedImages.length) }}
+            <template v-if="generateTitleEnabled">
+              {{ $t('Generate for %s Selected', selectedImages.length) }}
+            </template>
+            <template v-else>
+              {{ $t('Generate Alt Text for %s Selected', selectedImages.length) }}
+            </template>
           </button>
           <button
-            v-if="selectedImages.length > 0"
+            v-if="selectedImages.length > 0 && !generateTitleEnabled"
             @click="updateSelectedTitles"
             :disabled="bulkTitleUpdating"
             class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
@@ -410,6 +415,7 @@ const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
 const renameMode = window.icais?.renameMode || 'title_only'
+const generateTitleEnabled = window.icais?.generateTitle === '1' || window.icais?.generateTitle === 1
 const bulkTitleUpdating = ref(false)
 const bulkTitleCancelled = ref(false)
 const bulkTitleDone = ref(false)

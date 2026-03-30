@@ -40,6 +40,13 @@
     <div v-else class="text-xs mt-1 text-gray-400 italic">
       {{ $t('No alt text') }}
     </div>
+    <div
+      v-if="image.generated_title"
+      class="text-xs mt-1 text-blue-600 truncate"
+      :title="image.generated_title"
+    >
+      {{ $t('Title:') }} {{ image.generated_title }}
+    </div>
     <div v-if="image.has_alt && !renaming && renameMode === 'title_and_filename'" class="flex justify-between mt-2">
       <button
         @click.stop="$emit('rename', image.id)"

@@ -13,6 +13,7 @@ abstract class BaseAIProvider
     protected string $apiKey;
     protected int $timeout;
     protected string $model;
+    protected bool $titleOnlyMode = false;
 
     public function __construct(string $apiKey, int $timeout = 60, ?string $model = null)
     {
@@ -57,8 +58,24 @@ abstract class BaseAIProvider
      * @param string|null $context Optional context information
      * @return string
      */
+    /**
+     * Enable title-only mode for the next generateAltText() call.
+     * The AI will generate only a title, not alt text.
+     */
+    public function setTitleOnlyMode(bool $enabled = true): self
+    {
+        $this->titleOnlyMode = $enabled;
+        return $this;
+    }
+
     protected function getPrompt(string $tone, ?string $context = null): string
     {
+        // Title-only mode: use a dedicated title prompt
+        if ($this->titleOnlyMode) {
+            $this->titleOnlyMode = false; // Reset after use
+            return $this->getTitleOnlyPrompt($context);
+        }
+
         $maxLength = (int) Settings::get('icais_max_length', 150);
 
         $rules = "Rules: Stay under {$maxLength} characters. Never start with \"Image of\", \"Photo of\", \"Picture of\", or \"A photo\". Do not wrap in quotation marks. Return only the alt text, nothing else.";
@@ -120,6 +137,26 @@ abstract class BaseAIProvider
         $generateTitle = Settings::get('icais_generate_title', '0');
         if ($generateTitle === '1' || $generateTitle === 1 || $generateTitle === true) {
             $prompt .= "\n\nYou must provide TWO outputs. Format your response EXACTLY like this:\nALT: [your alt text here]\nTITLE: [SEO title, max 80 characters, concise, keyword-focused, no filler words]";
+        }
+
+        return $prompt;
+    }
+
+    /**
+     * Build a title-only prompt (used when generating title separately from alt text).
+     */
+    protected function getTitleOnlyPrompt(?string $context = null): string
+    {
+        $prompt = "Generate a concise, SEO-optimized title for this image. Rules: Maximum 80 characters. Be keyword-focused. No filler words like 'a', 'the', 'in', 'of'. No quotation marks. Return only the title, nothing else.";
+
+        if (!empty($context)) {
+            $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+        }
+
+        $language = Settings::get('icais_language', 'en');
+        if ($language !== 'en') {
+            $languageName = $this->getLanguageName($language);
+            $prompt .= " You MUST write in {$languageName}.";
         }
 
         return $prompt;

@@ -224,9 +224,9 @@
     }
 
     /**
-     * Create the Rename File button element
+     * Create a button element with given label and handler.
      */
-    function createRenameButton() {
+    function createSecondaryButton(label, iconSvg, handler) {
         var wrapper = document.createElement('div');
         wrapper.className = 'icais-media-btn-wrapper icais-rename-btn-wrapper';
 
@@ -235,10 +235,10 @@
         btn.className = 'icais-media-btn icais-rename-btn';
         var iconSpan = document.createElement('span');
         iconSpan.className = 'icais-btn-icon';
-        iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+        iconSpan.innerHTML = iconSvg;
         var textSpan = document.createElement('span');
         textSpan.className = 'icais-btn-text';
-        textSpan.textContent = config.i18n?.rename || 'Rename File';
+        textSpan.textContent = label;
         btn.appendChild(iconSpan);
         btn.appendChild(textSpan);
 
@@ -251,11 +251,14 @@
 
         btn.addEventListener('click', function (e) {
             e.preventDefault();
-            handleRename(btn, status);
+            handler(btn, status);
         });
 
         return wrapper;
     }
+
+    var editIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+    var starIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
 
     /**
      * Handle the rename button click
@@ -267,46 +270,32 @@
             return;
         }
 
-        // Set loading state
         btn.disabled = true;
         btn.classList.add('icais-loading');
         btn.querySelector('.icais-btn-text').textContent = config.i18n?.renaming || 'Renaming...';
         status.style.display = 'none';
 
-        var url = config.apiUrl + '/renamer/rename';
-
-        fetch(url, {
+        fetch(config.apiUrl + '/renamer/rename', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-WP-Nonce': config.nonce
-            },
+            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
             body: JSON.stringify({ attachment_id: attachmentId })
         })
-        .then(function (response) {
-            return response.json();
-        })
+        .then(function (r) { return r.json(); })
         .then(function (data) {
             if (data.success) {
                 var msg = (config.i18n?.renameSuccess || 'File renamed to: %s').replace('%s', data.new_filename);
                 showStatus(status, 'success', msg);
-
-                // Refresh the Backbone model so the media modal shows updated title/URL/filename
                 try {
                     if (window.wp && wp.media && wp.media.model) {
                         var attachment = wp.media.model.Attachment.get(attachmentId);
-                        if (attachment) {
-                            attachment.fetch();
-                        }
+                        if (attachment) { attachment.fetch(); }
                     }
                 } catch (e) {}
             } else {
                 showStatus(status, 'error', data.message || config.i18n?.renameError || 'Failed to rename file.');
             }
         })
-        .catch(function () {
-            showStatus(status, 'error', config.i18n?.renameError || 'Failed to rename file.');
-        })
+        .catch(function () { showStatus(status, 'error', config.i18n?.renameError || 'Failed to rename file.'); })
         .finally(function () {
             btn.disabled = false;
             btn.classList.remove('icais-loading');
@@ -315,8 +304,56 @@
     }
 
     /**
-     * Inject rename button after the title setting field (as a sibling).
-     * Only shown when rename mode is 'title_and_filename'.
+     * Handle the generate title button click
+     */
+    function handleGenerateTitle(btn, status) {
+        var attachmentId = getAttachmentId();
+        if (!attachmentId) {
+            showStatus(status, 'error', config.i18n?.noAttachment || 'Could not detect image. Please select an image first.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.classList.add('icais-loading');
+        btn.querySelector('.icais-btn-text').textContent = config.i18n?.generatingTitle || 'Generating title...';
+        status.style.display = 'none';
+
+        fetch(config.apiUrl + '/generator/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
+            body: JSON.stringify({ attachment_id: attachmentId, title_only: true })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.success && data.generated_title) {
+                var msg = (config.i18n?.titleSuccess || 'Title updated to: %s').replace('%s', data.generated_title);
+                showStatus(status, 'success', msg);
+                try {
+                    if (window.wp && wp.media && wp.media.model) {
+                        var attachment = wp.media.model.Attachment.get(attachmentId);
+                        if (attachment) { attachment.fetch(); }
+                    }
+                } catch (e) {}
+            } else {
+                showStatus(status, 'error', data.message || config.i18n?.titleError || 'Failed to generate title.');
+            }
+        })
+        .catch(function () { showStatus(status, 'error', config.i18n?.titleError || 'Failed to generate title.'); })
+        .finally(function () {
+            btn.disabled = false;
+            btn.classList.remove('icais-loading');
+            btn.querySelector('.icais-btn-text').textContent = config.i18n?.generateTitle || 'Generate Title';
+        });
+    }
+
+    /**
+     * Inject the context-dependent second button after the title setting field.
+     *
+     * Button logic:
+     *   generateTitle='0' (alt only mode): [Generate Title] — separate AI call
+     *   generateTitle='1' + renameMode='title_only': no button (title comes with generate)
+     *   generateTitle='1' + renameMode='title_and_filename': [Rename File]
+     *   renameMode='title_and_filename' (any generate mode): [Rename File]
      */
     function injectRenameButton(settingSpan) {
         if (injectedRenameSpans.has(settingSpan)) {
@@ -324,13 +361,28 @@
         }
         injectedRenameSpans.add(settingSpan);
 
-        // Only show rename button when mode allows file renaming
-        if (config.renameMode !== 'title_and_filename') {
-            return;
-        }
+        var buttonEl = null;
 
-        var buttonEl = createRenameButton();
-        settingSpan.parentNode.insertBefore(buttonEl, settingSpan.nextSibling);
+        if (config.renameMode === 'title_and_filename') {
+            // File rename mode: show Rename File button
+            buttonEl = createSecondaryButton(
+                config.i18n?.rename || 'Rename File',
+                editIcon,
+                handleRename
+            );
+        } else if (config.generateTitle !== '1' && config.generateTitle !== 1) {
+            // Alt-only mode + title-only rename: show Generate Title button
+            buttonEl = createSecondaryButton(
+                config.i18n?.generateTitle || 'Generate Title',
+                starIcon,
+                handleGenerateTitle
+            );
+        }
+        // else: alt+title mode + title_only rename → no button (title applied on generate)
+
+        if (buttonEl) {
+            settingSpan.parentNode.insertBefore(buttonEl, settingSpan.nextSibling);
+        }
     }
 
     /**
