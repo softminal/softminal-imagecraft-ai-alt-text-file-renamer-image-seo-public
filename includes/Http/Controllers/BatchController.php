@@ -115,7 +115,13 @@ class BatchController extends Controller
         
         // Store image IDs in job meta (we'll use transients for this)
         set_transient('icais_batch_' . $job->id, $imageIds, DAY_IN_SECONDS);
-        
+
+        // Store batch type: 'alt' (default) or 'title' (title-only generation)
+        $batchType = sanitize_text_field($params['type'] ?? 'alt');
+        if ($batchType === 'title') {
+            set_transient('icais_batch_type_' . $job->id, 'title', DAY_IN_SECONDS);
+        }
+
         return $this->response([
             'success' => true,
             'job_id' => $job->id,
@@ -272,32 +278,51 @@ class BatchController extends Controller
 
         $skipExisting = (bool) Settings::get('icais_skip_existing', false);
 
+        // Check if this is a title-only batch
+        $batchType = (string) get_transient('icais_batch_type_' . $jobId);
+        $isTitleOnly = ($batchType === 'title');
+
         foreach ($chunk as $attachmentId) {
             // Check elapsed time before each image to avoid request timeout
             if ((time() - $startTime) >= $maxSeconds) {
                 break;
             }
 
-            // Skip images that already have alt text (saves API credits)
-            if ($skipExisting) {
-                $existingAlt = get_post_meta((int) $attachmentId, '_wp_attachment_image_alt', true);
-                if (!empty($existingAlt)) {
-                    $processed++;
-                    continue;
-                }
-            }
-
-            try {
-                $context = SeoIntegration::buildSeoContext((int) $attachmentId);
-                $result = $generator->generateAltText((int) $attachmentId, $tone, $userId, $context);
-
-                if ($result['success'] ?? false) {
-                    $processed++;
-                } else {
+            if ($isTitleOnly) {
+                // Title-only batch: generate title via AI and save to meta
+                try {
+                    $result = $this->generateTitleForImage((int) $attachmentId, $userId);
+                    if ($result) {
+                        $processed++;
+                    } else {
+                        $failed++;
+                    }
+                } catch (\Exception $e) {
                     $failed++;
                 }
-            } catch (\Exception $e) {
-                $failed++;
+            } else {
+                // Standard alt text batch (may include title if setting enabled)
+                // Skip images that already have alt text (saves API credits)
+                if ($skipExisting) {
+                    $existingAlt = get_post_meta((int) $attachmentId, '_wp_attachment_image_alt', true);
+                    if (!empty($existingAlt)) {
+                        $processed++;
+                        continue;
+                    }
+                }
+
+                try {
+                    $context = SeoIntegration::buildSeoContext((int) $attachmentId);
+                    $result = $generator->generateAltText((int) $attachmentId, $tone, $userId, $context);
+
+                    if ($result['success'] ?? false) {
+                        $processed++;
+                    } else {
+                        $failed++;
+                    }
+                } catch (\Exception $e) {
+                    $failed++;
+                }
             }
         }
         
@@ -397,6 +422,7 @@ class BatchController extends Controller
 
         // Clean up the stored image IDs and heartbeat
         delete_transient('icais_batch_' . $jobId);
+        delete_transient('icais_batch_type_' . $jobId);
         $this->clearHeartbeat($jobId);
 
         return $this->response([
@@ -561,6 +587,54 @@ class BatchController extends Controller
             'failed_images' => $job->failed_images,
             'progress' => $job->getProgress()
         ]);
+    }
+
+    /**
+     * Generate a title for a single image using AI (title-only batch mode).
+     */
+    private function generateTitleForImage(int $attachmentId, int $userId): bool
+    {
+        if (!wp_attachment_is_image($attachmentId)) {
+            return false;
+        }
+
+        $aiProvider = \Softminal\ImageCraft\Services\AI\AIFactory::getProviderForUser($userId);
+        if (!$aiProvider) {
+            return false;
+        }
+
+        $imageUrl = wp_get_attachment_url($attachmentId);
+        if (!$imageUrl) {
+            return false;
+        }
+
+        $context = SeoIntegration::buildSeoContext($attachmentId);
+
+        // Use title-only mode
+        $aiProvider->setTitleOnlyMode(true);
+        $result = $aiProvider->generateAltText($imageUrl, 'professional', $context);
+
+        if (empty($result['success']) || empty($result['alt_text'])) {
+            return false;
+        }
+
+        $generatedTitle = trim($result['alt_text']);
+
+        // Cap at 80 chars
+        if (mb_strlen($generatedTitle) > 80) {
+            $generatedTitle = mb_substr($generatedTitle, 0, 80);
+            $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
+        }
+
+        // Save to meta and update post_title
+        update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($generatedTitle));
+
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $wpdb->update($wpdb->posts, ['post_title' => $generatedTitle], ['ID' => $attachmentId], ['%s'], ['%d']);
+        clean_post_cache($attachmentId);
+
+        return true;
     }
 
     /**

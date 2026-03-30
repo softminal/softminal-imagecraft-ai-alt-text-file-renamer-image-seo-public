@@ -92,6 +92,13 @@
           </button>
           <button
             v-if="selectedImages.length > 0 && !generateTitleEnabled"
+            @click="startTitleBatch"
+            class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+          >
+            {{ $t('Generate Titles for %s Selected', selectedImages.length) }}
+          </button>
+          <button
+            v-if="selectedImages.length > 0 && !generateTitleEnabled"
             @click="updateSelectedTitles"
             :disabled="bulkTitleUpdating"
             class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
@@ -554,6 +561,34 @@ const bulkSelect = async (quality) => {
     notification.error($t('Failed to select images'))
   } finally {
     bulkSelecting.value = false
+  }
+}
+
+const startTitleBatch = async () => {
+  if (selectedImages.value.length === 0) return
+
+  if (selectedImages.value.length > 500) {
+    notification.error($t('Maximum 500 images per batch job. Please reduce your selection.'))
+    return
+  }
+
+  try {
+    const result = await Api.post('/batch/start', {
+      image_ids: selectedImages.value,
+      type: 'title'
+    })
+
+    if (result.success) {
+      notification.success($t('Title generation started for %s images', selectedImages.value.length))
+      router.push(`/batch/${result.job_id}`)
+    }
+  } catch (error) {
+    if (error.response?.job_id) {
+      notification.warning($t('A batch job is already in progress.'))
+      router.push(`/batch/${error.response.job_id}`)
+    } else {
+      notification.error(error.message || $t('Failed to start batch'))
+    }
   }
 }
 
