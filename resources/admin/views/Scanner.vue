@@ -87,10 +87,16 @@
           </button>
           <button
             v-if="selectedImages.length > 0"
-            @click="renameSelectedImages"
-            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+            @click="updateSelectedTitles"
+            :disabled="bulkTitleUpdating"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
           >
-            {{ $t('Rename %s Selected', selectedImages.length) }}
+            <template v-if="bulkTitleUpdating">
+              {{ $t('Updating... %1$s/%2$s', bulkTitleProgress.processed, bulkTitleProgress.total) }}
+            </template>
+            <template v-else>
+              {{ $t('Update Titles for %s Selected', selectedImages.length) }}
+            </template>
           </button>
         </div>
       </div>
@@ -306,6 +312,72 @@
       </div>
     </div>
 
+    <!-- Bulk Title Update Modal -->
+    <Teleport to="body">
+      <div v-if="bulkTitleUpdating || bulkTitleDone" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
+
+          <!-- Progress state -->
+          <template v-if="bulkTitleUpdating">
+            <h3 class="text-lg font-semibold mb-4">{{ $t('Updating Titles...') }}</h3>
+            <div class="w-full bg-gray-200 rounded-full h-3 mb-3">
+              <div
+                class="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                :style="{ width: (bulkTitleProgress.total > 0 ? (bulkTitleProgress.processed / bulkTitleProgress.total * 100) : 0) + '%' }"
+              ></div>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">
+              {{ $t('%1$s of %2$s processed', bulkTitleProgress.processed, bulkTitleProgress.total) }}
+            </p>
+            <div class="space-y-1 text-sm mb-4">
+              <div v-if="bulkTitleProgress.success > 0" class="text-green-600">{{ $t('Updated: %s', bulkTitleProgress.success) }}</div>
+              <div v-if="bulkTitleProgress.skipped > 0" class="text-yellow-600">{{ $t('Skipped: %s (no alt text)', bulkTitleProgress.skipped) }}</div>
+              <div v-if="bulkTitleProgress.unchanged > 0" class="text-gray-500">{{ $t('Unchanged: %s', bulkTitleProgress.unchanged) }}</div>
+              <div v-if="bulkTitleProgress.errors > 0" class="text-red-600">{{ $t('Failed: %s', bulkTitleProgress.errors) }}</div>
+            </div>
+            <button
+              @click="cancelBulkTitleUpdate"
+              class="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            >
+              {{ $t('Cancel') }}
+            </button>
+          </template>
+
+          <!-- Summary state -->
+          <template v-else-if="bulkTitleDone">
+            <h3 class="text-lg font-semibold mb-4">
+              {{ bulkTitleCancelled ? $t('Update Cancelled') : $t('Update Complete') }}
+            </h3>
+            <div class="space-y-2 text-sm mb-6">
+              <div v-if="bulkTitleProgress.success > 0" class="flex items-center gap-2 text-green-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                {{ $t('%s titles updated', bulkTitleProgress.success) }}
+              </div>
+              <div v-if="bulkTitleProgress.skipped > 0" class="flex items-center gap-2 text-yellow-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"/></svg>
+                {{ $t('%s skipped (no alt text)', bulkTitleProgress.skipped) }}
+              </div>
+              <div v-if="bulkTitleProgress.unchanged > 0" class="flex items-center gap-2 text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                {{ $t('%s already up to date', bulkTitleProgress.unchanged) }}
+              </div>
+              <div v-if="bulkTitleProgress.errors > 0" class="flex items-center gap-2 text-red-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                {{ $t('%s failed', bulkTitleProgress.errors) }}
+              </div>
+            </div>
+            <button
+              @click="bulkTitleDone = false"
+              class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              {{ $t('Close') }}
+            </button>
+          </template>
+
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -336,6 +408,10 @@ const perPage = ref(48)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
+const bulkTitleUpdating = ref(false)
+const bulkTitleCancelled = ref(false)
+const bulkTitleDone = ref(false)
+const bulkTitleProgress = ref({ total: 0, processed: 0, success: 0, skipped: 0, unchanged: 0, errors: 0 })
 
 // AbortController for cancelling stale requests
 let loadAbortController = null
@@ -549,37 +625,55 @@ const renameFile = async (imageId) => {
   }
 }
 
-const renameSelectedImages = async () => {
-  // For on-page images, filter to those with alt text.
-  // For off-page (cross-page selected) images, include them — the server
-  // will skip any without alt text and report per-image errors.
+const cancelBulkTitleUpdate = () => {
+  bulkTitleCancelled.value = true
+}
+
+const updateSelectedTitles = async () => {
   const onPageIds = new Set(images.value.map(i => i.id))
-  const idsToRename = selectedImages.value.filter(id => {
-    if (!onPageIds.has(id)) return true // off-page: let server decide
+  const idsToUpdate = selectedImages.value.filter(id => {
+    if (!onPageIds.has(id)) return true
     const img = images.value.find(i => i.id === id)
     return img && img.has_alt
   })
 
-  if (idsToRename.length === 0) {
-    notification.error($t('Selected images must have alt text to rename'))
+  if (idsToUpdate.length === 0) {
+    notification.error($t('Selected images must have alt text to update titles'))
     return
   }
 
-  try {
-    const result = await Api.post('/renamer/rename-bulk', {
-      attachment_ids: idsToRename
-    })
-    if (result.success || result.error_count === 0) {
-      notification.success($t('Renamed %s files', result.success_count))
-      loadImages()
-      selectedImages.value = []
-      allPagesSelected.value = false
-    } else {
-      notification.error($t('Renamed %1$s/%2$s files', result.success_count, idsToRename.length))
+  // Initialize progress
+  bulkTitleUpdating.value = true
+  bulkTitleCancelled.value = false
+  bulkTitleProgress.value = { total: idsToUpdate.length, processed: 0, success: 0, skipped: 0, unchanged: 0, errors: 0 }
+
+  // Chunk into batches of 25
+  const chunkSize = 25
+  for (let i = 0; i < idsToUpdate.length; i += chunkSize) {
+    if (bulkTitleCancelled.value) break
+
+    const chunk = idsToUpdate.slice(i, i + chunkSize)
+    try {
+      const result = await Api.post('/renamer/rename-bulk', {
+        attachment_ids: chunk
+      })
+      bulkTitleProgress.value.processed += chunk.length
+      bulkTitleProgress.value.success += result.success_count || 0
+      bulkTitleProgress.value.skipped += result.skipped_count || 0
+      bulkTitleProgress.value.unchanged += result.unchanged_count || 0
+      bulkTitleProgress.value.errors += result.error_count || 0
+    } catch (error) {
+      bulkTitleProgress.value.processed += chunk.length
+      bulkTitleProgress.value.errors += chunk.length
     }
-  } catch (error) {
-    notification.error($t('Bulk rename failed'))
   }
+
+  // Show summary modal
+  bulkTitleUpdating.value = false
+  bulkTitleDone.value = true
+  loadImages()
+  selectedImages.value = []
+  allPagesSelected.value = false
 }
 
 onMounted(() => {

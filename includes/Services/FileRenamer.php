@@ -21,7 +21,7 @@ class FileRenamer
 
         $maxLength = $maxLength ?? (int) Settings::get('icais_rename_max_length', self::DEFAULT_MAX_FILENAME_LENGTH);
 
-        // Transliterate accented/non-Latin characters to ASCII equivalents
+        // Transliterate accented Latin characters to ASCII equivalents
         // e.g. "caffè" → "caffe", "über" → "uber", "piñata" → "pinata"
         $text = remove_accents($altText);
         $text = strtolower($text);
