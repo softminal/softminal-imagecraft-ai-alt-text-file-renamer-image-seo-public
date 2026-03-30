@@ -208,9 +208,16 @@ const isProcessing = computed(() => {
   return job.value && (job.value.status === 'processing' || job.value.status === 'pending')
 })
 
+// Track highest seen values to prevent progress bar going backwards
+const peakCompleted = ref(0)
+
 const completedCount = computed(() => {
-  if (!job.value) return 0
-  return (parseInt(job.value.processed_images) || 0) + (parseInt(job.value.failed_images) || 0)
+  if (!job.value) return peakCompleted.value
+  const current = (parseInt(job.value.processed_images) || 0) + (parseInt(job.value.failed_images) || 0)
+  if (current > peakCompleted.value) {
+    peakCompleted.value = current
+  }
+  return peakCompleted.value
 })
 
 const totalImages = computed(() => {

@@ -86,7 +86,7 @@
             {{ $t('Generate Alt Text for %s Selected', selectedImages.length) }}
           </button>
           <button
-            v-if="selectedImages.length > 0 && generateTitleEnabled"
+            v-if="selectedImages.length > 0"
             @click="startTitleBatch"
             class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
           >
@@ -338,7 +338,6 @@ const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
 const autoRename = window.icais?.autoRename === '1' || window.icais?.autoRename === 1
-const generateTitleEnabled = window.icais?.generateTitle === '1' || window.icais?.generateTitle === 1
 
 // AbortController for cancelling stale requests
 let loadAbortController = null

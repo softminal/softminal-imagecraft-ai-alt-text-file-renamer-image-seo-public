@@ -349,7 +349,7 @@
         }
         injectedRenameSpans.add(settingSpan);
 
-        var hasTitle = config.generateTitle === '1' || config.generateTitle === 1;
+        var hasTitle = true;
         var hasRename = config.autoRename === '1' || config.autoRename === 1;
 
         if (!hasTitle && !hasRename) return;

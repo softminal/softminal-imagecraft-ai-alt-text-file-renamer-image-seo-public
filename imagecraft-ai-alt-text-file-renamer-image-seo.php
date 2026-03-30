@@ -4,7 +4,7 @@
  * Plugin Name:       ImageCraft – AI Alt Text, File Renamer & Image SEO
  * Plugin URI:        https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo
  * Description:       Generate AI-powered alt text, rename files for SEO, and audit image accessibility using your own Anthropic, OpenAI, or Gemini API key.
- * Version:           1.2.0
+ * Version:           1.2.1
  * Author:            Softminal
  * Author URI:        https://softminal.com
  * License:           GPL-2.0+

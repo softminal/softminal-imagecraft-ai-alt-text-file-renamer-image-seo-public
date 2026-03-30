@@ -24,7 +24,7 @@ class Settings
         'icais_batch_size' => 3,
         'icais_request_timeout' => 60,
         'icais_language' => 'en',
-        'icais_generate_title' => '0',
+        'icais_generate_title' => '1',
         'icais_title_default_tone' => 'seo',
         'icais_title_max_length' => 30,
         'icais_title_custom_prompt' => '',

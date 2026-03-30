@@ -4,7 +4,7 @@ Tags: alt text, image alt text, seo images, ai alt text, image optimization
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,11 +22,12 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 
 * **3 AI providers, 15+ models** — Choose from Anthropic Claude (Haiku, Sonnet, Opus), OpenAI (GPT-4o, GPT-4.1, GPT-5), and Google Gemini (Flash, Pro). Switch providers and models anytime.
 * **Gutenberg & Media Modal integration** — Generate alt text with one click directly from the block editor sidebar or the WordPress media modal. Preview, accept, or reject without leaving the editor.
-* **SEO image file renaming** — Automatically rename image files to SEO-friendly slugs based on generated alt text. Works on upload or in bulk.
+* **AI image title generation** — Generate SEO-optimized image titles independently from alt text. Separate AI call with its own tone, prompt, and settings.
+* **AI-powered file renaming** — AI generates SEO-friendly filenames directly from image content. Independent from alt text and title — each is a separate AI call.
 * **SEO keyphrase integration** — Pulls the focus keyphrase from Yoast SEO, Rank Math, All in One SEO, or SEOPress and naturally weaves it into generated alt text.
 * **Image SEO audit dashboard** — Scores your media library health. Detects missing, generic/placeholder, and too-long alt text with a visual breakdown.
 * **WooCommerce product awareness** — Sends product name, SKU, categories, and price as context. Includes 3 dedicated product tones (SEO, Descriptive, Lifestyle) plus custom prompt support.
-* **Batch processing with resume** — Process up to 500 images at once with real-time progress tracking. Resume interrupted jobs after browser close. Review and edit all generated alt text in a batch review modal before saving.
+* **Batch processing with real-time progress** — Process up to 500 images at once with animated progress bar, live counters, and success/failed breakdown. Resume interrupted jobs after browser close.
 * **65+ languages** — Generate alt text in your site's language. Supports English, Spanish, French, German, Japanese, Chinese, Arabic, Hindi, Tamil, Korean, and 55+ more.
 * **3-minute setup wizard** — Guided wizard with provider cost comparison gets you running fast.
 
@@ -35,18 +36,18 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * 3 AI providers with 15+ model options
 * Generate from Gutenberg editor and WordPress media modal
 * Preview / accept / reject workflow
-* SEO-friendly file renaming (single and bulk)
-* Auto-rename on upload
+* AI-powered image title generation with independent settings
+* AI-powered file renaming — AI generates filenames from image content
 * SEO audit score with quality breakdown
 * Generic and placeholder alt text detection
 * Too-long alt text detection
 * Focus keyphrase integration (Yoast, Rank Math, AIOSEO, SEOPress)
 * Dedicated WooCommerce dashboard with category filtering
 * WooCommerce gallery image bulk generation
-* Batch processing up to 500 images with progress bar
+* Batch processing up to 500 images with real-time animated progress
 * Resume interrupted batch jobs — pick up where you left off after browser close
 * Single-owner concurrency control — prevents duplicate processing across tabs
-* Batch review & edit modal with inline editing
+* Separate batch buttons for alt text and title generation
 * Cross-page bulk selection
 * Advanced filters (date range, file size, alt text quality)
 * Auto-generate on new image uploads
@@ -173,7 +174,7 @@ Yes. ImageCraft adds a "Generate with AI" button directly in the Gutenberg block
 
 = Does it rename image files for SEO? =
 
-Yes. ImageCraft renames image files to SEO-friendly slugs based on the alt text. Works on individual images, in bulk, or automatically on upload.
+Yes. ImageCraft uses AI to generate SEO-friendly filenames directly from image content — independent from alt text. Enable file renaming in settings and use the "Rename File" button on individual images.
 
 = Can I generate alt text in my language? =
 
@@ -208,6 +209,22 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 5. Gutenberg Editor - Generate alt text with AI directly from the block editor image settings panel
 
 == Changelog ==
+
+= 1.2.1 =
+* New: AI-powered image title generation — independent feature with its own tone, max length, custom prompt, auto-generate on upload, and batch processing
+* New: AI-powered file renaming — AI generates SEO-friendly filenames directly from image content, independent from alt text and title
+* New: Better UX in Settings
+* New: Generate Title button in WordPress media modal alongside Generate with AI
+* New: Rename File button in media modal with confirmation dialog warning about URL changes
+* New: Batch title generation — bulk generate titles for selected images using separate batch job
+* Improvement: Batch processing auto-accepts results (no review modal — results applied directly)
+* Improvement: File renamer now handles accented characters correctly via remove_accents()
+* Improvement: Same-filename guard prevents unnecessary -1 suffix renames
+* Improvement: Thumbnail suffix extraction uses regex for WordPress-standard suffixes only
+* Improvement: Media modal refreshes attachment data after rename
+* Improvement: Default batch size changed to 3 for smoother progress updates
+* Fix: Removed double sanitization in file renamer controller
+* Fix: Suppressed unserialize warnings from corrupted attachment metadata in scanner
 
 = 1.2.0 =
 * New: Resume interrupted batch processing — pick up where you left off after browser close or refresh
@@ -263,6 +280,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+New AI-powered image title generation and file renaming features. Redesigned settings page with sidebar navigation. Improved batch processing with real-time progress. Fully backwards-compatible — new features are opt-in via settings.
 
 = 1.2.0 =
 Critical file renamer fixes (broken images, serialized data corruption, stale title), media modal generation bug fix, Gmail-style cross-page selection, and per-page display options. Fully backwards-compatible — no action required after update.
