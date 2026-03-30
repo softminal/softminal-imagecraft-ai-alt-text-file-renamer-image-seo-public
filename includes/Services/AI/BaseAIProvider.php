@@ -78,16 +78,7 @@ abstract class BaseAIProvider
 
         $maxLength = (int) Settings::get('icais_max_length', 150);
 
-        // When title generation is enabled, don't tell the AI to "return only the alt text"
-        // because we need it to also return a title in the structured format
-        $generateTitle = Settings::get('icais_generate_title', '0');
-        $titleEnabled = ($generateTitle === '1' || $generateTitle === 1 || $generateTitle === true);
-
-        if ($titleEnabled) {
-            $rules = "Rules for alt text: Stay under {$maxLength} characters. Never start with \"Image of\", \"Photo of\", \"Picture of\", or \"A photo\". Do not wrap in quotation marks.";
-        } else {
-            $rules = "Rules: Stay under {$maxLength} characters. Never start with \"Image of\", \"Photo of\", \"Picture of\", or \"A photo\". Do not wrap in quotation marks. Return only the alt text, nothing else.";
-        }
+        $rules = "Rules: Stay under {$maxLength} characters. Never start with \"Image of\", \"Photo of\", \"Picture of\", or \"A photo\". Do not wrap in quotation marks. Return only the alt text, nothing else.";
 
         $basePrompts = [
             'professional' => "Write concise, professional alt text for this image. Describe the main subject, any key action, and relevant context. Focus on what matters most for someone who cannot see the image. {$rules}",
@@ -140,12 +131,6 @@ abstract class BaseAIProvider
         if ($language !== 'en') {
             $languageName = $this->getLanguageName($language);
             $prompt .= " You MUST write in {$languageName}.";
-        }
-
-        // When title generation is enabled, ask for structured response with labels
-        $generateTitle = Settings::get('icais_generate_title', '0');
-        if ($generateTitle === '1' || $generateTitle === 1 || $generateTitle === true) {
-            $prompt .= "\n\nYou must provide TWO outputs. Format your response EXACTLY like this:\nALT: [your alt text here]\nTITLE: [SEO title, max 80 characters, concise, keyword-focused, no filler words]";
         }
 
         return $prompt;

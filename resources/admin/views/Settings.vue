@@ -170,23 +170,18 @@
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-medium mb-2">{{ $t('What to generate') }}</label>
-        <div class="space-y-2">
-          <label class="flex items-center gap-2">
-            <input type="radio" value="0" v-model="settings.icais_generate_title" />
-            <div>
-              <span class="text-sm">{{ $t('Alt text only') }}</span>
-              <p class="text-xs text-gray-500">{{ $t('Generates image alt text for accessibility and SEO.') }}</p>
-            </div>
-          </label>
-          <label class="flex items-center gap-2">
-            <input type="radio" value="1" v-model="settings.icais_generate_title" />
-            <div>
-              <span class="text-sm">{{ $t('Alt text + Image title') }}</span>
-              <p class="text-xs text-gray-500">{{ $t('Also generates an SEO-optimized image title. Same API cost.') }}</p>
-            </div>
-          </label>
-        </div>
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            true-value="1"
+            false-value="0"
+            v-model="settings.icais_generate_title"
+          />
+          <span>{{ $t('Enable image title generation') }}</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-1">
+          {{ $t('Shows a separate "Generate Title" button to create SEO-optimized titles via AI. Each title generation is a separate API call.') }}
+        </p>
       </div>
 
       <div class="mb-4">

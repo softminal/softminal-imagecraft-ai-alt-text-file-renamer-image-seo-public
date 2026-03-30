@@ -158,21 +158,6 @@ class GeneratorController extends Controller
             ];
         }
         
-        // Parse structured response when title generation is enabled
-        $generatedTitle = null;
-        $generateTitleSetting = Settings::get('icais_generate_title', '0');
-        $titleEnabled = ($generateTitleSetting === '1' || $generateTitleSetting === 1 || $generateTitleSetting === true);
-
-        if ($titleEnabled && preg_match('/ALT:\s*(.+)/i', $result['alt_text'], $altMatch)) {
-            $parsedAlt = trim($altMatch[1]);
-            if (preg_match('/TITLE:\s*(.+)/i', $result['alt_text'], $titleMatch)) {
-                $generatedTitle = trim($titleMatch[1]);
-                // Remove TITLE: line from alt text if it was captured in the ALT match
-                $parsedAlt = trim(preg_replace('/\s*TITLE:.*$/is', '', $parsedAlt));
-            }
-            $result['alt_text'] = $parsedAlt;
-        }
-
         // Determine initial status based on preview setting
         $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
@@ -190,27 +175,18 @@ class GeneratorController extends Controller
             'cost'          => $result['cost'] ?? 0,
         ]);
 
-        // Auto-accept: also write alt text and title to attachment meta
+        // Auto-accept: write alt text to attachment meta
         if (!$previewBeforeAccept) {
             update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($result['alt_text']));
-            if (!empty($generatedTitle)) {
-                update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($generatedTitle));
-            }
         }
 
-        $response = [
+        return [
             'success' => true,
             'alt_text' => $result['alt_text'],
             'history_id' => $history->id,
             'tokens' => $result['tokens'] ?? 0,
             'cost' => $result['cost'] ?? 0
         ];
-
-        if (!empty($generatedTitle)) {
-            $response['generated_title'] = $generatedTitle;
-        }
-
-        return $response;
     }
     
     /**
