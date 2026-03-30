@@ -623,6 +623,8 @@ class BatchController extends Controller
             $thumbnail = wp_get_attachment_image_src($attachmentId, 'thumbnail');
             $post = get_post($attachmentId);
 
+            $generatedTitle = (string) get_post_meta($attachmentId, '_icais_generated_title', true);
+
             $images[] = [
                 'id' => $attachmentId,
                 'url' => wp_get_attachment_url($attachmentId),
@@ -630,6 +632,7 @@ class BatchController extends Controller
                 'filename' => $post ? basename(get_attached_file($attachmentId)) : '',
                 'title' => $post ? $post->post_title : '',
                 'alt_text' => $history->generated_alt ?: '',
+                'generated_title' => $generatedTitle,
                 'history_id' => (int) $history->id
             ];
         }

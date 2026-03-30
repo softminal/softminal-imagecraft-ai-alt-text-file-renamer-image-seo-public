@@ -211,6 +211,15 @@
                       class="w-full text-sm border rounded-lg p-2 resize-y focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       :placeholder="$t('Enter alt text...')"
                     />
+                    <template v-if="generateTitleEnabled && item.generated_title">
+                      <label class="block text-sm font-medium text-gray-700 mt-2 mb-1">{{ $t('Title') }}</label>
+                      <input
+                        v-model="item.generated_title"
+                        type="text"
+                        class="w-full text-sm border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        :placeholder="$t('Image title...')"
+                      />
+                    </template>
                   </div>
                 </div>
               </div>
@@ -248,6 +257,7 @@ const route = useRoute()
 const router = useRouter()
 const job = ref(null)
 const jobId = ref(route.params.jobId)
+const generateTitleEnabled = window.icais?.generateTitle === '1' || window.icais?.generateTitle === 1
 const prevJobStatus = ref(null)
 const showReviewModal = ref(false)
 const reviewImages = ref([])
@@ -406,10 +416,16 @@ const saveAllAltTexts = async () => {
   if (reviewImages.value.length === 0) return
   savingAltTexts.value = true
   try {
-    const items = reviewImages.value.map(img => ({
-      history_id: img.history_id,
-      alt_text: img.alt_text || ''
-    }))
+    const items = reviewImages.value.map(img => {
+      const item = {
+        history_id: img.history_id,
+        alt_text: img.alt_text || ''
+      }
+      if (img.generated_title) {
+        item.generated_title = img.generated_title
+      }
+      return item
+    })
     const result = await Api.post('/generator/accept-bulk', { items })
     if (result.success) {
       notification.success(result.message || $t('Alt texts saved successfully.'))
