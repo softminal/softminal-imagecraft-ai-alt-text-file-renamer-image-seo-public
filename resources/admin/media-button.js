@@ -222,46 +222,10 @@
         // Insert the button wrapper as a sibling AFTER the alt setting span
         settingSpan.parentNode.insertBefore(buttonEl, settingSpan.nextSibling);
     }
+    const starIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
 
     /**
-     * Create a button element with given label and handler.
-     */
-    function createSecondaryButton(label, iconSvg, handler) {
-        var wrapper = document.createElement('div');
-        wrapper.className = 'icais-media-btn-wrapper icais-rename-btn-wrapper';
-
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'icais-media-btn icais-rename-btn';
-        var iconSpan = document.createElement('span');
-        iconSpan.className = 'icais-btn-icon';
-        iconSpan.innerHTML = iconSvg;
-        var textSpan = document.createElement('span');
-        textSpan.className = 'icais-btn-text';
-        textSpan.textContent = label;
-        btn.appendChild(iconSpan);
-        btn.appendChild(textSpan);
-
-        var status = document.createElement('div');
-        status.className = 'icais-media-status';
-        status.style.display = 'none';
-
-        wrapper.appendChild(btn);
-        wrapper.appendChild(status);
-
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            handler(btn, status);
-        });
-
-        return wrapper;
-    }
-
-    var editIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-    var starIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
-
-    /**
-     * Handle the rename button click
+     * Handle the rename button click — AI generates filename then renames
      */
     function handleRename(btn, status) {
         var attachmentId = getAttachmentId();
@@ -270,15 +234,19 @@
             return;
         }
 
+        if (!confirm(config.i18n?.renameConfirm || 'This will change the image URL. External links and cached pages may show broken images.\n\nAre you sure you want to rename this file?')) {
+            return;
+        }
+
         btn.disabled = true;
         btn.classList.add('icais-loading');
         btn.querySelector('.icais-btn-text').textContent = config.i18n?.renaming || 'Renaming...';
         status.style.display = 'none';
 
-        fetch(config.apiUrl + '/renamer/rename', {
+        fetch(config.apiUrl + '/generator/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
-            body: JSON.stringify({ attachment_id: attachmentId })
+            body: JSON.stringify({ attachment_id: attachmentId, filename_only: true })
         })
         .then(function (r) { return r.json(); })
         .then(function (data) {
@@ -381,28 +349,50 @@
         }
         injectedRenameSpans.add(settingSpan);
 
-        var lastInserted = settingSpan;
+        var hasTitle = config.generateTitle === '1' || config.generateTitle === 1;
+        var hasRename = config.autoRename === '1' || config.autoRename === 1;
 
-        // Show Generate Title button when title generation is enabled
-        if (config.generateTitle === '1' || config.generateTitle === 1) {
-            var titleBtn = createSecondaryButton(
-                config.i18n?.generateTitle || 'Generate Title',
-                starIcon,
-                handleGenerateTitle
-            );
-            lastInserted.parentNode.insertBefore(titleBtn, lastInserted.nextSibling);
-            lastInserted = titleBtn;
+        if (!hasTitle && !hasRename) return;
+
+        // Single wrapper with flex button row inside
+        var wrapper = document.createElement('div');
+        wrapper.className = 'icais-media-btn-wrapper icais-rename-btn-wrapper';
+
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
+
+        var titleStatus = null;
+        var renameStatus = null;
+
+        if (hasTitle) {
+            var titleBtn = document.createElement('button');
+            titleBtn.type = 'button';
+            titleBtn.className = 'icais-media-btn icais-title-btn';
+            titleBtn.innerHTML = '<span class="icais-btn-icon">' + starIcon + '</span><span class="icais-btn-text">' + (config.i18n?.generateTitle || 'Generate Title') + '</span>';
+            titleStatus = document.createElement('div');
+            titleStatus.className = 'icais-media-status';
+            titleStatus.style.display = 'none';
+            titleBtn.addEventListener('click', function (e) { e.preventDefault(); handleGenerateTitle(titleBtn, titleStatus); });
+            btnRow.appendChild(titleBtn);
         }
 
-        // Show Rename File button when file rename mode is enabled
-        if (config.renameMode === 'title_and_filename') {
-            var renameBtn = createSecondaryButton(
-                config.i18n?.rename || 'Rename File',
-                editIcon,
-                handleRename
-            );
-            lastInserted.parentNode.insertBefore(renameBtn, lastInserted.nextSibling);
+        if (hasRename) {
+            var renameBtn = document.createElement('button');
+            renameBtn.type = 'button';
+            renameBtn.className = 'icais-media-btn icais-rename-btn';
+            renameBtn.innerHTML = '<span class="icais-btn-icon">' + starIcon + '</span><span class="icais-btn-text">' + (config.i18n?.rename || 'Rename File') + '</span>';
+            renameStatus = document.createElement('div');
+            renameStatus.className = 'icais-media-status';
+            renameStatus.style.display = 'none';
+            renameBtn.addEventListener('click', function (e) { e.preventDefault(); handleRename(renameBtn, renameStatus); });
+            btnRow.appendChild(renameBtn);
         }
+
+        wrapper.appendChild(btnRow);
+        if (titleStatus) wrapper.appendChild(titleStatus);
+        if (renameStatus) wrapper.appendChild(renameStatus);
+
+        settingSpan.parentNode.insertBefore(wrapper, settingSpan.nextSibling);
     }
 
     /**

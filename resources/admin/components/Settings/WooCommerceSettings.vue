@@ -1,0 +1,86 @@
+<template>
+  <div class="bg-white rounded-lg shadow border p-6">
+    <h2 class="text-lg font-semibold">{{ $t('WooCommerce') }}</h2>
+    <p class="text-sm text-gray-500 mb-4">{{ $t('Optimize product image alt text with product-aware AI generation.') }}</p>
+    <hr class="mb-6" />
+
+    <template v-if="woocommerceInstalled">
+      <p class="text-sm text-gray-600 mb-4">{{ $t('Configure alt text generation for WooCommerce products') }}</p>
+
+      <div class="mb-4">
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            true-value="1"
+            false-value="0"
+            v-model="settings.icais_woo_auto_generate"
+          />
+          <span>{{ $t('Auto-generate on product upload') }}</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-1">
+          {{ $t('Automatically generate alt text when adding product images') }}
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            true-value="1"
+            false-value="0"
+            v-model="settings.icais_woo_include_product_info"
+          />
+          <span>{{ $t('Include product information') }}</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-1">
+          {{ $t('Use product name, categories, and SKU in alt text generation') }}
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">{{ $t('Default Tone for Products') }}</label>
+        <select
+          v-model="settings.icais_woo_default_tone"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        >
+          <optgroup :label="$t('WooCommerce Optimized')">
+            <option value="woo_seo">{{ $t('Product SEO (Recommended)') }}</option>
+            <option value="woo_descriptive">{{ $t('Product Descriptive (Accessibility)') }}</option>
+            <option value="woo_lifestyle">{{ $t('Product Lifestyle (In-Use Photos)') }}</option>
+            <option value="woo_custom">{{ $t('Custom Prompt') }}</option>
+          </optgroup>
+          <optgroup :label="$t('General')">
+            <option value="professional">{{ $t('Professional') }}</option>
+            <option value="casual">{{ $t('Casual') }}</option>
+            <option value="technical">{{ $t('Technical') }}</option>
+            <option value="seo">{{ $t('SEO-Optimized') }}</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div v-if="settings.icais_woo_default_tone === 'woo_custom'" class="mb-4">
+        <label class="block text-sm font-medium mb-2">{{ $t('Custom WooCommerce Prompt') }}</label>
+        <textarea
+          v-model="settings.icais_woo_custom_prompt"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          rows="4"
+          :placeholder="$t('e.g. Generate product alt text with the product name, visible features, and use case. Do not start with \'Image of\'. Return only the alt text.')"
+        ></textarea>
+        <p class="text-xs text-gray-500 mt-1">
+          {{ $t('The max character length setting will be applied automatically. Product name, category, and SKU are automatically included as context.') }}
+        </p>
+      </div>
+    </template>
+
+    <p v-else class="text-sm text-gray-600">
+      {{ $t('WooCommerce is not installed. Install WooCommerce to access product image optimization features.') }}
+    </p>
+  </div>
+</template>
+
+<script setup>
+import { inject } from 'vue'
+import { $t } from '../../utils/i18n'
+
+const { settings, woocommerceInstalled } = inject('settingsContext')
+</script>

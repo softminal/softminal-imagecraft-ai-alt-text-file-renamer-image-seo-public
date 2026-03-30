@@ -51,7 +51,11 @@ class FileRenamer
      *   'title_only' — updates post_title only, no file rename (safe, no URL change)
      *   'title_and_filename' — updates post_title AND renames file (changes URL)
      */
-    public function rename(int $attachmentId, ?string $customFilename = null): array
+    /**
+     * @param bool $forceFileRename When true, always rename the file regardless of rename_mode setting.
+     *                              Used by AI-powered rename where user explicitly clicked "Rename File".
+     */
+    public function rename(int $attachmentId, ?string $customFilename = null, bool $forceFileRename = false): array
     {
         if (!wp_attachment_is_image($attachmentId)) {
             return ['success' => false, 'error' => 'Attachment is not an image'];
@@ -67,10 +71,12 @@ class FileRenamer
 
         $filename = $this->generateFilename($titleSource);
 
-        $renameMode = Settings::get('icais_rename_mode', 'title_only');
-
-        if ($renameMode === 'title_only') {
-            return $this->performTitleOnlyUpdate($attachmentId, $titleSource);
+        // Skip mode check when force rename is requested (AI-powered rename button)
+        if (!$forceFileRename) {
+            $renameMode = Settings::get('icais_rename_mode', 'title_only');
+            if ($renameMode === 'title_only') {
+                return $this->performTitleOnlyUpdate($attachmentId, $titleSource);
+            }
         }
 
         // title_and_filename mode: skip if filename already matches

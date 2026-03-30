@@ -38,7 +38,7 @@
       <span v-if="image.generated_title || image.title" class="text-blue-600 truncate">{{ image.generated_title || image.title }}</span>
       <span v-else class="text-red-500 italic">{{ $t('Missing') }}</span>
     </div>
-    <div v-if="image.has_alt && !renaming && renameMode === 'title_and_filename'" class="flex justify-between mt-2">
+    <div v-if="image.has_alt && !renaming && autoRename" class="flex justify-between mt-2">
       <button
         @click.stop="$emit('rename', image.id)"
         class="text-xs flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
@@ -77,7 +77,7 @@ defineProps({
   selected: { type: Boolean, default: false },
   renaming: { type: Boolean, default: false },
   altTooLong: { type: Boolean, default: false },
-  renameMode: { type: String, default: 'title_only' },
+  autoRename: { type: Boolean, default: false },
 })
 
 defineEmits(['toggle-select', 'open-modal', 'rename'])

@@ -257,7 +257,7 @@
           :selected="selectedImages.includes(image.id)"
           :renaming="renamingId === image.id"
           :alt-too-long="isAltTooLong(image)"
-          :rename-mode="renameMode"
+          :auto-rename="autoRename"
           @toggle-select="toggleSelect"
           @open-modal="openImageModal"
           @rename="renameFile"
@@ -307,72 +307,6 @@
       </div>
     </div>
 
-    <!-- Bulk Title Update Modal -->
-    <Teleport to="body">
-      <div v-if="bulkTitleUpdating || bulkTitleDone" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
-
-          <!-- Progress state -->
-          <template v-if="bulkTitleUpdating">
-            <h3 class="text-lg font-semibold mb-4">{{ $t('Updating Titles...') }}</h3>
-            <div class="w-full bg-gray-200 rounded-full h-3 mb-3">
-              <div
-                class="bg-blue-600 h-3 rounded-full transition-all duration-300"
-                :style="{ width: (bulkTitleProgress.total > 0 ? (bulkTitleProgress.processed / bulkTitleProgress.total * 100) : 0) + '%' }"
-              ></div>
-            </div>
-            <p class="text-sm text-gray-600 mb-4">
-              {{ $t('%1$s of %2$s processed', bulkTitleProgress.processed, bulkTitleProgress.total) }}
-            </p>
-            <div class="space-y-1 text-sm mb-4">
-              <div v-if="bulkTitleProgress.success > 0" class="text-green-600">{{ $t('Updated: %s', bulkTitleProgress.success) }}</div>
-              <div v-if="bulkTitleProgress.skipped > 0" class="text-yellow-600">{{ $t('Skipped: %s (no alt text)', bulkTitleProgress.skipped) }}</div>
-              <div v-if="bulkTitleProgress.unchanged > 0" class="text-gray-500">{{ $t('Unchanged: %s', bulkTitleProgress.unchanged) }}</div>
-              <div v-if="bulkTitleProgress.errors > 0" class="text-red-600">{{ $t('Failed: %s', bulkTitleProgress.errors) }}</div>
-            </div>
-            <button
-              @click="cancelBulkTitleUpdate"
-              class="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-            >
-              {{ $t('Cancel') }}
-            </button>
-          </template>
-
-          <!-- Summary state -->
-          <template v-else-if="bulkTitleDone">
-            <h3 class="text-lg font-semibold mb-4">
-              {{ bulkTitleCancelled ? $t('Update Cancelled') : $t('Update Complete') }}
-            </h3>
-            <div class="space-y-2 text-sm mb-6">
-              <div v-if="bulkTitleProgress.success > 0" class="flex items-center gap-2 text-green-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                {{ $t('%s titles updated', bulkTitleProgress.success) }}
-              </div>
-              <div v-if="bulkTitleProgress.skipped > 0" class="flex items-center gap-2 text-yellow-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"/></svg>
-                {{ $t('%s skipped (no alt text)', bulkTitleProgress.skipped) }}
-              </div>
-              <div v-if="bulkTitleProgress.unchanged > 0" class="flex items-center gap-2 text-gray-500">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-                {{ $t('%s already up to date', bulkTitleProgress.unchanged) }}
-              </div>
-              <div v-if="bulkTitleProgress.errors > 0" class="flex items-center gap-2 text-red-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                {{ $t('%s failed', bulkTitleProgress.errors) }}
-              </div>
-            </div>
-            <button
-              @click="bulkTitleDone = false"
-              class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              {{ $t('Close') }}
-            </button>
-          </template>
-
-        </div>
-      </div>
-    </Teleport>
-
   </div>
 </template>
 
@@ -403,12 +337,8 @@ const perPage = ref(48)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
-const renameMode = window.icais?.renameMode || 'title_only'
+const autoRename = window.icais?.autoRename === '1' || window.icais?.autoRename === 1
 const generateTitleEnabled = window.icais?.generateTitle === '1' || window.icais?.generateTitle === 1
-const bulkTitleUpdating = ref(false)
-const bulkTitleCancelled = ref(false)
-const bulkTitleDone = ref(false)
-const bulkTitleProgress = ref({ total: 0, processed: 0, success: 0, skipped: 0, unchanged: 0, errors: 0 })
 
 // AbortController for cancelling stale requests
 let loadAbortController = null
@@ -631,8 +561,9 @@ function openImageModal(image) {
 const renameFile = async (imageId) => {
   renamingId.value = imageId
   try {
-    const result = await Api.post('/renamer/rename', {
-      attachment_id: imageId
+    const result = await Api.post('/generator/generate', {
+      attachment_id: imageId,
+      filename_only: true
     })
     if (result.success) {
       const img = images.value.find(i => i.id === imageId)
@@ -641,64 +572,13 @@ const renameFile = async (imageId) => {
       }
       notification.success($t('Renamed to: %s', result.new_filename))
     } else {
-      notification.error(result.error || $t('Failed to rename file'))
+      notification.error(result.message || $t('Failed to rename file'))
     }
   } catch (error) {
     notification.error($t('Failed to rename file'))
   } finally {
     renamingId.value = null
   }
-}
-
-const cancelBulkTitleUpdate = () => {
-  bulkTitleCancelled.value = true
-}
-
-const updateSelectedTitles = async () => {
-  const onPageIds = new Set(images.value.map(i => i.id))
-  const idsToUpdate = selectedImages.value.filter(id => {
-    if (!onPageIds.has(id)) return true
-    const img = images.value.find(i => i.id === id)
-    return img && img.has_alt
-  })
-
-  if (idsToUpdate.length === 0) {
-    notification.error($t('Selected images must have alt text to update titles'))
-    return
-  }
-
-  // Initialize progress
-  bulkTitleUpdating.value = true
-  bulkTitleCancelled.value = false
-  bulkTitleProgress.value = { total: idsToUpdate.length, processed: 0, success: 0, skipped: 0, unchanged: 0, errors: 0 }
-
-  // Chunk into batches of 25
-  const chunkSize = 25
-  for (let i = 0; i < idsToUpdate.length; i += chunkSize) {
-    if (bulkTitleCancelled.value) break
-
-    const chunk = idsToUpdate.slice(i, i + chunkSize)
-    try {
-      const result = await Api.post('/renamer/rename-bulk', {
-        attachment_ids: chunk
-      })
-      bulkTitleProgress.value.processed += chunk.length
-      bulkTitleProgress.value.success += result.success_count || 0
-      bulkTitleProgress.value.skipped += result.skipped_count || 0
-      bulkTitleProgress.value.unchanged += result.unchanged_count || 0
-      bulkTitleProgress.value.errors += result.error_count || 0
-    } catch (error) {
-      bulkTitleProgress.value.processed += chunk.length
-      bulkTitleProgress.value.errors += chunk.length
-    }
-  }
-
-  // Show summary modal
-  bulkTitleUpdating.value = false
-  bulkTitleDone.value = true
-  loadImages()
-  selectedImages.value = []
-  allPagesSelected.value = false
 }
 
 onMounted(() => {

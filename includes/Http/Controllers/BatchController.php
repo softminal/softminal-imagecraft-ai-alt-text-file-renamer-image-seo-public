@@ -291,13 +291,15 @@ class BatchController extends Controller
             if ($isTitleOnly) {
                 // Title-only batch: generate title via AI and save to meta
                 try {
-                    $result = $this->generateTitleForImage((int) $attachmentId, $userId);
-                    if ($result) {
+                    $titleResult = $this->generateTitleForImage((int) $attachmentId, $userId);
+                    if ($titleResult) {
                         $processed++;
                     } else {
                         $failed++;
                     }
                 } catch (\Exception $e) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                    error_log('[ImageCraft] Title batch error for #' . $attachmentId . ': ' . $e->getMessage());
                     $failed++;
                 }
             } else {

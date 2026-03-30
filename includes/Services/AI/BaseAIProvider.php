@@ -14,6 +14,7 @@ abstract class BaseAIProvider
     protected int $timeout;
     protected string $model;
     protected bool $titleOnlyMode = false;
+    protected bool $filenameMode = false;
 
     public function __construct(string $apiKey, int $timeout = 60, ?string $model = null)
     {
@@ -68,11 +69,27 @@ abstract class BaseAIProvider
         return $this;
     }
 
+    /**
+     * Enable filename mode for the next generateAltText() call.
+     * The AI will generate only a short SEO-friendly filename slug.
+     */
+    public function setFilenameMode(bool $enabled = true): self
+    {
+        $this->filenameMode = $enabled;
+        return $this;
+    }
+
     protected function getPrompt(string $tone, ?string $context = null): string
     {
+        // Filename mode: generate a short SEO slug
+        if ($this->filenameMode) {
+            $this->filenameMode = false;
+            return $this->getFilenamePrompt($context);
+        }
+
         // Title-only mode: use a dedicated title prompt
         if ($this->titleOnlyMode) {
-            $this->titleOnlyMode = false; // Reset after use
+            $this->titleOnlyMode = false;
             return $this->getTitleOnlyPrompt($context);
         }
 
@@ -193,6 +210,37 @@ abstract class BaseAIProvider
         if ($language !== 'en') {
             $languageName = $this->getLanguageName($language);
             $prompt .= " You MUST write in {$languageName}.";
+        }
+
+        return $prompt;
+    }
+
+    /**
+     * Build a filename prompt. AI generates a short SEO-friendly slug.
+     */
+    protected function getFilenamePrompt(?string $context = null): string
+    {
+        $maxLength = (int) Settings::get('icais_rename_max_length', 120);
+
+        $prompt = "Generate a short, SEO-friendly filename for this image. Rules: Maximum {$maxLength} characters. Use only lowercase letters, numbers, and dashes. No spaces, underscores, or special characters. Be keyword-focused and descriptive. No filler words like 'a', 'the', 'in', 'of'. Do not include file extension. Return only the filename slug, nothing else.";
+
+        if (!empty($context)) {
+            $productName = null;
+            if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
+                $productName = trim($matches[1]);
+            }
+
+            if ($productName) {
+                $prompt = "This is a product called \"{$productName}\". " . trim($context) . "\n\nThe filename MUST contain the product name.\n\n" . $prompt;
+            } else {
+                $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+            }
+        }
+
+        $language = Settings::get('icais_language', 'en');
+        if ($language !== 'en') {
+            $languageName = $this->getLanguageName($language);
+            $prompt .= " Use {$languageName} keywords transliterated to ASCII.";
         }
 
         return $prompt;

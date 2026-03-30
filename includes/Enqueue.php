@@ -80,7 +80,7 @@ class Enqueue {
                 'debug' => true,
                 'pluginUrl' => ICAIS_URL,
                 'generateTitle' => Settings::get('icais_generate_title', '0'),
-                'renameMode' => Settings::get('icais_rename_mode', 'title_only'),
+                'autoRename' => Settings::get('icais_auto_rename', '0'),
                 'i18n' => TranslationStrings::get(),
             ]);
         } else {
@@ -96,7 +96,7 @@ class Enqueue {
                     'debug' => false,
                     'pluginUrl' => ICAIS_URL,
                     'generateTitle' => Settings::get('icais_generate_title', '0'),
-                    'renameMode' => Settings::get('icais_rename_mode', 'title_only'),
+                    'autoRename' => Settings::get('icais_auto_rename', '0'),
                     'i18n' => TranslationStrings::get(),
                 ]);
             }
@@ -194,7 +194,7 @@ class Enqueue {
             'nonce' => wp_create_nonce('wp_rest'),
             'defaultTone' => Settings::get('icais_default_tone', 'professional'),
             'generateTitle' => Settings::get('icais_generate_title', '0'),
-            'renameMode' => Settings::get('icais_rename_mode', 'title_only'),
+            'autoRename' => Settings::get('icais_auto_rename', '0'),
             'i18n' => [
                 'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
@@ -211,6 +211,7 @@ class Enqueue {
                 /* translators: %s: new title */
                 'titleSuccess' => __('Title updated to: %s', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'titleError' => __('Failed to generate title.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'renameConfirm' => __("This will change the image URL. External links and cached pages may show broken images.\n\nAre you sure you want to rename this file?", 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             ],
         ]);
 
@@ -277,10 +278,16 @@ class Enqueue {
             .icais-status-error {
                 color: #d63638;
             }
-            .icais-rename-btn {
+            .icais-title-btn {
                 background: linear-gradient(135deg, #00a32a, #008a20) !important;
             }
+            .icais-rename-btn {
+                background: rgb(220, 38, 38);
+            }
             .icais-rename-btn:hover {
+                background: rgb(185, 31, 31);
+            }
+            .icais-title-btn:hover {
                 background: linear-gradient(135deg, #008a20, #006818) !important;
             }
             .icais-rename-btn:focus {

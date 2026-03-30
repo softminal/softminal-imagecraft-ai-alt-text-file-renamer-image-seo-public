@@ -59,6 +59,12 @@ class GeneratorController extends Controller
             return $this->generateTitleOnly($attachmentId, $context);
         }
 
+        // Filename generation mode (called from media modal "Rename File" button)
+        $filenameOnly = !empty($params['filename_only']);
+        if ($filenameOnly) {
+            return $this->generateFilenameAndRename($attachmentId, $context);
+        }
+
         $result = $this->generateAltText($attachmentId, $tone, null, $context);
 
         if (!$result['success']) {
@@ -420,6 +426,78 @@ class GeneratorController extends Controller
             'success' => true,
             'generated_title' => $generatedTitle,
             'preview' => $previewBeforeAccept,
+        ]);
+    }
+
+    /**
+     * Generate an AI filename and rename the file.
+     */
+    private function generateFilenameAndRename(int $attachmentId, ?string $context): \WP_REST_Response
+    {
+        $userId = get_current_user_id();
+        $aiProvider = \Softminal\ImageCraft\Services\AI\AIFactory::getProviderForUser($userId);
+
+        if (!$aiProvider) {
+            return $this->response([
+                'success' => false,
+                'message' => __('No API key configured.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $imageUrl = wp_get_attachment_url($attachmentId);
+        if (!$imageUrl) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Failed to get image URL', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        // Use filename mode
+        $aiProvider->setFilenameMode(true);
+        $result = $aiProvider->generateAltText($imageUrl, 'professional', $context);
+
+        if (!$result['success']) {
+            return $this->response([
+                'success' => false,
+                'message' => $result['error'] ?? __('Failed to generate filename', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        // Clean the AI response into a valid filename slug
+        $aiFilename = trim($result['alt_text'] ?? '');
+        $aiFilename = strtolower($aiFilename);
+        $aiFilename = remove_accents($aiFilename);
+        $aiFilename = preg_replace('/[^a-z0-9\s-]/', '', $aiFilename);
+        $aiFilename = preg_replace('/\s+/', '-', $aiFilename);
+        $aiFilename = preg_replace('/-+/', '-', $aiFilename);
+        $aiFilename = trim($aiFilename, '-');
+
+        $maxLength = (int) Settings::get('icais_rename_max_length', 120);
+        if (strlen($aiFilename) > $maxLength) {
+            $aiFilename = substr($aiFilename, 0, $maxLength);
+            $aiFilename = trim($aiFilename, '-');
+        }
+
+        if (empty($aiFilename)) {
+            $aiFilename = 'image';
+        }
+
+        // Use FileRenamer to perform the actual rename with the AI-generated filename
+        $renamer = new \Softminal\ImageCraft\Services\FileRenamer();
+        $renameResult = $renamer->rename($attachmentId, $aiFilename, true);
+
+        if (!$renameResult['success'] && empty($renameResult['already_named'])) {
+            return $this->response([
+                'success' => false,
+                'message' => $renameResult['error'] ?? __('Failed to rename file', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        return $this->response([
+            'success' => true,
+            'new_filename' => $renameResult['new_filename'] ?? '',
+            'old_filename' => $renameResult['old_filename'] ?? '',
+            'already_named' => !empty($renameResult['already_named']),
         ]);
     }
 

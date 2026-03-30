@@ -3,6 +3,13 @@ import { Dashboard, Scanner, Batch, Settings } from './views';
 import SetupWizard from './views/SetupWizard.vue';
 import WooCommerce from './views/WooCommerce.vue';
 import Help from './views/Help.vue';
+import GeneralSettings from './components/Settings/GeneralSettings.vue';
+import ApiSettings from './components/Settings/ApiSettings.vue';
+import AltTextSettings from './components/Settings/AltTextSettings.vue';
+import TitleSettings from './components/Settings/TitleSettings.vue';
+import RenameSettings from './components/Settings/RenameSettings.vue';
+import WooCommerceSettings from './components/Settings/WooCommerceSettings.vue';
+import SeoSettings from './components/Settings/SeoSettings.vue';
 import Api from './services/Api';
 
 const routes = [
@@ -28,8 +35,17 @@ const routes = [
     },
     {
         path: '/settings',
-        name: 'settings',
         component: Settings,
+        children: [
+            { path: '', redirect: '/settings/general' },
+            { path: 'general', name: 'settings-general', component: GeneralSettings },
+            { path: 'api', name: 'settings-api', component: ApiSettings },
+            { path: 'alt-text', name: 'settings-alt-text', component: AltTextSettings },
+            { path: 'title', name: 'settings-title', component: TitleSettings },
+            { path: 'rename', name: 'settings-rename', component: RenameSettings },
+            { path: 'woocommerce', name: 'settings-woocommerce', component: WooCommerceSettings },
+            { path: 'seo', name: 'settings-seo', component: SeoSettings },
+        ],
     },
     {
         path: '/help',
