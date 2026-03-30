@@ -82,7 +82,7 @@ class SettingsController extends Controller
 
         // Sanitize setting values based on type
         $intKeys = ['icais_max_length', 'icais_batch_size', 'icais_request_timeout', 'icais_rename_max_length'];
-        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase'];
+        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_generate_title', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase'];
         $textareaKeys = ['icais_custom_prompt', 'icais_woo_custom_prompt'];
         $jsonArrayKeys = ['icais_excluded_post_types'];
 

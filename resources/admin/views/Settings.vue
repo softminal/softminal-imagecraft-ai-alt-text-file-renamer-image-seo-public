@@ -170,6 +170,26 @@
       </div>
 
       <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">{{ $t('What to generate') }}</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2">
+            <input type="radio" value="0" v-model="settings.icais_generate_title" />
+            <div>
+              <span class="text-sm">{{ $t('Alt text only') }}</span>
+              <p class="text-xs text-gray-500">{{ $t('Generates image alt text for accessibility and SEO.') }}</p>
+            </div>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" value="1" v-model="settings.icais_generate_title" />
+            <div>
+              <span class="text-sm">{{ $t('Alt text + Image title') }}</span>
+              <p class="text-xs text-gray-500">{{ $t('Also generates an SEO-optimized image title. Same API cost.') }}</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="mb-4">
         <label class="flex items-center gap-2">
           <input
             type="checkbox"
@@ -196,6 +216,32 @@
 
     <div class="bg-white rounded-lg shadow border p-6 mb-6">
       <h2 class="text-lg font-semibold mb-4">{{ $t('File Renaming') }}</h2>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">{{ $t('Rename Mode') }}</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2">
+            <input type="radio" value="title_only" v-model="settings.icais_rename_mode" />
+            <div>
+              <span class="text-sm">{{ $t('Title only') }}</span>
+              <span class="text-xs text-green-600 ml-1">{{ $t('(recommended)') }}</span>
+              <p class="text-xs text-gray-500">{{ $t('Updates the image title in your media library. Does not change file URLs.') }}</p>
+            </div>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" value="title_and_filename" v-model="settings.icais_rename_mode" />
+            <div>
+              <span class="text-sm">{{ $t('Title and filename') }}</span>
+              <p class="text-xs text-gray-500">{{ $t('Updates both the title and the actual filename. This changes image URLs.') }}</p>
+            </div>
+          </label>
+        </div>
+        <div v-if="settings.icais_rename_mode === 'title_and_filename'" class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p class="text-xs text-amber-700">
+            {{ $t('Changing filenames changes image URLs. External links and cached pages may show broken images. Use with caution.') }}
+          </p>
+        </div>
+      </div>
 
       <div class="mb-4">
         <label class="flex items-center gap-2">

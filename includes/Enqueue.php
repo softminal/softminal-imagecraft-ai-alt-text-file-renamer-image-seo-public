@@ -79,6 +79,8 @@ class Enqueue {
                 'nonce' => wp_create_nonce('wp_rest'),
                 'debug' => true,
                 'pluginUrl' => ICAIS_URL,
+                'generateTitle' => Settings::get('icais_generate_title', '0'),
+                'renameMode' => Settings::get('icais_rename_mode', 'title_only'),
                 'i18n' => TranslationStrings::get(),
             ]);
         } else {
@@ -93,6 +95,8 @@ class Enqueue {
                     'nonce' => wp_create_nonce('wp_rest'),
                     'debug' => false,
                     'pluginUrl' => ICAIS_URL,
+                    'generateTitle' => Settings::get('icais_generate_title', '0'),
+                    'renameMode' => Settings::get('icais_rename_mode', 'title_only'),
                     'i18n' => TranslationStrings::get(),
                 ]);
             }
@@ -189,6 +193,8 @@ class Enqueue {
             'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
             'nonce' => wp_create_nonce('wp_rest'),
             'defaultTone' => Settings::get('icais_default_tone', 'professional'),
+            'generateTitle' => Settings::get('icais_generate_title', '0'),
+            'renameMode' => Settings::get('icais_rename_mode', 'title_only'),
             'i18n' => [
                 'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
@@ -200,6 +206,11 @@ class Enqueue {
                 /* translators: %s: new filename */
                 'renameSuccess' => __('File renamed to: %s', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'renameError' => __('Failed to rename file.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'generateTitle' => __('Generate Title', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'generatingTitle' => __('Generating title...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                /* translators: %s: new title */
+                'titleSuccess' => __('Title updated to: %s', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'titleError' => __('Failed to generate title.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             ],
         ]);
 
