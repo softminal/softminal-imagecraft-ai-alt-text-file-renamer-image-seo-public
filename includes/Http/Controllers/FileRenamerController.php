@@ -81,7 +81,7 @@ class FileRenamerController extends Controller
         }
 
         // Safety net for shared hosting with low time limits
-        // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- set_time_limit may be disabled on some hosts
+        // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Necessary to prevent timeout during bulk title updates
         @set_time_limit(120);
 
         $results = [];
