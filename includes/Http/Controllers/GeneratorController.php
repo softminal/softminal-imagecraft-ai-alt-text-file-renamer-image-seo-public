@@ -369,7 +369,21 @@ class GeneratorController extends Controller
             ], 400);
         }
 
-        // Use title-only mode
+        // Skip if title already exists and skip_existing is enabled
+        $skipExisting = Settings::get('icais_title_skip_existing', '0');
+        if ($skipExisting === '1' || $skipExisting === 1 || $skipExisting === true) {
+            $existingTitle = (string) get_post_meta($attachmentId, '_icais_generated_title', true);
+            if (!empty($existingTitle)) {
+                return $this->response([
+                    'success' => true,
+                    'generated_title' => $existingTitle,
+                    'skipped' => true,
+                    'message' => __('Title already exists', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                ]);
+            }
+        }
+
+        // Use title-only mode (reads tone and max_length from title settings)
         $aiProvider->setTitleOnlyMode(true);
         $result = $aiProvider->generateAltText($imageUrl, 'professional', $context);
 
@@ -382,24 +396,30 @@ class GeneratorController extends Controller
 
         $generatedTitle = trim($result['alt_text'] ?? '');
 
-        // Cap at 80 chars
-        if (mb_strlen($generatedTitle) > 80) {
-            $generatedTitle = mb_substr($generatedTitle, 0, 80);
+        // Cap at configured max length
+        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        if (mb_strlen($generatedTitle) > $maxLength) {
+            $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
             $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
         }
 
-        // Save to meta
-        update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($generatedTitle));
+        // Check preview before accept setting for titles
+        $previewSetting = Settings::get('icais_title_preview_before_accept', '1');
+        $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
 
-        // Also apply as post_title
-        global $wpdb;
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $wpdb->update($wpdb->posts, ['post_title' => $generatedTitle], ['ID' => $attachmentId], ['%s'], ['%d']);
-        clean_post_cache($attachmentId);
+        if (!$previewBeforeAccept) {
+            // Auto-accept: save to meta and apply as post_title immediately
+            update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($generatedTitle));
+            global $wpdb;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->update($wpdb->posts, ['post_title' => $generatedTitle], ['ID' => $attachmentId], ['%s'], ['%d']);
+            clean_post_cache($attachmentId);
+        }
 
         return $this->response([
             'success' => true,
             'generated_title' => $generatedTitle,
+            'preview' => $previewBeforeAccept,
         ]);
     }
 

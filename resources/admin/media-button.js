@@ -326,14 +326,36 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
             if (data.success && data.generated_title) {
-                var msg = (config.i18n?.titleSuccess || 'Title updated to: %s').replace('%s', data.generated_title);
-                showStatus(status, 'success', msg);
+                // Update the title input field in the media modal
+                // Try multiple selectors — WP uses different DOM structures in different views
+                var titleInput = document.querySelector(
+                    '.setting[data-setting="title"] input,' +
+                    '[data-setting="title"] input,' +
+                    '.setting[data-setting="title"] textarea,' +
+                    '[data-setting="title"] textarea,' +
+                    '#attachment-details-two-column-title,' +
+                    'label[data-setting="title"] input'
+                );
+                if (titleInput) {
+                    titleInput.value = data.generated_title;
+                    titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    titleInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    titleInput.dispatchEvent(new Event('keyup', { bubbles: true }));
+                }
+
+                // Update Backbone model directly — do NOT call fetch() as it
+                // would overwrite with old server data before the title is persisted
                 try {
                     if (window.wp && wp.media && wp.media.model) {
                         var attachment = wp.media.model.Attachment.get(attachmentId);
-                        if (attachment) { attachment.fetch(); }
+                        if (attachment) {
+                            attachment.set('title', data.generated_title);
+                        }
                     }
                 } catch (e) {}
+
+                var msg = (config.i18n?.titleSuccess || 'Title updated to: %s').replace('%s', data.generated_title);
+                showStatus(status, 'success', msg);
             } else {
                 showStatus(status, 'error', data.message || config.i18n?.titleError || 'Failed to generate title.');
             }
@@ -347,13 +369,11 @@
     }
 
     /**
-     * Inject the context-dependent second button after the title setting field.
+     * Inject button(s) after the title setting field.
      *
-     * Button logic:
-     *   generateTitle='0' (alt only mode): [Generate Title] — separate AI call
-     *   generateTitle='1' + renameMode='title_only': no button (title comes with generate)
-     *   generateTitle='1' + renameMode='title_and_filename': [Rename File]
-     *   renameMode='title_and_filename' (any generate mode): [Rename File]
+     * [Generate Title] — shown when icais_generate_title is enabled
+     * [Rename File] — shown when rename_mode is title_and_filename
+     * Both can appear simultaneously.
      */
     function injectRenameButton(settingSpan) {
         if (injectedRenameSpans.has(settingSpan)) {
@@ -361,27 +381,27 @@
         }
         injectedRenameSpans.add(settingSpan);
 
-        var buttonEl = null;
+        var lastInserted = settingSpan;
 
-        if (config.renameMode === 'title_and_filename') {
-            // File rename mode: show Rename File button
-            buttonEl = createSecondaryButton(
-                config.i18n?.rename || 'Rename File',
-                editIcon,
-                handleRename
-            );
-        } else if (config.generateTitle !== '1' && config.generateTitle !== 1) {
-            // Alt-only mode + title-only rename: show Generate Title button
-            buttonEl = createSecondaryButton(
+        // Show Generate Title button when title generation is enabled
+        if (config.generateTitle === '1' || config.generateTitle === 1) {
+            var titleBtn = createSecondaryButton(
                 config.i18n?.generateTitle || 'Generate Title',
                 starIcon,
                 handleGenerateTitle
             );
+            lastInserted.parentNode.insertBefore(titleBtn, lastInserted.nextSibling);
+            lastInserted = titleBtn;
         }
-        // else: alt+title mode + title_only rename → no button (title applied on generate)
 
-        if (buttonEl) {
-            settingSpan.parentNode.insertBefore(buttonEl, settingSpan.nextSibling);
+        // Show Rename File button when file rename mode is enabled
+        if (config.renameMode === 'title_and_filename') {
+            var renameBtn = createSecondaryButton(
+                config.i18n?.rename || 'Rename File',
+                editIcon,
+                handleRename
+            );
+            lastInserted.parentNode.insertBefore(renameBtn, lastInserted.nextSibling);
         }
     }
 

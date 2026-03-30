@@ -24,28 +24,19 @@
         class="absolute top-1 right-1"
       />
     </div>
-    <div class="text-xs truncate" :title="image.filename">
-      {{ image.filename }}
+    <div class="text-xs flex gap-1 items-baseline" :title="image.filename">
+      <span class="font-medium text-gray-700 shrink-0">{{ $t('File:') }}</span>
+      <span class="text-gray-600 truncate">{{ image.filename }}</span>
     </div>
-    <div class="text-xs mt-1" :class="image.has_alt ? 'text-green-600' : 'text-orange-600'">
-      {{ image.has_alt ? $t('Has alt') : $t('Missing') }}
+    <div class="text-xs mt-1.5 flex gap-1 items-baseline" :title="image.alt_text">
+      <span class="font-medium text-gray-700 shrink-0">{{ $t('Alt:') }}</span>
+      <span v-if="image.alt_text" class="text-green-600 truncate">{{ image.alt_text }}</span>
+      <span v-else class="text-red-500 italic">{{ $t('Missing') }}</span>
     </div>
-    <div
-      v-if="image.alt_text"
-      class="text-xs mt-1 text-gray-600 line-clamp-2 break-words"
-      :title="image.alt_text"
-    >
-      {{ image.alt_text }}
-    </div>
-    <div v-else class="text-xs mt-1 text-gray-400 italic">
-      {{ $t('No alt text') }}
-    </div>
-    <div
-      v-if="image.generated_title"
-      class="text-xs mt-1 text-blue-600 truncate"
-      :title="image.generated_title"
-    >
-      {{ $t('Title:') }} {{ image.generated_title }}
+    <div class="text-xs mt-1 flex gap-1 items-baseline" :title="image.generated_title || image.title">
+      <span class="font-medium text-gray-700 shrink-0">{{ $t('Title:') }}</span>
+      <span v-if="image.generated_title || image.title" class="text-blue-600 truncate">{{ image.generated_title || image.title }}</span>
+      <span v-else class="text-red-500 italic">{{ $t('Missing') }}</span>
     </div>
     <div v-if="image.has_alt && !renaming && renameMode === 'title_and_filename'" class="flex justify-between mt-2">
       <button

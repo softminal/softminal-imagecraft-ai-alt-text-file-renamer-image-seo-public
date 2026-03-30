@@ -137,16 +137,58 @@ abstract class BaseAIProvider
     }
 
     /**
-     * Build a title-only prompt (used when generating title separately from alt text).
+     * Build a title-only prompt with tone support (mirrors getPrompt() for alt text).
      */
     protected function getTitleOnlyPrompt(?string $context = null): string
     {
-        $prompt = "Generate a concise, SEO-optimized title for this image. Rules: Maximum 80 characters. Be keyword-focused. No filler words like 'a', 'the', 'in', 'of'. No quotation marks. Return only the title, nothing else.";
+        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        $tone = Settings::get('icais_title_default_tone', 'seo');
 
-        if (!empty($context)) {
-            $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+        $rules = "Rules: Stay under {$maxLength} characters. Be concise and keyword-focused. No filler words. Do not wrap in quotation marks. Return only the title, nothing else.";
+
+        $basePrompts = [
+            'professional' => "Write a concise, professional title for this image. Focus on the main subject and key details. {$rules}",
+            'casual'       => "Write a friendly, natural title for this image. Describe the main subject in plain language. {$rules}",
+            'technical'    => "Write a precise, technical title for this image. Include specific elements and details. {$rules}",
+            'seo'          => "Write an SEO-optimized title for this image. Use relevant keywords naturally. Be descriptive and keyword-focused. {$rules}",
+            'woo_seo'      => "Write an SEO-optimized product title. You MUST include the product name. Add key features like color, material, or type. {$rules}",
+            'woo_descriptive' => "Write a descriptive product title. You MUST include the product name and visible features. {$rules}",
+            'woo_lifestyle' => "Write a lifestyle product title. You MUST include the product name and describe the scene or usage. {$rules}",
+        ];
+
+        // Custom prompt support
+        if ($tone === 'custom') {
+            $customPrompt = Settings::get('icais_title_custom_prompt');
+            if (!empty($customPrompt)) {
+                $prompt = str_replace('{max_length}', (string) $maxLength, $customPrompt);
+            } else {
+                $prompt = $basePrompts['seo'];
+            }
+        } else {
+            $prompt = $basePrompts[$tone] ?? $basePrompts['seo'];
         }
 
+        // Prepend context
+        if (!empty($context)) {
+            $productName = null;
+            if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
+                $productName = trim($matches[1]);
+            }
+
+            if ($productName) {
+                $prompt = "This is a product called \"{$productName}\". Additional product info: " . trim($context) . "\n\nIMPORTANT: The title MUST contain the product name \"{$productName}\".\n\n" . $prompt;
+            } else {
+                $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+            }
+        }
+
+        // SEO keyphrase
+        if (!empty($context) && preg_match('/SEO Focus Keyphrase:\s*(.+?)(?:\s*\||$)/', $context, $seoMatches)) {
+            $keyphrase = trim($seoMatches[1]);
+            $prompt .= "\n\nSEO INSTRUCTION: Include the keyword \"{$keyphrase}\" or a close variation in the title.";
+        }
+
+        // Language (shared setting)
         $language = Settings::get('icais_language', 'en');
         if ($language !== 'en') {
             $languageName = $this->getLanguageName($language);

@@ -83,32 +83,14 @@
             @click="startBatch"
             class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
-            <template v-if="generateTitleEnabled">
-              {{ $t('Generate for %s Selected', selectedImages.length) }}
-            </template>
-            <template v-else>
-              {{ $t('Generate Alt Text for %s Selected', selectedImages.length) }}
-            </template>
+            {{ $t('Generate Alt Text for %s Selected', selectedImages.length) }}
           </button>
           <button
-            v-if="selectedImages.length > 0 && !generateTitleEnabled"
+            v-if="selectedImages.length > 0 && generateTitleEnabled"
             @click="startTitleBatch"
             class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
           >
             {{ $t('Generate Titles for %s Selected', selectedImages.length) }}
-          </button>
-          <button
-            v-if="selectedImages.length > 0 && !generateTitleEnabled"
-            @click="updateSelectedTitles"
-            :disabled="bulkTitleUpdating"
-            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
-          >
-            <template v-if="bulkTitleUpdating">
-              {{ $t('Updating... %1$s/%2$s', bulkTitleProgress.processed, bulkTitleProgress.total) }}
-            </template>
-            <template v-else>
-              {{ $t('Update Titles for %s Selected', selectedImages.length) }}
-            </template>
           </button>
         </div>
       </div>
