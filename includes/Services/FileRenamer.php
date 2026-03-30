@@ -46,6 +46,10 @@ class FileRenamer
 
     /**
      * Public API: Rename an image attachment file based on alt text or a custom filename.
+     *
+     * Respects icais_rename_mode setting:
+     *   'title_only' — updates post_title only, no file rename (safe, no URL change)
+     *   'title_and_filename' — updates post_title AND renames file (changes URL)
      */
     public function rename(int $attachmentId, ?string $customFilename = null): array
     {
@@ -53,19 +57,23 @@ class FileRenamer
             return ['success' => false, 'error' => 'Attachment is not an image'];
         }
 
+        // Resolve the title/filename source
         $customFilename = $customFilename ?? '';
+        $titleSource = $this->resolveTitleSource($attachmentId, $customFilename);
 
-        if (!empty($customFilename)) {
-            $filename = $this->generateFilename($customFilename);
-        } else {
-            $altText = (string) get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
-            if (empty($altText)) {
-                return ['success' => false, 'error' => 'No alt text available for this image'];
-            }
-            $filename = $this->generateFilename($altText);
+        if ($titleSource === null) {
+            return ['success' => false, 'error' => 'No alt text or title available for this image'];
         }
 
-        // Skip rename if the new filename already matches the current filename
+        $filename = $this->generateFilename($titleSource);
+
+        $renameMode = Settings::get('icais_rename_mode', 'title_only');
+
+        if ($renameMode === 'title_only') {
+            return $this->performTitleOnlyUpdate($attachmentId, $titleSource);
+        }
+
+        // title_and_filename mode: skip if filename already matches
         $currentFile = get_attached_file($attachmentId);
         if ($currentFile && pathinfo($currentFile, PATHINFO_FILENAME) === $filename) {
             return [
@@ -77,6 +85,84 @@ class FileRenamer
         }
 
         return $this->performRename($attachmentId, $filename);
+    }
+
+    /**
+     * Resolve the best available title source for an attachment.
+     *
+     * Priority: custom filename > AI-generated title > alt text
+     */
+    private function resolveTitleSource(int $attachmentId, string $customFilename): ?string
+    {
+        if (!empty($customFilename)) {
+            return $customFilename;
+        }
+
+        // Priority 1: AI-generated title
+        $aiTitle = (string) get_post_meta($attachmentId, '_icais_generated_title', true);
+        if (!empty($aiTitle)) {
+            return $aiTitle;
+        }
+
+        // Priority 2: Alt text
+        $altText = (string) get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
+        if (!empty($altText)) {
+            return $altText;
+        }
+
+        return null;
+    }
+
+    /**
+     * Update post_title only (no file rename, no URL change).
+     */
+    private function performTitleOnlyUpdate(int $attachmentId, string $titleSource): array
+    {
+        $newTitle = $titleSource;
+
+        // If title came from alt text (not AI-generated), convert slug to readable
+        $aiTitle = (string) get_post_meta($attachmentId, '_icais_generated_title', true);
+        if (empty($aiTitle)) {
+            $slug = $this->generateFilename($titleSource);
+            $newTitle = ucwords(str_replace('-', ' ', $slug));
+        }
+
+        // Cap at 80 chars, trim to last full word
+        if (mb_strlen($newTitle) > 80) {
+            $newTitle = mb_substr($newTitle, 0, 80);
+            $newTitle = preg_replace('/\s+\S*$/', '', $newTitle);
+        }
+
+        // Check if title is already the same
+        $post = get_post($attachmentId);
+        if ($post && $post->post_title === $newTitle) {
+            return [
+                'success'      => true,
+                'already_named' => true,
+                'old_filename' => basename(get_attached_file($attachmentId) ?: ''),
+                'new_filename' => basename(get_attached_file($attachmentId) ?: ''),
+                'new_title'    => $newTitle,
+            ];
+        }
+
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct update to avoid wp_update_post hooks
+        $wpdb->update(
+            $wpdb->posts,
+            ['post_title' => $newTitle],
+            ['ID' => $attachmentId],
+            ['%s'],
+            ['%d']
+        );
+
+        clean_post_cache($attachmentId);
+
+        return [
+            'success'      => true,
+            'new_title'    => $newTitle,
+            'old_filename' => basename(get_attached_file($attachmentId) ?: ''),
+            'new_filename' => basename(get_attached_file($attachmentId) ?: ''),
+        ];
     }
 
     /**

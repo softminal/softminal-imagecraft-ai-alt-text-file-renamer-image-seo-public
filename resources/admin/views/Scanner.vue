@@ -263,6 +263,7 @@
           :selected="selectedImages.includes(image.id)"
           :renaming="renamingId === image.id"
           :alt-too-long="isAltTooLong(image)"
+          :rename-mode="renameMode"
           @toggle-select="toggleSelect"
           @open-modal="openImageModal"
           @rename="renameFile"
@@ -408,6 +409,7 @@ const perPage = ref(48)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
+const renameMode = window.icais?.renameMode || 'title_only'
 const bulkTitleUpdating = ref(false)
 const bulkTitleCancelled = ref(false)
 const bulkTitleDone = ref(false)

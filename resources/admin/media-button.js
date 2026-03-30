@@ -315,13 +315,19 @@
     }
 
     /**
-     * Inject rename button after the title setting field (as a sibling)
+     * Inject rename button after the title setting field (as a sibling).
+     * Only shown when rename mode is 'title_and_filename'.
      */
     function injectRenameButton(settingSpan) {
         if (injectedRenameSpans.has(settingSpan)) {
             return;
         }
         injectedRenameSpans.add(settingSpan);
+
+        // Only show rename button when mode allows file renaming
+        if (config.renameMode !== 'title_and_filename') {
+            return;
+        }
 
         var buttonEl = createRenameButton();
         settingSpan.parentNode.insertBefore(buttonEl, settingSpan.nextSibling);

@@ -40,7 +40,7 @@
     <div v-else class="text-xs mt-1 text-gray-400 italic">
       {{ $t('No alt text') }}
     </div>
-    <div v-if="image.has_alt && !renaming" class="flex justify-between mt-2">
+    <div v-if="image.has_alt && !renaming && renameMode === 'title_and_filename'" class="flex justify-between mt-2">
       <button
         @click.stop="$emit('rename', image.id)"
         class="text-xs flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
@@ -48,7 +48,7 @@
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
         </svg>
-        {{ $t('Rename') }}
+        {{ $t('Rename File') }}
       </button>
       <div v-if="altTooLong" class="bg-orange-100 py-1 px-2 rounded-md text-orange-400">
          {{$t("Too long")}}
@@ -79,6 +79,7 @@ defineProps({
   selected: { type: Boolean, default: false },
   renaming: { type: Boolean, default: false },
   altTooLong: { type: Boolean, default: false },
+  renameMode: { type: String, default: 'title_only' },
 })
 
 defineEmits(['toggle-select', 'open-modal', 'rename'])
