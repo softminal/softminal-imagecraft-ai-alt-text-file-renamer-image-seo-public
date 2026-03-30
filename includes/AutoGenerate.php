@@ -5,7 +5,6 @@ namespace Softminal\ImageCraft;
 use Softminal\ImageCraft\Services\Settings;
 use Softminal\ImageCraft\Services\StatsTracker;
 use Softminal\ImageCraft\Services\AI\AIFactory;
-use Softminal\ImageCraft\Services\FileRenamer;
 use Softminal\ImageCraft\Services\SeoIntegration;
 
 if (!defined('ABSPATH')) {
@@ -22,7 +21,6 @@ class AutoGenerate
         add_action('add_attachment', [self::class, 'onAttachmentAdded']);
         add_action('icais_auto_generate', [self::class, 'generateForAttachment']);
         add_action('icais_auto_generate_title', [self::class, 'generateTitleForAttachment']);
-        add_action('icais_auto_rename', [self::class, 'renameOnUpload']);
     }
 
     /**
@@ -80,11 +78,6 @@ class AutoGenerate
         // Schedule title generation after alt text is generated
         if (Settings::get('icais_title_auto_generate', false)) {
             wp_schedule_single_event(time() + 10, 'icais_auto_generate_title', [$attachmentId, $userId]);
-        }
-
-        // Schedule rename after alt text (and optionally title) is generated
-        if (Settings::get('icais_auto_rename', false)) {
-            wp_schedule_single_event(time() + 20, 'icais_auto_rename', [$attachmentId, $userId]);
         }
     }
 
@@ -203,17 +196,4 @@ class AutoGenerate
         }
     }
 
-    public static function renameOnUpload($attachmentId, $userId = 0)
-    {
-        if (!Settings::get('icais_auto_rename', false)) {
-            return;
-        }
-
-        if (!wp_attachment_is_image($attachmentId)) {
-            return;
-        }
-
-        $renamer = new FileRenamer();
-        $renamer->rename($attachmentId);
-    }
 }

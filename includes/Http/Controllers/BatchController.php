@@ -4,6 +4,7 @@ namespace Softminal\ImageCraft\Http\Controllers;
 
 use Softminal\ImageCraft\Models\BatchJob;
 use Softminal\ImageCraft\Models\History;
+use Softminal\ImageCraft\Services\AI\AIFactory;
 use Softminal\ImageCraft\Services\SeoIntegration;
 use Softminal\ImageCraft\Services\Settings;
 
@@ -315,7 +316,7 @@ class BatchController extends Controller
 
                 try {
                     $context = SeoIntegration::buildSeoContext((int) $attachmentId);
-                    $result = $generator->generateAltText((int) $attachmentId, $tone, $userId, $context);
+                    $result = $generator->generateAltText((int) $attachmentId, $tone, $userId, $context, true);
 
                     if ($result['success'] ?? false) {
                         $processed++;
@@ -600,7 +601,7 @@ class BatchController extends Controller
             return false;
         }
 
-        $aiProvider = \Softminal\ImageCraft\Services\AI\AIFactory::getProviderForUser($userId);
+        $aiProvider = AIFactory::getProviderForUser($userId);
         if (!$aiProvider) {
             return false;
         }

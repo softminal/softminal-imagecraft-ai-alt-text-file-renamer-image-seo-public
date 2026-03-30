@@ -88,6 +88,9 @@
         />
         <span>{{ $t('Preview before accepting') }}</span>
       </label>
+      <p class="text-xs text-gray-500 mt-1">
+        {{ $t('Only works in the Gutenberg editor. Shows accept/reject buttons after generating alt text.') }}
+      </p>
     </div>
 
     <div class="mb-4">

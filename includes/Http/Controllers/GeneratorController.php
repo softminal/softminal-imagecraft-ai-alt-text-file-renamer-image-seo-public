@@ -114,7 +114,10 @@ class GeneratorController extends Controller
      * @param string|null $context Optional product/page context for enhanced alt text
      * @return array
      */
-    public function generateAltText(int $attachmentId, string $tone = 'professional', ?int $userId = null, ?string $context = null): array
+    /**
+     * @param bool $forceAccept When true, always save alt text to meta (skip preview setting). Used by batch processing.
+     */
+    public function generateAltText(int $attachmentId, string $tone = 'professional', ?int $userId = null, ?string $context = null, bool $forceAccept = false): array
     {
         if (!$attachmentId) {
             return [
@@ -164,9 +167,9 @@ class GeneratorController extends Controller
             ];
         }
         
-        // Determine initial status based on preview setting
+        // Determine initial status — batch always auto-accepts, single respects preview setting
         $previewSetting = Settings::get('icais_preview_before_accept', '1');
-        $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+        $previewBeforeAccept = !$forceAccept && ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
         $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
 
         // Record history and stats in one call

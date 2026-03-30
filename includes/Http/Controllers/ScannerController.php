@@ -133,7 +133,8 @@ class ScannerController extends Controller
                     continue;
                 }
                 $alt = get_post_meta($postId, '_wp_attachment_image_alt', true);
-                $thumbnail = wp_get_attachment_image_src($postId, 'thumbnail');
+                // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Suppress unserialize warnings from corrupted attachment metadata
+                $thumbnail = @wp_get_attachment_image_src($postId, 'thumbnail');
 
                 $generatedTitle = get_post_meta($postId, '_icais_generated_title', true);
                 $images[] = [
@@ -172,7 +173,8 @@ class ScannerController extends Controller
             $images = [];
             foreach ($query->posts as $post) {
                 $alt = get_post_meta($post->ID, '_wp_attachment_image_alt', true);
-                $thumbnail = wp_get_attachment_image_src($post->ID, 'thumbnail');
+                // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Suppress unserialize warnings from corrupted attachment metadata
+                $thumbnail = @wp_get_attachment_image_src($post->ID, 'thumbnail');
 
                 $generatedTitle = get_post_meta($post->ID, '_icais_generated_title', true);
                 $images[] = [
