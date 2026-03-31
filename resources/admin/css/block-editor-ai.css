@@ -1,0 +1,60 @@
+.icais-gut-wrapper,
+.icais-kadence-alt-wrapper,
+.icais-kadence-title-wrapper {
+    margin-top: 8px;
+}
+
+.icais-gut-btn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+}
+
+.icais-gut-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.icais-gut-btn-icon svg {
+    display: block;
+}
+
+.icais-gut-spin {
+    animation: icais-gut-spin 1s linear infinite;
+}
+
+@keyframes icais-gut-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.icais-gut-status {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.icais-gut-status-success {
+    color: #00a32a;
+}
+
+.icais-gut-status-error {
+    color: #d63638;
+}
+
+.icais-gut-preview {
+    margin-top: 8px;
+}
+
+.icais-gut-preview-ta {
+    width: 100%;
+    min-height: 70px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.icais-gut-preview-actions {
+    display: flex;
+    gap: 8px;
+}

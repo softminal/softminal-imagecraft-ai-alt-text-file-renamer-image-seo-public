@@ -215,86 +215,12 @@ class Enqueue {
             ],
         ]);
 
-        // Inline CSS for the media button
-        $css = '
-            .icais-media-btn-wrapper {
-                padding: 2px 0 8px;
-                /* Align with WP media modal input column (label is ~35%, input is ~65%) */
-                padding-left: 35%;
-                overflow: hidden;
-            }
-            .icais-media-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 5px 12px;
-                background: linear-gradient(135deg, #2271b1, #135e96);
-                color: #fff;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-                font-size: 12px;
-                font-weight: 500;
-                line-height: 1.6;
-                transition: all 0.2s ease;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            }
-            .icais-media-btn:hover {
-                background: linear-gradient(135deg, #135e96, #0a4b78);
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-            }
-            .icais-media-btn:focus {
-                outline: 2px solid #2271b1;
-                outline-offset: 2px;
-            }
-            .icais-media-btn:disabled {
-                opacity: 0.7;
-                cursor: not-allowed;
-                box-shadow: none;
-            }
-            .icais-media-btn.icais-loading .icais-btn-icon {
-                animation: icais-spin 1s linear infinite;
-            }
-            .icais-btn-icon {
-                display: inline-flex;
-                align-items: center;
-                flex-shrink: 0;
-            }
-            .icais-btn-icon svg {
-                display: block;
-            }
-            @keyframes icais-spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-            }
-            .icais-media-status {
-                margin-top: 6px;
-                font-size: 12px;
-                line-height: 1.4;
-            }
-            .icais-status-success {
-                color: #00a32a;
-            }
-            .icais-status-error {
-                color: #d63638;
-            }
-            .icais-title-btn {
-                background: linear-gradient(135deg, #00a32a, #008a20) !important;
-            }
-            .icais-rename-btn {
-                background: rgb(220, 38, 38);
-            }
-            .icais-rename-btn:hover {
-                background: rgb(185, 31, 31);
-            }
-            .icais-title-btn:hover {
-                background: linear-gradient(135deg, #008a20, #006818) !important;
-            }
-            .icais-rename-btn:focus {
-                outline-color: #00a32a !important;
-            }
-        ';
-        wp_add_inline_style('media-views', $css);
+        wp_enqueue_style(
+            'icais-media-button-style',
+            ICAIS_URL . 'resources/admin/css/media-button.css',
+            ['media-views'],
+            ICAIS_VERSION
+        );
     }
 
     /**
@@ -334,57 +260,27 @@ class Enqueue {
             ],
         ]);
 
-        // Inline CSS for the injected button and preview
-        wp_register_style('icais-gutenberg-style', false, [], ICAIS_VERSION);
-        wp_enqueue_style('icais-gutenberg-style');
-        wp_add_inline_style('icais-gutenberg-style', '
-            .icais-gut-wrapper {
-                margin-top: 8px;
-            }
-            .icais-gut-btn {
-                display: inline-flex !important;
-                align-items: center;
-                gap: 6px;
-            }
-            .icais-gut-btn-icon {
-                display: inline-flex;
-                align-items: center;
-                flex-shrink: 0;
-            }
-            .icais-gut-btn-icon svg {
-                display: block;
-            }
-            .icais-gut-spin {
-                animation: icais-gut-spin 1s linear infinite;
-            }
-            @keyframes icais-gut-spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-            }
-            .icais-gut-status {
-                margin-top: 6px;
-                font-size: 12px;
-                line-height: 1.4;
-            }
-            .icais-gut-status-success {
-                color: #00a32a;
-            }
-            .icais-gut-status-error {
-                color: #d63638;
-            }
-            .icais-gut-preview {
-                margin-top: 8px;
-            }
-            .icais-gut-preview-ta {
-                width: 100%;
-                min-height: 70px;
-                margin-bottom: 8px;
-                font-size: 13px;
-            }
-            .icais-gut-preview-actions {
-                display: flex;
-                gap: 8px;
-            }
-        ');
+        // Kadence Image block integration (only when Kadence Blocks is active)
+        if (self::isKadenceActive()) {
+            wp_enqueue_script(
+                'icais-kadence-alt-button',
+                ICAIS_URL . 'resources/admin/kadence-alt-button.js',
+                ['wp-data', 'wp-block-editor'],
+                ICAIS_VERSION,
+                true
+            );
+            // Reuses the same icaisGutenberg config — already localized above
+        }
+
+        wp_enqueue_style(
+            'icais-gutenberg-style',
+            ICAIS_URL . 'resources/admin/css/block-editor-ai.css',
+            [],
+            ICAIS_VERSION
+        );
+    }
+
+    private static function isKadenceActive(): bool {
+        return defined('KADENCE_BLOCKS_VERSION');
     }
 }

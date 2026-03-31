@@ -234,12 +234,18 @@ class GeneratorController extends Controller
         // Use provided alt text or generated one
         $finalAltText = !empty($altText) ? $altText : sanitize_text_field($history->generated_alt);
 
-        // Update attachment alt text
-        update_post_meta($history->attachment_id, '_wp_attachment_image_alt', $finalAltText);
+        // skip_meta_update: when true, only update history/stats without touching media library metadata.
+        // Used by block-level integrations (e.g. Kadence) where alt/title are block attributes, not media metadata.
+        $skipMetaUpdate = !empty($params['skip_meta_update']);
 
-        // Save generated title if provided
-        if (!empty($generatedTitle)) {
-            update_post_meta($history->attachment_id, '_icais_generated_title', $generatedTitle);
+        if (!$skipMetaUpdate) {
+            // Update attachment alt text
+            update_post_meta($history->attachment_id, '_wp_attachment_image_alt', $finalAltText);
+
+            // Save generated title if provided
+            if (!empty($generatedTitle)) {
+                update_post_meta($history->attachment_id, '_icais_generated_title', $generatedTitle);
+            }
         }
 
         // Update history status
