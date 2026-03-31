@@ -131,7 +131,7 @@
         if (fieldState.phase === 'idle' || fieldState.phase === 'success' || fieldState.phase === 'error') {
             var btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'components-button is-secondary icais-gut-btn';
+            btn.className = 'components-button is-primary icais-gut-btn';
             var btnIcon = document.createElement('span');
             btnIcon.className = 'icais-gut-btn-icon';
             btnIcon.innerHTML = svgIcon;
@@ -149,7 +149,7 @@
         if (fieldState.phase === 'loading') {
             var busy = document.createElement('button');
             busy.type = 'button';
-            busy.className = 'components-button is-secondary icais-gut-btn icais-gut-loading';
+            busy.className = 'components-button is-primary icais-gut-btn icais-gut-loading';
             busy.disabled = true;
             var busyIcon = document.createElement('span');
             busyIcon.className = 'icais-gut-btn-icon icais-gut-spin';

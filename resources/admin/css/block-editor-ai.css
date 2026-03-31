@@ -42,7 +42,9 @@
 .icais-gut-status-error {
     color: #d63638;
 }
-
+.icais-gut-preview-actions{
+    margin-top: 5px;
+}
 .icais-gut-preview {
     margin-top: 8px;
 }
