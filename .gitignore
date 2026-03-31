@@ -32,9 +32,7 @@ wp-content/debug.log
 CLAUDE.md
 comparison.md
 roadmap.md
-file-renamer-analysis.md
-
-.dev
+KADENCE_INTEGRATION_PLAN.md
 
 # Dev mode sentinel (never ship to production)
 .dev

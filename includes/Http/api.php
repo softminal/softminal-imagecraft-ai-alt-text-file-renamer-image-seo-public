@@ -47,6 +47,8 @@ Route::prefix('batch')->capability('manage_options')->group(function () {
     Route::post('/resume', [BatchController::class, 'resume']);
     Route::get('/status', [BatchController::class, 'status']);
     Route::get('/results', [BatchController::class, 'results']);
+    Route::get('/failures', [BatchController::class, 'failures']);
+    Route::post('/retry-failed', [BatchController::class, 'retryFailed']);
     Route::post('/process', [BatchController::class, 'process']);
     Route::post('/cancel', [BatchController::class, 'cancel']);
 });

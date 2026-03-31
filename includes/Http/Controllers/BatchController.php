@@ -166,6 +166,8 @@ class BatchController extends Controller
             }
         }
 
+        $batchType = (string) get_transient('icais_batch_type_' . $jobId);
+
         return $this->response([
             'success' => true,
             'job' => [
@@ -176,11 +178,12 @@ class BatchController extends Controller
                 'failed_images' => $job->failed_images,
                 'progress' => $job->getProgress(),
                 'started_at' => $job->started_at,
-                'completed_at' => $job->completed_at
+                'completed_at' => $job->completed_at,
+                'batch_type' => $batchType === 'title' ? 'title' : 'alt'
             ]
         ]);
     }
-    
+
     /**
      * Process batch chunk
      */
@@ -283,6 +286,8 @@ class BatchController extends Controller
         $batchType = (string) get_transient('icais_batch_type_' . $jobId);
         $isTitleOnly = ($batchType === 'title');
 
+        $failures = [];
+
         foreach ($chunk as $attachmentId) {
             // Check elapsed time before each image to avoid request timeout
             if ((time() - $startTime) >= $maxSeconds) {
@@ -297,11 +302,19 @@ class BatchController extends Controller
                         $processed++;
                     } else {
                         $failed++;
+                        $failures[] = [
+                            'attachment_id' => (int) $attachmentId,
+                            'reason' => __('Title generation failed', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                        ];
                     }
                 } catch (\Exception $e) {
                     // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
                     error_log('[ImageCraft] Title batch error for #' . $attachmentId . ': ' . $e->getMessage());
                     $failed++;
+                    $failures[] = [
+                        'attachment_id' => (int) $attachmentId,
+                        'reason' => $e->getMessage(),
+                    ];
                 }
             } else {
                 // Standard alt text batch (may include title if setting enabled)
@@ -322,11 +335,26 @@ class BatchController extends Controller
                         $processed++;
                     } else {
                         $failed++;
+                        $failures[] = [
+                            'attachment_id' => (int) $attachmentId,
+                            'reason' => $result['message'] ?? __('Alt text generation failed', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                        ];
                     }
                 } catch (\Exception $e) {
                     $failed++;
+                    $failures[] = [
+                        'attachment_id' => (int) $attachmentId,
+                        'reason' => $e->getMessage(),
+                    ];
                 }
             }
+        }
+
+        // Store failure details in transient for later retrieval
+        if (!empty($failures)) {
+            $existing = get_transient('icais_batch_failures_' . $jobId);
+            $all = is_array($existing) ? array_merge($existing, $failures) : $failures;
+            set_transient('icais_batch_failures_' . $jobId, $all, DAY_IN_SECONDS);
         }
         
         // Atomically update counters to prevent race conditions
@@ -378,11 +406,12 @@ class BatchController extends Controller
                 'status' => $job->status,
                 'processed_images' => $job->processed_images,
                 'failed_images' => $job->failed_images,
-                'progress' => $job->getProgress()
+                'progress' => $job->getProgress(),
+                'batch_type' => $isTitleOnly ? 'title' : 'alt'
             ]
         ]);
     }
-    
+
     /**
      * Cancel batch job
      */
@@ -423,9 +452,10 @@ class BatchController extends Controller
         $job->completed_at = current_time('mysql');
         $job->save();
 
-        // Clean up the stored image IDs and heartbeat
+        // Clean up the stored image IDs, failure details, and heartbeat
         delete_transient('icais_batch_' . $jobId);
         delete_transient('icais_batch_type_' . $jobId);
+        delete_transient('icais_batch_failures_' . $jobId);
         $this->clearHeartbeat($jobId);
 
         return $this->response([
@@ -460,6 +490,9 @@ class BatchController extends Controller
             ]);
         }
 
+        $batchType = (string) get_transient('icais_batch_type_' . $job->id);
+        $batchTypeLabel = $batchType === 'title' ? 'title' : 'alt';
+
         // Check if another browser tab is actively processing this job
         if ($this->hasHeartbeat((int) $job->id)) {
             return $this->response([
@@ -474,7 +507,8 @@ class BatchController extends Controller
                     'failed_images' => $job->failed_images,
                     'progress' => $job->getProgress(),
                     'remaining' => 0,
-                    'started_at' => $job->started_at
+                    'started_at' => $job->started_at,
+                    'batch_type' => $batchTypeLabel
                 ]
             ]);
         }
@@ -510,7 +544,8 @@ class BatchController extends Controller
                 'failed_images' => $job->failed_images,
                 'progress' => $job->getProgress(),
                 'remaining' => $remaining,
-                'started_at' => $job->started_at
+                'started_at' => $job->started_at,
+                'batch_type' => $batchTypeLabel
             ]
         ]);
     }
@@ -717,6 +752,168 @@ class BatchController extends Controller
         return $this->response([
             'success' => true,
             'images' => $images
+        ]);
+    }
+
+    /**
+     * Get paginated list of failed images for a batch job
+     */
+    public function failures($request)
+    {
+        $params = $request->get_params();
+        $jobId = (int) ($params['job_id'] ?? 0);
+
+        if (!$jobId) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Job ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $job = $this->findOwnedJob($jobId);
+        if (!$job) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Job not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 404);
+        }
+
+        $page = max(1, (int) ($params['page'] ?? 1));
+        $perPage = max(1, min(100, (int) ($params['per_page'] ?? 20)));
+
+        $allFailures = get_transient('icais_batch_failures_' . $jobId);
+        if (!is_array($allFailures) || empty($allFailures)) {
+            return $this->response([
+                'success' => true,
+                'images' => [],
+                'pagination' => [
+                    'current_page' => 1,
+                    'total_pages' => 1,
+                    'total' => 0,
+                    'per_page' => $perPage,
+                ],
+            ]);
+        }
+
+        $total = count($allFailures);
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $totalPages);
+        $offset = ($page - 1) * $perPage;
+
+        $pageItems = array_slice($allFailures, $offset, $perPage);
+
+        // Prime post caches for the page
+        $attachmentIds = array_map(function ($item) {
+            return (int) $item['attachment_id'];
+        }, $pageItems);
+        if (!empty($attachmentIds)) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Priming post caches for failure display
+            _prime_post_caches($attachmentIds, true, true);
+        }
+
+        $images = [];
+        foreach ($pageItems as $item) {
+            $attachmentId = (int) $item['attachment_id'];
+            $thumbnail = wp_get_attachment_image_src($attachmentId, 'thumbnail');
+            $post = get_post($attachmentId);
+
+            $images[] = [
+                'id' => $attachmentId,
+                'thumbnail' => $thumbnail ? $thumbnail[0] : null,
+                'filename' => $post ? basename(get_attached_file($attachmentId)) : __('(deleted)', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'reason' => $item['reason'] ?? __('Unknown error', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
+
+        return $this->response([
+            'success' => true,
+            'images' => $images,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+                'total' => $total,
+                'per_page' => $perPage,
+            ],
+        ]);
+    }
+
+    /**
+     * Retry all failed images from a completed batch job by starting a new batch
+     */
+    public function retryFailed($request)
+    {
+        $params = $request->get_json_params();
+        $jobId = (int) ($params['job_id'] ?? 0);
+
+        if (!$jobId) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Job ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $job = $this->findOwnedJob($jobId);
+        if (!$job) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Job not found', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 404);
+        }
+
+        $allFailures = get_transient('icais_batch_failures_' . $jobId);
+        if (!is_array($allFailures) || empty($allFailures)) {
+            return $this->response([
+                'success' => false,
+                'message' => __('No failure details available to retry', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $imageIds = array_unique(array_map(function ($item) {
+            return (int) $item['attachment_id'];
+        }, $allFailures));
+        $imageIds = array_values(array_filter($imageIds));
+
+        if (empty($imageIds)) {
+            return $this->response([
+                'success' => false,
+                'message' => __('No valid images to retry', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $userId = get_current_user_id();
+
+        // Check for active batch job
+        $activeJob = BatchJob::getActive($userId);
+        if ($activeJob) {
+            return $this->response([
+                'success' => false,
+                'message' => __('A batch job is already in progress', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'job_id' => $activeJob->id
+            ], 400);
+        }
+
+        // Preserve batch type from original job
+        $batchType = (string) get_transient('icais_batch_type_' . $jobId);
+
+        // Create new batch job
+        $newJob = BatchJob::create([
+            'user_id' => $userId,
+            'total_images' => count($imageIds),
+            'processed_images' => 0,
+            'failed_images' => 0,
+            'status' => 'pending'
+        ]);
+
+        set_transient('icais_batch_' . $newJob->id, $imageIds, DAY_IN_SECONDS);
+
+        if ($batchType === 'title') {
+            set_transient('icais_batch_type_' . $newJob->id, 'title', DAY_IN_SECONDS);
+        }
+
+        return $this->response([
+            'success' => true,
+            'job_id' => $newJob->id,
+            'total_images' => $newJob->total_images
         ]);
     }
 }

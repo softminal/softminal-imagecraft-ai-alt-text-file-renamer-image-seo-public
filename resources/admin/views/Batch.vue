@@ -1,6 +1,9 @@
 <template>
   <div class="batch p-6">
-    <h1 class="text-2xl font-bold mb-6">{{ $t('Batch Processing') }}</h1>
+    <h1 class="text-2xl font-bold mb-6">
+      {{ $t('Batch Processing') }}
+      <span v-if="batchTypeLabel" class="text-base font-medium text-gray-500">— {{ batchTypeLabel }}</span>
+    </h1>
 
     <!-- Resume Banner -->
     <div v-if="!jobId && interruptedJob" class="bg-amber-50 border border-amber-300 rounded-lg shadow p-6 mb-6">
@@ -138,6 +141,75 @@
         </p>
       </div>
 
+      <!-- Failed images list -->
+      <div v-if="(job.status === 'completed' || job.status === 'failed') && parseInt(job.failed_images) > 0" class="mb-6">
+        <div class="flex items-center gap-4">
+        <button
+          @click="toggleFailedImages"
+          class="flex items-center gap-2 text-sm font-medium text-red-700 hover:text-red-800"
+        >
+          <svg
+            class="w-4 h-4 transition-transform"
+            :class="{ 'rotate-90': showFailedImages }"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          {{ showFailedImages ? $t('Hide Failed Images') : $t('View Failed Images (%s)', job.failed_images) }}
+        </button>
+        <button
+          @click="retryAllFailed"
+          :disabled="retryingFailed"
+          class="text-sm font-medium text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ retryingFailed ? $t('Starting...') : $t('Retry All Failed') }}
+        </button>
+        </div>
+
+        <div v-if="showFailedImages" class="mt-3">
+          <div v-if="loadingFailures" class="text-sm text-gray-500 py-4 text-center">
+            {{ $t('Loading...') }}
+          </div>
+          <div v-else-if="failedImages.length === 0 && !loadingFailures" class="text-sm text-gray-500 py-4 text-center bg-gray-50 rounded-lg border">
+            {{ $t('Failure details are no longer available.') }}
+          </div>
+          <div v-else>
+            <div class="border rounded-lg overflow-hidden">
+              <div
+                v-for="img in failedImages"
+                :key="img.id"
+                class="flex items-center gap-3 p-3 border-b last:border-b-0 bg-white hover:bg-gray-50"
+              >
+                <img
+                  v-if="img.thumbnail"
+                  :src="img.thumbnail"
+                  :alt="img.filename"
+                  class="w-10 h-10 rounded object-cover shrink-0"
+                />
+                <div v-else class="w-10 h-10 rounded bg-gray-200 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-800 truncate">{{ img.filename }}</p>
+                  <p class="text-xs text-red-600 truncate">{{ img.reason }}</p>
+                </div>
+              </div>
+            </div>
+            <div v-if="failuresPagination.total_pages > 1" class="mt-3">
+              <Pagination
+                :current-page="failuresPagination.current_page"
+                :total-pages="failuresPagination.total_pages"
+                :total="failuresPagination.total"
+                :per-page="failuresPagination.per_page"
+                @page-change="loadFailures"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Error troubleshooting -->
       <div v-if="job.status === 'failed' && job.failed_images > 0" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
         <h3 class="font-semibold text-red-800 mb-2">{{ $t('Troubleshooting') }}</h3>
@@ -184,6 +256,7 @@ import { useRoute, useRouter } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
+import { Pagination } from '../@ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -204,8 +277,21 @@ const interruptedJob = ref(null)
 const checkingActive = ref(false)
 const resuming = ref(false)
 
+const showFailedImages = ref(false)
+const failedImages = ref([])
+const loadingFailures = ref(false)
+const failuresPagination = ref({ current_page: 1, total_pages: 1, total: 0, per_page: 20 })
+const retryingFailed = ref(false)
+
 const isProcessing = computed(() => {
   return job.value && (job.value.status === 'processing' || job.value.status === 'pending')
+})
+
+const batchTypeLabel = computed(() => {
+  const type = job.value?.batch_type || interruptedJob.value?.batch_type
+  if (type === 'title') return $t('Title Generation')
+  if (type === 'alt') return $t('Alt Text Generation')
+  return ''
 })
 
 // Track highest seen values to prevent progress bar going backwards
@@ -417,6 +503,54 @@ const stopPolling = () => {
   if (pollTimeoutId !== null) {
     clearTimeout(pollTimeoutId)
     pollTimeoutId = null
+  }
+}
+
+const toggleFailedImages = () => {
+  showFailedImages.value = !showFailedImages.value
+  if (showFailedImages.value && failedImages.value.length === 0) {
+    loadFailures(1)
+  }
+}
+
+const loadFailures = async (page) => {
+  if (!jobId.value) return
+  loadingFailures.value = true
+  try {
+    const result = await Api.get(`/batch/failures?job_id=${jobId.value}&page=${page}&per_page=20`)
+    if (result.success) {
+      failedImages.value = result.images
+      failuresPagination.value = result.pagination
+    }
+  } catch (error) {
+    console.error('Failed to load failures:', error)
+  } finally {
+    loadingFailures.value = false
+  }
+}
+
+const retryAllFailed = async () => {
+  if (!jobId.value || retryingFailed.value) return
+  retryingFailed.value = true
+  try {
+    const result = await Api.post('/batch/retry-failed', {
+      job_id: jobId.value
+    })
+    if (result.success) {
+      notification.success($t('Retrying %s failed images...', result.total_images))
+      // Reset state and navigate to new batch job
+      job.value = null
+      showFailedImages.value = false
+      failedImages.value = []
+      peakCompleted.value = 0
+      jobId.value = result.job_id
+      await loadJobStatus()
+      startPolling()
+    }
+  } catch (error) {
+    notification.error(error.message || $t('Failed to retry'))
+  } finally {
+    retryingFailed.value = false
   }
 }
 
