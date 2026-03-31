@@ -211,7 +211,8 @@
     </div>
 
     <div v-else class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
-      <div class="p-4 border-b">
+      <div class="p-4 border-b flex items-center justify-between">
+        <div class="flex items-center flex-wrap gap-2">
         <label class="inline-flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
@@ -247,6 +248,10 @@
             {{ $t('Clear selection') }}
           </button>
         </div>
+        </div>
+        <span v-if="selectedImages.length > 0" class="text-sm font-medium text-gray-700">
+          {{ $t('%s selected', selectedImages.length) }}
+        </span>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
@@ -265,45 +270,18 @@
       </div>
 
       <!-- Pagination -->
-      <div class="p-4 border-t flex justify-between items-center">
-        <button
-          v-if="pagination.total_pages > 1"
-          @click="loadPage(pagination.current_page - 1)"
-          :disabled="pagination.current_page === 1"
-          class="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
-        >
-          {{ $t('Previous') }}
-        </button>
-        <div v-else></div>
-
-        <div class="flex items-center gap-4">
-          <span v-if="pagination.total_pages > 1" class="text-sm text-gray-600">
-            {{ $t('Page %1$s of %2$s', pagination.current_page, pagination.total_pages) }}
-          </span>
-          <label class="inline-flex items-center gap-1 text-sm text-gray-600">
-            {{ $t('Show') }}
-            <select
-              :value="perPage"
-              @change="perPage = Number($event.target.value); allPagesSelected = false; selectedImages = []; loadImages()"
-              class="border border-gray-300 rounded px-2 py-1 text-sm"
-            >
-              <option :value="12">12</option>
-              <option :value="24">24</option>
-              <option :value="48">48</option>
-              <option :value="96">96</option>
-            </select>
-          </label>
-        </div>
-
-        <button
-          v-if="pagination.total_pages > 1"
-          @click="loadPage(pagination.current_page + 1)"
-          :disabled="pagination.current_page >= pagination.total_pages"
-          class="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
-        >
-          {{ $t('Next') }}
-        </button>
-        <div v-else></div>
+      <div class="text-center">
+        <Pagination
+        :current-page="pagination.current_page || 1"
+        :total-pages="pagination.total_pages || 1"
+        :total="pagination.total || 0"
+        :per-page="perPage"
+        show-per-page
+        @page-change="loadPage"
+        :page-sizes="[10, 20, 50, 100]"
+        :align="'right'"
+        @per-page-change="perPage = $event; allPagesSelected = false; selectedImages = []; loadImages()"
+      />
       </div>
     </div>
 
@@ -318,6 +296,7 @@ import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 import { debounce } from '../utils/debounce'
 import ImageCard from '../components/Scanner/ImageCard.vue'
+import { Pagination } from '../@ui'
 
 const router = useRouter()
 const route = useRoute()
@@ -333,7 +312,7 @@ const showAdvancedFilters = ref(false)
 const dateFrom = ref('')
 const dateTo = ref('')
 const minSize = ref(0)
-const perPage = ref(48)
+const perPage = ref(20)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
@@ -343,7 +322,7 @@ const autoRename = window.icais?.autoRename === '1' || window.icais?.autoRename 
 let loadAbortController = null
 
 const allSelected = computed(() => {
-  return images.value.length > 0 && selectedImages.value.length === images.value.length
+  return images.value.length > 0 && images.value.every(img => selectedImages.value.includes(img.id))
 })
 
 const isAltTooLong = (image) => {
@@ -407,11 +386,19 @@ const toggleSelect = (imageId) => {
 }
 
 const toggleSelectAll = () => {
+  const currentPageIds = images.value.map(img => img.id)
   if (allSelected.value) {
-    selectedImages.value = []
+    // Uncheck: remove only current page's images from selection
+    selectedImages.value = selectedImages.value.filter(id => !currentPageIds.includes(id))
     allPagesSelected.value = false
   } else {
-    selectedImages.value = images.value.map(img => img.id)
+    // Check: add current page's images to existing selection (no duplicates)
+    const existing = new Set(selectedImages.value)
+    for (const id of currentPageIds) {
+      if (!existing.has(id)) {
+        selectedImages.value.push(id)
+      }
+    }
   }
 }
 

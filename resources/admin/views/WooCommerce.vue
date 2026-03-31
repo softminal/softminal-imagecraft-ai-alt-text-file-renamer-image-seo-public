@@ -170,25 +170,12 @@
         </div>
       </div>
 
-      <div v-if="pagination.total_pages > 1" class="p-4 border-t flex justify-between items-center">
-        <button
-          @click="loadPage(pagination.current_page - 1)"
-          :disabled="pagination.current_page === 1"
-          class="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
-        >
-          {{ $t('Previous') }}
-        </button>
-        <span class="text-sm text-gray-600">
-          {{ $t('Page %1$s of %2$s', pagination.current_page, pagination.total_pages) }}
-        </span>
-        <button
-          @click="loadPage(pagination.current_page + 1)"
-          :disabled="pagination.current_page >= pagination.total_pages"
-          class="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
-        >
-          {{ $t('Next') }}
-        </button>
-      </div>
+      <Pagination
+        :current-page="pagination.current_page || 1"
+        :total-pages="pagination.total_pages || 1"
+        :total="pagination.total || 0"
+        @page-change="loadPage"
+      />
     </div>
 
     <Teleport to="body">
@@ -294,6 +281,7 @@ import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 import { debounce } from '../utils/debounce'
+import { Pagination } from '../@ui'
 
 const router = useRouter()
 const woocommerceActive = ref(true)

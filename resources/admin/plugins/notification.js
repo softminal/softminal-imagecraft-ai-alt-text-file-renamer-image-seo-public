@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import NotificationComponent from '../@ui/notification.vue'
+import { Notification as NotificationComponent } from '../@ui'
 
 // Create a singleton notification instance
 let notificationInstance = null;
