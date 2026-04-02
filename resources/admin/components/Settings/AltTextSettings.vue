@@ -88,9 +88,11 @@
         />
         <span>{{ $t('Preview before accepting') }}</span>
       </label>
-      <p class="text-xs text-gray-500 mt-1">
-        {{ $t('Only works in the Gutenberg editor. Shows accept/reject buttons after generating alt text.') }}
-      </p>
+      <div class="mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+        <p class="text-xs text-amber-800">
+          {{ $t('When enabled, generated alt text is shown for review with accept/reject buttons before applying. Works in the Gutenberg editor and Kadence blocks.') }}
+        </p>
+      </div>
     </div>
 
     <div class="mb-4">
