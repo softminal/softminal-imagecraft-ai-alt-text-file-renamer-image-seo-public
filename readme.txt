@@ -4,7 +4,7 @@ Tags: alt text, image alt text, seo images, ai alt text, image optimization
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,9 +21,11 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 = Key Features =
 
 * **3 AI providers, 15+ models** — Choose from Anthropic Claude (Haiku, Sonnet, Opus), OpenAI (GPT-4o, GPT-4.1, GPT-5), and Google Gemini (Flash, Pro). Switch providers and models anytime.
-* **Gutenberg & Media Modal integration** — Generate alt text with one click directly from the block editor sidebar or the WordPress media modal. Preview, accept, or reject without leaving the editor.
-* **AI image title generation** — Generate SEO-optimized image titles independently from alt text. Separate AI call with its own tone, prompt, and settings.
+* **Gutenberg, Kadence & Media Modal integration** — Generate alt text with one click from the block editor sidebar, Kadence image block, or WordPress media modal. Preview, accept, or reject without leaving the editor.
+* **Kadence Blocks support** — Full integration with Kadence image block: generate alt text, title attribute, and link title directly from the block inspector sidebar.
+* **AI image title generation** — Generate SEO-optimized image titles independently from alt text. Separate AI call with its own tone, prompt, and settings. Includes link title generation for Kadence.
 * **AI-powered file renaming** — AI generates SEO-friendly filenames directly from image content. Independent from alt text and title — each is a separate AI call.
+* **wp-config.php API key support** — Store your API key in wp-config.php instead of the database for extra security. Ideal for version-controlled deployments.
 * **SEO keyphrase integration** — Pulls the focus keyphrase from Yoast SEO, Rank Math, All in One SEO, or SEOPress and naturally weaves it into generated alt text.
 * **Image SEO audit dashboard** — Scores your media library health. Detects missing, generic/placeholder, and too-long alt text with a visual breakdown.
 * **WooCommerce product awareness** — Sends product name, SKU, categories, and price as context. Includes 3 dedicated product tones (SEO, Descriptive, Lifestyle) plus custom prompt support.
@@ -34,10 +36,14 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 = All Features =
 
 * 3 AI providers with 15+ model options
-* Generate from Gutenberg editor and WordPress media modal
-* Preview / accept / reject workflow
+* Generate from Gutenberg editor, Kadence blocks, and WordPress media modal
+* Kadence image block integration — alt text, title attribute, and link title generation
+* Preview / accept / reject workflow (separate settings for alt text and title)
 * AI-powered image title generation with independent settings
+* AI-powered link title generation for Kadence image blocks
 * AI-powered file renaming — AI generates filenames from image content
+* wp-config.php API key storage — define `ICAIS_API_KEY` constant for file-based key management
+* Daily usage dashboard — track image generations with progress bar and reset timer
 * SEO audit score with quality breakdown
 * Generic and placeholder alt text detection
 * Too-long alt text detection
@@ -99,7 +105,7 @@ You pay only for API usage directly to your chosen provider. Since ImageCraft us
 
 = Privacy & Security =
 
-* API keys encrypted with AES-256-CBC using WordPress salts
+* API keys encrypted with AES-256-CBC using WordPress salts (or stored in wp-config.php for file-based security)
 * Images sent only to your chosen AI provider when you trigger generation
 * SSRF protection on image URL fetching
 * No data routed through third-party proxy services
@@ -162,7 +168,7 @@ ImageCraft supports 15+ models across 3 providers. You can select the specific m
 
 = Is my API key safe? =
 
-Yes. Your API key is encrypted with AES-256-CBC using your WordPress security salts before being stored in the database. Keys are never sent anywhere except to your chosen AI provider.
+Yes. Your API key is encrypted with AES-256-CBC using your WordPress security salts before being stored in the database. You can also define your key in wp-config.php using `define('ICAIS_API_KEY', 'your-key');` to keep it out of the database entirely. Keys are never sent anywhere except to your chosen AI provider.
 
 = Does it work with WooCommerce? =
 
@@ -196,19 +202,39 @@ Only if you choose to. The "Skip images with existing alt text" option is availa
 
 JPG, PNG, GIF, and WebP. Images are read from your local WordPress uploads directory when possible (avoiding SSL issues on localhost) or fetched via URL for remote images.
 
+= Does it work with Kadence Blocks? =
+
+Yes! ImageCraft has full integration with the Kadence image block. It adds "Generate with AI" buttons for alt text, title attribute, and link title directly in the block inspector sidebar. Each field has its own AI prompt optimized for its purpose.
+
 = Does it work with page builders like Elementor or Divi? =
 
 Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` meta field, which all page builders read. Any alt text generated by ImageCraft will appear in Elementor, Divi, Beaver Builder, and other builders automatically.
 
 == Screenshots ==
 
-1. Dashboard - Image SEO audit score, stats cards, usage & cost chart, and generation results overview
+1. Dashboard - Image SEO audit score, daily usage tracker, stats cards, usage & cost chart, and generation results overview
 2. Media Library - Generate alt text and rename files directly from the WordPress media modal with one click
 3. WooCommerce Products - Browse products with alt text status, filter by category, and generate alt text per product
-4. Settings - API configuration with provider and model selection, API key management, and connection testing
+4. Settings - API configuration with provider and model selection, database or wp-config.php key storage, and connection testing
 5. Gutenberg Editor - Generate alt text with AI directly from the block editor image settings panel
+6. Kadence Blocks - Generate alt text, title attribute, and link title for Kadence image blocks from the inspector sidebar
 
 == Changelog ==
+
+= 1.3.0 =
+* New: Kadence Blocks integration — generate alt text, title attribute, and link title for kadence/image blocks directly from the block inspector sidebar
+* New: AI-powered link title generation — dedicated prompts that describe the click destination, not the image content
+* New: wp-config.php API key support — define `ICAIS_API_KEY` in wp-config.php to keep your key out of the database
+* New: Daily usage dashboard — progress bar showing images generated today with 24-hour reset timer
+* New: Title preview before accept — separate setting from alt text, with highlighted hint in settings UI
+* New: API key storage method selector — choose between database (encrypted) or wp-config.php in settings
+* New: Setup wizard detects wp-config.php API key automatically — skip manual entry if key is already defined
+* Improvement: Standalone JS files (Gutenberg, Kadence, media modal) now built and minified by Vite for production
+* Improvement: New EnqueueAsset helper class — centralized dev/prod asset resolution with automatic type="module" injection
+* Improvement: Batch title generation now respects the configurable max title length setting
+* Improvement: Batch progress bar and stats no longer flicker between image processing
+* Improvement: JS files moved to resources/admin/js/ directory for better organization
+* Improvement: Build script updated to exclude source JS from distribution ZIP (served from assets/ instead)
 
 = 1.2.1 =
 * New: AI-powered image title generation — independent feature with its own tone, max length, custom prompt, auto-generate on upload, and batch processing
@@ -280,6 +306,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+Kadence Blocks integration with alt text, title, and link title generation. wp-config.php API key support for enhanced security. Daily usage tracking on dashboard. Fully backwards-compatible — all new features are opt-in.
 
 = 1.2.1 =
 New AI-powered image title generation and file renaming features. Redesigned settings page with sidebar navigation. Improved batch processing with real-time progress. Fully backwards-compatible — new features are opt-in via settings.

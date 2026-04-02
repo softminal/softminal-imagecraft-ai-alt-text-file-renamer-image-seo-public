@@ -280,7 +280,7 @@
         @page-change="loadPage"
         :page-sizes="[10, 20, 50, 100]"
         :align="'right'"
-        @per-page-change="perPage = $event; allPagesSelected = false; selectedImages = []; loadImages()"
+        @per-page-change="perPage = $event; loadImages()"
       />
       </div>
     </div>
