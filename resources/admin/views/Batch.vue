@@ -102,11 +102,11 @@
         </div>
         <div class="bg-green-50 rounded-lg p-3 border border-green-200">
           <p class="text-xs text-gray-500">{{ $t('Completed') }}</p>
-          <p class="text-xl font-bold text-green-600">{{ parseInt(job.processed_images) || 0 }}</p>
+          <p class="text-xl font-bold text-green-600">{{ processedImages }}</p>
         </div>
         <div class="bg-red-50 rounded-lg p-3 border border-red-200">
           <p class="text-xs text-gray-500">{{ $t('Failed') }}</p>
-          <p class="text-xl font-bold text-red-600">{{ parseInt(job.failed_images) || 0 }}</p>
+          <p class="text-xl font-bold text-red-600">{{ failedImages_count }}</p>
         </div>
         <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
           <p class="text-xs text-gray-500">{{ $t('Remaining') }}</p>
@@ -294,16 +294,30 @@ const batchTypeLabel = computed(() => {
   return ''
 })
 
-// Track highest seen values to prevent progress bar going backwards
-const peakCompleted = ref(0)
+// Track highest seen values to prevent progress bar and stats flickering
+const peakProcessed = ref(0)
+const peakFailed = ref(0)
+
+const processedImages = computed(() => {
+  if (!job.value) return peakProcessed.value
+  const current = parseInt(job.value.processed_images) || 0
+  if (current > peakProcessed.value) {
+    peakProcessed.value = current
+  }
+  return peakProcessed.value
+})
+
+const failedImages_count = computed(() => {
+  if (!job.value) return peakFailed.value
+  const current = parseInt(job.value.failed_images) || 0
+  if (current > peakFailed.value) {
+    peakFailed.value = current
+  }
+  return peakFailed.value
+})
 
 const completedCount = computed(() => {
-  if (!job.value) return peakCompleted.value
-  const current = (parseInt(job.value.processed_images) || 0) + (parseInt(job.value.failed_images) || 0)
-  if (current > peakCompleted.value) {
-    peakCompleted.value = current
-  }
-  return peakCompleted.value
+  return processedImages.value + failedImages_count.value
 })
 
 const totalImages = computed(() => {
@@ -542,7 +556,8 @@ const retryAllFailed = async () => {
       job.value = null
       showFailedImages.value = false
       failedImages.value = []
-      peakCompleted.value = 0
+      peakProcessed.value = 0
+      peakFailed.value = 0
       jobId.value = result.job_id
       await loadJobStatus()
       startPolling()

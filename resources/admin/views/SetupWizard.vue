@@ -110,72 +110,135 @@
     <div v-if="currentStep === 3" class="api-key-step">
       <h2 class="text-2xl font-bold mb-6">{{ $t('Add Your API Key') }}</h2>
 
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <h3 class="font-semibold mb-2">{{ $t('How to get your API key:') }}</h3>
-        <ul class="list-disc list-inside text-sm space-y-1">
-          <li v-if="selectedProvider === 'anthropic'">
-            {{ $t('Visit') }} <a href="https://console.anthropic.com" target="_blank" class="text-blue-600 underline">console.anthropic.com</a>
-          </li>
-          <li v-if="selectedProvider === 'openai'">
-            {{ $t('Visit') }} <a href="https://platform.openai.com" target="_blank" class="text-blue-600 underline">platform.openai.com</a>
-          </li>
-          <li v-if="selectedProvider === 'gemini'">
-            {{ $t('Visit') }} <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>
-          </li>
-          <li>{{ $t('Create an account and add credits') }}</li>
-          <li>{{ $t('Generate an API key') }}</li>
-          <li>{{ $t('Paste it below') }}</li>
-        </ul>
-      </div>
-
-      <div v-if="showModelSelector" class="mb-6">
-        <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
-        <select
-          v-model="currentSelectedModel"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
-        </select>
-      </div>
-
-      <div class="mb-6">
-        <label class="block text-sm font-medium mb-2">{{ $t('API Key') }}</label>
-        <input
-          v-model="apiKey"
-          type="password"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          :placeholder="$t('Enter your API key')"
-        />
-      </div>
-
-      <div v-if="testResult" class="mb-4">
-        <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded">
-          ✓ {{ $t('Connection successful!') }}
+      <!-- Config key detected -->
+      <div v-if="configApiKey" class="mb-6">
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span class="font-semibold text-green-800">{{ $t('API Key Detected in wp-config.php') }}</span>
+          </div>
+          <p class="text-sm text-gray-600">
+            {{ $t('Your API key is defined via the') }} <code class="bg-white px-1 rounded">ICAIS_API_KEY</code> {{ $t('constant. No need to enter it manually.') }}
+          </p>
         </div>
-        <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded">
-          ✗ {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
+
+        <div v-if="showModelSelector" class="mb-6">
+          <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
+          <select
+            v-model="currentSelectedModel"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
+          </select>
+        </div>
+
+        <div v-if="testResult" class="mb-4">
+          <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded">
+            {{ $t('Connection successful!') }}
+          </div>
+          <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded">
+            {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button @click="currentStep = 2" class="text-gray-600 hover:text-gray-800">
+            ← {{ $t('Back') }}
+          </button>
+          <div class="space-x-3">
+            <button
+              @click="testConnection"
+              :disabled="testing"
+              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50"
+            >
+              {{ testing ? $t('Testing...') : $t('Test Connection') }}
+            </button>
+            <button
+              @click="saveConfigAndComplete"
+              :disabled="!testResult?.success || saving"
+              class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
+            >
+              {{ saving ? $t('Saving...') : $t('Save & Continue') }}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="flex justify-between">
-        <button @click="currentStep = 2" class="text-gray-600 hover:text-gray-800">
-          ← {{ $t('Back') }}
-        </button>
-        <div class="space-x-3">
-          <button
-            @click="testConnection"
-            :disabled="!apiKey || testing"
-            class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50"
+      <!-- Manual key input -->
+      <div v-else>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 class="font-semibold mb-2">{{ $t('How to get your API key:') }}</h3>
+          <ul class="list-disc list-inside text-sm space-y-1">
+            <li v-if="selectedProvider === 'anthropic'">
+              {{ $t('Visit') }} <a href="https://console.anthropic.com" target="_blank" class="text-blue-600 underline">console.anthropic.com</a>
+            </li>
+            <li v-if="selectedProvider === 'openai'">
+              {{ $t('Visit') }} <a href="https://platform.openai.com" target="_blank" class="text-blue-600 underline">platform.openai.com</a>
+            </li>
+            <li v-if="selectedProvider === 'gemini'">
+              {{ $t('Visit') }} <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>
+            </li>
+            <li>{{ $t('Create an account and add credits') }}</li>
+            <li>{{ $t('Generate an API key') }}</li>
+            <li>{{ $t('Paste it below') }}</li>
+          </ul>
+        </div>
+
+        <div v-if="showModelSelector" class="mb-6">
+          <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
+          <select
+            v-model="currentSelectedModel"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            {{ testing ? $t('Testing...') : $t('Test Connection') }}
+            <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
+          </select>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2">{{ $t('API Key') }}</label>
+          <input
+            v-model="apiKey"
+            type="password"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            :placeholder="$t('Enter your API key')"
+          />
+          <p class="text-xs text-gray-500 mt-1">
+            {{ $t('You can also define your key in wp-config.php:') }}
+            <code class="bg-gray-100 px-1 rounded">define('ICAIS_API_KEY', 'your-key');</code>
+          </p>
+        </div>
+
+        <div v-if="testResult" class="mb-4">
+          <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded">
+            {{ $t('Connection successful!') }}
+          </div>
+          <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded">
+            {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button @click="currentStep = 2" class="text-gray-600 hover:text-gray-800">
+            ← {{ $t('Back') }}
           </button>
-          <button
-            @click="saveApiKey"
-            :disabled="!apiKey || !testResult?.success || saving"
-            class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
-          >
-            {{ saving ? $t('Saving...') : $t('Save & Continue') }}
-          </button>
+          <div class="space-x-3">
+            <button
+              @click="testConnection"
+              :disabled="!apiKey || testing"
+              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50"
+            >
+              {{ testing ? $t('Testing...') : $t('Test Connection') }}
+            </button>
+            <button
+              @click="saveApiKey"
+              :disabled="!apiKey || !testResult?.success || saving"
+              class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
+            >
+              {{ saving ? $t('Saving...') : $t('Save & Continue') }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -208,6 +271,7 @@ const saving = ref(false)
 const testResult = ref(null)
 const availableModels = ref({})
 const selectedModels = ref({})
+const configApiKey = ref(false)
 
 const currentModels = computed(() => {
   return availableModels.value[selectedProvider.value] || []
@@ -233,13 +297,16 @@ onMounted(async () => {
     if (result.available_models) {
       availableModels.value = result.available_models
     }
+    if (result.config_api_key) {
+      configApiKey.value = true
+    }
   } catch (e) {
     // Non-critical, model selector just won't show
   }
 })
 
 const testConnection = async () => {
-  if (!apiKey.value) return
+  if (!configApiKey.value && !apiKey.value) return
 
   testing.value = true
   testResult.value = null
@@ -247,7 +314,9 @@ const testConnection = async () => {
   try {
     const payload = {
       provider: selectedProvider.value,
-      api_key: apiKey.value
+    }
+    if (!configApiKey.value) {
+      payload.api_key = apiKey.value
     }
     if (showModelSelector.value) {
       payload.model = currentSelectedModel.value
@@ -265,6 +334,32 @@ const testConnection = async () => {
     notification.error($t('Failed to test connection'))
   } finally {
     testing.value = false
+  }
+}
+
+const saveConfigAndComplete = async () => {
+  if (!testResult.value?.success) return
+
+  saving.value = true
+
+  try {
+    // Save provider and model settings
+    const settingsPayload = { icais_api_provider: selectedProvider.value }
+    if (showModelSelector.value && currentSelectedModel.value) {
+      settingsPayload['icais_' + selectedProvider.value + '_model'] = currentSelectedModel.value
+    }
+    await Api.post('/settings', { settings: settingsPayload })
+
+    await Api.post('/settings/wizard/complete')
+    notification.success($t('Setup complete!'))
+    setTimeout(() => {
+      window.location.hash = '#/'
+      window.location.reload()
+    }, 1000)
+  } catch (error) {
+    notification.error($t('Failed to complete setup'))
+  } finally {
+    saving.value = false
   }
 }
 

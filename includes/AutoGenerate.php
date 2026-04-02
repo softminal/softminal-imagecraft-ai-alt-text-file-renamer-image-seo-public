@@ -4,6 +4,7 @@ namespace Softminal\ImageCraft;
 
 use Softminal\ImageCraft\Services\Settings;
 use Softminal\ImageCraft\Services\StatsTracker;
+use Softminal\ImageCraft\Services\UsageLimiter;
 use Softminal\ImageCraft\Services\AI\AIFactory;
 use Softminal\ImageCraft\Services\SeoIntegration;
 
@@ -87,6 +88,12 @@ class AutoGenerate
     public static function generateForAttachment($attachmentId, $userId = 0)
     {
         $userId = $userId ?: get_current_user_id();
+
+        // Daily usage limit check
+        if (!UsageLimiter::canGenerate($userId, (int) $attachmentId)) {
+            return;
+        }
+
         $aiProvider = AIFactory::getProviderForUser($userId);
 
         if (!$aiProvider) {
@@ -105,6 +112,9 @@ class AutoGenerate
         if (!$result['success']) {
             return;
         }
+
+        // Track daily usage
+        UsageLimiter::recordUsage($userId, (int) $attachmentId);
 
         $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
@@ -149,6 +159,12 @@ class AutoGenerate
         }
 
         $userId = $userId ?: get_current_user_id();
+
+        // Daily usage limit check
+        if (!UsageLimiter::canGenerate($userId, (int) $attachmentId)) {
+            return;
+        }
+
         $aiProvider = AIFactory::getProviderForUser($userId);
 
         if (!$aiProvider) {
@@ -169,6 +185,9 @@ class AutoGenerate
         if (empty($result['success']) || empty($result['alt_text'])) {
             return;
         }
+
+        // Track daily usage
+        UsageLimiter::recordUsage($userId, (int) $attachmentId);
 
         $generatedTitle = trim($result['alt_text']);
         $maxLength = (int) Settings::get('icais_title_max_length', 80);

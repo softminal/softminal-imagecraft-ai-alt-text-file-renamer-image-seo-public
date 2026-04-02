@@ -74,6 +74,7 @@ const availableModels = ref({})
 const availableLanguages = ref({})
 const availablePostTypes = ref({})
 const excludedPostTypes = ref([])
+const configApiKey = ref(false)
 
 const sortedLanguages = computed(() => {
   const entries = Object.entries(availableLanguages.value)
@@ -127,6 +128,7 @@ const loadSettings = async () => {
       availableLanguages.value = result.available_languages || {}
       availablePostTypes.value = result.available_post_types || {}
       woocommerceInstalled.value = result.woo_active || false
+      configApiKey.value = result.config_api_key || false
 
       try {
         const parsed = JSON.parse(result.settings.icais_excluded_post_types || '[]')
@@ -192,7 +194,7 @@ const saveApiKey = async () => {
 }
 
 const testConnection = async () => {
-  if (!apiKey.value) {
+  if (!configApiKey.value && !apiKey.value) {
     notification.error($t('Please enter an API key'))
     return
   }
@@ -203,7 +205,10 @@ const testConnection = async () => {
   try {
     const payload = {
       provider: settings.value.icais_api_provider,
-      api_key: apiKey.value
+    }
+    // Only send api_key if not using config constant
+    if (!configApiKey.value) {
+      payload.api_key = apiKey.value
     }
     if (showModelSelector.value) {
       payload.model = settings.value[modelSettingKey.value]
@@ -228,6 +233,7 @@ provide('settingsContext', {
   settings,
   apiKey,
   apiSetting,
+  configApiKey,
   testing,
   testResult,
   woocommerceInstalled,

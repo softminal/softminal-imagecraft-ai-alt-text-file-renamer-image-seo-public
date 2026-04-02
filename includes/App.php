@@ -85,7 +85,7 @@ class App
 
             // 7. Core files (specific order)
             ['dir' => 'includes/Http', 'files' => ['api.php']],
-            ['dir' => 'includes', 'files' => ['Enqueue.php', 'Menu.php']],
+            ['dir' => 'includes', 'files' => ['EnqueueAsset.php', 'Enqueue.php', 'Menu.php']],
 
             // 8. AutoGenerate and AdminNotice (load last as they depend on everything)
             ['dir' => 'includes', 'files' => ['AutoGenerate.php', 'AdminNotice.php']],

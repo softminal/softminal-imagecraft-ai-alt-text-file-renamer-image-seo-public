@@ -14,6 +14,7 @@ abstract class BaseAIProvider
     protected int $timeout;
     protected string $model;
     protected bool $titleOnlyMode = false;
+    protected bool $linkTitleMode = false;
     protected bool $filenameMode = false;
 
     public function __construct(string $apiKey, int $timeout = 60, ?string $model = null)
@@ -70,6 +71,16 @@ abstract class BaseAIProvider
     }
 
     /**
+     * Enable link title mode for the next generateAltText() call.
+     * The AI will generate a title for the image's anchor link.
+     */
+    public function setLinkTitleMode(bool $enabled = true): self
+    {
+        $this->linkTitleMode = $enabled;
+        return $this;
+    }
+
+    /**
      * Enable filename mode for the next generateAltText() call.
      * The AI will generate only a short SEO-friendly filename slug.
      */
@@ -85,6 +96,12 @@ abstract class BaseAIProvider
         if ($this->filenameMode) {
             $this->filenameMode = false;
             return $this->getFilenamePrompt($context);
+        }
+
+        // Link title mode: generate a title for the image's anchor link
+        if ($this->linkTitleMode) {
+            $this->linkTitleMode = false;
+            return $this->getLinkTitlePrompt($context);
         }
 
         // Title-only mode: use a dedicated title prompt
@@ -206,6 +223,71 @@ abstract class BaseAIProvider
         }
 
         // Language (shared setting)
+        $language = Settings::get('icais_language', 'en');
+        if ($language !== 'en') {
+            $languageName = $this->getLanguageName($language);
+            $prompt .= " You MUST write in {$languageName}.";
+        }
+
+        return $prompt;
+    }
+
+    /**
+     * Build a link title prompt.
+     *
+     * Link titles appear as tooltips on anchor-wrapped images. They should
+     * describe what the user will find when clicking, not the image itself.
+     */
+    protected function getLinkTitlePrompt(?string $context = null): string
+    {
+        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        $tone = Settings::get('icais_title_default_tone', 'seo');
+
+        $rules = "Rules: Stay under {$maxLength} characters. Be action-oriented and concise. Do not wrap in quotation marks. Return only the link title, nothing else.";
+
+        $basePrompts = [
+            'professional' => "Write a concise, professional link title for this image link. Describe what the user will find or learn when they click. Focus on the destination's value. {$rules}",
+            'casual'       => "Write a friendly link title for this image link. Tell the user what they will see or get when they click. Keep it inviting. {$rules}",
+            'technical'    => "Write a precise link title for this image link. Indicate the destination content or action that clicking triggers. {$rules}",
+            'seo'          => "Write an SEO-optimized link title for this image link. Use relevant keywords naturally while describing the click destination. {$rules}",
+            'woo_seo'      => "Write an SEO-optimized product link title. You MUST include the product name. Describe what clicking reveals (e.g. product details, purchase page). {$rules}",
+            'woo_descriptive' => "Write a descriptive product link title. You MUST include the product name. Describe what the user will find when clicking. {$rules}",
+            'woo_lifestyle' => "Write a lifestyle product link title. You MUST include the product name. Describe the experience or content behind the link. {$rules}",
+        ];
+
+        // Custom prompt support
+        if ($tone === 'custom') {
+            $customPrompt = Settings::get('icais_title_custom_prompt');
+            if (!empty($customPrompt)) {
+                $prompt = str_replace('{max_length}', (string) $maxLength, $customPrompt);
+            } else {
+                $prompt = $basePrompts['seo'];
+            }
+        } else {
+            $prompt = $basePrompts[$tone] ?? $basePrompts['seo'];
+        }
+
+        // Prepend context
+        if (!empty($context)) {
+            $productName = null;
+            if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
+                $productName = trim($matches[1]);
+            }
+
+            if ($productName) {
+                $prompt = "This is a product called \"{$productName}\". Additional product info: " . trim($context) . "\n\nIMPORTANT: The link title MUST contain the product name \"{$productName}\".\n\n" . $prompt;
+            } else {
+                $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+            }
+        }
+
+        // SEO keyphrase
+        if (!empty($context) && preg_match('/SEO Focus Keyphrase:\s*(.+?)(?:\s*\||$)/', $context, $seoMatches)) {
+            $keyphrase = trim($seoMatches[1]);
+            $prompt .= "\n\nSEO INSTRUCTION: Include the keyword \"{$keyphrase}\" or a close variation in the link title.";
+        }
+
+        // Language
         $language = Settings::get('icais_language', 'en');
         if ($language !== 'en') {
             $languageName = $this->getLanguageName($language);

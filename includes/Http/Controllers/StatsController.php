@@ -5,6 +5,7 @@ namespace Softminal\ImageCraft\Http\Controllers;
 use Softminal\ImageCraft\Models\ApiSetting;
 use Softminal\ImageCraft\Models\History;
 use Softminal\ImageCraft\Models\Stats;
+use Softminal\ImageCraft\Services\UsageLimiter;
 use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
@@ -157,7 +158,14 @@ class StatsController extends Controller
             ],
             'recent_activity' => $recentActivity,
             'chart_usage' => $chartUsage,
-            'chart_results' => $chartResults
+            'chart_results' => $chartResults,
+            'usage_limit' => [
+                'daily_limit' => UsageLimiter::getLimit(),
+                'daily_used' => UsageLimiter::getDailyUsage($userId),
+                'daily_remaining' => UsageLimiter::getRemaining($userId),
+                'reset_at' => UsageLimiter::getResetTime($userId),
+                'reset_in' => UsageLimiter::getResetIn($userId),
+            ],
         ]);
     }
 

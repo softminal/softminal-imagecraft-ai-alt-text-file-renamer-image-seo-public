@@ -51,6 +51,21 @@
           type="checkbox"
           true-value="1"
           false-value="0"
+          v-model="settings.icais_title_preview_before_accept"
+        />
+        <span>{{ $t('Preview before accepting') }}</span>
+      </label>
+      <p class="text-xs text-gray-500 mt-1">
+        {{ $t('Shows accept/reject buttons after generating a title in the Gutenberg editor and media modal.') }}
+      </p>
+    </div>
+
+    <div class="mb-4">
+      <label class="flex items-center gap-2">
+        <input
+          type="checkbox"
+          true-value="1"
+          false-value="0"
           v-model="settings.icais_title_auto_generate"
         />
         <span>{{ $t('Auto-generate title on upload') }}</span>

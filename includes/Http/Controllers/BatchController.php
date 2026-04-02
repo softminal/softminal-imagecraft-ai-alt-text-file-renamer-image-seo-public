@@ -7,6 +7,7 @@ use Softminal\ImageCraft\Models\History;
 use Softminal\ImageCraft\Services\AI\AIFactory;
 use Softminal\ImageCraft\Services\SeoIntegration;
 use Softminal\ImageCraft\Services\Settings;
+use Softminal\ImageCraft\Services\UsageLimiter;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -646,6 +647,11 @@ class BatchController extends Controller
             return false;
         }
 
+        // Daily usage limit check
+        if (!UsageLimiter::canGenerate($userId, $attachmentId)) {
+            return false;
+        }
+
         $context = SeoIntegration::buildSeoContext($attachmentId);
 
         // Use title-only mode
@@ -656,11 +662,14 @@ class BatchController extends Controller
             return false;
         }
 
+        // Track daily usage
+        UsageLimiter::recordUsage($userId, $attachmentId);
+
         $generatedTitle = trim($result['alt_text']);
 
-        // Cap at 80 chars
-        if (mb_strlen($generatedTitle) > 80) {
-            $generatedTitle = mb_substr($generatedTitle, 0, 80);
+        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        if (mb_strlen($generatedTitle) > $maxLength) {
+            $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
             $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
         }
 

@@ -7,6 +7,7 @@ use Softminal\ImageCraft\Services\AI\AIFactory;
 use Softminal\ImageCraft\Services\Settings;
 use Softminal\ImageCraft\Services\StatsTracker;
 use Softminal\ImageCraft\Services\SeoIntegration;
+use Softminal\ImageCraft\Services\UsageLimiter;
 use Softminal\ImageCraft\Services\WooCommerce;
 
 if (!defined('ABSPATH')) {
@@ -23,6 +24,11 @@ class GeneratorController extends Controller
         $params = $request->get_json_params();
         $attachmentId = (int) ($params['attachment_id'] ?? 0);
         $tone = sanitize_text_field($params['tone'] ?? Settings::get('icais_default_tone', 'professional'));
+
+        // Daily usage limit check
+        if ($attachmentId && !UsageLimiter::canGenerate(get_current_user_id(), $attachmentId)) {
+            return $this->response(UsageLimiter::limitReachedError(), 429);
+        }
 
         // Only use WooCommerce product context when product_id is explicitly sent
         // (i.e., user is on a product edit page, not browsing the Media Library directly)
@@ -57,6 +63,12 @@ class GeneratorController extends Controller
         $titleOnly = !empty($params['title_only']);
         if ($titleOnly) {
             return $this->generateTitleOnly($attachmentId, $context);
+        }
+
+        // Link title generation mode (called from Kadence "Generate Link Title" button)
+        $linkTitleOnly = !empty($params['link_title_only']);
+        if ($linkTitleOnly) {
+            return $this->generateLinkTitle($attachmentId, $context);
         }
 
         // Filename generation mode (called from media modal "Rename File" button)
@@ -138,6 +150,11 @@ class GeneratorController extends Controller
             $userId = get_current_user_id();
         }
 
+        // Daily usage limit check
+        if (!UsageLimiter::canGenerate($userId, $attachmentId)) {
+            return UsageLimiter::limitReachedError();
+        }
+
         $aiProvider = AIFactory::getProviderForUser($userId);
         if (!$aiProvider) {
             return [
@@ -171,6 +188,9 @@ class GeneratorController extends Controller
         $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = !$forceAccept && ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
         $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
+
+        // Track daily usage
+        UsageLimiter::recordUsage($userId, $attachmentId);
 
         // Record history and stats in one call
         $history = StatsTracker::recordGeneration([
@@ -411,6 +431,9 @@ class GeneratorController extends Controller
 
         $generatedTitle = trim($result['alt_text'] ?? '');
 
+        // Track daily usage
+        UsageLimiter::recordUsage($userId, $attachmentId);
+
         // Cap at configured max length
         $maxLength = (int) Settings::get('icais_title_max_length', 80);
         if (mb_strlen($generatedTitle) > $maxLength) {
@@ -435,6 +458,58 @@ class GeneratorController extends Controller
             'success' => true,
             'generated_title' => $generatedTitle,
             'preview' => $previewBeforeAccept,
+        ]);
+    }
+
+    /**
+     * Generate link title for an image's anchor element.
+     * Used by block-level integrations (e.g. Kadence) where linkTitle is a block attribute.
+     */
+    private function generateLinkTitle(int $attachmentId, ?string $context): \WP_REST_Response
+    {
+        $userId = get_current_user_id();
+        $aiProvider = \Softminal\ImageCraft\Services\AI\AIFactory::getProviderForUser($userId);
+
+        if (!$aiProvider) {
+            return $this->response([
+                'success' => false,
+                'message' => __('No API key configured.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $imageUrl = wp_get_attachment_url($attachmentId);
+        if (!$imageUrl) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Failed to get image URL', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $aiProvider->setLinkTitleMode(true);
+        $result = $aiProvider->generateAltText($imageUrl, 'professional', $context);
+
+        if (!$result['success']) {
+            return $this->response([
+                'success' => false,
+                'message' => $result['error'] ?? __('Failed to generate link title', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+            ], 400);
+        }
+
+        $generatedTitle = trim($result['alt_text'] ?? '');
+
+        // Track daily usage
+        UsageLimiter::recordUsage($userId, $attachmentId);
+
+        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        if (mb_strlen($generatedTitle) > $maxLength) {
+            $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
+            $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
+        }
+
+        return $this->response([
+            'success' => true,
+            'generated_title' => $generatedTitle,
+            'preview' => true,
         ]);
     }
 
@@ -471,6 +546,9 @@ class GeneratorController extends Controller
                 'message' => $result['error'] ?? __('Failed to generate filename', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
+
+        // Track daily usage
+        UsageLimiter::recordUsage(get_current_user_id(), $attachmentId);
 
         // Clean the AI response into a valid filename slug
         $aiFilename = trim($result['alt_text'] ?? '');

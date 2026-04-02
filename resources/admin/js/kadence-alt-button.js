@@ -1,11 +1,13 @@
 /**
  * ImageCraft - Kadence Image Block Integration
  *
- * Injects "Generate Alt with AI" and "Generate Title with AI" buttons
- * into the kadence/image block inspector sidebar.
+ * Injects "Generate Alt with AI", "Generate Title with AI", and
+ * "Generate Link Title with AI" buttons into the kadence/image
+ * block inspector sidebar.
  *
- * Unlike core/image, Kadence stores alt/title as block attributes only
- * (no media library sync), so we only call updateBlockAttributes().
+ * Unlike core/image, Kadence stores alt/title/linkTitle as block
+ * attributes only (no media library sync), so we only call
+ * updateBlockAttributes().
  *
  * Standalone vanilla JS — no JSX, no Vite bundling.
  */
@@ -15,6 +17,7 @@
     var config = window.icaisGutenberg || {};
     var ALT_MARKER = 'icais-kadence-alt-wrapper';
     var TITLE_MARKER = 'icais-kadence-title-wrapper';
+    var LINK_TITLE_MARKER = 'icais-kadence-link-title-wrapper';
     var debounceTimer = null;
 
     // Independent state per field
@@ -27,6 +30,14 @@
     };
 
     var titleState = {
+        phase: 'idle',
+        previewText: '',
+        historyId: null,
+        message: '',
+        forBlockClientId: null
+    };
+
+    var linkTitleState = {
         phase: 'idle',
         previewText: '',
         historyId: null,
@@ -108,24 +119,55 @@
         return findFieldContainer('title attribute', 'role of this image');
     }
 
+    function findLinkTitleContainer() {
+        var inspector = document.querySelector('.block-editor-block-inspector');
+        if (!inspector) return null;
+
+        // The link title "Title" field lives inside the "Link Settings" panel.
+        // We locate the panel first, then find the "Title" label within it.
+        var panels = inspector.querySelectorAll('.components-panel__body');
+        for (var i = 0; i < panels.length; i++) {
+            var toggle = panels[i].querySelector('.components-panel__body-toggle');
+            if (!toggle) continue;
+            var toggleText = toggle.textContent.toLowerCase();
+            if (toggleText.indexOf('link settings') === -1) continue;
+
+            // Found the Link Settings panel — find the "Title" base-control inside it
+            var labels = panels[i].querySelectorAll('.components-base-control__label');
+            for (var j = 0; j < labels.length; j++) {
+                var txt = labels[j].textContent.trim().toLowerCase();
+                if (txt === 'title') {
+                    return labels[j].closest('.components-base-control');
+                }
+            }
+        }
+        return null;
+    }
+
     // ── UI Rendering ────────────────────────────────────────
 
     function renderInto(wrapper, fieldState, fieldType) {
         wrapper.innerHTML = '';
 
-        var isTitle = fieldType === 'title';
-        var generateLabel = isTitle
-            ? (config.i18n?.generateTitle || 'Generate Title with AI')
-            : (config.i18n?.generate || 'Generate Alt with AI');
-        var generatingLabel = isTitle
-            ? (config.i18n?.generatingTitle || 'Generating title...')
-            : (config.i18n?.generating || 'Generating...');
-        var successLabel = isTitle
-            ? (config.i18n?.titleSuccess || 'Title generated!')
-            : (config.i18n?.success || 'Alt text generated!');
-        var errorLabel = isTitle
-            ? (config.i18n?.titleError || 'Failed to generate title.')
-            : (config.i18n?.error || 'Failed to generate alt text.');
+        var isTitle = fieldType === 'title' || fieldType === 'linkTitle';
+        var generateLabel, generatingLabel, successLabel, errorLabel;
+
+        if (fieldType === 'linkTitle') {
+            generateLabel = config.i18n?.generateLinkTitle || 'Generate Link Title with AI';
+            generatingLabel = config.i18n?.generatingLinkTitle || 'Generating link title...';
+            successLabel = config.i18n?.linkTitleSuccess || 'Link title generated!';
+            errorLabel = config.i18n?.linkTitleError || 'Failed to generate link title.';
+        } else if (fieldType === 'title') {
+            generateLabel = config.i18n?.generateTitle || 'Generate Title with AI';
+            generatingLabel = config.i18n?.generatingTitle || 'Generating title...';
+            successLabel = config.i18n?.titleSuccess || 'Title generated!';
+            errorLabel = config.i18n?.titleError || 'Failed to generate title.';
+        } else {
+            generateLabel = config.i18n?.generate || 'Generate Alt with AI';
+            generatingLabel = config.i18n?.generating || 'Generating...';
+            successLabel = config.i18n?.success || 'Alt text generated!';
+            errorLabel = config.i18n?.error || 'Failed to generate alt text.';
+        }
 
         // Generate button
         if (fieldState.phase === 'idle' || fieldState.phase === 'success' || fieldState.phase === 'error') {
@@ -220,8 +262,17 @@
     }
 
     function refreshUI(fieldType) {
-        var markerClass = fieldType === 'title' ? TITLE_MARKER : ALT_MARKER;
-        var fieldState = fieldType === 'title' ? titleState : altState;
+        var markerClass, fieldState;
+        if (fieldType === 'linkTitle') {
+            markerClass = LINK_TITLE_MARKER;
+            fieldState = linkTitleState;
+        } else if (fieldType === 'title') {
+            markerClass = TITLE_MARKER;
+            fieldState = titleState;
+        } else {
+            markerClass = ALT_MARKER;
+            fieldState = altState;
+        }
         var el = document.querySelector('.' + markerClass);
         if (el) renderInto(el, fieldState, fieldType);
     }
@@ -238,9 +289,10 @@
         fieldState.forBlockClientId = block.clientId;
         refreshUI(fieldType);
 
-        var isTitle = fieldType === 'title';
+        var isTitle = fieldType === 'title' || fieldType === 'linkTitle';
         var body = { attachment_id: attachmentId };
-        if (isTitle) body.title_only = true;
+        if (fieldType === 'linkTitle') body.link_title_only = true;
+        else if (fieldType === 'title') body.title_only = true;
 
         var title = getPostTitle();
         if (title) body.post_title = title;
@@ -250,12 +302,17 @@
             if (postId) body.post_id = postId;
         } catch (e) {}
 
-        var successLabel = isTitle
-            ? (config.i18n?.titleSuccess || 'Title generated!')
-            : (config.i18n?.success || 'Alt text generated!');
-        var errorLabel = isTitle
-            ? (config.i18n?.titleError || 'Failed to generate title.')
-            : (config.i18n?.error || 'Failed to generate alt text.');
+        var successLabel, errorLabel;
+        if (fieldType === 'linkTitle') {
+            successLabel = config.i18n?.linkTitleSuccess || 'Link title generated!';
+            errorLabel = config.i18n?.linkTitleError || 'Failed to generate link title.';
+        } else if (fieldType === 'title') {
+            successLabel = config.i18n?.titleSuccess || 'Title generated!';
+            errorLabel = config.i18n?.titleError || 'Failed to generate title.';
+        } else {
+            successLabel = config.i18n?.success || 'Alt text generated!';
+            errorLabel = config.i18n?.error || 'Failed to generate alt text.';
+        }
 
         fetch(config.apiUrl + '/generator/generate', {
             method: 'POST',
@@ -271,11 +328,13 @@
                 var text = isTitle ? (data.generated_title || '') : (data.alt_text || '');
                 fieldState.historyId = data.history_id || null;
 
-                if (config.previewBeforeAccept) {
+                var shouldPreview = isTitle ? config.titlePreviewBeforeAccept : config.previewBeforeAccept;
+                if (shouldPreview) {
                     fieldState.phase = 'preview';
                     fieldState.previewText = text;
                 } else {
-                    applyBlockAttribute(block.clientId, isTitle ? 'title' : 'alt', text);
+                    var attrName = fieldType === 'linkTitle' ? 'linkTitle' : (fieldType === 'title' ? 'title' : 'alt');
+                    applyBlockAttribute(block.clientId, attrName, text);
                     fieldState.phase = 'success';
                     fieldState.message = successLabel;
                     clearMessageLater(fieldState, fieldType);
@@ -295,10 +354,11 @@
 
     function handleAccept(fieldState, fieldType) {
         var block = getSelectedKadenceImageBlock();
-        var isTitle = fieldType === 'title';
+        var isTitle = fieldType === 'title' || fieldType === 'linkTitle';
+        var attrName = fieldType === 'linkTitle' ? 'linkTitle' : (fieldType === 'title' ? 'title' : 'alt');
 
         if (block) {
-            applyBlockAttribute(block.clientId, isTitle ? 'title' : 'alt', fieldState.previewText);
+            applyBlockAttribute(block.clientId, attrName, fieldState.previewText);
         }
 
         if (fieldState.historyId) {
@@ -313,9 +373,14 @@
             }).catch(function () {});
         }
 
-        var successLabel = isTitle
-            ? (config.i18n?.titleSuccess || 'Title generated!')
-            : (config.i18n?.success || 'Alt text generated!');
+        var successLabel;
+        if (fieldType === 'linkTitle') {
+            successLabel = config.i18n?.linkTitleSuccess || 'Link title generated!';
+        } else if (fieldType === 'title') {
+            successLabel = config.i18n?.titleSuccess || 'Title generated!';
+        } else {
+            successLabel = config.i18n?.success || 'Alt text generated!';
+        }
 
         fieldState.phase = 'success';
         fieldState.message = successLabel;
@@ -396,6 +461,7 @@
 
         tryInjectField(validBlock, 'alt', findAltContainer, ALT_MARKER, altState);
         tryInjectField(validBlock, 'title', findTitleContainer, TITLE_MARKER, titleState);
+        tryInjectField(validBlock, 'linkTitle', findLinkTitleContainer, LINK_TITLE_MARKER, linkTitleState);
     }
 
     // ── Init ────────────────────────────────────────────────

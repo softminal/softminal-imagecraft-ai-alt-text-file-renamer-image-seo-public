@@ -5,6 +5,7 @@ namespace Softminal\ImageCraft\Http\Controllers;
 use Softminal\ImageCraft\Services\WooCommerce;
 use Softminal\ImageCraft\Services\Settings;
 use Softminal\ImageCraft\Services\StatsTracker;
+use Softminal\ImageCraft\Services\UsageLimiter;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -153,6 +154,17 @@ class WooCommerceController extends Controller
         $userId = get_current_user_id();
 
         foreach ($galleryIds as $index => $attachmentId) {
+            // Daily usage limit check
+            if (!UsageLimiter::canGenerate($userId, (int) $attachmentId)) {
+                $results[$index] = [
+                    'success' => false,
+                    'attachment_id' => $attachmentId,
+                    'limit_reached' => true,
+                    'error' => UsageLimiter::limitReachedError()['message'],
+                ];
+                break;
+            }
+
             $imageUrl = wp_get_attachment_url($attachmentId);
             if (!$imageUrl) {
                 $results[$index] = [
@@ -176,6 +188,7 @@ class WooCommerceController extends Controller
             $result = $aiProvider->generateAltText($imageUrl, $tone, $contextPrompt);
 
             if ($result['success']) {
+                UsageLimiter::recordUsage($userId, (int) $attachmentId);
                 update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($result['alt_text']));
 
                 StatsTracker::recordGeneration([

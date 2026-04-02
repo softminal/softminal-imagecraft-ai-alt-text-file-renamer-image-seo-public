@@ -19,6 +19,28 @@ class AIFactory
         // 'openrouter' => OpenRouterProvider::class,  // Planned for next release
     ];
 
+    /** wp-config.php constant name for the API key */
+    private const CONFIG_CONSTANT = 'ICAIS_API_KEY';
+
+    /**
+     * Get the API key from wp-config.php constant, or null if not defined.
+     */
+    public static function getConfigApiKey(): ?string
+    {
+        if (defined(self::CONFIG_CONSTANT) && !empty(constant(self::CONFIG_CONSTANT))) {
+            return constant(self::CONFIG_CONSTANT);
+        }
+        return null;
+    }
+
+    /**
+     * Check if a wp-config.php API key is defined.
+     */
+    public static function isConfigDefined(): bool
+    {
+        return self::getConfigApiKey() !== null;
+    }
+
     /**
      * Create AI provider instance
      */
@@ -55,6 +77,15 @@ class AIFactory
             $userId = get_current_user_id();
         }
 
+        // 1. Check wp-config.php constant first (takes priority)
+        $configKey = self::getConfigApiKey();
+        if ($configKey !== null) {
+            $provider = Settings::get('icais_api_provider', 'anthropic');
+            $model = Settings::get('icais_' . $provider . '_model');
+            return self::create($provider, $configKey, 60, $model);
+        }
+
+        // 2. Fall back to database-stored encrypted key
         $apiSetting = ApiSetting::getActive($userId);
 
         if (!$apiSetting) {

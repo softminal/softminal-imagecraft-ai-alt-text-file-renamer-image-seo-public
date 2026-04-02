@@ -23,6 +23,35 @@
         </div>
       </div>
 
+      <!-- Daily Usage Limit -->
+      <div v-if="usageLimit" class="bg-white p-4 rounded-lg shadow border mb-8">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-sm font-medium text-gray-700">
+            {{ $t('Daily Usage') }}:
+            <span class="font-bold" :class="usageLimit.daily_remaining === 0 ? 'text-red-600' : 'text-blue-600'">
+              {{ usageLimit.daily_used }} / {{ usageLimit.daily_limit }}
+            </span>
+            {{ $t('images') }}
+          </div>
+          <div v-if="usageLimit.reset_in" class="text-xs text-gray-500">
+            {{ $t('Resets in %s', usageLimit.reset_in) }}
+          </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div
+            class="h-2.5 rounded-full transition-all"
+            :class="usageBarColor"
+            :style="{ width: usageBarWidth + '%' }"
+          ></div>
+        </div>
+        <div v-if="usageLimit.daily_remaining === 0" class="text-xs text-red-600 mt-2">
+          {{ $t('Daily limit reached. Upgrade to Pro for unlimited generations.') }}
+        </div>
+        <div v-else class="text-xs text-gray-500 mt-1">
+          {{ $t('%d images remaining today', usageLimit.daily_remaining) }}
+        </div>
+      </div>
+
       <!-- SEO Audit Report -->
       <div class="bg-white p-6 rounded-lg shadow border mb-6">
         <div class="flex items-center justify-between mb-4">
@@ -222,6 +251,7 @@ import { useECharts } from '../composables/useECharts'
 const router = useRouter()
 const stats = ref({})
 const recentActivity = ref([])
+const usageLimit = ref(null)
 const loading = ref(true)
 const woocommerceInstalled = ref(false)
 const audit = ref(null)
@@ -232,6 +262,18 @@ const chartResults = ref([])
 
 const hasUsageData = computed(() => chartUsage.value.some(d => d.processed > 0 || d.cost > 0))
 const hasResultsData = computed(() => chartResults.value.some(d => d.value > 0))
+
+const usageBarWidth = computed(() => {
+  if (!usageLimit.value) return 0
+  return Math.min(100, (usageLimit.value.daily_used / usageLimit.value.daily_limit) * 100)
+})
+
+const usageBarColor = computed(() => {
+  const pct = usageBarWidth.value
+  if (pct >= 100) return 'bg-red-500'
+  if (pct >= 80) return 'bg-orange-500'
+  return 'bg-blue-500'
+})
 
 const { chartRef: usageChartRef, updateOptions: updateUsageOptions } = useECharts()
 const { chartRef: resultsChartRef, updateOptions: updateResultsOptions } = useECharts()
@@ -398,6 +440,7 @@ const loadDashboard = async () => {
       recentActivity.value = statsData.recent_activity || []
       chartUsage.value = statsData.chart_usage || []
       chartResults.value = statsData.chart_results || []
+      usageLimit.value = statsData.usage_limit || null
     }
   } catch (error) {
     console.error('Failed to load dashboard:', error)

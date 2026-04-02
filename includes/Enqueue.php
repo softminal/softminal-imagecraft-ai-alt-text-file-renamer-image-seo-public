@@ -10,8 +10,6 @@ if (!defined('ABSPATH')) {
 }
 
 class Enqueue {
-    private const DEV_SERVER_URL = 'http://localhost:4000';
-
     public function init() {
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueMediaButtonAssets']);
@@ -36,130 +34,27 @@ class Enqueue {
         }
     }
 
-
     public function enqueueAdminAssets($hook) {
         if ($hook !== 'toplevel_page_icais') {
             return;
         }
 
-        // Script dependencies - ensure WordPress core scripts load first
-        // Note: Media scripts are loaded via wp_enqueue_media() in Menu.php
-        $script_dependencies = ['jquery', 'wp-api-fetch', 'wp-i18n'];
+        $deps = ['jquery', 'wp-api-fetch', 'wp-i18n'];
+        $script_enqueued = EnqueueAsset::script('icais-script', 'resources/admin/main.js', $deps);
+        EnqueueAsset::style('icais-scss', 'resources/scss/index.scss');
 
-        // Check if we should use dev mode (Vite dev server running)
-        if (defined('ICAIS_DEV_MODE') && ICAIS_DEV_MODE) {
-            // Development mode: Load assets from Vite dev server
-            $dev_server_url = self::DEV_SERVER_URL . '/resources/admin/main.js';
-            wp_enqueue_script(
-                'icais-script',
-                $dev_server_url,
-                $script_dependencies,
-                ICAIS_VERSION,
-                true // Load in footer to ensure WordPress scripts load first
-            );
-            add_filter('script_loader_tag', function ($tag, $handle) {
-                if ('icais-script' === $handle) {
-                    return str_replace('<script ', '<script type="module" ', $tag);
-                }
-                return $tag;
-            }, 10, 2);
-
-            // Enqueue SCSS from dev server
-            wp_enqueue_style(
-                'icais-dev-style',
-                self::DEV_SERVER_URL . '/resources/scss/index.scss',
-                [],
-                ICAIS_VERSION
-            );
-
-            // Localize script for dev mode
+        if ($script_enqueued) {
             wp_localize_script('icais-script', 'icais', [
                 'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
                 'adminUrl' => admin_url(),
                 'nonce' => wp_create_nonce('wp_rest'),
-                'debug' => true,
+                'debug' => EnqueueAsset::isDev(),
                 'pluginUrl' => ICAIS_URL,
                 'generateTitle' => Settings::get('icais_generate_title', '0'),
                 'autoRename' => Settings::get('icais_auto_rename', '0'),
                 'i18n' => TranslationStrings::get(),
             ]);
-        } else {
-            // Production mode: Load assets from the assets directory
-            $script_enqueued = $this->enqueueProductionAssets($script_dependencies);
-
-            // Only localize if script was successfully enqueued
-            if ($script_enqueued) {
-                wp_localize_script('icais-script', 'icais', [
-                    'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
-                    'adminUrl' => admin_url(),
-                    'nonce' => wp_create_nonce('wp_rest'),
-                    'debug' => false,
-                    'pluginUrl' => ICAIS_URL,
-                    'generateTitle' => Settings::get('icais_generate_title', '0'),
-                    'autoRename' => Settings::get('icais_auto_rename', '0'),
-                    'i18n' => TranslationStrings::get(),
-                ]);
-            }
         }
-    }
-
-    private function enqueueProductionAssets(array $dependencies = []): bool {
-        // Check for manifest in .vite folder first (Vite's default location), then root assets folder
-        $manifest = wp_json_file_decode(ICAIS_DIR . 'assets/.vite/manifest.json', ['associative' => true]);
-        if (empty($manifest)) {
-            $manifest = wp_json_file_decode(ICAIS_DIR . 'assets/manifest.json', ['associative' => true]);
-        }
-        if (empty($manifest)) {
-            return false;
-        }
-        $script_enqueued = false;
-
-        // Enqueue the main JS file
-        if (isset($manifest['resources/admin/main.js'])) {
-            $main_js = $manifest['resources/admin/main.js']['file'];
-            wp_enqueue_script(
-                'icais-script',
-                ICAIS_URL . 'assets/' . $main_js,
-                $dependencies,
-                ICAIS_VERSION,
-                true // Load in footer to ensure WordPress scripts load first
-            );
-
-            // Add type="module" for production builds
-            add_filter('script_loader_tag', function ($tag, $handle) {
-                if ('icais-script' === $handle) {
-                    return str_replace('<script ', '<script type="module" ', $tag);
-                }
-                return $tag;
-            }, 10, 2);
-
-            $script_enqueued = true;
-
-            // Enqueue the CSS files
-            if (isset($manifest['resources/admin/main.js']['css'])) {
-                foreach ($manifest['resources/admin/main.js']['css'] as $css_file) {
-                    wp_enqueue_style(
-                        'icais-style',
-                        ICAIS_URL . 'assets/' . $css_file,
-                        [],
-                        ICAIS_VERSION
-                    );
-                }
-            }
-        }
-
-        // Enqueue SCSS file if it exists separately
-        if (isset($manifest['resources/scss/index.scss'])) {
-            $scss_file = $manifest['resources/scss/index.scss']['file'];
-            wp_enqueue_style(
-                'icais-scss',
-                ICAIS_URL . 'assets/' . $scss_file,
-                [],
-                ICAIS_VERSION
-            );
-        }
-
-        return $script_enqueued;
     }
 
     /**
@@ -171,23 +66,15 @@ class Enqueue {
             return;
         }
 
-        // Only for users who can edit posts
         if (!current_user_can('edit_posts')) {
             return;
         }
 
-        // Only if wizard is completed
         if (!Settings::isWizardCompleted()) {
             return;
         }
 
-        wp_enqueue_script(
-            'icais-media-button',
-            ICAIS_URL . 'resources/admin/media-button.js',
-            ['media-views'],
-            ICAIS_VERSION,
-            true
-        );
+        EnqueueAsset::script('icais-media-button', 'resources/admin/js/media-button.js', ['media-views']);
 
         wp_localize_script('icais-media-button', 'icaisMediaButton', [
             'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
@@ -235,21 +122,19 @@ class Enqueue {
             return;
         }
 
-        wp_enqueue_script(
-            'icais-gutenberg-alt-button',
-            ICAIS_URL . 'resources/admin/gutenberg-alt-button.js',
-            ['wp-data', 'wp-block-editor'],
-            ICAIS_VERSION,
-            true
-        );
+        EnqueueAsset::script('icais-gutenberg-alt-button', 'resources/admin/js/gutenberg-alt-button.js', ['wp-data', 'wp-block-editor']);
 
         $previewSetting = Settings::get('icais_preview_before_accept', '1');
         $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+
+        $titlePreviewSetting = Settings::get('icais_title_preview_before_accept', '1');
+        $titlePreviewBeforeAccept = ($titlePreviewSetting === '1' || $titlePreviewSetting === 1 || $titlePreviewSetting === true);
 
         wp_localize_script('icais-gutenberg-alt-button', 'icaisGutenberg', [
             'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
             'nonce' => wp_create_nonce('wp_rest'),
             'previewBeforeAccept' => $previewBeforeAccept,
+            'titlePreviewBeforeAccept' => $titlePreviewBeforeAccept,
             'i18n' => [
                 'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
@@ -262,14 +147,7 @@ class Enqueue {
 
         // Kadence Image block integration (only when Kadence Blocks is active)
         if (self::isKadenceActive()) {
-            wp_enqueue_script(
-                'icais-kadence-alt-button',
-                ICAIS_URL . 'resources/admin/kadence-alt-button.js',
-                ['wp-data', 'wp-block-editor'],
-                ICAIS_VERSION,
-                true
-            );
-            // Reuses the same icaisGutenberg config — already localized above
+            EnqueueAsset::script('icais-kadence-alt-button', 'resources/admin/js/kadence-alt-button.js', ['wp-data', 'wp-block-editor']);
         }
 
         wp_enqueue_style(

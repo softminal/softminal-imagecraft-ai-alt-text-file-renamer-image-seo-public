@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 
 use Softminal\ImageCraft\Services\AI\AIFactory;
 use Softminal\ImageCraft\Services\StatsTracker;
+use Softminal\ImageCraft\Services\UsageLimiter;
 
 class WooCommerce
 {
@@ -258,6 +259,11 @@ class WooCommerce
             return ['success' => false, 'error' => 'Product has no featured image'];
         }
 
+        // Daily usage limit check
+        if (!UsageLimiter::canGenerate(get_current_user_id(), (int) $thumbnailId)) {
+            return UsageLimiter::limitReachedError();
+        }
+
         $imageUrl = wp_get_attachment_url($thumbnailId);
         if (!$imageUrl) {
             return ['success' => false, 'error' => 'Failed to get image URL'];
@@ -276,6 +282,9 @@ class WooCommerce
         if (!$result['success']) {
             return $result;
         }
+
+        // Track daily usage
+        UsageLimiter::recordUsage(get_current_user_id(), (int) $thumbnailId);
 
         $originalAlt = get_post_meta($thumbnailId, '_wp_attachment_image_alt', true);
 

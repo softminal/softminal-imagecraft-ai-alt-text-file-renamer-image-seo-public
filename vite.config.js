@@ -24,6 +24,9 @@ const copyManifestPlugin = () => {
 
 const inputs = [
     'resources/admin/main.js',
+    'resources/admin/js/gutenberg-alt-button.js',
+    'resources/admin/js/kadence-alt-button.js',
+    'resources/admin/js/media-button.js',
     'resources/scss/index.scss',
 ];
 

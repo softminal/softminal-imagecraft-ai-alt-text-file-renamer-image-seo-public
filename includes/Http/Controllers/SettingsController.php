@@ -27,15 +27,32 @@ class SettingsController extends Controller
             // Table may not exist yet during activation
         }
         
+        $configDefined = AIFactory::isConfigDefined();
+
+        // If config key is defined but no DB setting, synthesize a virtual api_setting
+        $apiSettingResponse = null;
+        if ($apiSetting) {
+            $apiSettingResponse = [
+                'provider' => $apiSetting->api_provider,
+                'is_active' => (bool) $apiSetting->is_active,
+                'has_key' => $configDefined || !is_null($apiSetting->api_key_encrypted),
+                'source' => $configDefined ? 'config' : 'database',
+            ];
+        } elseif ($configDefined) {
+            $apiSettingResponse = [
+                'provider' => Settings::get('icais_api_provider', 'anthropic'),
+                'is_active' => true,
+                'has_key' => true,
+                'source' => 'config',
+            ];
+        }
+
         return $this->response([
             'success' => true,
             'settings' => Settings::all(),
-            'api_setting' => $apiSetting ? [
-                'provider' => $apiSetting->api_provider,
-                'is_active' => (bool) $apiSetting->is_active,
-                'has_key' => !is_null($apiSetting->api_key_encrypted)
-            ] : null,
-            'wizard_completed' => Settings::isWizardCompleted($userId),
+            'api_setting' => $apiSettingResponse,
+            'config_api_key' => $configDefined,
+            'wizard_completed' => Settings::isWizardCompleted($userId) || $configDefined,
             'seo_plugin' => SeoIntegration::isActive() ? [
                 'active' => true,
                 'plugin' => SeoIntegration::getActivePlugin(),
@@ -345,11 +362,18 @@ class SettingsController extends Controller
         // Minimal processing for API key — avoid sanitize_text_field which may be
         // hooked by WAFs/plugins and could log the key value
         $apiKey = isset($params['api_key']) ? wp_unslash($params['api_key']) : '';
-        if (!is_string($apiKey) || strlen($apiKey) < 10) {
-            return $this->response([
-                'success' => false,
-                'message' => __('Invalid API key format', 'imagecraft-ai-alt-text-file-renamer-image-seo')
-            ], 400);
+
+        // If no key provided in request, try wp-config.php constant
+        if (empty($apiKey) || !is_string($apiKey) || strlen($apiKey) < 10) {
+            $configKey = AIFactory::getConfigApiKey();
+            if ($configKey !== null) {
+                $apiKey = $configKey;
+            } else {
+                return $this->response([
+                    'success' => false,
+                    'message' => __('Invalid API key format', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                ], 400);
+            }
         }
 
         if (empty($provider)) {
