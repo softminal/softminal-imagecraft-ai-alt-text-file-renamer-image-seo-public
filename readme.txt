@@ -253,9 +253,8 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 == Changelog ==
 
 = 1.3.1 =
-* New: Daily usage limit (50 images/day) with automatic 24-hour reset
-* Improvement: Improved readme with better SEO descriptions and keyword optimization
-* Improvement: Updated plugin title for better WordPress.org search visibility
+* New: Daily generation limit (50 images/day) with automatic 24-hour reset
+* Improvement: UI improvement
 
 = 1.3.0 =
 * New: Kadence Blocks integration — generate alt text, title attribute, and link title for kadence/image blocks directly from the block inspector sidebar
