@@ -1,22 +1,34 @@
-=== ImageCraft – AI Alt Text, File Renamer & Image SEO ===
+=== AI Image Alt Text Generator & Image SEO – ImageCraft ===
 Contributors: softminal, diptosoftminal
-Tags: alt text, image alt text, seo images, ai alt text, image optimization
+Tags: ai alt text, image alt text generator, image seo, alt text generator, accessibility
 Requires at least: 5.8
-Tested up to: 6.9
+Tested up to: 6.9.4
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI image alt text generator for SEO and accessibility. Use your own Anthropic, OpenAI, or Gemini API key — no middleman, no per-image fees.
+AI Image Alt Text Generator for WordPress. Automatically generate SEO-friendly image alt text, rename image files, and improve image SEO using OpenAI, Claude, or Gemini — no subscription, use your own API key.
 
 == Description ==
 
-ImageCraft is a **Bring Your Own Key (BYOK)** plugin that generates alt text for WordPress images using Anthropic Claude, OpenAI GPT-4, or Google Gemini. You provide your own API key and pay only for direct API usage — **no middleman service, no per-image credits.**
+ImageCraft is an AI Image Alt Text Generator for WordPress that automatically creates SEO-optimized alt text for your images. Improve accessibility, boost image SEO, and rename image files using OpenAI, Claude, or Gemini — all with your own API key and no subscription fees.
+
+Generate SEO-friendly alt text for hundreds of images in minutes instead of hours.
 
 = Why ImageCraft? =
 
 Most alt text plugins charge monthly subscriptions or per-image credits through their own proxy service. ImageCraft connects directly to your AI provider — you pay only the provider's standard API rate with zero markup.
+
+= Core Features =
+
+* AI Image Alt Text Generator (SEO optimized)
+* AI-powered File Renamer for better image SEO
+* Image SEO Audit Dashboard with quality scoring
+* SEO keyphrase integration — works with **Yoast SEO**, **Rank Math**, **AIOSEO**, and **SEOPress**
+* **WooCommerce** product-aware alt text generation
+* Batch processing up to 500 images with real-time progress
+* Use your own API key — no subscription, no markup
 
 = Key Features =
 
@@ -26,7 +38,7 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * **AI image title generation** — Generate SEO-optimized image titles independently from alt text. Separate AI call with its own tone, prompt, and settings. Includes link title generation for Kadence.
 * **AI-powered file renaming** — AI generates SEO-friendly filenames directly from image content. Independent from alt text and title — each is a separate AI call.
 * **wp-config.php API key support** — Store your API key in wp-config.php instead of the database for extra security. Ideal for version-controlled deployments.
-* **SEO keyphrase integration** — Pulls the focus keyphrase from Yoast SEO, Rank Math, All in One SEO, or SEOPress and naturally weaves it into generated alt text.
+* **SEO keyphrase integration** — Pulls the focus keyphrase from **Yoast SEO**, **Rank Math**, **All in One SEO**, or **SEOPress** and naturally weaves it into generated alt text.
 * **Image SEO audit dashboard** — Scores your media library health. Detects missing, generic/placeholder, and too-long alt text with a visual breakdown.
 * **WooCommerce product awareness** — Sends product name, SKU, categories, and price as context. Includes 3 dedicated product tones (SEO, Descriptive, Lifestyle) plus custom prompt support.
 * **Batch processing with real-time progress** — Process up to 500 images at once with animated progress bar, live counters, and success/failed breakdown. Resume interrupted jobs after browser close.
@@ -36,20 +48,20 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 = All Features =
 
 * 3 AI providers with 15+ model options
-* Generate from Gutenberg editor, Kadence blocks, and WordPress media modal
-* Kadence image block integration — alt text, title attribute, and link title generation
+* Generate from **Gutenberg** editor, **Kadence** blocks, and WordPress media modal
+* **Kadence** image block integration — alt text, title attribute, and link title generation
 * Preview / accept / reject workflow (separate settings for alt text and title)
 * AI-powered image title generation with independent settings
-* AI-powered link title generation for Kadence image blocks
+* AI-powered link title generation for **Kadence** image blocks
 * AI-powered file renaming — AI generates filenames from image content
 * wp-config.php API key storage — define `ICAIS_API_KEY` constant for file-based key management
 * Daily usage dashboard — track image generations with progress bar and reset timer
 * SEO audit score with quality breakdown
 * Generic and placeholder alt text detection
 * Too-long alt text detection
-* Focus keyphrase integration (Yoast, Rank Math, AIOSEO, SEOPress)
-* Dedicated WooCommerce dashboard with category filtering
-* WooCommerce gallery image bulk generation
+* Focus keyphrase integration (**Yoast**, **Rank Math**, **AIOSEO**, **SEOPress**)
+* Dedicated **WooCommerce** dashboard with category filtering
+* **WooCommerce** gallery image bulk generation
 * Batch processing up to 500 images with real-time animated progress
 * Resume interrupted batch jobs — pick up where you left off after browser close
 * Single-owner concurrency control — prevents duplicate processing across tabs
@@ -66,13 +78,24 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * Usage & cost tracking dashboard with charts
 * Generation history with status tracking
 * Post/page title context awareness for smarter alt text
-* WooCommerce auto-generate on product image upload
+* **WooCommerce** auto-generate on product image upload
 * Configurable batch size and request timeout
 * Connection test before saving API key
 * Recent activity feed on dashboard
 * Guided setup wizard with provider cost comparison
 * Modern SPA interface — no page reloads
 * Improves WCAG accessibility compliance for screen readers
+
+= Boost Google Image Rankings =
+
+ImageCraft not only generates alt text — it also renames your image files using AI. This improves your chances of ranking in Google Image Search and drives more organic traffic to your site.
+
+= Free to Start, No Lock-in =
+
+* 50 images per day — no account or signup required
+* No per-image credits or proxy services
+* Use your own API key — pay only your AI provider directly
+* Full control over your data
 
 = Who Is This For? =
 
@@ -84,7 +107,7 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 
 = How It Works =
 
-1. **Connect** — Add your API key from Anthropic, OpenAI, or Google Gemini (3-minute setup wizard)
+1. **Connect** — Add your API key in your WordPress site from Anthropic, OpenAI, or Google Gemini (3-minute setup wizard)
 2. **Generate** — Click "Generate with AI" on any image, or batch process up to 500 images at once
 3. **Review** — Preview generated alt text, edit if needed, then accept. Or enable auto-accept for hands-free processing
 
@@ -149,7 +172,7 @@ https://www.youtube.com/watch?v=VVhnzSmrjLE
 
 1. Upload the plugin files to `/wp-content/plugins/imagecraft-ai-alt-text-file-renamer-image-seo/`
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Follow the setup wizard to add your API key
+3. Follow the setup wizard to add your API key in your WordPress site
 4. Start generating alt text!
 
 == Frequently Asked Questions ==
@@ -206,9 +229,17 @@ JPG, PNG, GIF, and WebP. Images are read from your local WordPress uploads direc
 
 Yes! ImageCraft has full integration with the Kadence image block. It adds "Generate with AI" buttons for alt text, title attribute, and link title directly in the block inspector sidebar. Each field has its own AI prompt optimized for its purpose.
 
+= Does ImageCraft improve SEO? =
+
+Yes. Descriptive alt text helps search engines understand your images, improving your chances of ranking in **Google Image Search**. Combined with AI-powered file renaming and SEO keyphrase integration, ImageCraft covers the key image SEO factors.
+
+= Is it free? =
+
+Yes. Generate up to 50 images per day — no account or signup required. You provide your own API key and pay only your AI provider directly.
+
 = Does it work with page builders like Elementor or Divi? =
 
-Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` meta field, which all page builders read. Any alt text generated by ImageCraft will appear in Elementor, Divi, Beaver Builder, and other builders automatically.
+Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` meta field, which all page builders read. Any alt text generated by ImageCraft will appear in **Elementor**, **Divi**, **Beaver Builder**, and other builders automatically.
 
 == Screenshots ==
 
@@ -220,6 +251,11 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 6. Kadence Blocks - Generate alt text, title attribute, and link title for Kadence image blocks from the inspector sidebar
 
 == Changelog ==
+
+= 1.3.1 =
+* New: Daily usage limit (50 images/day) with automatic 24-hour reset
+* Improvement: Improved readme with better SEO descriptions and keyword optimization
+* Improvement: Updated plugin title for better WordPress.org search visibility
 
 = 1.3.0 =
 * New: Kadence Blocks integration — generate alt text, title attribute, and link title for kadence/image blocks directly from the block inspector sidebar
@@ -306,6 +342,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+Daily usage tracking and improved WordPress.org listing. Fully backwards-compatible.
 
 = 1.3.0 =
 Kadence Blocks integration with alt text, title, and link title generation. wp-config.php API key support for enhanced security. Daily usage tracking on dashboard. Fully backwards-compatible — all new features are opt-in.

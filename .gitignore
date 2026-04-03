@@ -32,7 +32,8 @@ wp-content/debug.log
 CLAUDE.md
 comparison.md
 roadmap.md
-KADENCE_INTEGRATION_PLAN.md
 
 # Dev mode sentinel (never ship to production)
 .dev
+
+LICENSE_SERVER_PLAN.md

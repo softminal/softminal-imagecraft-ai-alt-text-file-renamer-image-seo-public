@@ -50,6 +50,7 @@ class Enqueue {
                 'nonce' => wp_create_nonce('wp_rest'),
                 'debug' => EnqueueAsset::isDev(),
                 'pluginUrl' => ICAIS_URL,
+                'isPro' => defined('ICAIS_PRO') && ICAIS_PRO,
                 'generateTitle' => Settings::get('icais_generate_title', '0'),
                 'autoRename' => Settings::get('icais_auto_rename', '0'),
                 'i18n' => TranslationStrings::get(),

@@ -22,13 +22,25 @@ class UsageLimiter
     private const WINDOW_SECONDS = 86400;
 
     /**
+     * Check if Pro add-on is active (unlimited generations).
+     */
+    public static function isPro(): bool
+    {
+        return defined('ICAIS_PRO') && \ICAIS_PRO;
+    }
+
+    /**
      * Check if the user can generate for this attachment.
      *
-     * Returns true if within the daily limit OR if the attachment
-     * was already counted in the current window (no double-count).
+     * Returns true if Pro is active, within the daily limit,
+     * or if the attachment was already counted in the current window.
      */
     public static function canGenerate(int $userId, int $attachmentId): bool
     {
+        if (self::isPro()) {
+            return true;
+        }
+
         $data = self::getWindowData($userId);
 
         // Already processed this image in this window — allow without counting again
@@ -71,17 +83,27 @@ class UsageLimiter
 
     /**
      * Get the daily limit.
+     * Returns -1 when Pro is active (unlimited).
      */
     public static function getLimit(): int
     {
+        if (self::isPro()) {
+            return -1;
+        }
+
         return self::DAILY_LIMIT;
     }
 
     /**
      * Get remaining generations in the current window.
+     * Returns -1 when Pro is active (unlimited).
      */
     public static function getRemaining(int $userId): int
     {
+        if (self::isPro()) {
+            return -1;
+        }
+
         return max(0, self::getLimit() - self::getDailyUsage($userId));
     }
 

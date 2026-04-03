@@ -23,8 +23,8 @@
         </div>
       </div>
 
-      <!-- Daily Usage Limit -->
-      <div v-if="usageLimit" class="bg-white p-4 rounded-lg shadow border mb-8">
+      <!-- Daily Usage Limit (hidden for Pro users) -->
+      <div v-if="usageLimit && !appVars.isPro" class="bg-white p-4 rounded-lg shadow border mb-8">
         <div class="flex items-center justify-between mb-2">
           <div class="text-sm font-medium text-gray-700">
             {{ $t('Daily Usage') }}:

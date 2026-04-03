@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin Basic Information
-define('ICAIS_VERSION', '1.3.0');
+define('ICAIS_VERSION', '1.3.1');
 define('ICAIS_DIR', plugin_dir_path(dirname(__FILE__)));
 define('ICAIS_URL', plugin_dir_url(dirname(__FILE__)));
 define('ICAIS_PLUGIN_BASE', plugin_basename(dirname(__FILE__)));
