@@ -21,7 +21,7 @@
     <div class="mb-4">
       <label class="block text-sm font-medium mb-3">{{ $t('Title Context') }}</label>
       <div class="space-y-3">
-        <label class="flex items-start items-center gap-2 cursor-pointer">
+        <label class="flex items-center gap-2 cursor-pointer">
           <input
             type="radio"
             value="image"
