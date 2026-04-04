@@ -4,7 +4,7 @@ Tags: ai alt text, image alt text generator, image seo, alt text generator, acce
 Requires at least: 5.8
 Tested up to: 6.9.4
 Requires PHP: 7.4
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -248,6 +248,14 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
+= 1.3.2 =
+* New: Spectra image block integration — generate alt text and title directly from the Spectra block inspector sidebar
+* New: Integrations settings tab — enable or disable plugin integrations (Kadence, Spectra, Yoast SEO, Rank Math, AIOSEO, SEOPress, WooCommerce, WPML, Polylang) with category filters
+* New: Image title context mode setting — choose between image-based (default) or context-based title generation using post title, product info, and SEO keyphrase
+* Improvement: Scanner filters (date range, file size, per page) now persist in the URL — filters are preserved when navigating to batch processing and back
+* Improvement: Integration toggles auto-save immediately without needing the Save button
+* Improvement: SEO and WooCommerce settings moved under Integrations tab for better organization
+
 = 1.3.1 =
 * New: Daily generation limit (50 images/day) with automatic 24-hour reset
 * Improvement: UI improvement
@@ -334,6 +342,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.3.2 =
+Spectra image block integration, new Integrations settings tab, image title context mode, and batch processing improvements. Fully backwards-compatible.
 
 = 1.3.1 =
 Daily usage tracking and improved WordPress.org listing. Fully backwards-compatible.
