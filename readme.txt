@@ -27,23 +27,20 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * Image SEO Audit Dashboard with quality scoring
 * SEO keyphrase integration — works with **Yoast SEO**, **Rank Math**, **AIOSEO**, and **SEOPress**
 * **WooCommerce** product-aware alt text generation
-* Batch processing up to 500 images with real-time progress
+* **Batch processing** images with real-time progress
 * Use your own API key — no subscription, no markup
 
 = Key Features =
 
 * **3 AI providers, 15+ models** — Choose from Anthropic Claude (Haiku, Sonnet, Opus), OpenAI (GPT-4o, GPT-4.1, GPT-5), and Google Gemini (Flash, Pro). Switch providers and models anytime.
-* **Gutenberg, Kadence & Media Modal integration** — Generate alt text with one click from the block editor sidebar, Kadence image block, or WordPress media modal. Preview, accept, or reject without leaving the editor.
+* **Gutenberg And Media Modal integration** — Generate alt text with one click from the block editor sidebar or WordPress media modal. Preview, accept, or reject without leaving the editor.
 * **Kadence Blocks support** — Full integration with Kadence image block: generate alt text, title attribute, and link title directly from the block inspector sidebar.
-* **AI image title generation** — Generate SEO-optimized image titles independently from alt text. Separate AI call with its own tone, prompt, and settings. Includes link title generation for Kadence.
 * **AI-powered file renaming** — AI generates SEO-friendly filenames directly from image content. Independent from alt text and title — each is a separate AI call.
-* **wp-config.php API key support** — Store your API key in wp-config.php instead of the database for extra security. Ideal for version-controlled deployments.
 * **SEO keyphrase integration** — Pulls the focus keyphrase from **Yoast SEO**, **Rank Math**, **All in One SEO**, or **SEOPress** and naturally weaves it into generated alt text.
 * **Image SEO audit dashboard** — Scores your media library health. Detects missing, generic/placeholder, and too-long alt text with a visual breakdown.
 * **WooCommerce product awareness** — Sends product name, SKU, categories, and price as context. Includes 3 dedicated product tones (SEO, Descriptive, Lifestyle) plus custom prompt support.
-* **Batch processing with real-time progress** — Process up to 500 images at once with animated progress bar, live counters, and success/failed breakdown. Resume interrupted jobs after browser close.
+* **Batch processing**
 * **65+ languages** — Generate alt text in your site's language. Supports English, Spanish, French, German, Japanese, Chinese, Arabic, Hindi, Tamil, Korean, and 55+ more.
-* **3-minute setup wizard** — Guided wizard with provider cost comparison gets you running fast.
 
 = All Features =
 
@@ -51,22 +48,17 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * Generate from **Gutenberg** editor, **Kadence** blocks, and WordPress media modal
 * **Kadence** image block integration — alt text, title attribute, and link title generation
 * Preview / accept / reject workflow (separate settings for alt text and title)
-* AI-powered image title generation with independent settings
 * AI-powered link title generation for **Kadence** image blocks
 * AI-powered file renaming — AI generates filenames from image content
-* wp-config.php API key storage — define `ICAIS_API_KEY` constant for file-based key management
-* Daily usage dashboard — track image generations with progress bar and reset timer
 * SEO audit score with quality breakdown
 * Generic and placeholder alt text detection
 * Too-long alt text detection
 * Focus keyphrase integration (**Yoast**, **Rank Math**, **AIOSEO**, **SEOPress**)
 * Dedicated **WooCommerce** dashboard with category filtering
 * **WooCommerce** gallery image bulk generation
-* Batch processing up to 500 images with real-time animated progress
 * Resume interrupted batch jobs — pick up where you left off after browser close
 * Single-owner concurrency control — prevents duplicate processing across tabs
 * Separate batch buttons for alt text and title generation
-* Cross-page bulk selection
 * Advanced filters (date range, file size, alt text quality)
 * Auto-generate on new image uploads
 * Post type exclusion — skip auto-generation for Pages, custom post types, etc.
@@ -80,7 +72,6 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * Post/page title context awareness for smarter alt text
 * **WooCommerce** auto-generate on product image upload
 * Configurable batch size and request timeout
-* Connection test before saving API key
 * Recent activity feed on dashboard
 * Guided setup wizard with provider cost comparison
 * Modern SPA interface — no page reloads
@@ -124,7 +115,6 @@ You pay only for API usage directly to your chosen provider. Since ImageCraft us
 * **vs subscription plugins** — No monthly fees. Pay per use at direct API rates with zero markup.
 * **vs single-provider plugins** — 3 providers, 15+ models. Switch anytime without losing data or reconfiguring.
 * **vs alt-text-only plugins** — ImageCraft also renames files for SEO, runs an SEO audit, and integrates with your SEO plugin's focus keyphrase.
-* **vs manual alt text** — Batch process 500 images in minutes instead of writing each one by hand. AI understands image content, product context, and SEO keywords.
 
 = Privacy & Security =
 
@@ -132,7 +122,6 @@ You pay only for API usage directly to your chosen provider. Since ImageCraft us
 * Images sent only to your chosen AI provider when you trigger generation
 * SSRF protection on image URL fetching
 * No data routed through third-party proxy services
-* All plugin logic runs on your server
 
 == External services ==
 
@@ -177,6 +166,10 @@ https://www.youtube.com/watch?v=VVhnzSmrjLE
 
 == Frequently Asked Questions ==
 
+= Is my API key safe? =
+
+Yes. Your API key is encrypted with AES-256-CBC using your WordPress security salts before being stored in the database. You can also define your key in wp-config.php using `define('ICAIS_API_KEY', 'your-key');` to keep it out of the database entirely. Keys are never sent anywhere except to your chosen AI provider.
+
 = How does pricing work? =
 
 ImageCraft uses a Bring Your Own Key model — you pay only for API usage directly to your chosen provider at their standard rate. No per-image credits, no middleman markup.
@@ -188,10 +181,6 @@ ImageCraft uses a Bring Your Own Key model — you pay only for API usage direct
 = How many AI models can I choose from? =
 
 ImageCraft supports 15+ models across 3 providers. You can select the specific model per provider (e.g., Claude Haiku for cost-efficiency or Claude Opus for maximum quality).
-
-= Is my API key safe? =
-
-Yes. Your API key is encrypted with AES-256-CBC using your WordPress security salts before being stored in the database. You can also define your key in wp-config.php using `define('ICAIS_API_KEY', 'your-key');` to keep it out of the database entirely. Keys are never sent anywhere except to your chosen AI provider.
 
 = Does it work with WooCommerce? =
 
@@ -211,7 +200,7 @@ Yes. The plugin supports 65+ languages including Spanish, French, German, Japane
 
 = I have thousands of images with no alt text. Can ImageCraft handle that? =
 
-Yes. Use the media library scanner to filter images missing alt text, select them all with the cross-page bulk select, and start a batch job. ImageCraft processes up to 500 images per batch with real-time progress tracking. You can review and edit every generated alt text before saving.
+Yes. Use the media library scanner to filter images missing alt text, select them all with the cross-page bulk select, and start a batch job.
 
 = Can I write my own prompt? =
 
@@ -292,7 +281,6 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * New: Post type exclusion — exclude Pages, custom post types, or any public post type from auto-generation
 * New: Single-owner concurrency control — prevents duplicate processing when multiple browser tabs are open
 * New: Interrupted batch notification banner on Scanner page
-* New: Gmail-style "Select all matching images" banner — one click to select up to 500 images across all pages for batch processing
 * New: Per-page display options (12, 24, 48, 96) in the media scanner
 * Improvement: Skip existing alt text now also applies to batch processing (saves API credits)
 * Improvement: Batch job status validation fixes stuck jobs from older versions

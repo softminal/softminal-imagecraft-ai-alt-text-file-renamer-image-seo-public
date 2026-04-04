@@ -405,9 +405,12 @@ class BatchController extends Controller
             'job' => [
                 'id' => $job->id,
                 'status' => $job->status,
+                'total_images' => $job->total_images,
                 'processed_images' => $job->processed_images,
                 'failed_images' => $job->failed_images,
                 'progress' => $job->getProgress(),
+                'started_at' => $job->started_at,
+                'completed_at' => $job->completed_at,
                 'batch_type' => $isTitleOnly ? 'title' : 'alt'
             ]
         ]);

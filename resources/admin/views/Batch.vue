@@ -251,7 +251,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
@@ -294,26 +294,21 @@ const batchTypeLabel = computed(() => {
   return ''
 })
 
-// Track highest seen values to prevent progress bar and stats flickering
-const peakProcessed = ref(0)
-const peakFailed = ref(0)
+// Track highest seen values to prevent progress bar jumping backwards
+const processedImages = ref(0)
+const failedImages_count = ref(0)
 
-const processedImages = computed(() => {
-  if (!job.value) return peakProcessed.value
-  const current = parseInt(job.value.processed_images) || 0
-  if (current > peakProcessed.value) {
-    peakProcessed.value = current
-  }
-  return peakProcessed.value
-})
+watch(job, (newJob) => {
+  if (!newJob) return
+  const p = parseInt(newJob.processed_images) || 0
+  const f = parseInt(newJob.failed_images) || 0
+  if (p > processedImages.value) processedImages.value = p
+  if (f > failedImages_count.value) failedImages_count.value = f
+}, { deep: true, immediate: true })
 
-const failedImages_count = computed(() => {
-  if (!job.value) return peakFailed.value
-  const current = parseInt(job.value.failed_images) || 0
-  if (current > peakFailed.value) {
-    peakFailed.value = current
-  }
-  return peakFailed.value
+watch(jobId, () => {
+  processedImages.value = 0
+  failedImages_count.value = 0
 })
 
 const completedCount = computed(() => {
@@ -464,8 +459,11 @@ const processChunk = async () => {
     })
     // Update job from process response immediately (no wait for next poll)
     if (result.success && result.job) {
-      job.value = result.job
-      prevJobStatus.value = result.job.status
+      job.value = {
+        ...(job.value || {}),
+        ...result.job,
+      }
+      prevJobStatus.value = job.value.status
     }
   } catch (error) {
     if (error.status === 409) {
