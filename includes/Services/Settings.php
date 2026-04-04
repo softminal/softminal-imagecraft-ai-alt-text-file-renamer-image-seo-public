@@ -27,6 +27,7 @@ class Settings
         'icais_generate_title' => '1',
         'icais_title_default_tone' => 'seo',
         'icais_title_max_length' => 30,
+        'icais_title_context_mode' => 'image',
         'icais_title_custom_prompt' => '',
         'icais_title_preview_before_accept' => '1',
         'icais_title_skip_existing' => '0',

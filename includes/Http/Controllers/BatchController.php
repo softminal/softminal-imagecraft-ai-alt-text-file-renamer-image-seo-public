@@ -652,7 +652,10 @@ class BatchController extends Controller
             return false;
         }
 
-        $context = SeoIntegration::buildSeoContext($attachmentId);
+        $context = null;
+        if (Settings::get('icais_title_context_mode', 'image') === 'context') {
+            $context = SeoIntegration::buildSeoContext($attachmentId);
+        }
 
         // Use title-only mode
         $aiProvider->setTitleOnlyMode(true);

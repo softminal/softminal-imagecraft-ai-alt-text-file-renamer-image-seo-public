@@ -176,7 +176,10 @@ class AutoGenerate
             return;
         }
 
-        $context = SeoIntegration::buildSeoContext((int) $attachmentId);
+        $context = null;
+        if (Settings::get('icais_title_context_mode', 'image') === 'context') {
+            $context = SeoIntegration::buildSeoContext((int) $attachmentId);
+        }
 
         // Use title-only mode (reads tone and max_length from title settings)
         $aiProvider->setTitleOnlyMode(true);

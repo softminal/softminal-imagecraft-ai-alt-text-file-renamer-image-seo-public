@@ -71,7 +71,8 @@ class GeneratorController extends Controller
         // Title-only generation mode (called from media modal "Generate Title" button)
         $titleOnly = !empty($params['title_only']);
         if ($titleOnly) {
-            return $this->generateTitleOnly($attachmentId, $context);
+            $titleContext = Settings::get('icais_title_context_mode', 'image') === 'context' ? $context : null;
+            return $this->generateTitleOnly($attachmentId, $titleContext);
         }
 
         // Link title generation mode (called from Kadence "Generate Link Title" button)

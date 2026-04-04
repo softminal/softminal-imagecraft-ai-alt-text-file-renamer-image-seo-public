@@ -18,6 +18,36 @@
       </select>
     </div>
 
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-3">{{ $t('Title Context') }}</label>
+      <div class="space-y-3">
+        <label class="flex items-start items-center gap-2 cursor-pointer">
+          <input
+            type="radio"
+            value="image"
+            v-model="settings.icais_title_context_mode"
+            class="mt-0.5"
+          />
+          <div>
+            <span class="text-sm font-medium text-gray-900">{{ $t('Image Based') }}</span>
+            <p class="text-xs text-gray-500 mt-0.5">{{ $t('Generate title purely from image content.') }}</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="radio"
+            value="context"
+            v-model="settings.icais_title_context_mode"
+            class="mt-0.5"
+          />
+          <div>
+            <span class="text-sm font-medium text-gray-900">{{ $t('Context Based') }}</span>
+            <p class="text-xs text-gray-500 mt-0.5">{{ $t('Generate title using post title, product info, and SEO keyphrase.') }}</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
     <div v-if="settings.icais_title_default_tone === 'custom'" class="mb-4">
       <label class="block text-sm font-medium mb-2">{{ $t('Custom Title Prompt') }}</label>
       <textarea

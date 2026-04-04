@@ -318,6 +318,29 @@ const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
 const autoRename = window.icais?.autoRename === '1' || window.icais?.autoRename === 1
 
+// Sync filters to URL query params
+const syncFiltersToUrl = () => {
+  const query = {}
+  if (filter.value !== 'all') query.filter = filter.value
+  if (dateFrom.value) query.date_from = dateFrom.value
+  if (dateTo.value) query.date_to = dateTo.value
+  if (minSize.value > 0) query.min_size = String(minSize.value)
+  if (perPage.value !== 20) query.per_page = String(perPage.value)
+  router.replace({ query }).catch(() => {})
+}
+
+const restoreFiltersFromUrl = () => {
+  const q = route.query
+  if (q.filter && ['all', 'missing', 'has_alt', 'generic', 'too_long'].includes(q.filter)) {
+    filter.value = q.filter
+  }
+  if (q.date_from) dateFrom.value = q.date_from
+  if (q.date_to) dateTo.value = q.date_to
+  if (q.min_size) minSize.value = Number(q.min_size) || 0
+  if (q.per_page) perPage.value = Number(q.per_page) || 20
+  if (q.date_from || q.date_to || q.min_size) showAdvancedFilters.value = true
+}
+
 // AbortController for cancelling stale requests
 let loadAbortController = null
 
@@ -345,6 +368,7 @@ const loadImages = async (page = 1) => {
   loadAbortController = new AbortController()
 
   loading.value = true
+  syncFiltersToUrl()
   try {
     const result = await Api.get(
       `/scanner/scan?${buildFilterParams()}&page=${page}&per_page=${perPage.value}`,
@@ -568,10 +592,7 @@ const renameFile = async (imageId) => {
 }
 
 onMounted(() => {
-  const queryFilter = route.query.filter
-  if (queryFilter && ['missing', 'has_alt', 'generic', 'too_long'].includes(queryFilter)) {
-    filter.value = queryFilter
-  }
+  restoreFiltersFromUrl()
   loadImages()
 
   // Check for interrupted batch job (non-blocking)

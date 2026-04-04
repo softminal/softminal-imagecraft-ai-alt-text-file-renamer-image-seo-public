@@ -236,7 +236,7 @@
           {{ $t('Cancel') }}
         </button>
         <button
-          @click="$router.push('/scanner')"
+          @click="$router.back()"
           class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
         >
           {{ $t('Back to Scanner') }}
@@ -484,7 +484,7 @@ const cancelJob = async () => {
       job_id: jobId.value
     })
     notification.success($t('Batch job cancelled'))
-    router.push('/scanner')
+    router.back()
   } catch (error) {
     notification.error($t('Failed to cancel job'))
   }
