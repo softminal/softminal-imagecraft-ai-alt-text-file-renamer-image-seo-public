@@ -146,9 +146,14 @@ class Enqueue {
             ],
         ]);
 
-        // Kadence Image block integration (only when Kadence Blocks is active)
-        if (self::isKadenceActive()) {
+        // Kadence Image block integration
+        if (self::isKadenceActive() && Settings::get('icais_integration_kadence', '1') === '1') {
             EnqueueAsset::script('icais-kadence-alt-button', 'resources/admin/js/kadence-alt-button.js', ['wp-data', 'wp-block-editor']);
+        }
+
+        // Spectra Image block integration
+        if (self::isSpectraActive() && Settings::get('icais_integration_spectra', '1') === '1') {
+            EnqueueAsset::script('icais-spectra-alt-button', 'resources/admin/js/spectra-alt-button.js', ['wp-data', 'wp-block-editor']);
         }
 
         wp_enqueue_style(
@@ -161,5 +166,9 @@ class Enqueue {
 
     private static function isKadenceActive(): bool {
         return defined('KADENCE_BLOCKS_VERSION');
+    }
+
+    private static function isSpectraActive(): bool {
+        return defined('UAGB_VER');
     }
 }

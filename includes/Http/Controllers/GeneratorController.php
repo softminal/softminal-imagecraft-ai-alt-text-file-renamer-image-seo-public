@@ -30,6 +30,15 @@ class GeneratorController extends Controller
             return $this->response(UsageLimiter::limitReachedError(), 429);
         }
 
+        // Integration source check
+        $source = sanitize_text_field($params['source'] ?? '');
+        if (!self::isIntegrationAllowed($source)) {
+            return $this->response([
+                'success' => false,
+                'message' => __('This integration is disabled.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 403);
+        }
+
         // Only use WooCommerce product context when product_id is explicitly sent
         // (i.e., user is on a product edit page, not browsing the Media Library directly)
         $context = null;
@@ -435,7 +444,7 @@ class GeneratorController extends Controller
         UsageLimiter::recordUsage($userId, $attachmentId);
 
         // Cap at configured max length
-        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        $maxLength = (int) Settings::get('icais_title_max_length', 30);
         if (mb_strlen($generatedTitle) > $maxLength) {
             $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
             $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
@@ -747,5 +756,19 @@ class GeneratorController extends Controller
         }
 
         return WooCommerce::buildProductContextPrompt($product);
+    }
+
+    /**
+     * Check if an integration source is allowed.
+     * Empty source (gutenberg, media modal, batch) is always allowed.
+     */
+    private static function isIntegrationAllowed(string $source): bool
+    {
+        if ($source === '') {
+            return true;
+        }
+
+        $settingKey = 'icais_integration_' . $source;
+        return Settings::get($settingKey, '0') === '1';
     }
 }

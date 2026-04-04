@@ -1,5 +1,9 @@
 <template>
   <div class="bg-white rounded-lg shadow border p-6">
+    <router-link to="/settings/integrations" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 mb-4">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      {{ $t('Back to Integrations') }}
+    </router-link>
     <h2 class="text-lg font-semibold">{{ $t('WooCommerce') }}</h2>
     <p class="text-sm text-gray-500 mb-4">{{ $t('Optimize product image alt text with product-aware AI generation.') }}</p>
     <hr class="mb-6" />

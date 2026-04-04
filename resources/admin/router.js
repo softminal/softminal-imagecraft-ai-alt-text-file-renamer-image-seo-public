@@ -10,6 +10,7 @@ import TitleSettings from './components/Settings/TitleSettings.vue';
 import RenameSettings from './components/Settings/RenameSettings.vue';
 import WooCommerceSettings from './components/Settings/WooCommerceSettings.vue';
 import SeoSettings from './components/Settings/SeoSettings.vue';
+import IntegrationSettings from './components/Settings/IntegrationSettings.vue';
 import Api from './services/Api';
 
 const routes = [
@@ -43,8 +44,11 @@ const routes = [
             { path: 'alt-text', name: 'settings-alt-text', component: AltTextSettings },
             { path: 'title', name: 'settings-title', component: TitleSettings },
             { path: 'rename', name: 'settings-rename', component: RenameSettings },
-            { path: 'woocommerce', name: 'settings-woocommerce', component: WooCommerceSettings },
-            { path: 'seo', name: 'settings-seo', component: SeoSettings },
+            { path: 'integrations', name: 'settings-integrations', component: IntegrationSettings },
+            { path: 'integrations/woocommerce', name: 'settings-integration-woocommerce', component: WooCommerceSettings },
+            { path: 'integrations/seo', name: 'settings-integration-seo', component: SeoSettings },
+            { path: 'woocommerce', redirect: '/settings/integrations/woocommerce' },
+            { path: 'seo', redirect: '/settings/integrations/seo' },
         ],
     },
     {

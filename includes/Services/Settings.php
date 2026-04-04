@@ -46,6 +46,15 @@ class Settings
         'icais_anthropic_model' => 'claude-haiku-4-5',
         'icais_gemini_model' => 'gemini-2.5-flash',
         'icais_excluded_post_types' => '[]',
+        'icais_integration_kadence' => '1',
+        'icais_integration_spectra' => '1',
+        'icais_integration_yoast' => '1',
+        'icais_integration_rankmath' => '1',
+        'icais_integration_aioseo' => '1',
+        'icais_integration_seopress' => '1',
+        'icais_integration_woocommerce' => '1',
+        'icais_integration_wpml' => '0',
+        'icais_integration_polylang' => '0',
     ];
 
     /**

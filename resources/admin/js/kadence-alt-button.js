@@ -290,7 +290,7 @@
         refreshUI(fieldType);
 
         var isTitle = fieldType === 'title' || fieldType === 'linkTitle';
-        var body = { attachment_id: attachmentId };
+        var body = { attachment_id: attachmentId, source: 'kadence' };
         if (fieldType === 'linkTitle') body.link_title_only = true;
         else if (fieldType === 'title') body.title_only = true;
 

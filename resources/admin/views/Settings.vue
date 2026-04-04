@@ -27,7 +27,7 @@
       <div class="flex-1 min-w-0">
         <router-view />
 
-        <div v-if="!isActive('/settings/api')" class="mt-4">
+        <div v-if="!isActive('/settings/api') && route.path !== '/settings/integrations'" class="mt-4">
           <button
             @click="saveSettings"
             class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
@@ -56,11 +56,14 @@ const navItems = [
   { to: '/settings/alt-text', label: 'Alt Text', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>' },
   { to: '/settings/title', label: 'Image Title', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>' },
   { to: '/settings/rename', label: 'File Renaming', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>' },
-  { to: '/settings/woocommerce', label: 'WooCommerce', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>' },
-  { to: '/settings/seo', label: 'SEO', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>' },
+  { to: '/settings/integrations', label: 'Integrations', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"/>' },
 ]
 
-const isActive = (path) => route.path === path || (path === '/settings/general' && route.path === '/settings')
+const isActive = (path) => {
+  if (path === '/settings/general' && route.path === '/settings') return true
+  if (path === '/settings/integrations' && route.path.startsWith('/settings/integrations')) return true
+  return route.path === path
+}
 
 const settings = ref({})
 const apiKey = ref('')
@@ -75,6 +78,7 @@ const availableLanguages = ref({})
 const availablePostTypes = ref({})
 const excludedPostTypes = ref([])
 const configApiKey = ref(false)
+const integrations = ref([])
 
 const sortedLanguages = computed(() => {
   const entries = Object.entries(availableLanguages.value)
@@ -129,6 +133,7 @@ const loadSettings = async () => {
       availablePostTypes.value = result.available_post_types || {}
       woocommerceInstalled.value = result.woo_active || false
       configApiKey.value = result.config_api_key || false
+      integrations.value = result.integrations || []
 
       try {
         const parsed = JSON.parse(result.settings.icais_excluded_post_types || '[]')
@@ -249,6 +254,8 @@ provide('settingsContext', {
   pricingUrl,
   testConnection,
   saveApiKey,
+  saveSettings,
+  integrations,
 })
 
 onMounted(() => {
