@@ -33,8 +33,9 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 = Key Features =
 
 * **3 AI providers, 15+ models** — Choose from Anthropic Claude (Haiku, Sonnet, Opus), OpenAI (GPT-4o, GPT-4.1, GPT-5), and Google Gemini (Flash, Pro). Switch providers and models anytime.
-* **Gutenberg And Media Modal integration** — Generate alt text with one click from the block editor sidebar or WordPress media modal. Preview, accept, or reject without leaving the editor.
-* **Kadence Blocks support** — Full integration with Kadence image block: generate alt text, title attribute, and link title directly from the block inspector sidebar.
+* **Gutenberg, Kadence, Spectra & Media Modal integration** — Generate alt text with one click from the block editor sidebar, **Kadence** image block, **Spectra** image block, or WordPress media modal. Preview, accept, or reject without leaving the editor.
+* **Spectra Block support** — Full integration with **Spectra** image block: generate alt text and title directly from the block inspector sidebar.
+* **Kadence Blocks support** — Full integration with **Kadence** image block: generate alt text, title attribute, and link title directly from the block inspector sidebar.
 * **AI-powered file renaming** — AI generates SEO-friendly filenames directly from image content. Independent from alt text and title — each is a separate AI call.
 * **SEO keyphrase integration** — Pulls the focus keyphrase from **Yoast SEO**, **Rank Math**, **All in One SEO**, or **SEOPress** and naturally weaves it into generated alt text.
 * **Image SEO audit dashboard** — Scores your media library health. Detects missing, generic/placeholder, and too-long alt text with a visual breakdown.
@@ -45,8 +46,9 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 = All Features =
 
 * 3 AI providers with 15+ model options
-* Generate from **Gutenberg** editor, **Kadence** blocks, and WordPress media modal
+* Generate from **Gutenberg** editor, **Kadence** blocks, **Spectra** blocks, and WordPress media modal
 * **Kadence** image block integration — alt text, title attribute, and link title generation
+* **Spectra** image block integration — alt text and title generation
 * Preview / accept / reject workflow (separate settings for alt text and title)
 * AI-powered link title generation for **Kadence** image blocks
 * AI-powered file renaming — AI generates filenames from image content
@@ -99,7 +101,7 @@ ImageCraft not only generates alt text — it also renames your image files usin
 = How It Works =
 
 1. **Connect** — Add your API key in your WordPress site from Anthropic, OpenAI, or Google Gemini (3-minute setup wizard)
-2. **Generate** — Click "Generate with AI" on any image, or batch process up to 500 images at once
+2. **Generate** — Click "Generate with AI" on any image, or batch process images at once
 3. **Review** — Preview generated alt text, edit if needed, then accept. Or enable auto-accept for hands-free processing
 
 = Typical API Costs =
@@ -214,9 +216,13 @@ Only if you choose to. The "Skip images with existing alt text" option is availa
 
 JPG, PNG, GIF, and WebP. Images are read from your local WordPress uploads directory when possible (avoiding SSL issues on localhost) or fetched via URL for remote images.
 
+= Does it work with Spectra Blocks? =
+
+Yes! ImageCraft integrates with the **Spectra** image block. It adds "Generate with AI" buttons for alt text and title directly in the block inspector sidebar.
+
 = Does it work with Kadence Blocks? =
 
-Yes! ImageCraft has full integration with the Kadence image block. It adds "Generate with AI" buttons for alt text, title attribute, and link title directly in the block inspector sidebar. Each field has its own AI prompt optimized for its purpose.
+Yes! ImageCraft has full integration with the **Kadence** image block. It adds "Generate with AI" buttons for alt text, title attribute, and link title directly in the block inspector sidebar. Each field has its own AI prompt optimized for its purpose.
 
 = Does ImageCraft improve SEO? =
 
@@ -237,7 +243,8 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 3. WooCommerce Products - Browse products with alt text status, filter by category, and generate alt text per product
 4. Settings - API configuration with provider and model selection, database or wp-config.php key storage, and connection testing
 5. Gutenberg Editor - Generate alt text with AI directly from the block editor image settings panel
-6. Kadence Blocks - Generate alt text, title attribute, and link title for Kadence image blocks from the inspector sidebar
+6. Spectra - Generate alt text and title for Spectra image blocks from the inspector sidebar
+7. Kadence Blocks - Generate alt text, title attribute, and link title for Kadence image blocks from the inspector sidebar
 
 == Changelog ==
 
@@ -291,7 +298,6 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * Fix: File renamer no longer auto-overwrites attachment title (fixes "too long title" after rename)
 * Fix: Media modal generate button now always detects the correct image when switching between images without edit mode
 * Fix: Media modal alt text field reference is now queried fresh on each generate click (prevents writing to stale DOM)
-* Fix: Bulk select and cross-page selection properly capped at 500 images across all selection paths
 * Fix: Bulk rename now includes off-page images in cross-page selections
 * Fix: WP object cache now properly invalidated after batch counter updates
 * Fix: Select All checkbox click area limited to checkbox and label only
@@ -314,7 +320,6 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * Gutenberg block editor integration with preview/accept/reject workflow
 * WordPress media modal integration with generate and rename buttons
 * Media library scanner with advanced filters (date range, file size, alt text quality)
-* Batch processing up to 500 images with progress tracking and review modal
 * Auto-generate alt text on image upload
 * 7 tone options: Professional, Casual, Technical, SEO, and 3 WooCommerce tones
 * Custom prompt builder
