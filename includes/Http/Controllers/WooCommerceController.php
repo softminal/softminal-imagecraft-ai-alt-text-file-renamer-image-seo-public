@@ -84,7 +84,7 @@ class WooCommerceController extends Controller
 
         $params = $request->get_json_params();
         $productId = (int) ($params['product_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('icais_woo_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('icais_woo_default_tone', 'woo_seo'));
 
         if (!$productId) {
             return $this->response([
@@ -113,7 +113,7 @@ class WooCommerceController extends Controller
 
         $params = $request->get_json_params();
         $productId = (int) ($params['product_id'] ?? 0);
-        $tone = sanitize_text_field($params['tone'] ?? Settings::get('icais_woo_default_tone', 'professional'));
+        $tone = sanitize_text_field($params['tone'] ?? Settings::get('icais_woo_default_tone', 'woo_seo'));
 
         if (!$productId) {
             return $this->response([
@@ -148,7 +148,7 @@ class WooCommerceController extends Controller
             ], 400);
         }
 
-        $contextPrompt = Settings::get('icais_woo_include_product_info', true)
+        $contextPrompt = Settings::get('icais_woo_include_product_info', '1')
             ? WooCommerce::buildProductContextPrompt($product)
             : null;
         $userId = get_current_user_id();
@@ -175,7 +175,7 @@ class WooCommerceController extends Controller
             }
 
             $existingAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
-            if (!empty($existingAlt) && Settings::get('icais_skip_existing', false)) {
+            if (!empty($existingAlt) && Settings::get('icais_skip_existing', '0')) {
                 $results[$index] = [
                     'success' => true,
                     'attachment_id' => $attachmentId,

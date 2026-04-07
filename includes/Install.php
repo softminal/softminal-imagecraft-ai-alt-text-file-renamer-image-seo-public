@@ -150,29 +150,11 @@ class Install
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table prefix from trusted constants
         self::$wpdb->query("DROP TABLE IF EXISTS `{$prefix}batch_jobs`");
 
-        // Delete all plugin options
-        $optionKeys = [
-            'icais_api_provider',
-            'icais_default_tone',
-            'icais_max_length',
-            'icais_auto_generate',
-            'icais_preview_before_accept',
-            'icais_skip_existing',
-            'icais_batch_size',
-            'icais_request_timeout',
-            'icais_language',
-            'icais_email_on_complete',
-            'icais_auto_rename',
-            'icais_rename_max_length',
-            'icais_woo_auto_generate',
-            'icais_woo_include_product_info',
-            'icais_woo_default_tone',
-            'icais_custom_prompt',
-            'icais_woo_custom_prompt',
-            'icais_seo_integration',
-            'icais_seo_use_keyphrase',
-            'icais_openrouter_model',
-        ];
+        // Delete all plugin options — dynamically from Settings defaults
+        $optionKeys = array_keys(\Softminal\ImageCraft\Services\Settings::getDefaults());
+
+        // Legacy keys no longer in defaults but may exist in older installations
+        $optionKeys[] = 'icais_email_on_complete';
 
         foreach ($optionKeys as $key) {
             delete_option(ICAIS_TABLE_PREFIX . $key);
@@ -181,16 +163,17 @@ class Install
 
         // Delete user meta for all users
         delete_metadata('user', 0, ICAIS_TABLE_PREFIX . 'wizard_completed', '', true);
+        delete_metadata('user', 0, 'icais_review_notice_dismissed', '', true);
 
-        // Clean up batch transients
+        // Clean up all plugin transients (batch, heartbeat, rate-limit, etc.)
         global $wpdb;
-        $batchLike = $wpdb->esc_like('_transient_icais_batch_') . '%';
-        $timeoutLike = $wpdb->esc_like('_transient_timeout_icais_batch_') . '%';
+        $transientLike = $wpdb->esc_like('_transient_icais_') . '%';
+        $timeoutLike = $wpdb->esc_like('_transient_timeout_icais_') . '%';
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query(
             $wpdb->prepare(
                 "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-                $batchLike,
+                $transientLike,
                 $timeoutLike
             )
         );

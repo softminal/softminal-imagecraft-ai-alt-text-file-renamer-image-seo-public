@@ -17,7 +17,7 @@ class Settings
     private static $defaults = [
         'icais_api_provider' => 'anthropic',
         'icais_default_tone' => 'professional',
-        'icais_max_length' => 150,
+        'icais_max_length' => 125,
         'icais_auto_generate' => '0',
         'icais_preview_before_accept' => '1',
         'icais_skip_existing' => '0',
@@ -137,6 +137,14 @@ class Settings
             return '0';
         }
         return (string) $value;
+    }
+
+    /**
+     * Get the default settings keys and values.
+     */
+    public static function getDefaults(): array
+    {
+        return self::$defaults;
     }
 
     /**

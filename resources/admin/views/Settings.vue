@@ -27,7 +27,7 @@
       <div class="flex-1 min-w-0">
         <router-view />
 
-        <div v-if="!isActive('/settings/api') && route.path !== '/settings/integrations'" class="mt-4">
+        <div v-if="route.path !== '/settings/integrations'" class="mt-4">
           <button
             @click="saveSettings"
             class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"

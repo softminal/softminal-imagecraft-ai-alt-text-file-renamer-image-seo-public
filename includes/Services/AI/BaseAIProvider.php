@@ -110,7 +110,7 @@ abstract class BaseAIProvider
             return $this->getTitleOnlyPrompt($context);
         }
 
-        $maxLength = (int) Settings::get('icais_max_length', 150);
+        $maxLength = (int) Settings::get('icais_max_length', 125);
 
         $rules = "Rules: Stay under {$maxLength} characters. Never start with \"Image of\", \"Photo of\", \"Picture of\", or \"A photo\". Do not wrap in quotation marks. Return only the alt text, nothing else.";
 
@@ -175,7 +175,7 @@ abstract class BaseAIProvider
      */
     protected function getTitleOnlyPrompt(?string $context = null): string
     {
-        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        $maxLength = (int) Settings::get('icais_title_max_length', 30);
         $tone = Settings::get('icais_title_default_tone', 'seo');
 
         $rules = "Rules: Stay under {$maxLength} characters. Be concise and keyword-focused. No filler words. Do not wrap in quotation marks. Return only the title, nothing else.";
@@ -240,7 +240,7 @@ abstract class BaseAIProvider
      */
     protected function getLinkTitlePrompt(?string $context = null): string
     {
-        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        $maxLength = (int) Settings::get('icais_title_max_length', 30);
         $tone = Settings::get('icais_title_default_tone', 'seo');
 
         $rules = "Rules: Stay under {$maxLength} characters. Be action-oriented and concise. Do not wrap in quotation marks. Return only the link title, nothing else.";
@@ -279,12 +279,6 @@ abstract class BaseAIProvider
             } else {
                 $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
             }
-        }
-
-        // SEO keyphrase
-        if (!empty($context) && preg_match('/SEO Focus Keyphrase:\s*(.+?)(?:\s*\||$)/', $context, $seoMatches)) {
-            $keyphrase = trim($seoMatches[1]);
-            $prompt .= "\n\nSEO INSTRUCTION: Include the keyword \"{$keyphrase}\" or a close variation in the link title.";
         }
 
         // Language

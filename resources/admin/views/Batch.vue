@@ -551,12 +551,10 @@ const retryAllFailed = async () => {
     if (result.success) {
       notification.success($t('Retrying %s failed images...', result.total_images))
       // Reset state and navigate to new batch job
-      job.value = null
       showFailedImages.value = false
       failedImages.value = []
-      peakProcessed.value = 0
-      peakFailed.value = 0
       jobId.value = result.job_id
+      job.value = null
       await loadJobStatus()
       startPolling()
     }

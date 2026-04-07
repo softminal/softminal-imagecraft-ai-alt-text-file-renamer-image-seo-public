@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 use Softminal\ImageCraft\Services\AI\AIFactory;
 use Softminal\ImageCraft\Services\StatsTracker;
 use Softminal\ImageCraft\Services\UsageLimiter;
+use Softminal\ImageCraft\Support\AltTextHelper;
 
 class WooCommerce
 {
@@ -51,6 +52,14 @@ class WooCommerce
                 $hasAltIds = self::getProductIdsWithAlt();
                 $args['post__in'] = !empty($hasAltIds) ? $hasAltIds : [0];
                 break;
+            case 'generic':
+                $genericIds = self::getProductIdsWithQualityIssues('generic');
+                $args['post__in'] = !empty($genericIds) ? $genericIds : [0];
+                break;
+            case 'too_long':
+                $tooLongIds = self::getProductIdsWithQualityIssues('too_long');
+                $args['post__in'] = !empty($tooLongIds) ? $tooLongIds : [0];
+                break;
         }
 
         $query = new \WP_Query($args);
@@ -65,8 +74,11 @@ class WooCommerce
             $thumbnailId = $product->get_image_id();
             $altText = '';
 
+            $imageTitle = '';
             if ($thumbnailId) {
                 $altText = get_post_meta($thumbnailId, '_wp_attachment_image_alt', true);
+                $thumbPost = get_post($thumbnailId);
+                $imageTitle = $thumbPost ? $thumbPost->post_title : '';
             }
 
             $galleryIds = $product->get_gallery_image_ids();
@@ -79,6 +91,7 @@ class WooCommerce
                 'thumbnail_url' => $thumbnailId ? wp_get_attachment_thumb_url($thumbnailId) : null,
                 'full_url' => $thumbnailId ? wp_get_attachment_url($thumbnailId) : null,
                 'alt_text' => $altText,
+                'image_title' => $imageTitle,
                 'has_alt' => !empty($altText),
                 'gallery_ids' => array_values($galleryIds),
                 'price' => wp_kses_post($product->get_price_html()),
@@ -125,6 +138,7 @@ class WooCommerce
             'missing_alt' => $missingAlt,
             'has_alt' => $hasAlt,
             'missing_percentage' => $percentage,
+            'max_length' => (int) Settings::get('icais_max_length', 125),
         ];
     }
 
@@ -204,6 +218,55 @@ class WooCommerce
     }
 
     /**
+     * Get product IDs whose featured image alt text has quality issues (generic or too long).
+     *
+     * @param string $quality 'generic' or 'too_long'
+     * @return int[]
+     */
+    private static function getProductIdsWithQualityIssues(string $quality): array
+    {
+        global $wpdb;
+
+        // Get product IDs and their featured image alt text in one query
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID, alt.meta_value AS alt_text
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} alt
+                     ON thumb.meta_value = alt.post_id
+                     AND alt.meta_key = %s
+                     AND alt.meta_value != ''
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_wp_attachment_image_alt',
+                'product',
+                'publish'
+            )
+        );
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $maxLength = (int) Settings::get('icais_max_length', 125);
+        $filtered = [];
+
+        foreach ($rows as $row) {
+            $alt = $row->alt_text;
+            if ($quality === 'generic' && AltTextHelper::isGeneric($alt)) {
+                $filtered[] = (int) $row->ID;
+            } elseif ($quality === 'too_long' && mb_strlen($alt) > $maxLength) {
+                $filtered[] = (int) $row->ID;
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
      * Get product categories with product counts.
      *
      * @return array
@@ -274,7 +337,7 @@ class WooCommerce
             return ['success' => false, 'error' => 'No API key configured'];
         }
 
-        $contextPrompt = Settings::get('icais_woo_include_product_info', true)
+        $contextPrompt = Settings::get('icais_woo_include_product_info', '1')
             ? self::buildProductContextPrompt($product)
             : null;
         $result = $aiProvider->generateAltText($imageUrl, $tone, $contextPrompt);

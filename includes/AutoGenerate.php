@@ -38,11 +38,11 @@ class AutoGenerate
         }
 
         if ($isWooProduct) {
-            if (!Settings::get('icais_woo_auto_generate', false)) {
+            if (!Settings::get('icais_woo_auto_generate', '0')) {
                 return;
             }
         } else {
-            if (!Settings::get('icais_auto_generate', false)) {
+            if (!Settings::get('icais_auto_generate', '0')) {
                 return;
             }
         }
@@ -63,7 +63,7 @@ class AutoGenerate
         }
 
         // Check if skip existing is enabled and alt text already exists
-        if (Settings::get('icais_skip_existing', false)) {
+        if (Settings::get('icais_skip_existing', '0')) {
             $existingAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
             if (!empty($existingAlt)) {
                 return;
@@ -77,7 +77,7 @@ class AutoGenerate
         wp_schedule_single_event(time() + 5, 'icais_auto_generate', [$attachmentId, $userId]);
 
         // Schedule title generation after alt text is generated
-        if (Settings::get('icais_title_auto_generate', false)) {
+        if (Settings::get('icais_title_auto_generate', '0')) {
             wp_schedule_single_event(time() + 10, 'icais_auto_generate_title', [$attachmentId, $userId]);
         }
     }
@@ -142,7 +142,7 @@ class AutoGenerate
      */
     public static function generateTitleForAttachment($attachmentId, $userId = 0)
     {
-        if (!Settings::get('icais_title_auto_generate', false)) {
+        if (!Settings::get('icais_title_auto_generate', '0')) {
             return;
         }
 
@@ -151,7 +151,7 @@ class AutoGenerate
         }
 
         // Skip if title already exists
-        if (Settings::get('icais_title_skip_existing', false)) {
+        if (Settings::get('icais_title_skip_existing', '0')) {
             $existingTitle = get_post_meta($attachmentId, '_icais_generated_title', true);
             if (!empty($existingTitle)) {
                 return;

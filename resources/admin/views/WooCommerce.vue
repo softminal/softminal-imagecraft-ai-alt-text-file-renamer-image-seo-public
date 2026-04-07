@@ -57,6 +57,18 @@
             >
               {{ $t('Has Alt') }}
             </button>
+            <button
+              @click="filter = 'generic'; debouncedLoadProducts()"
+              :class="['px-4 py-2 rounded-lg', filter === 'generic' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700']"
+            >
+              {{ $t('Generic / Placeholder') }}
+            </button>
+            <button
+              @click="filter = 'too_long'; debouncedLoadProducts()"
+              :class="['px-4 py-2 rounded-lg', filter === 'too_long' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700']"
+            >
+              {{ $t('Too Long') }}<template v-if="productStats.max_length"> (&gt;{{ productStats.max_length }})</template>
+            </button>
 
             <div v-if="categories.length > 0" class="border-l border-gray-300 pl-2 ml-1">
               <select
@@ -84,7 +96,14 @@
               @click="startBatch"
               class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
             >
-              {{ $t('Generate for %s Selected', selectedProducts.length) }}
+              {{ $t('Generate Alt Text for %s Selected', selectedProducts.length) }}
+            </button>
+            <button
+              v-if="selectedProducts.length > 0"
+              @click="startTitleBatch"
+              class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            >
+              {{ $t('Generate Titles for %s Selected', selectedProducts.length) }}
             </button>
           </div>
         </div>
@@ -97,7 +116,7 @@
 
     <div v-else-if="woocommerceActive" class="bg-white rounded-lg shadow border">
       <div class="p-4 border-b">
-        <label class="flex items-center gap-2">
+        <label class="inline-flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             :checked="allSelected"
@@ -140,15 +159,15 @@
               <h3 class="font-medium text-sm truncate" :title="product.title">{{ product.title }}</h3>
               <p v-if="product.sku" class="text-xs text-gray-500">{{ $t('SKU:') }} {{ product.sku }}</p>
               <div class="text-sm text-gray-600 mt-1" v-html="product.price"></div>
-              <div
-                v-if="product.alt_text"
-                class="text-xs mt-2 text-gray-600 line-clamp-2"
-                :title="product.alt_text"
-              >
-                {{ product.alt_text }}
+              <div class="text-xs mt-1.5 flex gap-1 items-baseline" :title="product.alt_text">
+                <span class="font-medium text-gray-700 shrink-0">{{ $t('Alt:') }}</span>
+                <span v-if="product.alt_text" class="text-green-600 truncate">{{ product.alt_text }}</span>
+                <span v-else class="text-red-500 italic">{{ $t('Missing') }}</span>
               </div>
-              <div v-else class="text-xs mt-2 text-orange-600 italic">
-                {{ $t('No alt text') }}
+              <div class="text-xs mt-1 flex gap-1 items-baseline" :title="product.image_title">
+                <span class="font-medium text-gray-700 shrink-0">{{ $t('Title:') }}</span>
+                <span v-if="product.image_title" class="text-blue-600 truncate">{{ product.image_title }}</span>
+                <span v-else class="text-red-500 italic">{{ $t('Missing') }}</span>
               </div>
             </div>
           </div>
@@ -219,7 +238,7 @@
                   <div class="flex items-center justify-between gap-2 mb-1">
                     <label class="block text-sm font-medium text-gray-700">{{ $t('Featured Image Alt Text') }}</label>
                     <button
-                      @click="generateForModal"
+                      @click="generateForModal('alt')"
                       :disabled="generatingAlt"
                       class="text-sm px-3 py-1.5 rounded-lg text-purple-700 disabled:opacity-50"
                     >
@@ -231,6 +250,24 @@
                     rows="3"
                     class="w-full text-sm border rounded-lg p-2 resize-y"
                     :placeholder="$t('Describe for accessibility...')"
+                  />
+                </div>
+                <div>
+                  <div class="flex items-center justify-between gap-2 mb-1">
+                    <label class="block text-sm font-medium text-gray-700">{{ $t('Image Title') }}</label>
+                    <button
+                      @click="generateForModal('title')"
+                      :disabled="generatingTitle"
+                      class="text-sm px-3 py-1.5 rounded-lg text-purple-700 disabled:opacity-50"
+                    >
+                      {{ generatingTitle ? $t('Generating...') : $t('Generate with AI') }}
+                    </button>
+                  </div>
+                  <input
+                    v-model="modalImageTitle"
+                    type="text"
+                    class="w-full text-sm border rounded-lg p-2"
+                    :placeholder="$t('Image title...')"
                   />
                 </div>
                 <div v-if="selectedProduct.gallery && selectedProduct.gallery.length > 0">
@@ -297,8 +334,10 @@ const generatingId = ref(null)
 
 const selectedProduct = ref(null)
 const modalAltText = ref('')
+const modalImageTitle = ref('')
 const savingAlt = ref(false)
 const generatingAlt = ref(false)
+const generatingTitle = ref(false)
 
 const allSelected = computed(() => {
   return products.value.length > 0 && selectedProducts.value.length === products.value.length
@@ -400,6 +439,47 @@ const startBatch = async () => {
   }
 }
 
+const startTitleBatch = async () => {
+  if (selectedProducts.value.length === 0) return
+
+  // Collect featured image (thumbnail) IDs from selected products
+  const imageIds = selectedProducts.value
+    .map(productId => {
+      const product = products.value.find(p => p.id === productId)
+      return product?.thumbnail_id
+    })
+    .filter(id => id && id > 0)
+
+  if (imageIds.length === 0) {
+    notification.error($t('Selected products have no featured images'))
+    return
+  }
+
+  if (imageIds.length > 500) {
+    notification.error($t('Maximum 500 images per batch job. Please reduce your selection.'))
+    return
+  }
+
+  try {
+    const result = await Api.post('/batch/start', {
+      image_ids: imageIds,
+      type: 'title'
+    })
+
+    if (result.success) {
+      notification.success($t('Title generation started for %s images', imageIds.length))
+      router.push(`/batch/${result.job_id}`)
+    }
+  } catch (error) {
+    if (error.response?.job_id) {
+      notification.warning($t('A batch job is already in progress.'))
+      router.push(`/batch/${error.response.job_id}`)
+    } else {
+      notification.error(error.message || $t('Failed to start batch'))
+    }
+  }
+}
+
 const generateForProduct = async (productId) => {
   generatingId.value = productId
   try {
@@ -422,6 +502,7 @@ const generateForProduct = async (productId) => {
 const openProductModal = async (product) => {
   selectedProduct.value = { ...product, gallery: [] }
   modalAltText.value = product.alt_text || ''
+  modalImageTitle.value = product.image_title || ''
 
   try {
     const result = await Api.get(`/woocommerce/gallery?product_id=${product.id}`)
@@ -437,8 +518,30 @@ const closeProductModal = () => {
   selectedProduct.value = null
 }
 
-const generateForModal = async () => {
+const generateForModal = async (type = 'alt') => {
   if (!selectedProduct.value) return
+
+  if (type === 'title') {
+    generatingTitle.value = true
+    try {
+      const result = await Api.post('/generator/generate', {
+        attachment_id: selectedProduct.value.thumbnail_id,
+        title_only: true
+      })
+      if (result.success) {
+        modalImageTitle.value = result.generated_title
+        notification.success($t('Title generated'))
+      } else {
+        notification.error(result.error || result.message || $t('Failed to generate'))
+      }
+    } catch (error) {
+      notification.error($t('Failed to generate title'))
+    } finally {
+      generatingTitle.value = false
+    }
+    return
+  }
+
   generatingAlt.value = true
   try {
     const result = await Api.post('/woocommerce/generate', {
@@ -462,16 +565,18 @@ const saveProductAlt = async () => {
   savingAlt.value = true
   try {
     const result = await Api.post('/generator/update-alt', {
-      attachment_id: selectedProduct.value.attachment_id || selectedProduct.value.id,
-      alt_text: modalAltText.value || ''
+      attachment_id: selectedProduct.value.thumbnail_id,
+      alt_text: modalAltText.value || '',
+      title: modalImageTitle.value || ''
     })
     if (result.success) {
       const product = products.value.find(p => p.id === selectedProduct.value.id)
       if (product) {
         product.alt_text = modalAltText.value
         product.has_alt = !!modalAltText.value
+        product.image_title = modalImageTitle.value
       }
-      notification.success($t('Alt text updated'))
+      notification.success($t('Updated successfully'))
       closeProductModal()
     } else {
       notification.error(result.message || $t('Failed to save'))

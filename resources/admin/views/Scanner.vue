@@ -179,7 +179,14 @@
                 :disabled="bulkSelecting"
                 class="px-3 py-1.5 text-sm bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 disabled:opacity-50"
               >
-                {{ bulkSelecting === 'too_long' ? $t('Selecting...') : $t('All Too Long') }}
+                {{ bulkSelecting === 'too_long' ? $t('Selecting...') : $t('All Alt Too Long') }}
+              </button>
+              <button
+                @click="bulkSelect('title_too_long')"
+                :disabled="bulkSelecting"
+                class="px-3 py-1.5 text-sm bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 disabled:opacity-50"
+              >
+                {{ bulkSelecting === 'title_too_long' ? $t('Selecting...') : $t('All Title Too Long') }}
               </button>
               <button
                 v-if="minSize > 0"
@@ -464,6 +471,8 @@ const bulkSelect = async (quality) => {
       params = buildSelectParams('missing', '')
     } else if (quality === 'large') {
       params = buildSelectParams(filter.value, '')
+    } else if (quality === 'title_too_long') {
+      params = buildSelectParams('all', quality)
     } else {
       params = buildSelectParams('has_alt', quality)
     }

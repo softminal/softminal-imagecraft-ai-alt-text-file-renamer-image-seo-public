@@ -261,7 +261,7 @@ class BatchController extends Controller
         }
 
         // Get batch size
-        $batchSize = Settings::get('icais_batch_size', 5);
+        $batchSize = Settings::get('icais_batch_size', 3);
         $tone = Settings::get('icais_default_tone', 'professional');
         
         // Re-fetch to get accurate counter values before calculating chunk offset
@@ -281,7 +281,7 @@ class BatchController extends Controller
         $startTime = time();
         $maxSeconds = max(30, (int) Settings::get('icais_request_timeout', 60) * 2);
 
-        $skipExisting = (bool) Settings::get('icais_skip_existing', false);
+        $skipExisting = (bool) Settings::get('icais_skip_existing', '0');
 
         // Check if this is a title-only batch
         $batchType = (string) get_transient('icais_batch_type_' . $jobId);
@@ -673,7 +673,7 @@ class BatchController extends Controller
 
         $generatedTitle = trim($result['alt_text']);
 
-        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        $maxLength = (int) Settings::get('icais_title_max_length', 30);
         if (mb_strlen($generatedTitle) > $maxLength) {
             $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
             $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);

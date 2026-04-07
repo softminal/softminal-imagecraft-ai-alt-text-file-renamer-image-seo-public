@@ -212,7 +212,7 @@ class ScannerController extends Controller
                 'missing_alt' => $missingAlt,
                 'has_alt' => $hasAlt,
                 'missing_percentage' => $totalImages > 0 ? round(($missingAlt / $totalImages) * 100, 2) : 0,
-                'max_length' => (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 150),
+                'max_length' => (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 125),
             ]
         ]);
     }
@@ -259,6 +259,23 @@ class ScannerController extends Controller
                 if ($quality === 'generic' && AltTextHelper::isGeneric($alt)) {
                     $filtered[] = $id;
                 } elseif ($quality === 'too_long' && mb_strlen($alt) > $maxLength) {
+                    $filtered[] = $id;
+                }
+            }
+            $ids = $filtered;
+        }
+
+        // PHP-level title length filtering
+        if ($quality === 'title_too_long') {
+            $titleMaxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_title_max_length', 30);
+            // Prime post caches for title access
+            if (!empty($ids)) {
+                _prime_post_caches($ids, false, false);
+            }
+            $filtered = [];
+            foreach ($ids as $id) {
+                $post = get_post($id);
+                if ($post && mb_strlen($post->post_title) > $titleMaxLength) {
                     $filtered[] = $id;
                 }
             }

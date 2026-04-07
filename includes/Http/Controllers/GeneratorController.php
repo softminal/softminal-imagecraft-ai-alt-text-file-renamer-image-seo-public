@@ -71,14 +71,19 @@ class GeneratorController extends Controller
         // Title-only generation mode (called from media modal "Generate Title" button)
         $titleOnly = !empty($params['title_only']);
         if ($titleOnly) {
+            // Kadence block titles: generate from image only (no page/SEO context)
+            if ($source === 'kadence') {
+                return $this->generateTitleOnly($attachmentId, null);
+            }
             $titleContext = Settings::get('icais_title_context_mode', 'image') === 'context' ? $context : null;
             return $this->generateTitleOnly($attachmentId, $titleContext);
         }
 
         // Link title generation mode (called from Kadence "Generate Link Title" button)
+        // Link titles are general-purpose (accessibility), generate from image only
         $linkTitleOnly = !empty($params['link_title_only']);
         if ($linkTitleOnly) {
-            return $this->generateLinkTitle($attachmentId, $context);
+            return $this->generateLinkTitle($attachmentId, null);
         }
 
         // Filename generation mode (called from media modal "Rename File" button)
@@ -97,7 +102,7 @@ class GeneratorController extends Controller
         if ($context !== null && preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', $context, $matches)) {
             $productName = trim($matches[1]);
             if (stripos($result['alt_text'], $productName) === false) {
-                $maxLength = (int) Settings::get('icais_max_length', 150);
+                $maxLength = (int) Settings::get('icais_max_length', 125);
                 $newAlt = $productName . ' - ' . $result['alt_text'];
                 if (mb_strlen($newAlt) > $maxLength) {
                     $available = $maxLength - mb_strlen($productName) - 3;
@@ -623,6 +628,15 @@ class GeneratorController extends Controller
 
         update_post_meta($attachmentId, '_wp_attachment_image_alt', $altText);
 
+        // Optionally update image title if provided
+        if (isset($params['title'])) {
+            $title = sanitize_text_field($params['title']);
+            global $wpdb;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->update($wpdb->posts, ['post_title' => $title], ['ID' => $attachmentId], ['%s'], ['%d']);
+            clean_post_cache($attachmentId);
+        }
+
         return $this->response([
             'success' => true,
             'message' => __('Alt text saved successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo')
@@ -752,7 +766,7 @@ class GeneratorController extends Controller
             return null;
         }
 
-        if (!Settings::get('icais_woo_include_product_info', true)) {
+        if (!Settings::get('icais_woo_include_product_info', '1')) {
             return null;
         }
 
@@ -770,6 +784,6 @@ class GeneratorController extends Controller
         }
 
         $settingKey = 'icais_integration_' . $source;
-        return Settings::get($settingKey, '0') === '1';
+        return Settings::get($settingKey, '1') === '1';
     }
 }
