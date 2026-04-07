@@ -18,7 +18,7 @@ class WooCommerce
         return class_exists('WooCommerce');
     }
 
-    public static function getProducts(?int $limit = -1, int $page = 1, string $filter = 'all', int $category = 0): array
+    public static function getProducts(?int $limit = -1, int $page = 1, string $filter = 'all', int $category = 0, array $advanced = []): array
     {
         if (!self::isActive()) {
             return ['products' => [], 'total' => 0, 'pages' => 0];
@@ -43,6 +43,47 @@ class WooCommerce
             ];
         }
 
+        // Date range filter (by product created date)
+        $dateFrom = $advanced['date_from'] ?? '';
+        $dateTo = $advanced['date_to'] ?? '';
+        if ($dateFrom || $dateTo) {
+            $dateQuery = [];
+            if ($dateFrom) {
+                $dateQuery['after'] = sanitize_text_field($dateFrom);
+            }
+            if ($dateTo) {
+                $dateQuery['before'] = sanitize_text_field($dateTo);
+            }
+            $dateQuery['inclusive'] = true;
+            $args['date_query'] = [$dateQuery];
+        }
+
+        // Price range filter
+        $minPrice = isset($advanced['min_price']) ? (float) $advanced['min_price'] : 0;
+        $maxPrice = isset($advanced['max_price']) ? (float) $advanced['max_price'] : 0;
+        if ($minPrice > 0 || $maxPrice > 0) {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $priceQuery = ['relation' => 'AND'];
+            if ($minPrice > 0) {
+                $priceQuery[] = [
+                    'key' => '_price',
+                    'value' => $minPrice,
+                    'compare' => '>=',
+                    'type' => 'DECIMAL',
+                ];
+            }
+            if ($maxPrice > 0) {
+                $priceQuery[] = [
+                    'key' => '_price',
+                    'value' => $maxPrice,
+                    'compare' => '<=',
+                    'type' => 'DECIMAL',
+                ];
+            }
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $args['meta_query'] = $priceQuery;
+        }
+
         switch ($filter) {
             case 'missing':
                 $missingIds = self::getProductIdsMissingAlt();
@@ -64,16 +105,46 @@ class WooCommerce
 
         $query = new \WP_Query($args);
 
-        $products = [];
+        // Collect all gallery IDs across products for meta cache priming
+        $allImageIds = [];
+        $productGalleryMap = [];
         foreach ($query->posts as $post) {
             $product = wc_get_product($post->ID);
             if (!$product) {
                 continue;
             }
-
             $thumbnailId = $product->get_image_id();
-            $altText = '';
+            $galleryIds = $product->get_gallery_image_ids();
+            if ($thumbnailId) {
+                $allImageIds[] = $thumbnailId;
+            }
+            foreach ($galleryIds as $gId) {
+                $allImageIds[] = $gId;
+            }
+            $productGalleryMap[$post->ID] = [
+                'product' => $product,
+                'thumbnail_id' => $thumbnailId,
+                'gallery_ids' => $galleryIds,
+            ];
+        }
 
+        // Prime meta cache for all image IDs in one query
+        if (!empty($allImageIds)) {
+            update_meta_cache('post', array_unique($allImageIds));
+        }
+
+        $products = [];
+        foreach ($query->posts as $post) {
+            if (!isset($productGalleryMap[$post->ID])) {
+                continue;
+            }
+
+            $data = $productGalleryMap[$post->ID];
+            $product = $data['product'];
+            $thumbnailId = $data['thumbnail_id'];
+            $galleryIds = $data['gallery_ids'];
+
+            $altText = '';
             $imageTitle = '';
             if ($thumbnailId) {
                 $altText = get_post_meta($thumbnailId, '_wp_attachment_image_alt', true);
@@ -81,7 +152,30 @@ class WooCommerce
                 $imageTitle = $thumbPost ? $thumbPost->post_title : '';
             }
 
-            $galleryIds = $product->get_gallery_image_ids();
+            // Calculate image coverage (featured + gallery)
+            $allIds = $thumbnailId ? array_merge([$thumbnailId], $galleryIds) : $galleryIds;
+            $totalImages = count($allIds);
+            $hasAltCount = 0;
+            $hasTitleCount = 0;
+            foreach ($allIds as $imgId) {
+                $imgAlt = get_post_meta($imgId, '_wp_attachment_image_alt', true);
+                if (!empty($imgAlt)) {
+                    $hasAltCount++;
+                }
+                $imgTitleMeta = get_post_meta($imgId, '_icais_generated_title', true);
+                if (!empty($imgTitleMeta)) {
+                    $hasTitleCount++;
+                }
+            }
+
+            // First 4 gallery thumbnail URLs for card preview strip
+            $galleryThumbUrls = [];
+            foreach (array_slice($galleryIds, 0, 4) as $gId) {
+                $thumbUrl = wp_get_attachment_thumb_url($gId);
+                if ($thumbUrl) {
+                    $galleryThumbUrls[] = $thumbUrl;
+                }
+            }
 
             $products[] = [
                 'id' => $post->ID,
@@ -96,6 +190,12 @@ class WooCommerce
                 'gallery_ids' => array_values($galleryIds),
                 'price' => wp_kses_post($product->get_price_html()),
                 'status' => $product->get_status(),
+                'image_coverage' => [
+                    'total' => $totalImages,
+                    'has_alt' => $hasAltCount,
+                    'has_title' => $hasTitleCount,
+                ],
+                'gallery_thumb_urls' => $galleryThumbUrls,
             ];
         }
 
@@ -415,12 +515,16 @@ class WooCommerce
 
         foreach ($galleryIds as $id) {
             $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
+            $galleryPost = get_post($id);
+            $title = $galleryPost ? $galleryPost->post_title : '';
             $gallery[] = [
                 'id' => $id,
                 'url' => wp_get_attachment_url($id),
                 'thumb_url' => wp_get_attachment_thumb_url($id),
                 'alt_text' => $alt,
                 'has_alt' => !empty($alt),
+                'title' => $title,
+                'has_title' => !empty($title),
             ];
         }
 

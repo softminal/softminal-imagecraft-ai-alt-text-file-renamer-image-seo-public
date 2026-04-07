@@ -27,7 +27,14 @@ class WooCommerceController extends Controller
         $filter = sanitize_text_field($request['filter'] ?? 'all');
         $category = (int) ($request['category'] ?? 0);
 
-        $result = WooCommerce::getProducts($perPage, $page, $filter, $category);
+        $advanced = [
+            'date_from' => sanitize_text_field($request['date_from'] ?? ''),
+            'date_to' => sanitize_text_field($request['date_to'] ?? ''),
+            'min_price' => sanitize_text_field($request['min_price'] ?? ''),
+            'max_price' => sanitize_text_field($request['max_price'] ?? ''),
+        ];
+
+        $result = WooCommerce::getProducts($perPage, $page, $filter, $category, $advanced);
 
         return $this->response([
             'success' => true,

@@ -72,18 +72,26 @@ class AltTextHelper
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Lightweight aggregation; not worth caching for a single page load
         $row = $wpdb->get_row(
             "SELECT COUNT(*) AS total,
-                    SUM(CASE WHEN pm.meta_value IS NULL OR pm.meta_value = '' THEN 1 ELSE 0 END) AS missing
+                    SUM(CASE WHEN pm.meta_value IS NULL OR pm.meta_value = '' THEN 1 ELSE 0 END) AS missing,
+                    SUM(CASE WHEN tm.meta_value IS NOT NULL AND tm.meta_value != '' THEN 1 ELSE 0 END) AS has_title
              FROM {$wpdb->posts} p
              LEFT JOIN {$wpdb->postmeta} pm
                     ON pm.post_id = p.ID AND pm.meta_key = '_wp_attachment_image_alt'
+             LEFT JOIN {$wpdb->postmeta} tm
+                    ON tm.post_id = p.ID AND tm.meta_key = '_icais_generated_title'
              WHERE p.post_type = 'attachment'
                AND p.post_status = 'inherit'
                AND p.post_mime_type LIKE 'image/%'"
         );
 
+        $total = (int) ($row->total ?? 0);
+        $hasTitle = (int) ($row->has_title ?? 0);
+
         return [
-            'total' => (int) ($row->total ?? 0),
+            'total' => $total,
             'missing' => (int) ($row->missing ?? 0),
+            'has_title' => $hasTitle,
+            'missing_title' => $total - $hasTitle,
         ];
     }
 }

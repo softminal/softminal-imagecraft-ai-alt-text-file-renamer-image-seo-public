@@ -40,6 +40,19 @@ class ScannerController extends Controller
                 ['key' => '_wp_attachment_image_alt', 'compare' => 'EXISTS'],
                 ['key' => '_wp_attachment_image_alt', 'value' => '', 'compare' => '!='],
             ];
+        } elseif ($filter === 'missing_title') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $args['meta_query'] = [
+                'relation' => 'OR',
+                ['key' => '_icais_generated_title', 'compare' => 'NOT EXISTS'],
+                ['key' => '_icais_generated_title', 'value' => '', 'compare' => '='],
+            ];
+        } elseif ($filter === 'has_title' || $filter === 'title_too_long') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $args['meta_query'] = [
+                ['key' => '_icais_generated_title', 'compare' => 'EXISTS'],
+                ['key' => '_icais_generated_title', 'value' => '', 'compare' => '!='],
+            ];
         }
 
         if ($dateFrom || $dateTo) {
@@ -66,9 +79,9 @@ class ScannerController extends Controller
         $perPage = min(max(1, (int) ($params['per_page'] ?? 50)), 100);
         $minSize = (int) ($params['min_size'] ?? 0);
         $filter = sanitize_text_field($params['filter'] ?? 'all');
-        $needsPhpFilter = $minSize > 0 || $filter === 'generic' || $filter === 'too_long';
+        $needsPhpFilter = $minSize > 0 || $filter === 'generic' || $filter === 'too_long' || $filter === 'title_too_long';
 
-        // When min_size/generic/too_long filter is active, we need PHP-level filtering
+        // When min_size/generic/too_long/title_too_long filter is active, we need PHP-level filtering
         // so fetch all matching IDs first, filter, then paginate manually
         if ($needsPhpFilter) {
             $allArgs = $this->buildQueryArgs($params, [
@@ -99,6 +112,22 @@ class ScannerController extends Controller
                     }
                 }
                 $allIds = $qualityFiltered;
+            }
+
+            // PHP-level filtering for title too long
+            if ($filter === 'title_too_long') {
+                $titleMaxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_title_max_length', 30);
+                if (!empty($allIds)) {
+                    _prime_post_caches($allIds, false, false);
+                }
+                $titleFiltered = [];
+                foreach ($allIds as $id) {
+                    $post = get_post($id);
+                    if ($post && mb_strlen($post->post_title) > $titleMaxLength) {
+                        $titleFiltered[] = $id;
+                    }
+                }
+                $allIds = $titleFiltered;
             }
 
             // Filter by file size
@@ -213,6 +242,9 @@ class ScannerController extends Controller
                 'has_alt' => $hasAlt,
                 'missing_percentage' => $totalImages > 0 ? round(($missingAlt / $totalImages) * 100, 2) : 0,
                 'max_length' => (int) \Softminal\ImageCraft\Services\Settings::get('icais_max_length', 125),
+                'has_title' => $imageCounts['has_title'],
+                'missing_title' => $imageCounts['missing_title'],
+                'title_max_length' => (int) \Softminal\ImageCraft\Services\Settings::get('icais_title_max_length', 30),
             ]
         ]);
     }
