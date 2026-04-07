@@ -2,13 +2,13 @@
 Contributors: softminal, diptosoftminal
 Tags: ai alt text, image alt text generator, image seo, alt text generator, accessibility
 Requires at least: 5.8
-Tested up to: 6.9.4
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.3.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI Image Alt Text Generator for WordPress. Automatically generate SEO-friendly image alt text, rename image files, and improve image SEO using OpenAI, Claude, or Gemini — no subscription, use your own API key.
+AI-powered image alt text generator, file renamer & image SEO. Use OpenAI, Claude, or Gemini with your own API key (BYOK).
 
 == Description ==
 
