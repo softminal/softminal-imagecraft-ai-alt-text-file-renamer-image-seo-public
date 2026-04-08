@@ -4,7 +4,7 @@ Tags: ai alt text, image alt text generator, image seo, alt text generator, acce
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -248,6 +248,19 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
+= 1.3.3 =
+* New: WooCommerce multi-image UX redesign — product cards now show image strip with featured + gallery thumbnails, coverage badge, and progress bar
+* New: Product modal with editable grid view for all images (featured + gallery) with per-image and bulk generate/save support
+* New: WooCommerce advanced filters — date range and price range filters for products
+* New: WooCommerce filter bar redesigned to match Scanner pill pattern
+* New: "Coming Soon" badge for WPML and Polylang integrations
+* Improvement: WooCommerce batch operations now include all product images (featured + gallery)
+* Improvement: Product API response includes image coverage stats and gallery thumbnail URLs
+* Improvement: Gallery image API response includes title and has_title fields
+* Improvement: Meta cache priming for better performance in WooCommerce product listing
+* Improvement: WooCommerce.vue split into ProductCard and ProductModal components
+* Fix: Settings boolean defaults now use string '0' instead of false for consistent type handling
+
 = 1.3.2 =
 * New: Spectra image block integration — generate alt text and title directly from the Spectra block inspector sidebar
 * New: Integrations settings tab — enable or disable plugin integrations (Kadence, Spectra, Yoast SEO, Rank Math, AIOSEO, SEOPress, WooCommerce, WPML, Polylang) with category filters
@@ -342,6 +355,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.3.3 =
+Manage woocommerce product gallery, and advanced filter UI enhancement.
 
 = 1.3.2 =
 Spectra image block integration, new Integrations settings tab, image title context mode, and batch processing improvements. Fully backwards-compatible.
