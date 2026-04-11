@@ -20,23 +20,23 @@
   "dependencies": {
     "@tiptap/starter-kit": "^2.2.4",
     "@tiptap/vue-3": "^2.2.4",
-    "autoprefixer": "^10.4.18",
+    "autoprefixer": "^10.4.27",
     "echarts": "^6.0.0",
     "lucide-vue-next": "^0.344.0",
-    "postcss": "^8.4.35",
-    "sass": "^1.71.1",
+    "postcss": "^8.5.9",
+    "sass": "^1.99.0",
     "tailwindcss": "^3.4.1",
-    "vue": "^3.4.21",
+    "vue": "^3.5.32",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.4",
+    "@vitejs/plugin-vue": "^6.0.5",
     "eslint": "^10.2.0",
     "eslint-plugin-vue": "^10.8.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "vite": "^7.3.1",
-    "vite-plugin-live-reload": "^3.0.5"
+    "vite-plugin-live-reload": "^3.1.0"
   },
   "keywords": [
     "wordpress",

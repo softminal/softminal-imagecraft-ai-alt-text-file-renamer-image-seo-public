@@ -1,17 +1,21 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import { Dashboard, Scanner, Batch, Settings } from './views';
-import SetupWizard from './views/SetupWizard.vue';
-import WooCommerce from './views/WooCommerce.vue';
-import Help from './views/Help.vue';
-import GeneralSettings from './components/Settings/GeneralSettings.vue';
-import ApiSettings from './components/Settings/ApiSettings.vue';
-import AltTextSettings from './components/Settings/AltTextSettings.vue';
-import TitleSettings from './components/Settings/TitleSettings.vue';
-import RenameSettings from './components/Settings/RenameSettings.vue';
-import WooCommerceSettings from './components/Settings/WooCommerceSettings.vue';
-import SeoSettings from './components/Settings/SeoSettings.vue';
-import IntegrationSettings from './components/Settings/IntegrationSettings.vue';
 import Api from './services/Api';
+
+const Dashboard = () => import('./views/Dashboard.vue');
+const Scanner = () => import('./views/Scanner.vue');
+const Batch = () => import('./views/Batch.vue');
+const Settings = () => import('./views/Settings.vue');
+const WooCommerce = () => import('./views/WooCommerce.vue');
+const Help = () => import('./views/Help.vue');
+const SetupWizard = () => import('./views/SetupWizard.vue');
+const GeneralSettings = () => import('./components/Settings/GeneralSettings.vue');
+const ApiSettings = () => import('./components/Settings/ApiSettings.vue');
+const AltTextSettings = () => import('./components/Settings/AltTextSettings.vue');
+const TitleSettings = () => import('./components/Settings/TitleSettings.vue');
+const RenameSettings = () => import('./components/Settings/RenameSettings.vue');
+const WooCommerceSettings = () => import('./components/Settings/WooCommerceSettings.vue');
+const SeoSettings = () => import('./components/Settings/SeoSettings.vue');
+const IntegrationSettings = () => import('./components/Settings/IntegrationSettings.vue');
 
 const routes = [
     {
@@ -96,7 +100,7 @@ router.beforeEach(async (to, from, next) => {
             // Redirect incomplete users to wizard
             isComplete ? next() : next('/wizard');
         }
-    } catch (error) {
+    } catch {
         // If API fails, allow navigation (might be first load)
         next();
     }
