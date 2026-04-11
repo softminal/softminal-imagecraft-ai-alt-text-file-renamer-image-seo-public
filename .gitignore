@@ -26,7 +26,7 @@ build/
 *.zip
 .claude/*
 !.claude/commands/
-.claude/settings.local.json
+!.claude/skills/
 
 # WordPress-specific files
 wp-content/debug.log
