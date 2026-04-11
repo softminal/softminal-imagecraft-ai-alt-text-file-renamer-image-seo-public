@@ -10,7 +10,7 @@
       v-if="showPerPage"
       :value="perPage"
       @change="$emit('per-page-change', Number($event.target.value))"
-      class="h-8 px-2 border border-gray-300 rounded text-sm text-gray-700 bg-white hover:border-blue-400 focus:outline-none focus:border-blue-500"
+      class="h-8 px-2 border border-gray-300 rounded text-sm text-gray-700 bg-white hover:border-blue-400 focus:outline-hidden focus:border-blue-500"
     >
       <option v-for="size in pageSizes" :key="size" :value="size">{{ size }} / {{ $t('page') }}</option>
     </select>
@@ -88,7 +88,7 @@
         type="number"
         min="1"
         :max="totalPages"
-        class="w-12 h-8 px-1.5 text-center border border-gray-300 rounded text-sm text-gray-700 bg-white hover:border-blue-400 focus:outline-none focus:border-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        class="w-12 h-8 px-1.5 text-center border border-gray-300 rounded text-sm text-gray-700 bg-white hover:border-blue-400 focus:outline-hidden focus:border-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
     </div>
   </div>
@@ -190,6 +190,7 @@ const visiblePages = computed(() => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .icais-pager-btn {
   @apply min-w-[32px] h-8 px-1.5 flex items-center justify-center rounded text-gray-600 bg-white border border-transparent cursor-pointer transition-colors duration-150;
 }

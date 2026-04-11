@@ -41,7 +41,7 @@ class Enqueue {
 
         $deps = ['jquery', 'wp-api-fetch', 'wp-i18n'];
         $script_enqueued = EnqueueAsset::script('icais-script', 'resources/admin/main.js', $deps);
-        EnqueueAsset::style('icais-scss', 'resources/scss/index.scss');
+        EnqueueAsset::style('icais-scss', 'resources/scss/index.css');
 
         if ($script_enqueued) {
             wp_localize_script('icais-script', 'icais', [

@@ -3,7 +3,7 @@ import App from './App.vue';
 import router from './router';
 import notification from './plugins/notification';
 import { $t } from './utils/i18n';
-import '../scss/index.scss';
+import '../scss/index.css';
 
 const app = createApp(App);
 

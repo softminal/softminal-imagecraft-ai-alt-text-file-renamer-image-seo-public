@@ -11,12 +11,13 @@
             :key="item.to"
             :to="item.to"
             :class="[
-              'flex items-center gap-2.5 w-full text-left px-4 py-3 text-sm border-b last:border-b-0 transition !shadow-none focus:outline-none focus:shadow-none',
+              'flex items-center gap-2.5 w-full text-left px-4 py-3 text-sm border-b last:border-b-0 transition shadow-none! focus:outline-hidden focus:shadow-none',
               isActive(item.to)
                 ? 'bg-blue-50 text-blue-700 border-l-2 border-l-blue-600'
                 : 'text-gray-600 hover:bg-gray-50 border-l-2 border-l-transparent'
             ]"
           >
+            <!-- eslint-disable-next-line vue/no-v-html -->
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="item.icon"></svg>
             {{ item.label }}
           </router-link>
@@ -138,7 +139,7 @@ const loadSettings = async () => {
       try {
         const parsed = JSON.parse(result.settings.icais_excluded_post_types || '[]')
         excludedPostTypes.value = Array.isArray(parsed) ? parsed : []
-      } catch (e) {
+      } catch {
         excludedPostTypes.value = []
       }
 
@@ -146,7 +147,7 @@ const loadSettings = async () => {
         settings.value.icais_api_provider = result.api_setting.provider
       }
     }
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to load settings'))
   }
 }
@@ -169,7 +170,7 @@ const saveSettings = async () => {
     } else {
       notification.error(result.message || $t('Failed to save settings'))
     }
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to save settings'))
   } finally {
     saving.value = false
@@ -193,7 +194,7 @@ const saveApiKey = async () => {
     } else {
       notification.error(result.message || $t('Failed to save API key'))
     }
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to save API key'))
   }
 }

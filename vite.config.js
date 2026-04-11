@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
 import liveReload from 'vite-plugin-live-reload';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -14,7 +15,7 @@ const copyManifestPlugin = () => {
         writeBundle() {
             const manifestSource = path.resolve(__dirname, 'assets/.vite/manifest.json');
             const manifestDest = path.resolve(__dirname, 'assets/manifest.json');
-            
+
             if (existsSync(manifestSource)) {
                 copyFileSync(manifestSource, manifestDest);
             }
@@ -28,7 +29,7 @@ const inputs = [
     'resources/admin/js/kadence-alt-button.js',
     'resources/admin/js/spectra-alt-button.js',
     'resources/admin/js/media-button.js',
-    'resources/scss/index.scss',
+    'resources/scss/index.css',
 ];
 
 export default defineConfig({
@@ -36,6 +37,7 @@ export default defineConfig({
     assetsInclude: ['**/*.svg'],
     plugins: [
         vue(),
+        tailwindcss(),
         liveReload([
             `${__dirname}/**/*.php`,
         ]),
@@ -53,7 +55,7 @@ export default defineConfig({
         manifest: true,
         outDir: 'assets',
         emptyOutDir: true,
-        rollupOptions: {
+        rolldownOptions: {
             input: inputs,
             output: {
                 chunkFileNames: '[name].js',

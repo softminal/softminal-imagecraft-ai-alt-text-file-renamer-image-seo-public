@@ -93,7 +93,7 @@
               <select
                 v-model="selectedCategory"
                 @change="loadProducts()"
-                class="px-3 py-1.5 rounded-full border border-gray-200 bg-gray-100 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                class="px-3 py-1.5 rounded-full border border-gray-200 bg-gray-100 text-gray-700 text-sm focus:outline-hidden focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               >
                 <option :value="0">{{ $t('All Categories') }}</option>
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">
@@ -339,7 +339,7 @@ const loadCategories = async () => {
     if (result.success) {
       categories.value = result.categories
     }
-  } catch (error) {
+  } catch {
     // Categories are optional — silently fail
   }
 }
@@ -483,18 +483,18 @@ const generateAllForProduct = async (product) => {
 
   try {
     if (product.thumbnail_id) {
-      try { await Api.post('/woocommerce/generate', { product_id: product.id }) } catch (e) { /* continue */ }
+      try { await Api.post('/woocommerce/generate', { product_id: product.id }) } catch { /* continue */ }
       generatingProgress[product.id].current++
     }
     if (product.gallery_ids && product.gallery_ids.length > 0) {
       try {
         const result = await Api.post('/woocommerce/generate-gallery', { product_id: product.id })
         if (result.success) generatingProgress[product.id].current = allIds.length
-      } catch (e) { /* continue */ }
+      } catch { /* continue */ }
     }
     notification.success($t('Generated alt text for all images'))
     loadProducts(pagination.value.current_page || 1)
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to generate alt text'))
   } finally {
     delete generatingProgress[product.id]

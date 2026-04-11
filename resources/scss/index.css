@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@source "../admin/**/*.{vue,js,ts}";
+
+/* Restore Tailwind v3 default border color (v4 changed to currentColor) */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+#wpcontent{
+    @apply pl-0
+}
+
+#icais-app{
+    input[type="checkbox"]{
+        margin: unset;
+    }
+
+}
+
+.php-error #adminmenuwrap {
+    margin-top: 0em !important;
+}
+#adminmenuwrap{
+    margin-top: 0 !important;
+}
+a:focus{
+    @apply outline-hidden
+}

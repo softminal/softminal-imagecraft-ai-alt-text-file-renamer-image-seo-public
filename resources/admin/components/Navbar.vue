@@ -2,7 +2,7 @@
     <nav class="main_nav_soft_carousel bg-white border-b border-gray-200 px-4 py-2.5 left-0 right-0 top-0 z-50">
         <div class="flex flex-wrap justify-between items-center">
             <!-- Logo Section -->
-            <router-link to="/" class="flex items-center bg-inherit outline-none focus:outline-none focus:shadow-none">
+            <router-link to="/" class="flex items-center bg-inherit outline-hidden focus:outline-hidden focus:shadow-none">
                 <img :src="asset('imagecraft-logo.png')" alt="ImageCraft" class="h-12" />
             </router-link>
 
@@ -12,7 +12,7 @@
                     v-for="(item, index) in menuItems"
                     :key="index"
                     :to="item.path"
-                    class="nav-link px-4 py-2 text-sm outline-none focus:shadow-none font-medium text-gray-700 rounded-lg hover:bg-blue-100 transition-colors"
+                    class="nav-link px-4 py-2 text-sm outline-hidden focus:shadow-none font-medium text-gray-700 rounded-lg hover:bg-blue-100 transition-colors"
                     :class="{ 'bg-blue-100 text-blue-700': isActive(item.path) }"
                 >
                     <span v-if="item.icon" class="mr-1">{{ item.icon }}</span>
@@ -58,7 +58,7 @@ onMounted(async () => {
             menuItems.value.push({ name: 'WooCommerce', path: '/woocommerce', icon: '🛒' })
         }
        
-    } catch (e) {
+    } catch {
         notification.error($t('Failed to load settings'))
     } finally {
         menuItems.value.push({ name: 'Settings', path: '/settings' })
@@ -68,6 +68,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .nav-link.router-link-active {
     @apply bg-blue-100 text-blue-700;
 }
