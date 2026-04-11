@@ -21,7 +21,12 @@ package-lock.json
 yarn.lock
 vite.config.js
 postcss.config.js
+postcss.config.cjs
 tailwind.config.js
+tailwind.config.cjs
+eslint.config.js
+phpstan.neon
+.husky
 
 # Source files (compiled assets are in /assets)
 resources

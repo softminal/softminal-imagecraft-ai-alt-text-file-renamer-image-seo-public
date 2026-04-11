@@ -15,5 +15,8 @@
             "Softminal\\ImageCraft\\": "includes/"
         }
     },
-    "require": {}
+    "require-dev": {
+        "phpstan/phpstan": "*",
+        "szepeviktor/phpstan-wordpress": "*"
+    }
 }
