@@ -24,7 +24,9 @@ Thumbs.db
 *.map
 build/
 *.zip
-.claude/
+.claude/*
+!.claude/commands/
+.claude/settings.local.json
 
 # WordPress-specific files
 wp-content/debug.log
