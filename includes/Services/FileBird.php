@@ -101,6 +101,7 @@ class FileBird
 
         global $wpdb;
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- FileBird integration uses the upstream plugin's hook name.
         $createdBy = (int) apply_filters('fbv_folder_created_by', 0);
         // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
         $sql = sprintf(
@@ -227,6 +228,7 @@ class FileBird
 
         global $wpdb;
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- FileBird integration uses the upstream plugin's hook name.
         $createdBy = (int) apply_filters('fbv_folder_created_by', 0);
         $imageMimeLike = 'image/%';
         // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter

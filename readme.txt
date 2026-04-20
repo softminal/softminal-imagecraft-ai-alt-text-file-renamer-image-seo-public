@@ -4,7 +4,7 @@ Tags: ai alt text, image alt text generator, image seo, alt text generator, acce
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,7 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * **Kadence Blocks support** — Full integration with **Kadence** image block: generate alt text, title attribute, and link title directly from the block inspector sidebar.
 * **AI-powered file renaming** — AI generates SEO-friendly filenames directly from image content. Independent from alt text and title — each is a separate AI call.
 * **SEO keyphrase integration** — Pulls the focus keyphrase from **Yoast SEO**, **Rank Math**, **All in One SEO**, or **SEOPress** and naturally weaves it into generated alt text.
+* **FileBird integration** — Filter the scanner by **FileBird** folders and use folder context to generate more specific alt text prompts.
 * **Image SEO audit dashboard** — Scores your media library health. Detects missing, generic/placeholder, and too-long alt text with a visual breakdown.
 * **WooCommerce product awareness** — Sends product name, SKU, categories, and price as context. Includes 3 dedicated product tones (SEO, Descriptive, Lifestyle) plus custom prompt support.
 * **Batch processing**
@@ -52,6 +53,8 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * Preview / accept / reject workflow (separate settings for alt text and title)
 * AI-powered link title generation for **Kadence** image blocks
 * AI-powered file renaming — AI generates filenames from image content
+* **FileBird** folder filtering in the media scanner
+* **FileBird** folder context added to AI prompts for more relevant alt text
 * SEO audit score with quality breakdown
 * Generic and placeholder alt text detection
 * Too-long alt text detection
@@ -188,6 +191,10 @@ ImageCraft supports 15+ models across 3 providers. You can select the specific m
 
 Yes! ImageCraft has a dedicated WooCommerce dashboard. It sends product name, SKU, categories, and price as context to the AI. Includes 3 WooCommerce-specific tones (Product SEO, Product Descriptive, Product Lifestyle) and supports gallery image bulk generation.
 
+= Does it work with FileBird? =
+
+Yes. If **FileBird** is installed, ImageCraft adds a folder filter to the media scanner so you can review and batch-process images inside a specific FileBird folder. It can also include the folder name as extra context in AI prompts for more specific alt text generation.
+
 = Can I generate alt text from the editor? =
 
 Yes. ImageCraft adds a "Generate with AI" button directly in the Gutenberg block editor sidebar and the WordPress media modal. You can preview, accept, or reject the generated text without leaving the editor.
@@ -247,6 +254,11 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 7. Kadence Blocks - Generate alt text, title attribute, and link title for Kadence image blocks from the inspector sidebar
 
 == Changelog ==
+
+= 1.3.4 (20 Apr, 2026) =
+* New: **FileBird** integration for scanner folder filtering
+* New: **FileBird** folder context added to AI prompts for more specific alt text generation
+* New: **FileBird** toggle added to Integrations settings
 
 = 1.3.3 =
 * New: WooCommerce multi-image UX redesign — product cards now show image strip with featured + gallery thumbnails, coverage badge, and progress bar
@@ -355,6 +367,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.3.4 =
+Adds FileBird integration for folder-based scanner filtering, more specific AI prompt context, and a new integration toggle in settings.
 
 = 1.3.3 =
 Manage woocommerce product gallery, and advanced filter UI enhancement.
