@@ -1,6 +1,6 @@
 <template>
   <div class="settings p-6">
-    <h1 class="text-2xl font-bold mb-6">{{ $t('Settings') }}</h1>
+    <h1 class="text-2xl font-bold mb-6 mt-0!">{{ $t('Settings') }}</h1>
 
     <div class="flex gap-6">
       <!-- Sidebar -->

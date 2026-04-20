@@ -1,7 +1,7 @@
 <template>
   <div class="scanner p-6">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold mb-4">{{ $t('Media Library Scanner') }}</h1>
+      <h1 class="text-2xl font-bold mb-4 mt-0!">{{ $t('Media Library Scanner') }}</h1>
 
       <!-- Interrupted batch banner -->
       <div v-if="interruptedBatchId" class="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6 flex items-center justify-between">
@@ -161,7 +161,7 @@
 
         <div v-if="fileBirdFolders.length > 0" class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-end gap-4">
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Folder') }}</label>
+            <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('FileBird Folder') }}</label>
             <select
               v-model="selectedFolderId"
               class="min-w-56 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
@@ -178,7 +178,7 @@
             </select>
           </div>
           <p v-if="activeFolderName" class="text-sm text-gray-500">
-            {{ $t('Showing images from %s', activeFolderName) }}
+            {{ $t('Showing images from') }} <span class="font-bold text-gray-900">{{ activeFolderName }}</span>
           </p>
         </div>
 

@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 class FileBirdController extends Controller
 {
-    public function getFolders()
+    public function getFolders(): \WP_REST_Response
     {
         return $this->response([
             'success' => true,
@@ -19,10 +19,10 @@ class FileBirdController extends Controller
         ]);
     }
 
-    public function getAttachments($request)
+    public function getAttachments(\WP_REST_Request $request): \WP_REST_Response
     {
         $params = $request->get_json_params();
-        $folderId = (int) ($params['folder_id'] ?? 0);
+        $folderId = isset($params['folder_id']) ? absint($params['folder_id']) : 0;
 
         if (!$folderId) {
             return $this->response([
