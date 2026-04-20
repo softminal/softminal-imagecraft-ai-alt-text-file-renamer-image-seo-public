@@ -56,6 +56,7 @@ class Settings
         'icais_integration_woocommerce' => '1',
         'icais_integration_wpml' => '0',
         'icais_integration_polylang' => '0',
+        'icais_integration_filebird' => '1',
     ];
 
     /**

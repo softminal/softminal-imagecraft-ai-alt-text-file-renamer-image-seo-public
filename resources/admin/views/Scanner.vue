@@ -159,6 +159,29 @@
           </button>
         </div>
 
+        <div v-if="fileBirdFolders.length > 0" class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-end gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Folder') }}</label>
+            <select
+              v-model="selectedFolderId"
+              class="min-w-56 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+              @change="handleFolderChange"
+            >
+              <option value="0">{{ $t('All folders') }}</option>
+              <option
+                v-for="folder in fileBirdFolders"
+                :key="folder.id"
+                :value="String(folder.id)"
+              >
+                {{ folder.name }} ({{ folder.count }})
+              </option>
+            </select>
+          </div>
+          <p v-if="activeFolderName" class="text-sm text-gray-500">
+            {{ $t('Showing images from %s', activeFolderName) }}
+          </p>
+        </div>
+
         <!-- Advanced Filters (smooth expand) -->
         <div
           class="grid transition-all duration-300 ease-in-out"
@@ -380,6 +403,8 @@ const perPage = ref(20)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
+const fileBirdFolders = ref([])
+const selectedFolderId = ref('0')
 const autoRename = window.icais?.autoRename === '1' || window.icais?.autoRename === 1
 
 // Sync filters to URL query params
@@ -389,6 +414,7 @@ const syncFiltersToUrl = () => {
   if (dateFrom.value) query.date_from = dateFrom.value
   if (dateTo.value) query.date_to = dateTo.value
   if (minSize.value > 0) query.min_size = String(minSize.value)
+  if (selectedFolderId.value !== '0') query.folder_id = selectedFolderId.value
   if (perPage.value !== 20) query.per_page = String(perPage.value)
   router.replace({ query }).catch(() => {})
 }
@@ -401,6 +427,7 @@ const restoreFiltersFromUrl = () => {
   if (q.date_from) dateFrom.value = q.date_from
   if (q.date_to) dateTo.value = q.date_to
   if (q.min_size) minSize.value = Number(q.min_size) || 0
+  if (q.folder_id) selectedFolderId.value = String(q.folder_id)
   if (q.per_page) perPage.value = Number(q.per_page) || 20
   if (q.date_from || q.date_to || q.min_size) showAdvancedFilters.value = true
 }
@@ -410,6 +437,11 @@ let loadAbortController = null
 
 const hasAdvancedFilters = computed(() => {
   return Boolean(dateFrom.value || dateTo.value || minSize.value > 0)
+})
+
+const activeFolderName = computed(() => {
+  const match = fileBirdFolders.value.find(folder => String(folder.id) === selectedFolderId.value)
+  return match ? match.name : ''
 })
 
 const allSelected = computed(() => {
@@ -425,6 +457,7 @@ const buildFilterParams = () => {
   if (dateFrom.value) params += `&date_from=${dateFrom.value}`
   if (dateTo.value) params += `&date_to=${dateTo.value}`
   if (minSize.value > 0) params += `&min_size=${minSize.value}`
+  if (selectedFolderId.value !== '0') params += `&folder_id=${selectedFolderId.value}`
   return params
 }
 
@@ -507,7 +540,7 @@ const selectAllPages = async () => {
       bulkSelectCount.value = ids.length
       notification.success($t('%s images selected', ids.length))
     }
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to select images'))
   } finally {
     bulkSelecting.value = false
@@ -519,8 +552,30 @@ const buildSelectParams = (filterOverride, quality) => {
   if (dateFrom.value) params += `&date_from=${dateFrom.value}`
   if (dateTo.value) params += `&date_to=${dateTo.value}`
   if (minSize.value > 0) params += `&min_size=${minSize.value}`
+  if (selectedFolderId.value !== '0') params += `&folder_id=${selectedFolderId.value}`
   if (quality) params += `&quality=${quality}`
   return params
+}
+
+const handleFolderChange = () => {
+  allPagesSelected.value = false
+  selectedImages.value = []
+  bulkSelectCount.value = null
+  loadImages()
+}
+
+const loadFileBirdFolders = async () => {
+  try {
+    const result = await Api.getFileBirdFolders()
+    if (result.success) {
+      fileBirdFolders.value = result.folders || []
+      if (selectedFolderId.value !== '0' && !fileBirdFolders.value.some(folder => String(folder.id) === selectedFolderId.value)) {
+        selectedFolderId.value = '0'
+      }
+    }
+  } catch {
+    fileBirdFolders.value = []
+  }
 }
 
 const bulkSelect = async (quality) => {
@@ -547,7 +602,7 @@ const bulkSelect = async (quality) => {
         notification.success($t('%s images selected', ids.length))
       }
     }
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to select images'))
   } finally {
     bulkSelecting.value = false
@@ -652,15 +707,16 @@ const renameFile = async (imageId) => {
     } else {
       notification.error(result.message || $t('Failed to rename file'))
     }
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to rename file'))
   } finally {
     renamingId.value = null
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   restoreFiltersFromUrl()
+  await loadFileBirdFolders()
   loadImages()
 
   // Check for interrupted batch job (non-blocking)

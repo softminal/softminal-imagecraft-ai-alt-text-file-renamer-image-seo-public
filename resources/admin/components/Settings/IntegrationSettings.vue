@@ -56,15 +56,10 @@
               </svg>
             </router-link>
 
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                class="sr-only peer"
-                :checked="isEnabled(item.key)"
-                @change="toggleIntegration(item.key, $event.target.checked)"
-              />
-              <div class="w-9 h-5 bg-gray-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-            </label>
+            <Switch
+              :model-value="isEnabled(item.key)"
+              @update:model-value="toggleIntegration(item.key, $event)"
+            />
           </template>
         </div>
 
@@ -81,6 +76,7 @@ import { ref, computed, inject } from 'vue'
 import Api from '../../services/Api'
 import { notification } from '../../plugins/notification'
 import { $t } from '../../utils/i18n'
+import { Switch } from '../../@ui'
 
 const { settings, integrations } = inject('settingsContext')
 
@@ -103,6 +99,7 @@ const filters = [
   { label: 'All', value: 'all' },
   { label: 'Block', value: 'block' },
   { label: 'SEO', value: 'seo' },
+  { label: 'Media', value: 'media' },
   { label: 'Ecommerce', value: 'ecommerce' },
   { label: 'Multilingual', value: 'multilingual' },
 ]
@@ -139,6 +136,7 @@ const logos = {
   aioseo: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#005AE0"/><path d="M16 7l7 4.5v9L16 25l-7-4.5v-9L16 7z" stroke="#fff" stroke-width="2" fill="none"/><circle cx="16" cy="16" r="3" fill="#fff"/></svg>',
   seopress: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#08759b"/><text x="16" y="22" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="12" fill="#fff">SEO</text></svg>',
   woocommerce: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#7f54b3"/><path d="M6 10c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2h-5l-3 4-3-4H8c-1.1 0-2-.9-2-2v-8z" fill="#fff"/><circle cx="12" cy="14" r="1.5" fill="#7f54b3"/><circle cx="16" cy="14" r="1.5" fill="#7f54b3"/><circle cx="20" cy="14" r="1.5" fill="#7f54b3"/></svg>',
+  filebird: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#1f7a5b"/><path d="M8 10h7l2 2h7v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10z" fill="#fff" opacity=".95"/><path d="M8 12h16" stroke="#1f7a5b" stroke-width="2"/><circle cx="21" cy="18" r="2.5" fill="#1f7a5b"/></svg>',
   wpml: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#2d3b69"/><circle cx="16" cy="16" r="8" stroke="#fff" stroke-width="2" fill="none"/><path d="M8 16h16M16 8c-2.2 2.7-3.5 5.2-3.5 8s1.3 5.3 3.5 8c2.2-2.7 3.5-5.2 3.5-8s-1.3-5.3-3.5-8z" stroke="#fff" stroke-width="1.5" fill="none"/></svg>',
   polylang: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="6" fill="#24831d"/><path d="M8 12h6v10H8z" fill="#fff" opacity=".9"/><path d="M18 8h6v14h-6z" fill="#fff" opacity=".6"/><path d="M13 15h6v7h-6z" fill="#fff" opacity=".75"/></svg>',
 }

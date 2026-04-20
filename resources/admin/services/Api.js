@@ -36,7 +36,7 @@ class Api {
                     try {
                         errorData = await response.json()
                         errorMessage = errorData.message || errorData.error || errorMessage
-                    } catch (e) {
+                    } catch {
                         // If JSON parsing fails, use default message
                     }
                 }
@@ -60,7 +60,7 @@ class Api {
                 if (jsonMatch) {
                     try {
                         data = JSON.parse(jsonMatch[0])
-                    } catch (e) {
+                    } catch {
                         throw new Error(`Expected JSON response but received: ${contentType || 'unknown'}`)
                     }
                 }
@@ -103,6 +103,17 @@ class Api {
         return this.request(endpoint, {
             method: 'DELETE'
         })
+    }
+
+    /**
+     * FileBird integration endpoints
+     */
+    async getFileBirdFolders() {
+        return this.get('/filebird/folders')
+    }
+
+    async getAttachmentsByFolder(folderId) {
+        return this.post('/filebird/folder/attachments', { folder_id: folderId })
     }
 }
 

@@ -4,6 +4,7 @@ namespace Softminal\ImageCraft\Http;
 
 use Softminal\ImageCraft\AdminNotice;
 use Softminal\ImageCraft\Http\Controllers\BatchController;
+use Softminal\ImageCraft\Http\Controllers\FileBirdController;
 use Softminal\ImageCraft\Http\Controllers\FileRenamerController;
 use Softminal\ImageCraft\Http\Controllers\GeneratorController;
 use Softminal\ImageCraft\Http\Controllers\ScannerController;
@@ -79,4 +80,10 @@ Route::prefix('woocommerce')->capability('manage_woocommerce')->group(function (
     Route::post('/generate', [WooCommerceController::class, 'generate']);
     Route::post('/generate-gallery', [WooCommerceController::class, 'generateGallery']);
     Route::get('/gallery', [WooCommerceController::class, 'getGallery']);
+});
+
+// FileBird routes
+Route::prefix('filebird')->capability('upload_files')->group(function () {
+    Route::get('/folders', [FileBirdController::class, 'getFolders']);
+    Route::post('/folder/attachments', [FileBirdController::class, 'getAttachments']);
 });

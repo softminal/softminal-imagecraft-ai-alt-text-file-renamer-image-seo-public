@@ -2,6 +2,7 @@
 
 namespace Softminal\ImageCraft\Http\Controllers;
 
+use Softminal\ImageCraft\Services\FileBird;
 use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
@@ -11,6 +12,14 @@ if (!defined('ABSPATH')) {
 class ScannerController extends Controller
 {
     /**
+     * Parse the requested FileBird folder ID from request params.
+     */
+    private function getFolderId(array $params): int
+    {
+        return max(0, (int) ($params['folder_id'] ?? 0));
+    }
+
+    /**
      * Build base WP_Query args with filter and date range
      */
     private function buildQueryArgs(array $params, array $overrides = []): array
@@ -18,6 +27,7 @@ class ScannerController extends Controller
         $filter = sanitize_text_field($params['filter'] ?? 'all');
         $dateFrom = sanitize_text_field($params['date_from'] ?? '');
         $dateTo = sanitize_text_field($params['date_to'] ?? '');
+        $folderId = $this->getFolderId($params);
 
         $args = array_merge([
             'post_type' => 'attachment',
@@ -66,7 +76,61 @@ class ScannerController extends Controller
             $args['date_query'] = [$dateQuery];
         }
 
+        if ($folderId > 0) {
+            $attachmentIds = FileBird::getAttachmentIdsByFolder($folderId);
+            if (!empty($attachmentIds)) {
+                $args['post__in'] = $attachmentIds;
+            } else {
+                $args['post__in'] = [0];
+            }
+        }
+
         return $args;
+    }
+
+    /**
+     * Compute scanner stats for a specific FileBird folder.
+     */
+    private function getFolderImageCounts(int $folderId): array
+    {
+        if ($folderId <= 0) {
+            return AltTextHelper::getImageCounts();
+        }
+
+        $ids = FileBird::getAttachmentIdsByFolder($folderId);
+        if (empty($ids)) {
+            return [
+                'total' => 0,
+                'missing' => 0,
+                'has_title' => 0,
+                'missing_title' => 0,
+            ];
+        }
+
+        update_meta_cache('post', $ids);
+
+        $missing = 0;
+        $hasTitle = 0;
+
+        foreach ($ids as $id) {
+            $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
+            $title = get_post_meta($id, '_icais_generated_title', true);
+            if ($alt === '') {
+                $missing++;
+            }
+            if ($title !== '') {
+                $hasTitle++;
+            }
+        }
+
+        $total = count($ids);
+
+        return [
+            'total' => $total,
+            'missing' => $missing,
+            'has_title' => $hasTitle,
+            'missing_title' => $total - $hasTitle,
+        ];
     }
 
     /**
@@ -75,6 +139,7 @@ class ScannerController extends Controller
     public function scan($request)
     {
         $params = $request->get_params();
+        $folderId = $this->getFolderId($params);
         $page = max(1, (int) ($params['page'] ?? 1));
         $perPage = min(max(1, (int) ($params['per_page'] ?? 50)), 100);
         $minSize = (int) ($params['min_size'] ?? 0);
@@ -175,7 +240,8 @@ class ScannerController extends Controller
                     'alt_text' => $alt ?: '',
                     'has_alt' => !empty($alt),
                     'generated_title' => $generatedTitle ?: '',
-                    'date' => $post->post_date
+                    'date' => $post->post_date,
+                    'folder_id' => $folderId,
                 ];
             }
 
@@ -215,7 +281,8 @@ class ScannerController extends Controller
                     'alt_text' => $alt ?: '',
                     'has_alt' => !empty($alt),
                     'generated_title' => $generatedTitle ?: '',
-                    'date' => $post->post_date
+                    'date' => $post->post_date,
+                    'folder_id' => $folderId,
                 ];
             }
 
@@ -227,7 +294,7 @@ class ScannerController extends Controller
             ];
         }
 
-        $imageCounts = AltTextHelper::getImageCounts();
+        $imageCounts = $folderId > 0 ? $this->getFolderImageCounts($folderId) : AltTextHelper::getImageCounts();
         $totalImages = $imageCounts['total'];
         $missingAlt = $imageCounts['missing'];
         $hasAlt = $totalImages - $missingAlt;

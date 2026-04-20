@@ -5,6 +5,7 @@ namespace Softminal\ImageCraft\Http\Controllers;
 use Softminal\ImageCraft\Models\BatchJob;
 use Softminal\ImageCraft\Models\History;
 use Softminal\ImageCraft\Services\AI\AIFactory;
+use Softminal\ImageCraft\Services\FileBird;
 use Softminal\ImageCraft\Services\SeoIntegration;
 use Softminal\ImageCraft\Services\Settings;
 use Softminal\ImageCraft\Services\UsageLimiter;
@@ -330,6 +331,12 @@ class BatchController extends Controller
 
                 try {
                     $context = SeoIntegration::buildSeoContext((int) $attachmentId);
+                    if (Settings::get('icais_integration_filebird', '1') === '1') {
+                        $folderContext = FileBird::buildFolderContext((int) $attachmentId);
+                        if ($folderContext !== null) {
+                            $context = $context !== null ? $context . ' | ' . $folderContext : $folderContext;
+                        }
+                    }
                     $result = $generator->generateAltText((int) $attachmentId, $tone, $userId, $context, true);
 
                     if ($result['success'] ?? false) {

@@ -4,6 +4,7 @@ namespace Softminal\ImageCraft\Http\Controllers;
 
 use Softminal\ImageCraft\Models\History;
 use Softminal\ImageCraft\Services\AI\AIFactory;
+use Softminal\ImageCraft\Services\FileBird;
 use Softminal\ImageCraft\Services\Settings;
 use Softminal\ImageCraft\Services\StatsTracker;
 use Softminal\ImageCraft\Services\SeoIntegration;
@@ -66,6 +67,14 @@ class GeneratorController extends Controller
         $seoContext = SeoIntegration::buildSeoContext($attachmentId, $postId);
         if ($seoContext !== null) {
             $context = $context !== null ? $context . ' | ' . $seoContext : $seoContext;
+        }
+
+        // Append FileBird folder context if available and integration is enabled
+        if (Settings::get('icais_integration_filebird', '1') === '1') {
+            $folderContext = FileBird::buildFolderContext($attachmentId);
+            if ($folderContext !== null) {
+                $context = $context !== null ? $context . ' | ' . $folderContext : $folderContext;
+            }
         }
 
         // Title-only generation mode (called from media modal "Generate Title" button)
