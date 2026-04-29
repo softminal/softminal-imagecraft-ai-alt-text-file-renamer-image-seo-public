@@ -1,4 +1,4 @@
-# ImageCraft – AI Alt Text, File Renamer & Image SEO
+# ImageCraft Alt Text, File Renaming and Image SEO
 
 A WordPress plugin that generates AI-powered alt text for images using your own API key from Anthropic Claude, OpenAI GPT-4, or Google Gemini.
 

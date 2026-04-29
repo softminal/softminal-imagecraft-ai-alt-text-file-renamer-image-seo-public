@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Plugin Name:       AI Image Alt Text Generator & Image SEO – ImageCraft
+ * Plugin Name:       ImageCraft Alt Text, File Renaming and Image SEO
  * Plugin URI:        https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo
  * Description:       Generate AI-powered alt text, rename files for SEO, and audit image accessibility using your own Anthropic, OpenAI, or Gemini API key.
- * Version:           1.3.4
+ * Version:           1.3.5
  * Author:            Softminal
  * Author URI:        https://softminal.com
  * License:           GPL-2.0+
@@ -36,4 +36,3 @@ function icais_init() {
     $app->run();
 }
 add_action('plugins_loaded', 'icais_init');
-

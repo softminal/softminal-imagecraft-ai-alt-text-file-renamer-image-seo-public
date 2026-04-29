@@ -1,18 +1,18 @@
-=== AI Image Alt Text Generator & Image SEO – ImageCraft ===
+=== ImageCraft Alt Text, File Renaming and Image SEO ===
 Contributors: softminal, diptosoftminal
 Tags: ai alt text, image alt text generator, image seo, alt text generator, accessibility
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.3.4
+Stable tag: 1.3.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI-powered image alt text generator, file renamer & image SEO. Use OpenAI, Claude, or Gemini with your own API key (BYOK).
+AI-powered alt text, file renaming, and image SEO for WordPress. Use OpenAI, Claude, or Gemini with your own API key (BYOK).
 
 == Description ==
 
-ImageCraft is an AI Image Alt Text Generator for WordPress that automatically creates SEO-optimized alt text for your images. Improve accessibility, boost image SEO, and rename image files using OpenAI, Claude, or Gemini — all with your own API key and no subscription fees.
+ImageCraft helps you generate SEO-optimized alt text, rename image files, and improve image accessibility in WordPress using OpenAI, Claude, or Gemini with your own API key.
 
 Generate SEO-friendly alt text for hundreds of images in minutes instead of hours.
 
@@ -32,7 +32,7 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 
 = Key Features =
 
-* **3 AI providers, 15+ models** — Choose from Anthropic Claude (Haiku, Sonnet, Opus), OpenAI (GPT-4o, GPT-4.1, GPT-5), and Google Gemini (Flash, Pro). Switch providers and models anytime.
+* **3 AI providers, 17+ models** — Choose from Anthropic Claude, OpenAI, and Google Gemini models. Switch providers and models anytime.
 * **Gutenberg, Kadence, Spectra & Media Modal integration** — Generate alt text with one click from the block editor sidebar, **Kadence** image block, **Spectra** image block, or WordPress media modal. Preview, accept, or reject without leaving the editor.
 * **Spectra Block support** — Full integration with **Spectra** image block: generate alt text and title directly from the block inspector sidebar.
 * **Kadence Blocks support** — Full integration with **Kadence** image block: generate alt text, title attribute, and link title directly from the block inspector sidebar.
@@ -46,7 +46,7 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 
 = All Features =
 
-* 3 AI providers with 15+ model options
+* 3 AI providers with 17+ model options
 * Generate from **Gutenberg** editor, **Kadence** blocks, **Spectra** blocks, and WordPress media modal
 * **Kadence** image block integration — alt text, title attribute, and link title generation
 * **Spectra** image block integration — alt text and title generation
@@ -118,7 +118,7 @@ You pay only for API usage directly to your chosen provider. Since ImageCraft us
 = ImageCraft vs Other Plugins =
 
 * **vs subscription plugins** — No monthly fees. Pay per use at direct API rates with zero markup.
-* **vs single-provider plugins** — 3 providers, 15+ models. Switch anytime without losing data or reconfiguring.
+* **vs single-provider plugins** — 3 providers, 17+ models. Switch anytime without losing data or reconfiguring.
 * **vs alt-text-only plugins** — ImageCraft also renames files for SEO, runs an SEO audit, and integrates with your SEO plugin's focus keyphrase.
 
 = Privacy & Security =
@@ -142,7 +142,7 @@ Used to generate alt text via the Claude vision API.
 * [Terms of Service](https://www.anthropic.com/legal/consumer-terms)
 * [Privacy Policy](https://www.anthropic.com/legal/privacy)
 
-= OpenAI (GPT-4) =
+= OpenAI =
 
 Used to generate alt text via the OpenAI chat completions API.
 
@@ -181,11 +181,11 @@ ImageCraft uses a Bring Your Own Key model — you pay only for API usage direct
 
 = Which AI provider should I choose? =
 
-**Anthropic Claude Haiku** offers the best balance of quality and cost for most sites. **Google Gemini Flash** is the cheapest option. **OpenAI GPT-4o** produces excellent results at a higher cost. You can test each provider with the built-in connection test and switch anytime.
+**Anthropic Claude Haiku** offers the best balance of quality and cost for most sites. **Google Gemini Flash** is a strong lower-cost option. **OpenAI GPT-4o** produces excellent results. You can test each provider with the built-in connection test and switch anytime.
 
 = How many AI models can I choose from? =
 
-ImageCraft supports 15+ models across 3 providers. You can select the specific model per provider (e.g., Claude Haiku for cost-efficiency or Claude Opus for maximum quality).
+ImageCraft supports 17+ models across 3 providers. You can select the specific model per provider depending on your preferred balance of cost and quality.
 
 = Does it work with WooCommerce? =
 
@@ -254,6 +254,12 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 7. Kadence Blocks - Generate alt text, title attribute, and link title for Kadence image blocks from the inspector sidebar
 
 == Changelog ==
+
+= 1.3.5 (29 Apr, 2026) =
+* Fix: Removed inline admin notice JavaScript in favor of WordPress script APIs
+* Fix: Improved WordPress 5.8 compatibility
+* Fix: Removed admin notice suppression on the plugin screen
+* Fix: Restricted settings to supported AI providers only
 
 = 1.3.4 (20 Apr, 2026) =
 * New: **FileBird** integration for scanner folder filtering
@@ -367,6 +373,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.3.5 =
+Improves WordPress.org compliance and release stability with cleaner script loading, better WordPress 5.8 compatibility, and tighter provider validation.
 
 = 1.3.4 =
 Adds FileBird integration for folder-based scanner filtering, more specific AI prompt context, and a new integration toggle in settings.

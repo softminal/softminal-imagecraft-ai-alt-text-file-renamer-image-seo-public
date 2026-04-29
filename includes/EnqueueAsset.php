@@ -106,12 +106,31 @@ class EnqueueAsset {
             return self::$manifest;
         }
 
-        self::$manifest = wp_json_file_decode(ICAIS_DIR . 'assets/.vite/manifest.json', ['associative' => true]);
+        self::$manifest = self::readManifestFile(ICAIS_DIR . 'assets/.vite/manifest.json');
         if (empty(self::$manifest)) {
-            self::$manifest = wp_json_file_decode(ICAIS_DIR . 'assets/manifest.json', ['associative' => true]);
+            self::$manifest = self::readManifestFile(ICAIS_DIR . 'assets/manifest.json');
         }
 
         return self::$manifest ?: null;
+    }
+
+    /**
+     * Read and decode a Vite manifest JSON file in a WP 5.8-compatible way.
+     */
+    private static function readManifestFile(string $path): ?array {
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_exists -- Manifest lookup runs before WP_Filesystem is needed
+        if (!file_exists($path)) {
+            return null;
+        }
+
+        $contents = file_get_contents($path);
+        if ($contents === false || $contents === '') {
+            return null;
+        }
+
+        $decoded = json_decode($contents, true);
+
+        return is_array($decoded) ? $decoded : null;
     }
 
     /**

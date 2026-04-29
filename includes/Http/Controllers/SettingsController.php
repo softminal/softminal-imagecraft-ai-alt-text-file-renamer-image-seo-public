@@ -227,7 +227,7 @@ class SettingsController extends Controller
             ], 400);
         }
         
-        if (!in_array($provider, ['anthropic', 'openai', 'gemini', 'mistral', 'openrouter'])) {
+        if (!in_array($provider, ['anthropic', 'openai', 'gemini'], true)) {
             return $this->response([
                 'success' => false,
                 'message' => __('Invalid provider', 'imagecraft-ai-alt-text-file-renamer-image-seo')

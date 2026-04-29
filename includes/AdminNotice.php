@@ -52,6 +52,7 @@ class AdminNotice
         $reviewUrl = 'https://wordpress.org/support/plugin/imagecraft-ai-alt-text-file-renamer-image-seo/reviews/#new-post';
         $dismissUrl = esc_url(rest_url(ICAIS_API_NAMESPACE . '/notice/dismiss'));
         $nonce = wp_create_nonce('wp_rest');
+        self::enqueueReviewNoticeScript($dismissUrl, $nonce);
         ?>
         <div class="notice notice-info is-dismissible icais-review-notice">
             <p>
@@ -67,25 +68,44 @@ class AdminNotice
                 </a>
             </p>
         </div>
-        <script>
-            (function() {
-                document.querySelector('.icais-dismiss-review').addEventListener('click', function(e) {
+        <?php
+    }
+
+    private static function enqueueReviewNoticeScript(string $dismissUrl, string $nonce): void
+    {
+        $handle = 'jquery-core';
+
+        wp_enqueue_script($handle);
+
+        $script = sprintf(
+            "(function() {
+                var dismissLink = document.querySelector('.icais-dismiss-review');
+                if (!dismissLink) {
+                    return;
+                }
+
+                dismissLink.addEventListener('click', function(e) {
                     e.preventDefault();
+
                     var notice = document.querySelector('.icais-review-notice');
-                    fetch('<?php echo esc_js($dismissUrl); ?>', {
+                    fetch('%s', {
                         method: 'POST',
                         headers: {
-                            'X-WP-Nonce': '<?php echo esc_js($nonce); ?>',
+                            'X-WP-Nonce': '%s',
                             'Content-Type': 'application/json'
                         }
                     });
+
                     if (notice) {
                         notice.style.display = 'none';
                     }
                 });
-            })();
-        </script>
-        <?php
+            })();",
+            esc_js($dismissUrl),
+            esc_js($nonce)
+        );
+
+        wp_add_inline_script($handle, $script);
     }
 
     public static function dismiss(): \WP_REST_Response
