@@ -111,10 +111,6 @@ class Api {
     async getFileBirdFolders() {
         return this.get('/filebird/folders')
     }
-
-    async getAttachmentsByFolder(folderId) {
-        return this.post('/filebird/folder/attachments', { folder_id: folderId })
-    }
 }
 
 export default new Api()

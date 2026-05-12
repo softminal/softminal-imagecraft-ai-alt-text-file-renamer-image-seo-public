@@ -159,23 +159,36 @@
           </button>
         </div>
 
-        <div v-if="fileBirdFolders.length > 0" class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-end gap-4">
-          <div>
+        <div v-if="folderTree.length > 0" class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-end gap-4">
+          <div class="relative" ref="folderDropdownRef">
             <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('FileBird Folder') }}</label>
-            <select
-              v-model="selectedFolderId"
-              class="min-w-56 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
-              @change="handleFolderChange"
+            <button
+              type="button"
+              class="min-w-56 flex items-center justify-between gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 text-left"
+              @click="folderDropdownOpen = !folderDropdownOpen"
             >
-              <option value="0">{{ $t('All folders') }}</option>
-              <option
-                v-for="folder in fileBirdFolders"
-                :key="folder.id"
-                :value="String(folder.id)"
+              <span class="truncate">{{ activeFolderName || $t('All folders') }}</span>
+              <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform" :class="{ 'rotate-180': folderDropdownOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div
+              v-if="folderDropdownOpen"
+              class="absolute z-50 mt-1 min-w-56 bg-white border border-gray-100 rounded-lg shadow-sm py-1"
+            >
+              <button
+                type="button"
+                class="w-full text-left px-3 py-1.5 text-sm hover:bg-gray-50"
+                :class="{ 'bg-blue-50 text-blue-700 font-medium': selectedFolderId === '0' }"
+                @click="selectFolder('0')"
               >
-                {{ folder.name }} ({{ folder.count }})
-              </option>
-            </select>
+                {{ $t('All folders') }}
+              </button>
+              <FolderCascadeMenu
+                :folders="folderTree"
+                @select="selectFolder(String($event))"
+              />
+            </div>
           </div>
           <p v-if="activeFolderName" class="text-sm text-gray-500">
             {{ $t('Showing images from') }} <span class="font-bold text-gray-900">{{ activeFolderName }}</span>
@@ -383,6 +396,7 @@ import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 import { debounce } from '../utils/debounce'
 import ImageCard from '../components/Scanner/ImageCard.vue'
+import FolderCascadeMenu from '../components/Scanner/FolderCascadeMenu.vue'
 import { Pagination } from '../@ui'
 
 const router = useRouter()
@@ -405,6 +419,8 @@ const bulkSelectCount = ref(null)
 const allPagesSelected = ref(false)
 const fileBirdFolders = ref([])
 const selectedFolderId = ref('0')
+const folderDropdownOpen = ref(false)
+const folderDropdownRef = ref(null)
 const autoRename = window.icais?.autoRename === '1' || window.icais?.autoRename === 1
 
 // Sync filters to URL query params
@@ -437,6 +453,25 @@ let loadAbortController = null
 
 const hasAdvancedFilters = computed(() => {
   return Boolean(dateFrom.value || dateTo.value || minSize.value > 0)
+})
+
+const folderTree = computed(() => {
+  const folders = fileBirdFolders.value
+  if (!folders.length) return []
+
+  const map = {}
+  folders.forEach(f => { map[f.id] = { ...f, children: [] } })
+
+  const roots = []
+  folders.forEach(f => {
+    if (f.parent_id && map[f.parent_id]) {
+      map[f.parent_id].children.push(map[f.id])
+    } else {
+      roots.push(map[f.id])
+    }
+  })
+
+  return roots
 })
 
 const activeFolderName = computed(() => {
@@ -557,11 +592,19 @@ const buildSelectParams = (filterOverride, quality) => {
   return params
 }
 
-const handleFolderChange = () => {
+const selectFolder = (id) => {
+  selectedFolderId.value = id
+  folderDropdownOpen.value = false
   allPagesSelected.value = false
   selectedImages.value = []
   bulkSelectCount.value = null
   loadImages()
+}
+
+const onClickOutsideFolderDropdown = (e) => {
+  if (folderDropdownRef.value && !folderDropdownRef.value.contains(e.target)) {
+    folderDropdownOpen.value = false
+  }
 }
 
 const loadFileBirdFolders = async () => {
@@ -718,6 +761,7 @@ onMounted(async () => {
   restoreFiltersFromUrl()
   await loadFileBirdFolders()
   loadImages()
+  document.addEventListener('click', onClickOutsideFolderDropdown)
 
   // Check for interrupted batch job (non-blocking)
   // Only show banner if job is interrupted (no heartbeat), not if actively running
@@ -732,5 +776,6 @@ onUnmounted(() => {
   if (loadAbortController) {
     loadAbortController.abort()
   }
+  document.removeEventListener('click', onClickOutsideFolderDropdown)
 })
 </script>

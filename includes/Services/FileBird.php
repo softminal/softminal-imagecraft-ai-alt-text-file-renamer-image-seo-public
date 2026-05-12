@@ -233,7 +233,7 @@ class FileBird
         $imageMimeLike = 'image/%';
         // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
         $sql = sprintf(
-            'SELECT fbv.id, fbv.name, fbv.ord, COUNT(posts.ID) AS folder_count
+            'SELECT fbv.id, fbv.name, fbv.ord, fbv.parent, COUNT(posts.ID) AS folder_count
              FROM `%s` AS fbv
              LEFT JOIN `%s` AS fbva ON fbv.id = fbva.folder_id
              LEFT JOIN %s AS posts
@@ -242,8 +242,7 @@ class FileBird
                 AND posts.post_status = \'inherit\'
                 AND posts.post_mime_type LIKE %%s
              WHERE fbv.created_by = %%d
-             GROUP BY fbv.id, fbv.name, fbv.ord
-             HAVING folder_count > 0
+             GROUP BY fbv.id, fbv.name, fbv.ord, fbv.parent
              ORDER BY fbv.ord ASC, fbv.name ASC',
             $folderTable,
             $relationTable,
@@ -259,10 +258,11 @@ class FileBird
         $folders = [];
         foreach ($rows as $row) {
             $folders[] = [
-                'id' => (int) $row->id,
-                'name' => sanitize_text_field($row->name),
-                'slug' => sanitize_title($row->name),
-                'count' => (int) $row->folder_count,
+                'id'        => (int) $row->id,
+                'name'      => sanitize_text_field($row->name),
+                'slug'      => sanitize_title($row->name),
+                'parent_id' => (int) $row->parent,
+                'count'     => (int) $row->folder_count,
             ];
         }
 

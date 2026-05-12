@@ -12,7 +12,7 @@
                     v-for="(item, index) in menuItems"
                     :key="index"
                     :to="item.path"
-                    class="nav-link px-4 py-2 text-sm outline-hidden focus:shadow-none font-medium text-gray-700 rounded-lg hover:bg-blue-100 transition-colors"
+                    class="nav-link px-4 py-2 text-sm outline-hidden focus:shadow-none focus:ring-0 focus:border-transparent font-medium text-gray-700 rounded-lg hover:bg-blue-100 transition-colors"
                     :class="{ 'bg-blue-100 text-blue-700': isActive(item.path) }"
                 >
                     <span v-if="item.icon" class="mr-1">{{ item.icon }}</span>
@@ -79,5 +79,16 @@ a {
 
 a:hover {
     text-decoration: none;
+}
+
+.nav-link {
+    color: #6b7280;
+}
+
+.nav-link:focus,
+.nav-link:active {
+    outline: none;
+    box-shadow: none;
+    border-color: transparent;
 }
 </style>

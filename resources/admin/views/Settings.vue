@@ -263,3 +263,24 @@ onMounted(() => {
   loadSettings()
 })
 </script>
+
+<style scoped>
+nav a {
+    text-decoration: none;
+    color: #6b7280;
+}
+
+nav a.text-blue-700 {
+    color: #1d4ed8;
+}
+
+nav a:hover {
+    text-decoration: none;
+}
+
+nav a:focus,
+nav a:active {
+    outline: none;
+    box-shadow: none;
+}
+</style>
