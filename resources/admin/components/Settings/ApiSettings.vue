@@ -4,6 +4,53 @@
     <p class="text-sm text-gray-500 mb-4">{{ $t('Connect your AI provider to start generating alt text and titles.') }}</p>
     <hr class="mb-6" />
 
+    <!-- WordPress 7.0 AI Client — only shown when WP7 + a configured connector is detected -->
+    <div v-if="wp7Available" class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1">
+          <p class="font-semibold text-blue-900">{{ $t('WordPress AI Client detected') }}</p>
+          <p class="mt-1 text-sm text-blue-700">
+            {{ $t('Your site has a WordPress AI connector configured. You can use it instead of entering your own API key — no key storage needed.') }}
+          </p>
+        </div>
+        <label class="flex shrink-0 cursor-pointer items-center gap-2 pt-0.5">
+          <input
+            type="checkbox"
+            class="rounded accent-blue-600"
+            :checked="settings.icais_use_wp7_ai === '1'"
+            @change="settings.icais_use_wp7_ai = $event.target.checked ? '1' : '0'"
+          />
+          <span class="text-sm font-medium text-blue-900 whitespace-nowrap">{{ $t('Use WordPress AI Client') }}</span>
+        </label>
+      </div>
+
+      <!-- Active state: test button + status -->
+      <div v-if="settings.icais_use_wp7_ai === '1'" class="mt-3 flex items-center gap-3">
+        <button
+          @click="testWP7Connection"
+          :disabled="testing"
+          class="rounded-lg bg-white border border-blue-300 px-4 py-2 text-sm text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+        >
+          {{ testing ? $t('Testing...') : $t('Test Connection') }}
+        </button>
+        <span class="text-xs text-blue-600">
+          {{ $t('Save settings after enabling to apply.') }}
+        </span>
+      </div>
+
+      <!-- Shared test result (reused below too) -->
+      <div v-if="settings.icais_use_wp7_ai === '1' && testResult" class="mt-2">
+        <div v-if="testResult.success" class="rounded bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-800">
+          {{ $t('WordPress AI Client is ready.') }}
+        </div>
+        <div v-else class="rounded bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-800">
+          {{ testResult.error || testResult.message }}
+        </div>
+      </div>
+    </div>
+
+    <!-- BYOK form — hidden when WordPress AI Client is active -->
+    <div v-if="settings.icais_use_wp7_ai !== '1'">
     <div class="mb-4">
       <label class="block text-sm font-medium mb-2">{{ $t('Provider') }}</label>
       <select
@@ -131,6 +178,8 @@
       </div>
     </div>
 
+    </div><!-- end BYOK form -->
+
     <!-- Current status -->
     <div v-if="apiSetting" class="mt-4 pt-4 border-t text-sm text-gray-600 space-y-1">
       <div class="flex items-center gap-2">
@@ -148,7 +197,7 @@
 import { ref, inject, watch } from 'vue'
 import { $t } from '../../utils/i18n'
 
-const { settings, apiKey, apiSetting, configApiKey, testing, testResult, currentModels, modelSettingKey, showModelSelector, apiDocsUrl, apiDocsLabel, pricingUrl, testConnection, saveApiKey } = inject('settingsContext')
+const { settings, apiKey, apiSetting, configApiKey, testing, testResult, currentModels, modelSettingKey, showModelSelector, apiDocsUrl, apiDocsLabel, pricingUrl, testConnection, testWP7Connection, saveApiKey, wp7Available } = inject('settingsContext')
 
 const activeTab = ref(configApiKey.value ? 'config' : 'database')
 

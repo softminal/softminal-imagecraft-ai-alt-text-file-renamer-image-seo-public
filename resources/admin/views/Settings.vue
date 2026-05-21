@@ -80,6 +80,7 @@ const availablePostTypes = ref({})
 const excludedPostTypes = ref([])
 const configApiKey = ref(false)
 const integrations = ref([])
+const wp7Available = ref(false)
 
 const sortedLanguages = computed(() => {
   const entries = Object.entries(availableLanguages.value)
@@ -135,6 +136,7 @@ const loadSettings = async () => {
       woocommerceInstalled.value = result.woo_active || false
       configApiKey.value = result.config_api_key || false
       integrations.value = result.integrations || []
+      wp7Available.value = result.wp7_available || false
 
       try {
         const parsed = JSON.parse(result.settings.icais_excluded_post_types || '[]')
@@ -234,6 +236,25 @@ const testConnection = async () => {
   }
 }
 
+const testWP7Connection = async () => {
+  testing.value = true
+  testResult.value = null
+  try {
+    const result = await Api.post('/settings/test-api', { provider: 'wp7' })
+    testResult.value = result
+    if (result.success) {
+      notification.success($t('WordPress AI Client is ready!'))
+    } else {
+      notification.error(result.error || result.message || $t('WordPress AI Client is not available'))
+    }
+  } catch (error) {
+    testResult.value = { success: false, error: error.message }
+    notification.error($t('Failed to test WordPress AI Client'))
+  } finally {
+    testing.value = false
+  }
+}
+
 // Provide shared state to child route components
 provide('settingsContext', {
   settings,
@@ -254,9 +275,11 @@ provide('settingsContext', {
   apiDocsLabel,
   pricingUrl,
   testConnection,
+  testWP7Connection,
   saveApiKey,
   saveSettings,
   integrations,
+  wp7Available,
 })
 
 onMounted(() => {

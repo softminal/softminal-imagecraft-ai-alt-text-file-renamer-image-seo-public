@@ -13,8 +13,9 @@ class AIFactory
 {
     private static $providerClasses = [
         'anthropic' => AnthropicProvider::class,
-        'openai' => OpenAIProvider::class,
-        'gemini' => GeminiProvider::class,
+        'openai'    => OpenAIProvider::class,
+        'gemini'    => GeminiProvider::class,
+        'wp7'       => WP7Provider::class,           // WordPress 7.0 native AI Client (opt-in)
         // 'mistral' => MistralProvider::class,       // Planned for next release
         // 'openrouter' => OpenRouterProvider::class,  // Planned for next release
     ];
@@ -57,7 +58,8 @@ class AIFactory
         $class = self::$providerClasses[$providerKey];
 
         // Validate model against the provider's allowed list
-        if ($model !== null && !in_array($model, $class::getAvailableModels(), true)) {
+        // WP7 provider uses WordPress-managed models — skip validation
+        if ($providerKey !== 'wp7' && $model !== null && !in_array($model, $class::getAvailableModels(), true)) {
             $model = null; // Fall back to provider default
         }
 
@@ -85,7 +87,12 @@ class AIFactory
             return self::create($provider, $configKey, 60, $model);
         }
 
-        // 2. Fall back to database-stored encrypted key
+        // 2. Use WordPress 7.0 native AI Client if opted in and available
+        if (Settings::get('icais_use_wp7_ai', false) && WP7Provider::isAvailable()) {
+            return self::create('wp7', '', 60, null);
+        }
+
+        // 3. Fall back to database-stored encrypted key
         $apiSetting = ApiSetting::getActive($userId);
 
         if (!$apiSetting) {
@@ -117,6 +124,15 @@ class AIFactory
         }
 
         return self::create($provider, $apiKey, 60, $model);
+    }
+
+    /**
+     * Check if the WordPress 7.0 native AI Client is available on this site.
+     * Proxies to WP7Provider::isAvailable() for use by controllers/settings.
+     */
+    public static function isWP7Available(): bool
+    {
+        return WP7Provider::isAvailable();
     }
 
     /**

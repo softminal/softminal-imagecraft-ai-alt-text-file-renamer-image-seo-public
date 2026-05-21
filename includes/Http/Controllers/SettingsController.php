@@ -59,6 +59,7 @@ class SettingsController extends Controller
                 'plugin' => SeoIntegration::getActivePlugin(),
                 'label'  => SeoIntegration::getActivePluginLabel(),
             ] : ['active' => false, 'plugin' => null, 'label' => ''],
+            'wp7_available' => AIFactory::isWP7Available(),
             'available_models' => AIFactory::getAvailableModels(),
             'available_languages' => \Softminal\ImageCraft\Services\AI\BaseAIProvider::getLanguageMap(),
             'woo_active' => class_exists('WooCommerce'),
@@ -101,7 +102,7 @@ class SettingsController extends Controller
 
         // Sanitize setting values based on type
         $intKeys = ['icais_max_length', 'icais_title_max_length', 'icais_batch_size', 'icais_request_timeout', 'icais_rename_max_length'];
-        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_generate_title', 'icais_title_preview_before_accept', 'icais_title_skip_existing', 'icais_title_auto_generate', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase', 'icais_integration_kadence', 'icais_integration_spectra', 'icais_integration_yoast', 'icais_integration_rankmath', 'icais_integration_aioseo', 'icais_integration_seopress', 'icais_integration_woocommerce', 'icais_integration_wpml', 'icais_integration_polylang', 'icais_integration_filebird'];
+        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_generate_title', 'icais_title_preview_before_accept', 'icais_title_skip_existing', 'icais_title_auto_generate', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase', 'icais_integration_kadence', 'icais_integration_spectra', 'icais_integration_yoast', 'icais_integration_rankmath', 'icais_integration_aioseo', 'icais_integration_seopress', 'icais_integration_woocommerce', 'icais_integration_wpml', 'icais_integration_polylang', 'icais_integration_filebird', 'icais_use_wp7_ai'];
         $textareaKeys = ['icais_custom_prompt', 'icais_title_custom_prompt', 'icais_woo_custom_prompt'];
         $jsonArrayKeys = ['icais_excluded_post_types'];
 
@@ -364,6 +365,12 @@ class SettingsController extends Controller
         // Minimal processing for API key — avoid sanitize_text_field which may be
         // hooked by WAFs/plugins and could log the key value
         $apiKey = isset($params['api_key']) ? wp_unslash($params['api_key']) : '';
+
+        // WP7 native AI Client — no API key needed, test via availability check
+        if ($provider === 'wp7') {
+            $aiProvider = \Softminal\ImageCraft\Services\AI\AIFactory::create('wp7', '', 60, null);
+            return $this->response($aiProvider->testConnection());
+        }
 
         // If no key provided in request, try wp-config.php constant
         if (empty($apiKey) || !is_string($apiKey) || strlen($apiKey) < 10) {

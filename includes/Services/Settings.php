@@ -57,6 +57,7 @@ class Settings
         'icais_integration_wpml' => '0',
         'icais_integration_polylang' => '0',
         'icais_integration_filebird' => '1',
+        'icais_use_wp7_ai' => '0',              // WordPress 7.0 native AI Client (opt-in)
     ];
 
     /**
