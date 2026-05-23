@@ -58,6 +58,22 @@ class AltTextHelper
     }
 
     /**
+     * Truncate text to a max length, trimming to the last complete word.
+     *
+     * @param string $text      The text to truncate.
+     * @param int    $maxLength Maximum character length.
+     * @return string
+     */
+    public static function truncateTitle(string $text, int $maxLength): string
+    {
+        if (mb_strlen($text) <= $maxLength) {
+            return $text;
+        }
+        $truncated = mb_substr($text, 0, $maxLength);
+        return (string) preg_replace('/\s+\S*$/', '', $truncated) ?: $truncated;
+    }
+
+    /**
      * Get total image count and missing-alt count in a single query.
      *
      * Uses a single SQL round-trip with LEFT JOIN + SUM(CASE) instead of

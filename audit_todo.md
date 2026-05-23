@@ -524,17 +524,17 @@ Each item is self-contained, actionable, and ordered by impact within category.
 - [x] [PERF-007] `Settings::set()` reduced from 3 option reads to 1 (removed pre-check; trusts update_option + single read-back on false) | File: `includes/Services/Settings.php` | Effort: M
 
 ### Dead Code & Duplication
-- [ ] [DEAD-001] Move `MistralProvider.php` and `OpenRouterProvider.php` out of autoload path | Files: `includes/Services/AI/Mistral*.php`, `OpenRouter*.php` | Effort: S
-- [ ] [DEAD-002] Remove ORM relationship methods from `Model.php` (~90 lines, never used) | File: `includes/Models/Model.php` | Effort: S
-- [ ] [DEAD-003] Remove `Route::withPolicy()` and `getRegisteredRoutes()` (never called) | File: `includes/Http/Routes/Route.php` | Effort: S
-- [ ] [DEAD-004] Remove `WooCommerce::updateGalleryAltTexts()` and `isProductTypeSupported()` (never called) | File: `includes/Services/WooCommerce.php` | Effort: S
-- [ ] [DEAD-005] Remove `Api.js` `put()` and `delete()` methods (never called) | File: `resources/admin/services/Api.js` | Effort: S
-- [ ] [DEAD-006] Fix `Settings.vue` unused refs + missing `:disabled="saving"` binding | File: `resources/admin/views/Settings.vue` | Effort: S
-- [ ] [DUP-001] Extract `AltTextHelper::truncateTitle()` to replace 6 duplicated title truncation blocks | Files: `GeneratorController.php`, `BatchController.php`, `AutoGenerate.php`, `FileRenamer.php` | Effort: M
-- [ ] [DUP-002] Extract `resolveProviderAndUrl()` private helper to remove 10-line boilerplate × 3 in GeneratorController | File: `includes/Http/Controllers/GeneratorController.php` | Effort: S
-- [ ] [DUP-003] Extract `extractProductName()` and `buildContextPrefix()` private helpers in `BaseAIProvider` | File: `includes/Services/AI/BaseAIProvider.php` | Effort: S
-- [ ] [DUP-004] Centralize boolean normalization: PHP `Settings::getBoolean()`, Vue `utils/helpers.js isEnabled()` | Multiple files | Effort: M
-- [ ] [DUP-005] Extract `icais-block-editor-common.js` to de-duplicate Kadence + Spectra integrations | Files: `kadence-alt-button.js`, `spectra-alt-button.js` | Effort: M
+- [x] [DEAD-001] Move `MistralProvider.php` and `OpenRouterProvider.php` out of autoload path | Files: `includes/Services/AI/Mistral*.php`, `OpenRouter*.php` | Effort: S
+- [x] [DEAD-002] Remove ORM relationship methods from `Model.php` (~90 lines, never used) | File: `includes/Models/Model.php` | Effort: S
+- [x] [DEAD-003] Remove `Route::withPolicy()` and `getRegisteredRoutes()` (never called) | File: `includes/Http/Routes/Route.php` | Effort: S
+- [x] [DEAD-004] Remove `WooCommerce::updateGalleryAltTexts()` and `isProductTypeSupported()` (never called) | File: `includes/Services/WooCommerce.php` | Effort: S
+- [x] [DEAD-005] Remove `Api.js` `put()` and `delete()` methods (never called) | File: `resources/admin/services/Api.js` | Effort: S
+- [x] [DEAD-006] Fix `Settings.vue` unused refs + missing `:disabled="saving"` binding | File: `resources/admin/views/Settings.vue` | Effort: S
+- [x] [DUP-001] Extract `AltTextHelper::truncateTitle()` to replace 6 duplicated title truncation blocks | Files: `GeneratorController.php`, `BatchController.php`, `AutoGenerate.php`, `FileRenamer.php` | Effort: M
+- [x] [DUP-002] Fix full-namespace `AIFactory`/`FileRenamer` copy-paste artifacts in `GeneratorController` | File: `includes/Http/Controllers/GeneratorController.php` | Effort: S
+- [x] [DUP-003] Extract `extractProductName()` private helper in `BaseAIProvider` | File: `includes/Services/AI/BaseAIProvider.php` | Effort: S
+- [x] [DUP-004] Add `Settings::getBoolean()` PHP helper; replace 7 triple-form boolean checks in `GeneratorController`, `AutoGenerate`, `Enqueue` | Multiple files | Effort: M
+- [x] [DUP-005] Extract `icais-block-editor-common.js` to de-duplicate Kadence + Spectra integrations | Files: `kadence-alt-button.js`, `spectra-alt-button.js` | Effort: M
 
 ### Code Quality & Structure
 - [ ] [QUAL-001] Remove pointless re-throw try-catch in `App.php`; add `WP_DEBUG` logging to `Router.php` silent catch | Files: `includes/App.php`, `includes/Http/Routes/Router.php` | Effort: S

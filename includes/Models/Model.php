@@ -15,8 +15,6 @@ abstract class Model
     protected $attributes = [];
     protected $fillable = [];
     protected $casts = [];
-    protected $relations = [];
-    protected $with = [];
     protected $query = [
         'select'  => '*',
         'where'   => [],
@@ -52,91 +50,6 @@ abstract class Model
     public static function query()
     {
         return new static();
-    }
-
-    /**
-     * Eager load related models
-     *
-     * @param array|string $relations
-     * @return $this
-     */
-    public function with($relations)
-    {
-        if (is_string($relations)) {
-            $relations = [$relations];
-        }
-
-        $this->with = $relations;
-        return $this;
-    }
-
-    /**
-     * Define a one-to-many relationship
-     */
-    protected function hasMany($related, $foreignKey, $localKey = null)
-    {
-        $localKey   = $localKey ?: $this->primaryKey;
-        $localValue = $this->attributes[$localKey] ?? null;
-
-        if ($localValue === null) {
-            return new Collection([]);
-        }
-
-        return $related::where($foreignKey, $localValue)->get();
-    }
-
-    /**
-     * Define a one-to-one relationship
-     */
-    protected function hasOne($related, $foreignKey, $localKey = null)
-    {
-        $localKey   = $localKey ?: $this->primaryKey;
-        $localValue = $this->attributes[$localKey] ?? null;
-
-        if ($localValue === null) {
-            return null;
-        }
-
-        return $related::where($foreignKey, $localValue)->first();
-    }
-
-    /**
-     * Define an inverse one-to-one or many relationship
-     */
-    protected function belongsTo($related, $foreignKey, $ownerKey = 'id')
-    {
-        $foreignValue = $this->attributes[$foreignKey] ?? null;
-
-        if ($foreignValue === null) {
-            return null;
-        }
-
-        return $related::where($ownerKey, $foreignValue)->first();
-    }
-
-    /**
-     * Load a relationship
-     */
-    public function load($relation)
-    {
-        if (!method_exists($this, $relation)) {
-            return null;
-        }
-
-        $this->relations[$relation] = $this->$relation();
-        return $this->relations[$relation];
-    }
-
-    /**
-     * Load multiple relationships
-     */
-    public function loadRelations(array $relations)
-    {
-        foreach ($relations as $relation) {
-            $this->load($relation);
-        }
-
-        return $this;
     }
 
     /**
@@ -208,18 +121,6 @@ abstract class Model
                 $attributes[$key] = $value->format('Y-m-d H:i:s');
             } elseif (is_object($value) && method_exists($value, 'toArray')) {
                 $attributes[$key] = $value->toArray();
-            }
-        }
-
-        foreach ($this->relations as $key => $relation) {
-            if ($relation instanceof Model) {
-                $attributes[$key] = $relation->toArray();
-            } elseif ($relation instanceof Collection) {
-                $attributes[$key] = $relation->toArray();
-            } elseif (is_array($relation)) {
-                $attributes[$key] = array_map(function ($item) {
-                    return $item instanceof Model ? $item->toArray() : $item;
-                }, $relation);
             }
         }
 
@@ -389,15 +290,7 @@ abstract class Model
                 return static::hydrate($item);
             }, $cached ?: []);
 
-            $collection = new Collection($models);
-
-            if (!empty($this->with)) {
-                foreach ($collection as $model) {
-                    $model->loadRelations($this->with);
-                }
-            }
-
-            return $collection;
+            return new Collection($models);
         }
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Results are cached below
@@ -415,15 +308,7 @@ abstract class Model
             return static::hydrate($item);
         }, $results ?: []);
 
-        $collection = new Collection($models);
-
-        if (!empty($this->with)) {
-            foreach ($collection as $model) {
-                $model->loadRelations($this->with);
-            }
-        }
-
-        return $collection;
+        return new Collection($models);
     }
     // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
@@ -565,17 +450,8 @@ abstract class Model
 
     public function __get($key)
     {
-        if (array_key_exists($key, $this->relations)) {
-            return $this->relations[$key];
-        }
-
         if (array_key_exists($key, $this->attributes)) {
             return $this->attributes[$key];
-        }
-
-        if (method_exists($this, $key)) {
-            $this->relations[$key] = $this->$key();
-            return $this->relations[$key];
         }
 
         return null;
@@ -583,7 +459,7 @@ abstract class Model
 
     public function __isset($key)
     {
-        return array_key_exists($key, $this->attributes) || array_key_exists($key, $this->relations);
+        return array_key_exists($key, $this->attributes);
     }
 
     public function __set($key, $value)

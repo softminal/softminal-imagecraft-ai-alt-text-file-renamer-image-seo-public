@@ -5,11 +5,13 @@ namespace Softminal\ImageCraft\Http\Controllers;
 use Softminal\ImageCraft\Models\History;
 use Softminal\ImageCraft\Services\AI\AIFactory;
 use Softminal\ImageCraft\Services\FileBird;
+use Softminal\ImageCraft\Services\FileRenamer;
 use Softminal\ImageCraft\Services\Settings;
 use Softminal\ImageCraft\Services\StatsTracker;
 use Softminal\ImageCraft\Services\SeoIntegration;
 use Softminal\ImageCraft\Services\UsageLimiter;
 use Softminal\ImageCraft\Services\WooCommerce;
+use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -471,15 +473,10 @@ class GeneratorController extends Controller
         UsageLimiter::recordUsage($userId, $attachmentId);
 
         // Cap at configured max length
-        $maxLength = (int) Settings::get('icais_title_max_length', 30);
-        if (mb_strlen($generatedTitle) > $maxLength) {
-            $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
-            $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
-        }
+        $generatedTitle = AltTextHelper::truncateTitle($generatedTitle, (int) Settings::get('icais_title_max_length', 30));
 
         // Check preview before accept setting for titles
-        $previewSetting = Settings::get('icais_title_preview_before_accept', '1');
-        $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+        $previewBeforeAccept = Settings::getBoolean('icais_title_preview_before_accept', true);
 
         if (!$previewBeforeAccept) {
             // Auto-accept: save to meta and apply as post_title immediately
@@ -504,7 +501,7 @@ class GeneratorController extends Controller
     private function generateLinkTitle(int $attachmentId, ?string $context): \WP_REST_Response
     {
         $userId = get_current_user_id();
-        $aiProvider = \Softminal\ImageCraft\Services\AI\AIFactory::getProviderForUser($userId);
+        $aiProvider = AIFactory::getProviderForUser($userId);
 
         if (!$aiProvider) {
             return $this->response([
@@ -539,11 +536,7 @@ class GeneratorController extends Controller
         // Track daily usage
         UsageLimiter::recordUsage($userId, $attachmentId);
 
-        $maxLength = (int) Settings::get('icais_title_max_length', 80);
-        if (mb_strlen($generatedTitle) > $maxLength) {
-            $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
-            $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
-        }
+        $generatedTitle = AltTextHelper::truncateTitle($generatedTitle, (int) Settings::get('icais_title_max_length', 80));
 
         return $this->response([
             'success' => true,
@@ -558,7 +551,7 @@ class GeneratorController extends Controller
     private function generateFilenameAndRename(int $attachmentId, ?string $context): \WP_REST_Response
     {
         $userId = get_current_user_id();
-        $aiProvider = \Softminal\ImageCraft\Services\AI\AIFactory::getProviderForUser($userId);
+        $aiProvider = AIFactory::getProviderForUser($userId);
 
         if (!$aiProvider) {
             return $this->response([
@@ -612,7 +605,7 @@ class GeneratorController extends Controller
         }
 
         // Use FileRenamer to perform the actual rename with the AI-generated filename
-        $renamer = new \Softminal\ImageCraft\Services\FileRenamer();
+        $renamer = new FileRenamer();
         $renameResult = $renamer->rename($attachmentId, $aiFilename, true);
 
         if (!$renameResult['success'] && empty($renameResult['already_named'])) {

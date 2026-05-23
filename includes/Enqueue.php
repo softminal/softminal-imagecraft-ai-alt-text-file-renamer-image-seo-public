@@ -125,11 +125,8 @@ class Enqueue {
 
         EnqueueAsset::script('icais-gutenberg-alt-button', 'resources/admin/js/gutenberg-alt-button.js', ['wp-data', 'wp-block-editor']);
 
-        $previewSetting = Settings::get('icais_preview_before_accept', '1');
-        $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
-
-        $titlePreviewSetting = Settings::get('icais_title_preview_before_accept', '1');
-        $titlePreviewBeforeAccept = ($titlePreviewSetting === '1' || $titlePreviewSetting === 1 || $titlePreviewSetting === true);
+        $previewBeforeAccept = Settings::getBoolean('icais_preview_before_accept', true);
+        $titlePreviewBeforeAccept = Settings::getBoolean('icais_title_preview_before_accept', true);
 
         wp_localize_script('icais-gutenberg-alt-button', 'icaisGutenberg', [
             'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
@@ -146,14 +143,21 @@ class Enqueue {
             ],
         ]);
 
+        // Shared utilities for block editor integrations
+        $needsBlockEditorCommon = (self::isKadenceActive() && Settings::get('icais_integration_kadence', '1') === '1')
+            || (self::isSpectraActive() && Settings::get('icais_integration_spectra', '1') === '1');
+        if ($needsBlockEditorCommon) {
+            EnqueueAsset::script('icais-block-editor-common', 'resources/admin/js/block-editor-common.js', ['wp-data', 'wp-block-editor']);
+        }
+
         // Kadence Image block integration
         if (self::isKadenceActive() && Settings::get('icais_integration_kadence', '1') === '1') {
-            EnqueueAsset::script('icais-kadence-alt-button', 'resources/admin/js/kadence-alt-button.js', ['wp-data', 'wp-block-editor']);
+            EnqueueAsset::script('icais-kadence-alt-button', 'resources/admin/js/kadence-alt-button.js', ['wp-data', 'wp-block-editor', 'icais-block-editor-common']);
         }
 
         // Spectra Image block integration
         if (self::isSpectraActive() && Settings::get('icais_integration_spectra', '1') === '1') {
-            EnqueueAsset::script('icais-spectra-alt-button', 'resources/admin/js/spectra-alt-button.js', ['wp-data', 'wp-block-editor']);
+            EnqueueAsset::script('icais-spectra-alt-button', 'resources/admin/js/spectra-alt-button.js', ['wp-data', 'wp-block-editor', 'icais-block-editor-common']);
         }
 
         wp_enqueue_style(

@@ -559,33 +559,4 @@ class WooCommerce
         return $gallery;
     }
 
-    public static function updateGalleryAltTexts(int $productId, array $altTexts): bool
-    {
-        $product = wc_get_product($productId);
-        if (!$product) {
-            return false;
-        }
-
-        $galleryIds = $product->get_gallery_image_ids();
-
-        foreach ($galleryIds as $index => $attachmentId) {
-            if (isset($altTexts[$index])) {
-                update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($altTexts[$index]));
-            }
-        }
-
-        return true;
-    }
-
-    public static function isProductTypeSupported(int $productId): bool
-    {
-        $product = wc_get_product($productId);
-        if (!$product) {
-            return false;
-        }
-
-        $type = $product->get_type();
-
-        return in_array($type, ['simple', 'variable', 'external']);
-    }
 }

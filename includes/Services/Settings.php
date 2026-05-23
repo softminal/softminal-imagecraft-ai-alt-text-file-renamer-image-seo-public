@@ -137,6 +137,19 @@ class Settings
     }
 
     /**
+     * Get a setting value as a boolean.
+     * Treats '1', 1, and true as true; everything else as false.
+     */
+    public static function getBoolean(string $key, bool $default = false): bool
+    {
+        $value = self::get($key);
+        if ($value === null) {
+            return $default;
+        }
+        return ($value === '1' || $value === 1 || $value === true);
+    }
+
+    /**
      * Get all settings (cached for the current request)
      */
     public static function all(): array

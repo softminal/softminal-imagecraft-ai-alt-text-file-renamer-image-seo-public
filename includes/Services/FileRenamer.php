@@ -2,6 +2,8 @@
 
 namespace Softminal\ImageCraft\Services;
 
+use Softminal\ImageCraft\Support\AltTextHelper;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -133,11 +135,7 @@ class FileRenamer
             $newTitle = ucwords(str_replace('-', ' ', $slug));
         }
 
-        // Cap at 80 chars, trim to last full word
-        if (mb_strlen($newTitle) > 80) {
-            $newTitle = mb_substr($newTitle, 0, 80);
-            $newTitle = preg_replace('/\s+\S*$/', '', $newTitle);
-        }
+        $newTitle = AltTextHelper::truncateTitle($newTitle, 80);
 
         // Check if title is already the same
         $post = get_post($attachmentId);
@@ -312,11 +310,7 @@ class FileRenamer
         $this->updatePostMetaReferences($attachmentId, $oldUrl, $newUrl, $newFilename, $sizeFilenameMap);
 
         // Update attachment title (slug → readable, capped at 80 chars) and guid
-        $newTitle = ucwords(str_replace('-', ' ', $newBaseName));
-        if (mb_strlen($newTitle) > 80) {
-            $newTitle = mb_substr($newTitle, 0, 80);
-            $newTitle = preg_replace('/\s+\S*$/', '', $newTitle); // trim to last full word
-        }
+        $newTitle = AltTextHelper::truncateTitle(ucwords(str_replace('-', ' ', $newBaseName)), 80);
 
         global $wpdb;
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct update to avoid wp_update_post hooks/side-effects

@@ -144,11 +144,7 @@ abstract class BaseAIProvider
 
         // Prepend context with explicit product name extraction
         if (!empty($context)) {
-            // Extract product name from context string (format: "Product: Name | ...")
-            $productName = null;
-            if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
-                $productName = trim($matches[1]);
-            }
+            $productName = $this->extractProductName($context);
 
             if ($productName) {
                 $prompt = "This is a product called \"{$productName}\". Additional product info: " . trim($context) . "\n\nIMPORTANT: The alt text MUST contain the product name \"{$productName}\".\n\n" . $prompt;
@@ -171,6 +167,21 @@ abstract class BaseAIProvider
         }
 
         return $prompt;
+    }
+
+    /**
+     * Extract the product name from a context string.
+     * Context format: "Product: Name | other details"
+     *
+     * @param string $context
+     * @return string|null Product name, or null if not found
+     */
+    private function extractProductName(string $context): ?string
+    {
+        if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
+            return trim($matches[1]);
+        }
+        return null;
     }
 
     /**
@@ -207,10 +218,7 @@ abstract class BaseAIProvider
 
         // Prepend context
         if (!empty($context)) {
-            $productName = null;
-            if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
-                $productName = trim($matches[1]);
-            }
+            $productName = $this->extractProductName($context);
 
             if ($productName) {
                 $prompt = "This is a product called \"{$productName}\". Additional product info: " . trim($context) . "\n\nIMPORTANT: The title MUST contain the product name \"{$productName}\".\n\n" . $prompt;
@@ -272,10 +280,7 @@ abstract class BaseAIProvider
 
         // Prepend context
         if (!empty($context)) {
-            $productName = null;
-            if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
-                $productName = trim($matches[1]);
-            }
+            $productName = $this->extractProductName($context);
 
             if ($productName) {
                 $prompt = "This is a product called \"{$productName}\". Additional product info: " . trim($context) . "\n\nIMPORTANT: The link title MUST contain the product name \"{$productName}\".\n\n" . $prompt;
@@ -304,10 +309,7 @@ abstract class BaseAIProvider
         $prompt = "Generate a short, SEO-friendly filename for this image. Rules: Maximum {$maxLength} characters. Use only lowercase letters, numbers, and dashes. No spaces, underscores, or special characters. Be keyword-focused and descriptive. No filler words like 'a', 'the', 'in', 'of'. Do not include file extension. Return only the filename slug, nothing else.";
 
         if (!empty($context)) {
-            $productName = null;
-            if (preg_match('/^Product:\s*(.+?)(?:\s*\||$)/', trim($context), $matches)) {
-                $productName = trim($matches[1]);
-            }
+            $productName = $this->extractProductName($context);
 
             if ($productName) {
                 $prompt = "This is a product called \"{$productName}\". " . trim($context) . "\n\nThe filename MUST contain the product name.\n\n" . $prompt;

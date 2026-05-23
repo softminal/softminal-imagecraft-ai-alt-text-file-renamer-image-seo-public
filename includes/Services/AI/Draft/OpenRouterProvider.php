@@ -1,11 +1,14 @@
 <?php
 
-namespace Softminal\ImageCraft\Services\AI;
+namespace Softminal\ImageCraft\Services\AI\Draft;
+
+use Softminal\ImageCraft\Services\AI\ChatCompletionsProvider;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
+// DRAFT: Not yet integrated. To activate, move to Services/AI/, update namespace, and uncomment in AIFactory.php.
 class OpenRouterProvider extends ChatCompletionsProvider
 {
     private const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';

@@ -231,20 +231,4 @@ class Route
         return true;
     }
 
-    public function withPolicy($policy)
-    {
-        if (self::$lastRoute) {
-            self::$lastRoute['middleware'][] = $policy;
-        }
-        return $this;
-    }
-
-    /**
-     * Get all registered routes for debugging purposes
-     *
-     * @return array
-     */
-    public static function getRegisteredRoutes() {
-        return self::$routes;
-    }
 }

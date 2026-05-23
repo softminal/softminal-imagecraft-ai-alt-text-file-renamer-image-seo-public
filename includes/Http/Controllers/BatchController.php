@@ -9,6 +9,7 @@ use Softminal\ImageCraft\Services\FileBird;
 use Softminal\ImageCraft\Services\SeoIntegration;
 use Softminal\ImageCraft\Services\Settings;
 use Softminal\ImageCraft\Services\UsageLimiter;
+use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -682,11 +683,7 @@ class BatchController extends Controller
 
         $generatedTitle = trim($result['alt_text']);
 
-        $maxLength = (int) Settings::get('icais_title_max_length', 30);
-        if (mb_strlen($generatedTitle) > $maxLength) {
-            $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
-            $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
-        }
+        $generatedTitle = AltTextHelper::truncateTitle($generatedTitle, (int) Settings::get('icais_title_max_length', 30));
 
         // Save to meta and update post_title
         update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($generatedTitle));

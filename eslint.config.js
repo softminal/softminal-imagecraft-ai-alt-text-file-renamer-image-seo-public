@@ -8,7 +8,7 @@ export default [
         files: ['resources/**/*.{js,vue}'],
         rules: {
             // Prevent common bugs
-            'no-unused-vars': ['warn', { argsIgnorePattern: '^_|^e$|^error$|^err$' }],
+            'no-unused-vars': ['warn', { argsIgnorePattern: '^_|^e$|^error$|^err$', caughtErrors: 'none' }],
             'no-undef': 'error',
             'no-console': ['warn', { allow: ['warn', 'error'] }],
             'no-debugger': 'error',

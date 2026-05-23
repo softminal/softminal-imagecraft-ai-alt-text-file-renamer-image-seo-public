@@ -7,6 +7,7 @@ use Softminal\ImageCraft\Services\StatsTracker;
 use Softminal\ImageCraft\Services\UsageLimiter;
 use Softminal\ImageCraft\Services\AI\AIFactory;
 use Softminal\ImageCraft\Services\SeoIntegration;
+use Softminal\ImageCraft\Support\AltTextHelper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -116,8 +117,7 @@ class AutoGenerate
         // Track daily usage
         UsageLimiter::recordUsage($userId, (int) $attachmentId);
 
-        $previewSetting = Settings::get('icais_preview_before_accept', '1');
-        $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+        $previewBeforeAccept = Settings::getBoolean('icais_preview_before_accept', true);
         $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
 
         StatsTracker::recordGeneration([
@@ -192,17 +192,10 @@ class AutoGenerate
         // Track daily usage
         UsageLimiter::recordUsage($userId, (int) $attachmentId);
 
-        $generatedTitle = trim($result['alt_text']);
-        $maxLength = (int) Settings::get('icais_title_max_length', 30);
-
-        if (mb_strlen($generatedTitle) > $maxLength) {
-            $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);
-            $generatedTitle = preg_replace('/\s+\S*$/', '', $generatedTitle);
-        }
+        $generatedTitle = AltTextHelper::truncateTitle(trim($result['alt_text']), (int) Settings::get('icais_title_max_length', 30));
 
         // Check preview setting for titles
-        $previewSetting = Settings::get('icais_title_preview_before_accept', '1');
-        $previewBeforeAccept = ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+        $previewBeforeAccept = Settings::getBoolean('icais_title_preview_before_accept', true);
 
         if (!$previewBeforeAccept) {
             // Auto-accept: save to meta and apply as post_title
