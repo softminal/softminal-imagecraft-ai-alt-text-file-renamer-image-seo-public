@@ -248,7 +248,7 @@
       <h2 class="text-2xl font-bold mb-4">{{ $t('Setup Complete!') }}</h2>
       <p class="text-gray-600 mb-8">{{ $t("You're all set to start generating alt text for your images.") }}</p>
       <button
-        @click="completeWizard"
+        @click="goToDashboard"
         class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700"
       >
         {{ $t('Go to Dashboard') }}
@@ -300,7 +300,7 @@ onMounted(async () => {
     if (result.config_api_key) {
       configApiKey.value = true
     }
-  } catch (e) {
+  } catch {
     // Non-critical, model selector just won't show
   }
 })
@@ -356,11 +356,16 @@ const saveConfigAndComplete = async () => {
       window.location.hash = '#/'
       window.location.reload()
     }, 1000)
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to complete setup'))
   } finally {
     saving.value = false
   }
+}
+
+const goToDashboard = () => {
+  window.location.hash = '#/'
+  window.location.reload()
 }
 
 const saveApiKey = async () => {
@@ -389,7 +394,7 @@ const saveApiKey = async () => {
       window.location.hash = '#/'
       window.location.reload()
     }, 1000)
-  } catch (error) {
+  } catch {
     notification.error($t('Failed to save API key'))
   } finally {
     saving.value = false

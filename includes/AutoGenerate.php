@@ -193,7 +193,7 @@ class AutoGenerate
         UsageLimiter::recordUsage($userId, (int) $attachmentId);
 
         $generatedTitle = trim($result['alt_text']);
-        $maxLength = (int) Settings::get('icais_title_max_length', 80);
+        $maxLength = (int) Settings::get('icais_title_max_length', 30);
 
         if (mb_strlen($generatedTitle) > $maxLength) {
             $generatedTitle = mb_substr($generatedTitle, 0, $maxLength);

@@ -197,11 +197,16 @@ class ScannerController extends Controller
 
             // Filter by file size
             if ($minSize > 0) {
+                global $wp_filesystem;
+                if (empty($wp_filesystem)) {
+                    require_once ABSPATH . 'wp-admin/includes/file.php';
+                    WP_Filesystem();
+                }
                 $minBytes = $minSize * 1024;
                 $sizeFiltered = [];
                 foreach ($allIds as $id) {
                     $filePath = get_attached_file($id);
-                    if ($filePath && file_exists($filePath) && filesize($filePath) >= $minBytes) {
+                    if ($filePath && $wp_filesystem->exists($filePath) && $wp_filesystem->size($filePath) >= $minBytes) {
                         $sizeFiltered[] = $id;
                     }
                 }

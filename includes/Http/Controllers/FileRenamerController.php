@@ -30,6 +30,15 @@ class FileRenamerController extends Controller
             ], 400);
         }
 
+        // Verify ownership: only the attachment owner or an admin may rename files
+        $attachment = get_post($attachmentId);
+        if (!$attachment || ((int) $attachment->post_author !== get_current_user_id() && !current_user_can('manage_options'))) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Not authorized to rename this attachment', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 403);
+        }
+
         $result = $this->renamer->rename($attachmentId, $customFilename);
 
         if (!$result['success']) {
@@ -81,8 +90,10 @@ class FileRenamerController extends Controller
         }
 
         // Safety net for shared hosting with low time limits
-        // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Necessary to prevent timeout during bulk title updates
-        @set_time_limit(120);
+        if (function_exists('set_time_limit')) {
+            // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Necessary to prevent timeout during bulk title updates
+            set_time_limit(120);
+        }
 
         $results = [];
         $successCount = 0;
@@ -90,7 +101,20 @@ class FileRenamerController extends Controller
         $unchangedCount = 0;
         $errorCount = 0;
 
+        $currentUserId = get_current_user_id();
+        $isAdmin = current_user_can('manage_options');
+
         foreach ($attachmentIds as $id) {
+            // Verify ownership before modifying each attachment
+            if (!$isAdmin) {
+                $attachment = get_post($id);
+                if (!$attachment || (int) $attachment->post_author !== $currentUserId) {
+                    $results[$id] = ['success' => false, 'skipped' => true, 'reason' => 'not_authorized'];
+                    $errorCount++;
+                    continue;
+                }
+            }
+
             $result = $this->updateTitle($id);
             $results[$id] = $result;
 

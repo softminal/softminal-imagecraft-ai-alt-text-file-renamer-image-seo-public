@@ -263,20 +263,24 @@ class FileRenamer
             $newFilePath = wp_normalize_path(dirname($file) . '/' . $newFilename);
         }
 
-        // Verify the new path is still within wp_upload_dir (prevents path traversal)
-        $normalizedNewPath = wp_normalize_path(realpath(dirname($newFilePath)) ?: dirname($newFilePath));
-        if (strpos($normalizedNewPath, $normalizedBase) !== 0) {
-            return ['success' => false, 'error' => 'Rename target is outside the uploads directory'];
-        }
-
         $oldUrl = (string) wp_get_attachment_url($attachmentId);
 
-        // Ensure destination directory exists
+        // Ensure destination directory exists before calling realpath()
+        // (realpath returns false on non-existent directories, which we must not fall back from)
         $destDir = dirname($newFilePath);
         if (!$fs->is_dir($destDir)) {
             if (!$fs->mkdir($destDir)) {
                 return ['success' => false, 'error' => 'Failed to create destination directory'];
             }
+        }
+
+        // Verify the new path is still within wp_upload_dir (prevents path traversal).
+        // realpath() is now reliable because the directory was created above.
+        // Reject explicitly if it still returns false (e.g. symlink loop or permissions issue).
+        $resolvedNewDir = realpath(dirname($newFilePath));
+        $normalizedNewPath = $resolvedNewDir ? wp_normalize_path($resolvedNewDir) : '';
+        if (!$normalizedNewPath || strpos($normalizedNewPath, $normalizedBase) !== 0) {
+            return ['success' => false, 'error' => 'Rename target is outside the uploads directory'];
         }
 
         // Move (rename) main file
@@ -549,7 +553,11 @@ class FileRenamer
      */
     private function replaceUrlsInMetaValue(string $value, array $replacements): string
     {
-        $unserialized = @maybe_unserialize($value);
+        // Safe unserialization: disallow object instantiation to prevent PHP Object Injection.
+        // is_serialized() is provided by WordPress (no @ suppressor needed).
+        $unserialized = is_serialized($value)
+            ? unserialize($value, ['allowed_classes' => false]) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- allowed_classes: false prevents object injection; data originates from wp_postmeta.
+            : $value;
 
         // Serialized array or object: recurse, replace, re-serialize (preserves string lengths)
         if (is_array($unserialized) || is_object($unserialized)) {

@@ -15,7 +15,6 @@ class ApiSetting extends Model
         'user_id',
         'api_provider',
         'api_key_encrypted',
-        'encryption_iv',
         'is_active'
     ];
 
@@ -78,19 +77,6 @@ class ApiSetting extends Model
 
             if (empty($encrypted)) {
                 throw new \Exception('Encryption returned empty string');
-            }
-
-            // Extract IV from encrypted string for database storage
-            // Format: base64(encrypted::hex_iv)
-            // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Required to extract IV from encrypted API key
-            $decoded = base64_decode($encrypted, true);
-            if ($decoded !== false) {
-                $parts = explode('::', $decoded, 2);
-                if (isset($parts[1])) {
-                    $ivHex = $parts[1];
-                    // Store first 32 chars of IV hex (VARCHAR(32) limit)
-                    $this->attributes['encryption_iv'] = substr($ivHex, 0, 32);
-                }
             }
 
             // Explicitly set in attributes array to ensure it's saved

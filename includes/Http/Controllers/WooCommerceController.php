@@ -217,10 +217,13 @@ class WooCommerceController extends Controller
                     'cost' => $result['cost'] ?? 0,
                 ];
             } else {
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('ImageCraft: Gallery alt text failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
+                }
                 $results[$index] = [
                     'success' => false,
                     'attachment_id' => $attachmentId,
-                    'error' => $result['error'] ?? 'Unknown error',
+                    'error' => __('Failed to generate alt text. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 ];
             }
         }

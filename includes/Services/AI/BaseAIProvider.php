@@ -516,11 +516,36 @@ abstract class BaseAIProvider
             // Validate URL before fetching to prevent SSRF
             $this->validateImageUrl($imageUrl);
 
+            // Minimise the DNS-rebinding TOCTOU window by re-validating the resolved
+            // IP immediately before the HTTP library makes its own DNS lookup.
+            // Priority PHP_INT_MAX ensures this runs as late as possible in the filter chain.
+            $ssrfSiteHost = wp_parse_url(site_url(), PHP_URL_HOST);
+            $ssrfCheckFilter = static function ($preempt, $args, $requestUrl) use ($ssrfSiteHost) {
+                if ($preempt !== false) {
+                    return $preempt;
+                }
+                $host = wp_parse_url($requestUrl, PHP_URL_HOST);
+                if (!$host || $host === $ssrfSiteHost) {
+                    return $preempt;
+                }
+                $ip = gethostbyname($host);
+                if ($ip === $host) {
+                    return new \WP_Error('ssrf_blocked', 'Could not resolve image URL hostname');
+                }
+                if (false === filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                    return new \WP_Error('ssrf_blocked', 'Image URL resolves to a disallowed IP address');
+                }
+                return $preempt;
+            };
+            add_filter('pre_http_request', $ssrfCheckFilter, PHP_INT_MAX, 3);
+
             // Use WordPress HTTP API for remote URLs
             $response = wp_remote_get($imageUrl, [
                 'timeout' => $this->timeout,
-                'sslverify' => !$this->isLocalDevelopment(),
+                'sslverify' => true,
             ]);
+
+            remove_filter('pre_http_request', $ssrfCheckFilter, PHP_INT_MAX);
 
             if (is_wp_error($response)) {
                 throw new \Exception('Failed to fetch image: ' . esc_html($response->get_error_message()));

@@ -272,6 +272,42 @@ class FileBird
     }
 
     /**
+     * Get the owner (created_by user ID) of a specific FileBird folder.
+     *
+     * Returns 0 for global folders (accessible to all users), the owner's user ID
+     * for user-specific folders, or null if the folder does not exist.
+     * Used to guard against IDOR in folder attachment lookups.
+     *
+     * @param int $folderId FileBird folder ID
+     * @return int|null 0 = global, N = owner user ID, null = not found
+     */
+    public static function getFolderOwner(int $folderId): ?int
+    {
+        if (!self::isActive()) {
+            return null;
+        }
+
+        $tables = self::getSafeTables();
+        if (!$tables) {
+            return null;
+        }
+
+        $folderTable = $tables['folder'];
+        global $wpdb;
+
+        // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
+        $sql = sprintf('SELECT created_by FROM `%s` WHERE id = %%d LIMIT 1', $folderTable);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Targeted single-row ownership check; caching not needed for an infrequent security gate.
+        $createdBy = $wpdb->get_var(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Identifier validated and escaped before sprintf(); folder ID prepared below.
+            $wpdb->prepare($sql, $folderId)
+        );
+        // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+        return $createdBy !== null ? (int) $createdBy : null;
+    }
+
+    /**
      * Get attachment count for a specific folder
      *
      * @param int $folderId FileBird folder term ID

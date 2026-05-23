@@ -315,7 +315,7 @@ class BatchController extends Controller
                     $failed++;
                     $failures[] = [
                         'attachment_id' => (int) $attachmentId,
-                        'reason' => $e->getMessage(),
+                        'reason' => __('Title generation failed. Check error log for details.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                     ];
                 }
             } else {
@@ -349,10 +349,12 @@ class BatchController extends Controller
                         ];
                     }
                 } catch (\Exception $e) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                    error_log('[ImageCraft] Batch error for #' . $attachmentId . ': ' . $e->getMessage());
                     $failed++;
                     $failures[] = [
                         'attachment_id' => (int) $attachmentId,
-                        'reason' => $e->getMessage(),
+                        'reason' => __('Generation failed. Check error log for details.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                     ];
                 }
             }

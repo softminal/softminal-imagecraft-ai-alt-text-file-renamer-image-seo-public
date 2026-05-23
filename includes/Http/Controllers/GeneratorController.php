@@ -57,7 +57,13 @@ class GeneratorController extends Controller
         if ($context === null) {
             $postTitle = sanitize_text_field($params['post_title'] ?? '');
             if (!empty($postTitle)) {
-                $context = 'Page: ' . $postTitle;
+                // Guard against prompt injection: cap length and strip characters
+                // commonly used in LLM instruction-injection patterns ([], {}, |)
+                $postTitle = mb_substr($postTitle, 0, 200);
+                $postTitle = preg_replace('/[\[\]{}|]/', '', $postTitle);
+                if (!empty($postTitle)) {
+                    $context = 'Page: ' . $postTitle;
+                }
             }
         }
 
@@ -202,9 +208,12 @@ class GeneratorController extends Controller
         $result = $aiProvider->generateAltText($imageUrl, $tone, $context);
         
         if (!$result['success']) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ImageCraft: Alt text generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
+            }
             return [
                 'success' => false,
-                'message' => $result['error'] ?? __('Failed to generate alt text', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('Failed to generate alt text. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ];
         }
         
@@ -447,9 +456,12 @@ class GeneratorController extends Controller
         $result = $aiProvider->generateAltText($imageUrl, 'professional', $context);
 
         if (!$result['success']) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ImageCraft: Title generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
+            }
             return $this->response([
                 'success' => false,
-                'message' => $result['error'] ?? __('Failed to generate title', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('Failed to generate title. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -513,9 +525,12 @@ class GeneratorController extends Controller
         $result = $aiProvider->generateAltText($imageUrl, 'professional', $context);
 
         if (!$result['success']) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ImageCraft: Link title generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
+            }
             return $this->response([
                 'success' => false,
-                'message' => $result['error'] ?? __('Failed to generate link title', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('Failed to generate link title. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -565,9 +580,12 @@ class GeneratorController extends Controller
         $result = $aiProvider->generateAltText($imageUrl, 'professional', $context);
 
         if (!$result['success']) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ImageCraft: Filename generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
+            }
             return $this->response([
                 'success' => false,
-                'message' => $result['error'] ?? __('Failed to generate filename', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('Failed to generate filename. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
         }
 
@@ -633,6 +651,15 @@ class GeneratorController extends Controller
                 'success' => false,
                 'message' => __('Invalid image attachment', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ], 400);
+        }
+
+        // Verify ownership: only the attachment owner or an admin may edit alt text
+        $attachment = get_post($attachmentId);
+        if (!$attachment || ((int) $attachment->post_author !== get_current_user_id() && !current_user_can('manage_options'))) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Not authorized to edit this attachment', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 403);
         }
 
         update_post_meta($attachmentId, '_wp_attachment_image_alt', $altText);
@@ -785,6 +812,8 @@ class GeneratorController extends Controller
     /**
      * Check if an integration source is allowed.
      * Empty source (gutenberg, media modal, batch) is always allowed.
+     * Unknown sources are rejected (fail-closed) to prevent uncontrolled
+     * wp_options key construction from user-supplied values.
      */
     private static function isIntegrationAllowed(string $source): bool
     {
@@ -792,7 +821,19 @@ class GeneratorController extends Controller
             return true;
         }
 
+        // Explicit allowlist — rejects any source not listed here
+        $allowedSources = [
+            'kadence', 'spectra', 'gutenberg',
+            'yoast', 'rankmath', 'aioseo', 'seopress',
+            'woocommerce', 'filebird', 'wpml', 'polylang',
+        ];
+
+        if (!in_array($source, $allowedSources, true)) {
+            return false;
+        }
+
         $settingKey = 'icais_integration_' . $source;
-        return Settings::get($settingKey, '1') === '1';
+        // Default '0': unknown or new integrations are disabled until explicitly enabled
+        return Settings::get($settingKey, '0') === '1';
     }
 }

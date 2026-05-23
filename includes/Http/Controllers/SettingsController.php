@@ -424,13 +424,18 @@ class SettingsController extends Controller
             ], 401);
         }
         
-        if (Settings::completeWizard($userId)) {
+        // update_user_meta() returns false when the value is already set (no-op),
+        // which is indistinguishable from a real failure. Treat both outcomes as
+        // success when the meta key is actually present in the database.
+        Settings::completeWizard($userId);
+
+        if (Settings::isWizardCompleted($userId)) {
             return $this->response([
                 'success' => true,
                 'message' => __('Wizard completed', 'imagecraft-ai-alt-text-file-renamer-image-seo')
             ]);
         }
-        
+
         return $this->response([
             'success' => false,
             'message' => __('Failed to complete wizard', 'imagecraft-ai-alt-text-file-renamer-image-seo')
