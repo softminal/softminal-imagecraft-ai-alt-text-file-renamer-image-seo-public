@@ -211,11 +211,12 @@ class GeneratorController extends Controller
         
         if (!$result['success']) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
                 error_log('ImageCraft: Alt text generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
             }
             return [
                 'success' => false,
-                'message' => __('Failed to generate alt text. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                'message' => __('Failed to generate alt text. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             ];
         }
         
