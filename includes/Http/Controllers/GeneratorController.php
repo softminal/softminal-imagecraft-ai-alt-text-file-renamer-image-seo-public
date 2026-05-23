@@ -830,7 +830,9 @@ class GeneratorController extends Controller
         }
 
         $settingKey = 'icais_integration_' . $source;
-        // Default '0': unknown or new integrations are disabled until explicitly enabled
-        return Settings::get($settingKey, '0') === '1';
+        // No explicit fallback — defers to Settings::$defaults so each integration's
+        // default (e.g. '1' for spectra/kadence, '0' for wpml/polylang) is respected
+        // on fresh installs where the option has never been saved to the database.
+        return Settings::get($settingKey) === '1';
     }
 }
