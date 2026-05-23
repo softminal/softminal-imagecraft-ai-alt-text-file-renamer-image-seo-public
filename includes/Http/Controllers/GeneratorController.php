@@ -460,6 +460,7 @@ class GeneratorController extends Controller
 
         if (!$result['success']) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
                 error_log('ImageCraft: Title generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
             }
             return $this->response([
@@ -524,6 +525,7 @@ class GeneratorController extends Controller
 
         if (!$result['success']) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
                 error_log('ImageCraft: Link title generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
             }
             return $this->response([
@@ -575,6 +577,7 @@ class GeneratorController extends Controller
 
         if (!$result['success']) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
                 error_log('ImageCraft: Filename generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
             }
             return $this->response([

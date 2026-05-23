@@ -218,6 +218,7 @@ class WooCommerceController extends Controller
                 ];
             } else {
                 if (defined('WP_DEBUG') && WP_DEBUG) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
                     error_log('ImageCraft: Gallery alt text failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
                 }
                 $results[$index] = [
