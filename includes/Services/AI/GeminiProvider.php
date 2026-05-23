@@ -109,8 +109,16 @@ class GeminiProvider extends BaseAIProvider
 
     protected function extractAltText(array $response): string
     {
-        if (isset($response['candidates'][0]['content']['parts'][0]['text'])) {
-            return trim($response['candidates'][0]['content']['parts'][0]['text']);
+        // Iterate parts — skip thought/reasoning parts that Gemini 2.5+ thinking models
+        // prepend before the actual text part (identified by "thought": true).
+        $parts = $response['candidates'][0]['content']['parts'] ?? [];
+        foreach ($parts as $part) {
+            if (!empty($part['thought'])) {
+                continue;
+            }
+            if (!empty($part['text'])) {
+                return trim($part['text']);
+            }
         }
 
         throw new \Exception('Invalid response format');

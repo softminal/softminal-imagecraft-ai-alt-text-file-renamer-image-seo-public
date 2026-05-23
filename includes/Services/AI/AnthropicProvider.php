@@ -110,8 +110,14 @@ class AnthropicProvider extends BaseAIProvider
 
     protected function extractAltText(array $response): string
     {
-        if (isset($response['content'][0]['text'])) {
-            return trim($response['content'][0]['text']);
+        // Iterate content blocks — skip thinking blocks (extended thinking models
+        // place a 'thinking' block before the 'text' block at index 0).
+        if (!empty($response['content']) && is_array($response['content'])) {
+            foreach ($response['content'] as $block) {
+                if (($block['type'] ?? '') === 'text' && !empty($block['text'])) {
+                    return trim($block['text']);
+                }
+            }
         }
 
         throw new \Exception('Invalid response format');
