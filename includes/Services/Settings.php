@@ -84,35 +84,22 @@ class Settings
      */
     public static function set(string $key, $value): bool
     {
-        // Get current value (without adding prefix again since get() handles it)
-        $currentValue = self::get($key);
-
-        // Normalize values for comparison (WordPress stores booleans as '1'/'0' or 1/0)
-        $normalizedCurrent = self::normalizeValueForComparison($currentValue);
-        $normalizedNew = self::normalizeValueForComparison($value);
-
-        // If values are the same, no need to update - consider it successful
-        if ($normalizedCurrent === $normalizedNew) {
-            return true;
-        }
-
-        // Add prefix for WordPress option name
         $optionKey = ICAIS_TABLE_PREFIX . $key;
 
         // Bust the request-level cache
         self::$allCache = null;
 
-        // Update the option
+        // update_option returns true on success, false when the value is unchanged
+        // (no-op) OR on a real DB error. Call it directly — the previous pre-check
+        // read via self::get() was redundant because update_option() does its own
+        // internal read against the WP object cache before writing.
         $result = update_option($optionKey, $value);
 
-        // update_option returns false if value unchanged OR on error
-        // Since we already checked for unchanged values, false here likely means an error
-        // But verify by checking if the value was actually set
         if ($result === false) {
-            $verifyValue = get_option($optionKey);
-            $normalizedVerify = self::normalizeValueForComparison($verifyValue);
-            // If value matches what we tried to set, it's actually successful
-            return $normalizedVerify === $normalizedNew;
+            // Distinguish "already the same value" (success) from a real error
+            // with one read-back from the object cache.
+            $stored = get_option($optionKey);
+            return self::normalizeValueForComparison($stored) === self::normalizeValueForComparison($value);
         }
 
         return true;

@@ -229,7 +229,7 @@ class WooCommerce
             )
         );
 
-        $hasAlt = count(self::getProductIdsWithAlt());
+        $hasAlt = self::countProductsWithAlt();
         $missingAlt = $totalProducts - $hasAlt;
         $percentage = $totalProducts > 0 ? round(($missingAlt / $totalProducts) * 100, 1) : 0;
 
@@ -240,6 +240,34 @@ class WooCommerce
             'missing_percentage' => $percentage,
             'max_length' => (int) Settings::get('icais_max_length', 125),
         ];
+    }
+
+    /**
+     * Count published products whose featured image has non-empty alt text.
+     * Uses COUNT(*) to avoid materialising a potentially large ID array just for stats.
+     */
+    private static function countProductsWithAlt(): int
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT p.ID)
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} alt
+                     ON thumb.meta_value = alt.post_id
+                     AND alt.meta_key = %s
+                     AND alt.meta_value != ''
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_wp_attachment_image_alt',
+                'product',
+                'publish'
+            )
+        );
     }
 
     /**

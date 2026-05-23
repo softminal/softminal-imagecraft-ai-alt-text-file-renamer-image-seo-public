@@ -13,6 +13,38 @@ class Encryption
 {
     private const CIPHER = 'aes-256-cbc';
 
+    /** @var string|null Cached correctly-cased cipher name from openssl_get_cipher_methods(). */
+    private static ?string $resolvedCipher = null;
+
+    /**
+     * Resolve the correctly-cased OpenSSL cipher name, cached for the request lifetime.
+     * Replaces the per-call scan of 200+ entries in encrypt() and decrypt().
+     *
+     * @throws \Exception If the required cipher is not available.
+     */
+    private static function resolveCipher(): string
+    {
+        if (self::$resolvedCipher !== null) {
+            return self::$resolvedCipher;
+        }
+
+        if (!function_exists('openssl_encrypt')) {
+            throw new \Exception('OpenSSL extension is not available. Please enable OpenSSL in your PHP configuration.');
+        }
+
+        $available = openssl_get_cipher_methods();
+        $target = strtolower(self::CIPHER);
+
+        foreach ($available as $c) {
+            if (strtolower($c) === $target) {
+                self::$resolvedCipher = $c;
+                return $c;
+            }
+        }
+
+        throw new \Exception('Cipher ' . esc_html(self::CIPHER) . ' is not available. Available ciphers: ' . esc_html(implode(', ', array_slice($available, 0, 10))) . '...');
+    }
+
     /**
      * Get encryption key from WordPress salts
      */
@@ -40,29 +72,7 @@ class Encryption
      */
     public static function encrypt(string $data): string
     {
-        // Check if OpenSSL is available
-        if (!function_exists('openssl_encrypt')) {
-            throw new \Exception('OpenSSL extension is not available. Please enable OpenSSL in your PHP configuration.');
-        }
-
-        // Check if cipher is available (case-insensitive check)
-        $availableCiphers = openssl_get_cipher_methods();
-        $cipherLower = strtolower(self::CIPHER);
-        $cipherToUse = self::CIPHER; // Default fallback
-        $cipherFound = false;
-
-        foreach ($availableCiphers as $availableCipher) {
-            if (strtolower($availableCipher) === $cipherLower) {
-                $cipherFound = true;
-                // Use the actual cipher name from OpenSSL (might be different case)
-                $cipherToUse = $availableCipher;
-                break;
-            }
-        }
-
-        if (!$cipherFound) {
-            throw new \Exception('Cipher ' . esc_html(self::CIPHER) . ' is not available. Available ciphers: ' . esc_html(implode(', ', array_slice($availableCiphers, 0, 10))) . '...');
-        }
+        $cipherToUse = self::resolveCipher();
 
         try {
             $key = self::getEncryptionKey();
@@ -107,21 +117,7 @@ class Encryption
      */
     public static function decrypt(string $data): string
     {
-        // Check if OpenSSL is available
-        if (!function_exists('openssl_decrypt')) {
-            throw new \Exception('OpenSSL extension is not available. Please enable OpenSSL in your PHP configuration.');
-        }
-
-        // Find the actual cipher name (case-insensitive)
-        $availableCiphers = openssl_get_cipher_methods();
-        $cipherLower = strtolower(self::CIPHER);
-        $cipherToUse = self::CIPHER; // Default
-        foreach ($availableCiphers as $availableCipher) {
-            if (strtolower($availableCipher) === $cipherLower) {
-                $cipherToUse = $availableCipher;
-                break;
-            }
-        }
+        $cipherToUse = self::resolveCipher();
 
         $key = self::getEncryptionKey();
         // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Required for decrypting stored API key data

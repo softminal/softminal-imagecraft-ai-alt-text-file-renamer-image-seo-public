@@ -17,6 +17,9 @@ abstract class BaseAIProvider
     protected bool $linkTitleMode = false;
     protected bool $filenameMode = false;
 
+    /** @var bool|null Cached result of isLocalDevelopment() — value never changes within a request. */
+    private static ?bool $isLocalDevCache = null;
+
     public function __construct(string $apiKey, int $timeout = 60, ?string $model = null)
     {
         $this->apiKey = $apiKey;
@@ -638,17 +641,21 @@ abstract class BaseAIProvider
     }
 
     /**
-     * Check if running in local development environment
+     * Check if running in local development environment.
+     * Result is cached in a static property — site URL never changes within a request.
      *
      * @return bool
      */
     protected function isLocalDevelopment(): bool
     {
-        // Check common local development indicators
+        if (self::$isLocalDevCache !== null) {
+            return self::$isLocalDevCache;
+        }
+
         $siteUrl = site_url();
         $homeUrl = home_url();
 
-        return (
+        self::$isLocalDevCache = (
             strpos($siteUrl, 'localhost') !== false ||
             strpos($siteUrl, '127.0.0.1') !== false ||
             strpos($siteUrl, '.local') !== false ||
@@ -658,6 +665,8 @@ abstract class BaseAIProvider
             strpos($homeUrl, '.local') !== false ||
             strpos($homeUrl, '.test') !== false
         );
+
+        return self::$isLocalDevCache;
     }
 
     /**

@@ -42,7 +42,15 @@ class StatsTracker
         $status       = $params['status'] ?? 'pending';
         $tokens       = (int) ($params['tokens'] ?? 0);
         $cost         = (float) ($params['cost'] ?? 0);
-        $apiSetting   = ApiSetting::getActive($userId);
+
+        // Per-request static cache: avoids re-querying ApiSetting on every image
+        // in a batch run (up to 500 identical lookups per job would otherwise occur).
+        static $apiSettingCache = [];
+        $settingCacheKey = (string) $userId;
+        if (!array_key_exists($settingCacheKey, $apiSettingCache)) {
+            $apiSettingCache[$settingCacheKey] = ApiSetting::getActive($userId);
+        }
+        $apiSetting = $apiSettingCache[$settingCacheKey];
 
         $history = History::create([
             'attachment_id' => (int) $params['attachment_id'],

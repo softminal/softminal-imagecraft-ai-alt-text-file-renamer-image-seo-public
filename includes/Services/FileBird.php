@@ -308,7 +308,8 @@ class FileBird
     }
 
     /**
-     * Get attachment count for a specific folder
+     * Get attachment count for a specific folder.
+     * Uses a COUNT(*) query to avoid loading all attachment IDs just to count them.
      *
      * @param int $folderId FileBird folder term ID
      * @return int Number of attachments in folder
@@ -319,6 +320,21 @@ class FileBird
             return 0;
         }
 
-        return count(self::getAttachmentIdsByFolder($folderId));
+        $tables = self::getSafeTables();
+        if (!$tables) {
+            return 0;
+        }
+
+        $relationTable = $tables['relation'];
+        global $wpdb;
+
+        // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter
+        $sql = sprintf('SELECT COUNT(*) FROM `%s` WHERE folder_id = %%d', $relationTable);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Simple count on an admin-facing endpoint; not worth caching.
+        return (int) $wpdb->get_var(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Identifier validated and escaped before sprintf(); folder ID prepared below.
+            $wpdb->prepare($sql, $folderId)
+        );
+        // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
     }
 }

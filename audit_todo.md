@@ -515,13 +515,13 @@ Each item is self-contained, actionable, and ordered by impact within category.
 - [x] [LOW-SEC-005] Stop writing unused partial `encryption_iv` value; removed from `$fillable` and `setApiKey()` — column remains in DB schema (backwards-compatible) | File: `includes/Models/ApiSetting.php` | Effort: S
 
 ### Performance
-- [ ] [PERF-001] Replace N+1 query in `BatchController::results()` with single bulk `IN` query + map | File: `includes/Http/Controllers/BatchController.php` | Effort: S
-- [ ] [PERF-002] Pass provider name into `StatsTracker::recordGeneration()` to avoid 500 identical `ApiSetting::getActive()` calls during batch | Files: `Services/StatsTracker.php`, `GeneratorController.php`, `BatchController.php` | Effort: S
-- [ ] [PERF-003] Cache `isLocalDevelopment()` result in static property | File: `includes/Services/AI/BaseAIProvider.php` | Effort: S
-- [ ] [PERF-004] Cache or remove redundant `openssl_get_cipher_methods()` call in Encryption | File: `includes/Services/Encryption.php` | Effort: S
-- [ ] [PERF-005] Replace `getProductIdsWithAlt()` + `count()` with a `COUNT(*)` SQL query in `getProductStats()` | File: `includes/Services/WooCommerce.php` | Effort: S
-- [ ] [PERF-006] Replace `getAttachmentIdsByFolder()` + `count()` with a `COUNT(*)` SQL query in `getAttachmentCount()` | File: `includes/Services/FileBird.php` | Effort: S
-- [ ] [PERF-007] Reduce `Settings::set()` from 3 option reads to 1 | File: `includes/Services/Settings.php` | Effort: M
+- [x] [PERF-001] Replace N+1 query in `BatchController::results()` with single bulk `IN` query + map | File: `includes/Http/Controllers/BatchController.php` | Effort: S
+- [x] [PERF-002] Static per-request cache in `StatsTracker::recordGeneration()` eliminates 500× `ApiSetting::getActive()` calls during batch | File: `Services/StatsTracker.php` | Effort: S
+- [x] [PERF-003] Cache `isLocalDevelopment()` result in static property | File: `includes/Services/AI/BaseAIProvider.php` | Effort: S
+- [x] [PERF-004] Extracted `resolveCipher()` with static cache; replaces per-call `openssl_get_cipher_methods()` scan in encrypt() and decrypt() | File: `includes/Services/Encryption.php` | Effort: S
+- [x] [PERF-005] Added `countProductsWithAlt()` with `COUNT(DISTINCT)` SQL; `getProductStats()` no longer loads full ID array | File: `includes/Services/WooCommerce.php` | Effort: S
+- [x] [PERF-006] `getAttachmentCount()` now uses `COUNT(*)` SQL directly instead of loading all IDs via `getAttachmentIdsByFolder()` | File: `includes/Services/FileBird.php` | Effort: S
+- [x] [PERF-007] `Settings::set()` reduced from 3 option reads to 1 (removed pre-check; trusts update_option + single read-back on false) | File: `includes/Services/Settings.php` | Effort: M
 
 ### Dead Code & Duplication
 - [ ] [DEAD-001] Move `MistralProvider.php` and `OpenRouterProvider.php` out of autoload path | Files: `includes/Services/AI/Mistral*.php`, `OpenRouter*.php` | Effort: S

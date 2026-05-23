@@ -742,15 +742,26 @@ class BatchController extends Controller
         // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Priming post caches for batch result display
         _prime_post_caches($intIds, true, true);
 
+        // Load all histories in one bulk query then build a per-attachment map,
+        // replacing what was previously one query per image (N+1 pattern).
+        $allHistories = History::where('attachment_id', 'IN', $intIds)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+        $historyMap = [];
+        foreach ($allHistories as $h) {
+            $aid = (int) $h->attachment_id;
+            if (!isset($historyMap[$aid])) {
+                $historyMap[$aid] = $h; // first = latest (DESC order)
+            }
+        }
+
         $images = [];
         foreach ($intIds as $attachmentId) {
             if (!wp_attachment_is_image($attachmentId)) {
                 continue;
             }
 
-            $history = History::where('attachment_id', $attachmentId)
-                ->orderBy('created_at', 'DESC')
-                ->first();
+            $history = $historyMap[$attachmentId] ?? null;
 
             if (!$history) {
                 continue;
