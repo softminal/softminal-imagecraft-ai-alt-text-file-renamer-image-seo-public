@@ -4,7 +4,7 @@ Tags: ai alt text, image alt text generator, image seo, alt text generator, acce
 Requires at least: 5.8
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.3.6
+Stable tag: 1.3.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -255,6 +255,10 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
+= 1.3.7 (24 May, 2026) =
+* New: **WordPress 7.0 AI Client** support — opt in to use your site's configured AI provider (Settings → Connectors) instead of a separate API key
+* Security: Fixed several security hardening issues across REST API endpoints and data handling
+
 = 1.3.6 (12 May, 2026) =
 * Improvement: **FileBird** folder dropdown now shows nested hierarchy with cascading submenus for child folders
 * Improvement: Navigation menu styling — cleaner focus states and consistent link colors
@@ -379,6 +383,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.3.7 =
+Adds opt-in WordPress 7.0 native AI Client support and includes security hardening fixes.
 
 = 1.3.6 =
 FileBird folder dropdown now shows nested child folders with cascading submenus, plus navigation UI polish.
