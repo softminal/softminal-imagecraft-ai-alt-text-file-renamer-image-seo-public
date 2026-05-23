@@ -2,7 +2,7 @@
 Contributors: softminal, diptosoftminal
 Tags: ai alt text, image alt text generator, image seo, alt text generator, accessibility
 Requires at least: 5.8
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.3.7
 License: GPL-2.0+
