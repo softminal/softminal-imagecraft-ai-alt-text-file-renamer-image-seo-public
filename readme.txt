@@ -8,11 +8,11 @@ Stable tag: 1.3.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI-powered alt text, file renaming, and image SEO for WordPress. Use OpenAI, Claude, or Gemini with your own API key (BYOK).
+AI-powered alt text, file renaming, and image SEO for WordPress. Use OpenAI, Claude, Gemini, or the WordPress 7.0 native AI Client.
 
 == Description ==
 
-ImageCraft helps you generate SEO-optimized alt text, rename image files, and improve image accessibility in WordPress using OpenAI, Claude, or Gemini with your own API key.
+ImageCraft helps you generate SEO-optimized alt text, rename image files, and improve image accessibility in WordPress using OpenAI, Claude, Gemini, or the WordPress 7.0 native AI Client.
 
 Generate SEO-friendly alt text for hundreds of images in minutes instead of hours.
 
