@@ -30,6 +30,20 @@ class SettingsController extends Controller
         
         $configDefined = AIFactory::isConfigDefined();
 
+        // Check if the site has any working AI configuration — used to bypass the wizard
+        // for new admins on a site that is already configured by another admin.
+        $siteHasKey = $configDefined;
+        if (!$siteHasKey && Settings::get('icais_use_wp7_ai', false) && AIFactory::isWP7Available()) {
+            $siteHasKey = true;
+        }
+        if (!$siteHasKey) {
+            try {
+                $siteHasKey = ApiSetting::getActive() !== null;
+            } catch (\Exception $e) {
+                // Table may not exist yet during activation
+            }
+        }
+
         // If config key is defined but no DB setting, synthesize a virtual api_setting
         $apiSettingResponse = null;
         if ($apiSetting) {
@@ -53,6 +67,7 @@ class SettingsController extends Controller
             'settings' => Settings::all(),
             'api_setting' => $apiSettingResponse,
             'config_api_key' => $configDefined,
+            'site_has_key' => $siteHasKey,
             'wizard_completed' => Settings::isWizardCompleted($userId) || $configDefined,
             'seo_plugin' => SeoIntegration::isActive() ? [
                 'active' => true,
@@ -236,25 +251,23 @@ class SettingsController extends Controller
         }
         
         $userId = get_current_user_id();
-        
-        // Deactivate other providers
+
+        // Deactivate all existing provider keys site-wide (API config is global)
         global $wpdb;
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Intentional direct update
         $wpdb->update(
             ApiSetting::table(),
             ['is_active' => 0],
-            ['user_id' => $userId],
+            ['is_active' => 1],
             ['%d'],
             ['%d']
         );
         // Invalidate model cache after direct DB update (bypasses Model::save())
         ApiSetting::invalidateCache();
-        
-        // Get or create API setting
-        $apiSetting = ApiSetting::where('user_id', $userId)
-            ->andWhere('api_provider', $provider)
-            ->first();
-        
+
+        // Get or create the site-wide API setting for this provider
+        $apiSetting = ApiSetting::where('api_provider', $provider)->first();
+
         if (!$apiSetting) {
             // Don't use create() here — it would INSERT immediately without
             // the required NOT NULL fields (api_key_encrypted, encryption_iv),
@@ -265,13 +278,6 @@ class SettingsController extends Controller
             $apiSetting->api_provider = $provider;
             $apiSetting->is_active = 1;
         } else {
-            // Verify ownership (defense-in-depth; query already scopes by user_id)
-            if ((int) $apiSetting->user_id !== $userId) {
-                return $this->response([
-                    'success' => false,
-                    'message' => __('Not authorized', 'imagecraft-ai-alt-text-file-renamer-image-seo')
-                ], 403);
-            }
             $apiSetting->is_active = 1;
         }
         

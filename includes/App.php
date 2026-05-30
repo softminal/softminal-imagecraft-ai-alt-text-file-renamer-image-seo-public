@@ -196,12 +196,35 @@ class App
     }
 
     /**
+     * Migrate per-user wizard_completed meta to a site-wide option.
+     * Runs once after plugin replacement — no activation hook required.
+     */
+    private function maybeMigrateWizardFlag(): void
+    {
+        if (get_option(ICAIS_TABLE_PREFIX . 'wizard_completed', false)) {
+            return; // Already stamped — nothing to do
+        }
+
+        $users = get_users([
+            'meta_key'   => ICAIS_TABLE_PREFIX . 'wizard_completed',
+            'meta_value' => '1',
+            'number'     => 1,
+            'fields'     => 'ids',
+        ]);
+
+        if (!empty($users)) {
+            update_option(ICAIS_TABLE_PREFIX . 'wizard_completed', true);
+        }
+    }
+
+    /**
      * Run the application
      * @throws Exception
      */
     public function run(): void
     {
         try {
+            $this->maybeMigrateWizardFlag();
             $this->enqueue->init();
             $this->menu->init();
             $this->router->init();

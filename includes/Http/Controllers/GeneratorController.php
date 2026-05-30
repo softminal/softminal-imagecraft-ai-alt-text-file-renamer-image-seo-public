@@ -207,8 +207,19 @@ class GeneratorController extends Controller
         $originalAlt = get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
         
         // Generate alt text
-        $result = $aiProvider->generateAltText($imageUrl, $tone, $context);
-        
+        try {
+            $result = $aiProvider->generateAltText($imageUrl, $tone, $context);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            if (strpos($msg, 'Failed to fetch image') !== false || strpos($msg, 'Failed to read local image') !== false) {
+                return [
+                    'success' => false,
+                    'message' => __('Image file not found or inaccessible. Please verify the image exists in your media library.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                ];
+            }
+            throw $e;
+        }
+
         if (!$result['success']) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

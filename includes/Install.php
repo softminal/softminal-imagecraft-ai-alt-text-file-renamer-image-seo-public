@@ -160,6 +160,7 @@ class Install
             delete_option(ICAIS_TABLE_PREFIX . $key);
         }
         delete_option('icais_db_version');
+        delete_option(ICAIS_TABLE_PREFIX . 'wizard_completed');
 
         // Delete user meta for all users
         delete_metadata('user', 0, ICAIS_TABLE_PREFIX . 'wizard_completed', '', true);

@@ -508,16 +508,32 @@ abstract class BaseAIProvider
             WP_Filesystem();
         }
 
-        // Try to get local file path if URL is from this WordPress site
+        // Try to get local file path if URL is from this WordPress site.
+        // First uses getLocalFilePath(), then falls back to direct ABSPATH+urlpath
+        // computation which works even when site_url / upload_url don't match the
+        // image URL (http/https mismatch, CDN, domain migration, etc.).
         $localPath = $this->getLocalFilePath($imageUrl);
 
-        if ($localPath && $wp_filesystem->exists($localPath)) {
-            // Read from local file system (no SSL issues)
-            $imageContent = $wp_filesystem->get_contents($localPath);
+        if (!$localPath) {
+            $urlPath = wp_parse_url($imageUrl, PHP_URL_PATH);
+            if ($urlPath && strpos($urlPath, '/wp-content/uploads/') !== false) {
+                $candidate = rtrim(ABSPATH, '/') . $urlPath;
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_exists -- native check needed; WP_Filesystem may use FTP transport
+                if (file_exists($candidate)) {
+                    $localPath = $candidate;
+                }
+            }
+        }
+
+        if ($localPath) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading local image; WP_Filesystem transport may be FTP which cannot read local paths
+            $imageContent = file_get_contents($localPath);
             if ($imageContent === false) {
                 throw new \Exception('Failed to read local image file');
             }
-        } else {
+        }
+
+        if (!$localPath) {
             // Validate URL before fetching to prevent SSRF
             $this->validateImageUrl($imageUrl);
 
@@ -607,10 +623,14 @@ abstract class BaseAIProvider
         $uploadUrl = $uploadDir['baseurl'];
         $uploadPath = $uploadDir['basedir'];
 
+        // Normalize schemes to handle http vs https mismatches (common on migrated/staging sites)
+        $normalizedUrl       = preg_replace('#^https?://#', '//', $url);
+        $normalizedUploadUrl = preg_replace('#^https?://#', '//', $uploadUrl);
+
         // Check if URL is from this WordPress site's upload directory
-        if (strpos($url, $uploadUrl) === 0) {
+        if (strpos($normalizedUrl, $normalizedUploadUrl) === 0) {
             // Extract relative path from upload URL
-            $relativePath = substr($url, strlen($uploadUrl));
+            $relativePath = substr($normalizedUrl, strlen($normalizedUploadUrl));
             $relativePath = ltrim($relativePath, '/');
             $localPath = trailingslashit($uploadPath) . $relativePath;
 
@@ -636,6 +656,16 @@ abstract class BaseAIProvider
                 if ($wp_filesystem->exists($localPath)) {
                     return $localPath;
                 }
+            }
+        }
+
+        // Final fallback: resolve using URL path only, ignoring domain entirely.
+        // Handles CDN URLs, http/https mismatches, and domain changes after migration.
+        $urlPath = wp_parse_url($url, PHP_URL_PATH);
+        if ($urlPath && strpos($urlPath, '/wp-content/uploads/') !== false) {
+            $localPath = rtrim(ABSPATH, '/') . $urlPath;
+            if ($wp_filesystem->exists($localPath)) {
+                return $localPath;
             }
         }
 

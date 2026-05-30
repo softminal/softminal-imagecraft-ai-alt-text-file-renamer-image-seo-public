@@ -106,7 +106,7 @@ class StatsController extends Controller
             ['name' => 'Pending', 'value' => $pendingCount],
         ];
         
-        // Get API status
+        // Get API status (site-wide)
         $apiSetting = ApiSetting::getActive($userId);
         $apiStatus = $apiSetting ? [
             'connected' => true,

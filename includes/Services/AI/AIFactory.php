@@ -92,7 +92,7 @@ class AIFactory
             return self::create('wp7', '', 60, null);
         }
 
-        // 3. Fall back to database-stored encrypted key
+        // 3. Fall back to database-stored encrypted key (site-wide)
         $apiSetting = ApiSetting::getActive($userId);
 
         if (!$apiSetting) {

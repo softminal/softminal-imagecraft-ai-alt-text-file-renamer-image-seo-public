@@ -27,16 +27,14 @@ class ApiSetting extends Model
     }
 
     /**
-     * Get active API setting for current user
+     * Get the active API setting for the site.
+     *
+     * API configuration is site-wide — all admins share one key.
+     * The $userId parameter is retained for backwards compatibility but is no longer used.
      */
     public static function getActive(?int $userId = null)
     {
-        if ($userId === null) {
-            $userId = get_current_user_id();
-        }
-        return static::where('user_id', $userId)
-            ->andWhere('is_active', 1)
-            ->first();
+        return static::where('is_active', 1)->first();
     }
 
     /**

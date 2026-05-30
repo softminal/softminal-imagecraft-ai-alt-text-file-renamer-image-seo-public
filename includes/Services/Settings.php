@@ -194,6 +194,10 @@ class Settings
 
     /**
      * Check if wizard is completed
+     *
+     * Checks the current user's meta first, then falls back to a site-wide flag
+     * so that any admin who logs in after the wizard was completed by another admin
+     * is not forced through the wizard again.
      */
     public static function isWizardCompleted(?int $userId = null): bool
     {
@@ -201,7 +205,35 @@ class Settings
             $userId = get_current_user_id();
         }
 
-        return (bool) get_user_meta($userId, ICAIS_TABLE_PREFIX.'wizard_completed', true);
+        // Per-user check
+        if ((bool) get_user_meta($userId, ICAIS_TABLE_PREFIX.'wizard_completed', true)) {
+            // Self-heal: stamp the site-wide flag for existing installs that pre-date it
+            if (!get_option(ICAIS_TABLE_PREFIX.'wizard_completed', false)) {
+                update_option(ICAIS_TABLE_PREFIX.'wizard_completed', true);
+            }
+            return true;
+        }
+
+        // Site-wide option check (set by completeWizard or self-heal above)
+        if (get_option(ICAIS_TABLE_PREFIX.'wizard_completed', false)) {
+            return true;
+        }
+
+        // Last resort: check if any user on this site has the wizard_completed meta.
+        // This handles existing installs that pre-date the site-wide option.
+        $users = get_users([
+            'meta_key'   => ICAIS_TABLE_PREFIX.'wizard_completed',
+            'meta_value' => '1',
+            'number'     => 1,
+            'fields'     => 'ids',
+        ]);
+        if (!empty($users)) {
+            // Stamp the site-wide option so this query never runs again
+            update_option(ICAIS_TABLE_PREFIX.'wizard_completed', true);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -218,6 +250,9 @@ class Settings
 
             return false;
         }
+
+        // Set site-wide flag so other admins don't encounter the wizard
+        update_option(ICAIS_TABLE_PREFIX.'wizard_completed', true);
 
         // update_user_meta returns meta_id if new, true if updated, false on failure
         // If value already exists and is the same, it returns false, so we need to check differently

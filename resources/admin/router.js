@@ -91,7 +91,7 @@ router.beforeEach(async (to, from, next) => {
             settingsCacheTime = now;
         }
 
-        const isComplete = settings.wizard_completed && settings.api_setting?.has_key;
+        const isComplete = settings.wizard_completed && (settings.api_setting?.has_key || settings.site_has_key);
 
         if (to.path === '/wizard') {
             // Redirect completed users away from wizard to dashboard
