@@ -16,6 +16,7 @@ const RenameSettings = () => import('./components/Settings/RenameSettings.vue');
 const WooCommerceSettings = () => import('./components/Settings/WooCommerceSettings.vue');
 const SeoSettings = () => import('./components/Settings/SeoSettings.vue');
 const IntegrationSettings = () => import('./components/Settings/IntegrationSettings.vue');
+const LicenseSettings = () => import('./components/Settings/LicenseSettings.vue');
 
 const routes = [
     {
@@ -51,6 +52,7 @@ const routes = [
             { path: 'integrations', name: 'settings-integrations', component: IntegrationSettings },
             { path: 'integrations/woocommerce', name: 'settings-integration-woocommerce', component: WooCommerceSettings },
             { path: 'integrations/seo', name: 'settings-integration-seo', component: SeoSettings },
+            { path: 'license', name: 'settings-license', component: LicenseSettings },
             { path: 'woocommerce', redirect: '/settings/integrations/woocommerce' },
             { path: 'seo', redirect: '/settings/integrations/seo' },
         ],
