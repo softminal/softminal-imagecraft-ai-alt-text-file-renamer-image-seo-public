@@ -59,9 +59,9 @@ export default defineConfig({
         rolldownOptions: {
             input: inputs,
             output: {
-                chunkFileNames: '[name].js',
-                entryFileNames: '[name].js',
-                assetFileNames: '[name].[ext]',
+                chunkFileNames: '[name].[hash].js',
+                entryFileNames: '[name].[hash].js',
+                assetFileNames: '[name].[hash].[ext]',
             },
         },
     },
