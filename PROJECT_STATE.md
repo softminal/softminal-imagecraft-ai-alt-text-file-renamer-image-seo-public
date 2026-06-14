@@ -1,0 +1,202 @@
+# PROJECT STATE — ImageCraft
+
+> **Living document.** This file is the at-a-glance source of truth for the
+> project's features, codebase layout, and runtime flows. Claude MUST keep it
+> current — see the maintenance rule at the bottom and in `CLAUDE.md`. If
+> something here disagrees with the code, the code wins and this file must be
+> fixed.
+
+_Last updated: 2026-06-15_
+
+---
+
+## 1. Overview
+
+**ImageCraft** is a live WordPress.org plugin that generates AI-powered alt text
+(and titles, SEO-friendly file renames, WooCommerce image text) for media images.
+It follows a **BYOK (Bring Your Own Key)** model, and also supports the
+**WordPress Native AI Connector** (WP7 AI Client) when present.
+
+- **PHP:** 7.4+, PSR-4 (`Softminal\ImageCraft\`)
+- **Frontend:** Vue 3 + Tailwind CSS + Vite 8 (Rolldown)
+- **WordPress:** 5.8+, MySQL 5.7+
+- **Plugin version:** see `ICAIS_VERSION` in `config/constants.php` (currently 1.3.8)
+
+---
+
+## 2. Tech Stack & Build
+
+- **Bundler:** Vite 8 (uses Rolldown — config key is `build.rolldownOptions`).
+  Entry inputs are listed in `vite.config.js` (`inputs` array).
+- **Dev:** `npm run dev` (port 4000, HMR). Prod: `npm run prod` → `assets/`.
+- **Lint:** `npm run lint` / `lint:fix`. Validate: `npm run validate`.
+- **Quality gates:** Husky pre-commit runs ESLint on staged `.js`/`.vue`.
+- **Dist:** `./build.sh`.
+- **Dev/prod asset resolution:** `ICAIS_DEV_MODE` (true when `.dev` file exists).
+
+---
+
+## 3. Codebase Map
+
+### PHP (`includes/`)
+- **Bootstrap:** `App.php` (singleton, `$loadOrder`), `Enqueue.php`,
+  `EnqueueAsset.php`, `Menu.php`, `Install.php` (DB + migrations),
+  `AutoGenerate.php` (alt text on upload), `AdminNotice.php`.
+- **HTTP:** `Http/api.php` (all routes), `Http/Routes/{Route,Router}.php`,
+  `Http/Controllers/` — Generator, Scanner, Batch, Settings, Stats,
+  FileRenamer, WooCommerce.
+- **Models (`Models/`):** Eloquent-like ORM — `ApiSetting`, `History`, `Stats`,
+  `BatchJob` (+ `Model.php` base, WP object cache).
+- **Services (`Services/`):** `Settings.php`, `Encryption.php`, `Database.php`,
+  `FileRenamer.php`, `StatsTracker.php`, `SeoIntegration.php`, `UsageLimiter.php`,
+  `TranslationStrings.php`, `WooCommerce.php`.
+- **AI (`Services/AI/`):** `AIFactory.php`, `BaseAIProvider.php`,
+  `ChatCompletionsProvider.php`; providers — `AnthropicProvider`,
+  `OpenAIProvider`, `GeminiProvider`, **`WP7Provider`** (WordPress Native AI
+  Client, opt-in). Planned (commented): Mistral, OpenRouter.
+- **Support (`Support/`):** `AltTextHelper.php`, `Collection.php`.
+
+### Frontend (`resources/admin/`)
+- **Entry:** `main.js` → Vue app on `#imagecraft-app`.
+- **Router:** `router.js` (hash history; `beforeEach` wizard guard; 5s settings cache).
+- **API client:** `services/Api.js` (reads `window.imageCraft`).
+- **Views:** Dashboard, Scanner, Batch, Settings, **SetupWizard**, WooCommerce, Help.
+- **Settings sub-routes (`components/Settings/`):** General, Api, AltText, Title,
+  Rename, WooCommerce, Seo, Integration, License.
+- **Shared UI (`@ui/`):** Notification, Pagination. Plugins: `notification.js`.
+- **Standalone JS entries:** `js/gutenberg-alt-button.js`, `js/block-editor-common.js`,
+  `js/kadence-alt-button.js`, `js/spectra-alt-button.js`, `js/media-button.js`.
+
+---
+
+## 4. Features
+
+| Feature | Backend | Frontend |
+|---------|---------|----------|
+| AI alt-text generation | GeneratorController, AIFactory, StatsTracker | Scanner.vue |
+| Batch processing | BatchController, BatchJob | Batch.vue |
+| Media library scan | ScannerController | Scanner.vue |
+| Setup wizard | SettingsController (`completeWizard`) | SetupWizard.vue |
+| Settings (all) | SettingsController, Settings | Settings.vue + sub-components |
+| API key storage | ApiSetting, Encryption | ApiSettings.vue |
+| **WordPress Native AI Connector** | WP7Provider, AIFactory | ApiSettings.vue + SetupWizard.vue |
+| Auto-generate on upload | AutoGenerate.php | (none — WP hook) |
+| File rename (SEO) | FileRenamerController, FileRenamer | Scanner.vue |
+| WooCommerce images | WooCommerceController, WooCommerce | WooCommerce.vue |
+| SEO integration (Yoast/RankMath) | SeoIntegration | SeoSettings.vue |
+| Stats / dashboard | StatsController, Stats | Dashboard.vue |
+| Usage rate limiting | UsageLimiter | (n/a) |
+| License management (Pro) | (license-manage branch) | LicenseSettings.vue |
+
+---
+
+## 5. Key Flows
+
+### Setup Wizard gating (`router.js:96`)
+```
+isComplete = wizard_completed && (api_setting.has_key || site_has_key)
+```
+- `wizard_completed` (from `GET /settings`) = `isWizardCompleted(user)` OR
+  `ICAIS_API_KEY` config constant defined.
+- `site_has_key` = config key defined, OR (`icais_use_wp7_ai` enabled AND WP7
+  available), OR any active DB key site-wide.
+- Incomplete → redirected to `/wizard`. Settings cached 5s; `clearSettingsCache()`
+  after saving.
+
+### Setup Wizard steps (`SetupWizard.vue`)
+1. Welcome. 2. **Choose provider** — Anthropic / OpenAI / Gemini cards, plus a
+   **WordPress Native AI Connector** card shown only when `wp7_available`.
+   3. Configure: BYOK key input, OR config-key-detected panel, OR (for `wp7`) a
+   "WordPress AI Client detected" panel with Test Connection + Save & Continue.
+   4. Success.
+   - Selecting the WP7 card → `saveWP7AndComplete()` sets `icais_use_wp7_ai='1'`
+     then completes the wizard (no API key needed). Model selector is hidden for wp7.
+
+### AI provider resolution (`AIFactory::getProviderForUser()`)
+1. `ICAIS_API_KEY` wp-config constant (highest priority).
+2. WP7 native client if `icais_use_wp7_ai` enabled AND available.
+3. Database-stored encrypted BYOK key (site-wide active `ApiSetting`).
+   - A saved BYOK key is never overridden by the native connector.
+
+### Generation
+Scanner/Batch/WooCommerce/AutoGenerate → `AIFactory::getProviderForUser()` →
+provider `generateAltText()` → `StatsTracker` records `History` + `Stats`.
+
+---
+
+## 6. REST API (`/wp-json/icais/v1`)
+
+Routes defined in `Http/api.php`. Groups: `settings/*`, `scanner/*`,
+`generator/*`, `batch/*`, `stats/*`, `renamer/*`, `woocommerce/*`,
+`notice/dismiss`. Each route has a capability check (`manage_options`,
+`upload_files`, `manage_woocommerce`, or `edit_posts`). **Full table lives in
+`CLAUDE.md` → REST API** (keep both in sync).
+
+Key for the wizard/WP7 work:
+- `GET /settings` returns `wizard_completed`, `api_setting{provider,has_key,source}`,
+  `config_api_key`, `site_has_key`, `wp7_available`, `available_models`, etc.
+- `POST /settings` — generic settings save (used to set `icais_use_wp7_ai`).
+- `POST /settings/test-api` — `{provider:'wp7'}` tests the native connector
+  (no key/model needed).
+- `POST /settings/wizard/complete` — marks wizard done (user meta + site option).
+
+---
+
+## 7. Database (prefix `{$wpdb->prefix}icais_`)
+
+- `api_settings` — encrypted keys (user_id, provider, encrypted_key, iv)
+- `history` — generation history (attachment_id, original/generated alt, status, tokens, cost)
+- `stats` — daily per-user stats
+- `batch_jobs` — batch tracking
+Schema changes go in `Install.php` with a version-gated migration.
+
+---
+
+## 8. Settings & Constants
+
+- `wp_options` keys are double-prefixed: stored as `icais_icais_*` (intentional
+  legacy). Access via `Settings::get()/set()`; defaults in `Settings::$defaults`.
+- Notable: `icais_use_wp7_ai` ('0' default, opt-in), `icais_api_provider`,
+  `icais_<provider>_model`, `icais_request_timeout`, `icais_default_tone`,
+  `icais_max_length`. Wizard flag: `icais_wizard_completed` (user meta + site option).
+- Constants (`config/constants.php`): `ICAIS_DEV_MODE`, `ICAIS_API_NAMESPACE`
+  (`icais/v1`), `ICAIS_TABLE_PREFIX` (`icais_`), `ICAIS_VERSION`.
+- API keys: AES-256-CBC via `Encryption.php` (WP `AUTH_KEY`/`SECURE_AUTH_KEY`).
+
+---
+
+## 9. AI Providers
+
+`BaseAIProvider` handles image fetch/base64/MIME, tone prompts (professional,
+casual, technical, seo, woo_*, custom), max length, multi-model.
+
+Default models: Anthropic `claude-haiku-4-5`, OpenAI `gpt-4o-mini`,
+Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
+
+---
+
+## 10. Recent Changes (newest first)
+
+- **2026-06-15** — Released **1.3.8**: version bumped in main plugin file,
+  `config/constants.php` (`ICAIS_VERSION`), and `readme.txt` (Stable tag +
+  changelog + upgrade notice). Headline: the WordPress Native AI Connector
+  wizard card (below).
+- **2026-06-14** — Setup Wizard: added "WordPress Native AI Connector" provider
+  card (shown when `wp7_available`); selecting it enables `icais_use_wp7_ai` and
+  completes the wizard with no API key. Frontend-only (`SetupWizard.vue`); reuses
+  existing `POST /settings`, `POST /settings/test-api` (`wp7`), and
+  `POST /settings/wizard/complete`. Fixes fresh installs being forced through
+  key entry when a native connector is already active.
+- License management settings page for Pro (`license-manage` branch).
+- Plugin config made site-wide; improved image error messages.
+
+---
+
+## MAINTENANCE RULE (Claude must follow)
+
+Whenever you add, remove, or change a **feature, REST endpoint, Vue
+view/route, PHP controller/service/model, DB table/column, `wp_options` key, AI
+provider, or a runtime flow**, update the relevant section(s) above AND prepend a
+dated entry to **Recent Changes**. Keep it concise and scannable. This file
+complements `CLAUDE.md` (which holds the authoritative dependency map, full REST
+table, and conventions) — when both describe the same thing, keep them in sync.

@@ -91,6 +91,20 @@
           </div>
         </div>
 
+        <!-- WordPress Native AI Connector — only when a configured connector is detected -->
+        <div
+          v-if="wp7Available"
+          @click="selectedProvider = 'wp7'"
+          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
+                   selectedProvider === 'wp7' ? 'border-blue-600 bg-blue-50' : 'bg-white shadow border-gray-200']"
+        >
+          <h3 class="font-bold text-lg mb-2">{{ $t('WordPress Native AI Connector') }}</h3>
+          <p class="text-sm text-gray-600 mb-4">{{ $t("Use your site's built-in AI — no API key needed") }}</p>
+          <div class="text-xs text-gray-500">
+            <div>{{ $t('Managed by WordPress, nothing to configure') }}</div>
+          </div>
+        </div>
+
       </div>
 
       <div class="flex justify-between">
@@ -110,8 +124,54 @@
     <div v-if="currentStep === 3" class="api-key-step">
       <h2 class="text-2xl font-bold mb-6">{{ $t('Add Your API Key') }}</h2>
 
+      <!-- WordPress Native AI Connector selected — no key needed -->
+      <div v-if="selectedProvider === 'wp7'" class="mb-6">
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span class="font-semibold text-green-800">{{ $t('WordPress AI Client detected') }}</span>
+          </div>
+          <p class="text-sm text-gray-600">
+            {{ $t('Your site has a WordPress AI connector configured. You can use it instead of entering your own API key — no key storage needed.') }}
+          </p>
+        </div>
+
+        <div v-if="testResult" class="mb-4">
+          <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded">
+            {{ $t('Connection successful!') }}
+          </div>
+          <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded">
+            {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button @click="currentStep = 2" class="text-gray-600 hover:text-gray-800">
+            ← {{ $t('Back') }}
+          </button>
+          <div class="space-x-3">
+            <button
+              @click="testConnection"
+              :disabled="testing"
+              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50"
+            >
+              {{ testing ? $t('Testing...') : $t('Test Connection') }}
+            </button>
+            <button
+              @click="saveWP7AndComplete"
+              :disabled="!testResult?.success || saving"
+              class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
+            >
+              {{ saving ? $t('Saving...') : $t('Save & Continue') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Config key detected -->
-      <div v-if="configApiKey" class="mb-6">
+      <div v-else-if="configApiKey" class="mb-6">
         <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
           <div class="flex items-center gap-2 mb-2">
             <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,12 +332,15 @@ const testResult = ref(null)
 const availableModels = ref({})
 const selectedModels = ref({})
 const configApiKey = ref(false)
+const wp7Available = ref(false)
 
 const currentModels = computed(() => {
   return availableModels.value[selectedProvider.value] || []
 })
 
 const showModelSelector = computed(() => {
+  // WordPress Native AI Connector manages its own model — no selector
+  if (selectedProvider.value === 'wp7') return false
   return currentModels.value.length > 1 && selectedProvider.value !== 'openrouter'
 })
 
@@ -300,13 +363,17 @@ onMounted(async () => {
     if (result.config_api_key) {
       configApiKey.value = true
     }
+    if (result.wp7_available) {
+      wp7Available.value = true
+    }
   } catch {
     // Non-critical, model selector just won't show
   }
 })
 
 const testConnection = async () => {
-  if (!configApiKey.value && !apiKey.value) return
+  // WP7 needs no key; BYOK/config require a key to be present
+  if (selectedProvider.value !== 'wp7' && !configApiKey.value && !apiKey.value) return
 
   testing.value = true
   testResult.value = null
@@ -315,7 +382,7 @@ const testConnection = async () => {
     const payload = {
       provider: selectedProvider.value,
     }
-    if (!configApiKey.value) {
+    if (selectedProvider.value !== 'wp7' && !configApiKey.value) {
       payload.api_key = apiKey.value
     }
     if (showModelSelector.value) {
@@ -349,6 +416,28 @@ const saveConfigAndComplete = async () => {
       settingsPayload['icais_' + selectedProvider.value + '_model'] = currentSelectedModel.value
     }
     await Api.post('/settings', { settings: settingsPayload })
+
+    await Api.post('/settings/wizard/complete')
+    notification.success($t('Setup complete!'))
+    setTimeout(() => {
+      window.location.hash = '#/'
+      window.location.reload()
+    }, 1000)
+  } catch {
+    notification.error($t('Failed to complete setup'))
+  } finally {
+    saving.value = false
+  }
+}
+
+const saveWP7AndComplete = async () => {
+  if (!testResult.value?.success) return
+
+  saving.value = true
+
+  try {
+    // Enable the WordPress Native AI Connector site-wide
+    await Api.post('/settings', { settings: { icais_use_wp7_ai: '1' } })
 
     await Api.post('/settings/wizard/complete')
     notification.success($t('Setup complete!'))
