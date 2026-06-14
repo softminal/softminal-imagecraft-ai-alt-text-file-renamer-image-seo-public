@@ -177,6 +177,12 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-06-15** — Fix (`Dashboard.vue:424`): the dashboard's setup-complete
+  check only looked at `api_setting?.has_key`, so users who finished setup via
+  the WordPress Native AI Connector (`api_setting` is `null`, `site_has_key`
+  true) were bounced and the dashboard loaded no data (blank stats, audit, and
+  usage card). Now mirrors the router guard: `wizard_completed && (has_key ||
+  site_has_key)`.
 - **2026-06-15** — Released **1.3.8**: version bumped in main plugin file,
   `config/constants.php` (`ICAIS_VERSION`), and `readme.txt` (Stable tag +
   changelog + upgrade notice). Headline: the WordPress Native AI Connector

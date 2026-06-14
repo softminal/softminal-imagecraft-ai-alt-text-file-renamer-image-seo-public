@@ -421,7 +421,11 @@ const runAudit = async () => {
 const loadDashboard = async () => {
   try {
     const settingsData = await getSettings()
-    if (!settingsData.wizard_completed || !settingsData.api_setting?.has_key) {
+    // Setup is complete when the wizard is done AND a provider is available —
+    // a BYOK key (api_setting.has_key) OR a site-wide source (config key / the
+    // WordPress Native AI Connector), surfaced as site_has_key. Mirrors the
+    // router guard in router.js so native-connector users aren't bounced.
+    if (!settingsData.wizard_completed || !(settingsData.api_setting?.has_key || settingsData.site_has_key)) {
       router.push('/wizard')
       return
     }
