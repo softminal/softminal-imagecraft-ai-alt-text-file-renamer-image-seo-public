@@ -222,7 +222,9 @@ class Settings
         // Last resort: check if any user on this site has the wizard_completed meta.
         // This handles existing installs that pre-date the site-wide option.
         $users = get_users([
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- One-time backwards-compat lookup for pre-site-option installs; stamps the option afterward so it never runs again, and bounded by number=>1.
             'meta_key'   => ICAIS_TABLE_PREFIX.'wizard_completed',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- One-time backwards-compat lookup for pre-site-option installs; stamps the option afterward so it never runs again, and bounded by number=>1.
             'meta_value' => '1',
             'number'     => 1,
             'fields'     => 'ids',

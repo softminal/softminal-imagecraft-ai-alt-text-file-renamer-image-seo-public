@@ -206,7 +206,9 @@ class App
         }
 
         $users = get_users([
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- One-time guarded migration; skipped once the site-wide option is stamped, and bounded by number=>1.
             'meta_key'   => ICAIS_TABLE_PREFIX . 'wizard_completed',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- One-time guarded migration; skipped once the site-wide option is stamped, and bounded by number=>1.
             'meta_value' => '1',
             'number'     => 1,
             'fields'     => 'ids',
