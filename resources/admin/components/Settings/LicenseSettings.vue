@@ -36,45 +36,47 @@
     </div>
 
     <!-- Pro: license management -->
-    <template v-else>
-    <h2 class="text-xl font-bold mb-1 mt-0">License</h2>
-    <p class="text-sm text-gray-500 mb-6">Activate your ImageCraft Pro license to unlock unlimited generations.</p>
+    <div v-else class="bg-white rounded-lg shadow border p-6">
+      <h2 class="text-lg font-semibold">License</h2>
+      <p class="text-sm text-gray-500 mb-4">Activate your ImageCraft Pro license to unlock unlimited generations.</p>
+      <hr class="mb-6" />
 
-    <!-- Status card -->
-    <div class="bg-white rounded-lg shadow border p-6 mb-4">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="font-semibold text-gray-800 text-base mt-0">License Status</h3>
-        <span :class="statusBadgeClass">{{ statusLabel }}</span>
-      </div>
+      <!-- License status -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-gray-800 text-base mt-0">License Status</h3>
+          <span :class="statusBadgeClass">{{ statusLabel }}</span>
+        </div>
 
-      <div v-if="status.key" class="mb-4">
-        <p class="text-sm text-gray-500 mb-1.5">License Key</p>
-        <code class="text-sm bg-gray-50 px-3 py-2 rounded border block tracking-widest">{{ status.key }}</code>
-      </div>
+        <div v-if="status.key" class="mb-4">
+          <p class="text-sm text-gray-500 mb-1.5">License Key</p>
+          <code class="text-sm bg-gray-50 px-3 py-2 rounded border block tracking-widest">{{ status.key }}</code>
+        </div>
 
-      <!-- Domain usage -->
-      <div v-if="status.valid" class="mt-4 pt-4 border-t">
-        <p class="text-sm text-gray-500 mb-1.5">Domain Usage</p>
-        <div class="flex items-center gap-3">
-          <div class="flex-1 bg-gray-100 rounded-full h-2">
-            <div
-              class="bg-blue-500 h-2 rounded-full transition-all"
-              :style="{ width: siteUsagePercent + '%' }"
-            ></div>
+        <!-- Domain usage -->
+        <div v-if="status.valid" class="mt-4 pt-4 border-t">
+          <p class="text-sm text-gray-500 mb-1.5">Domain Usage</p>
+          <div class="flex items-center gap-3">
+            <div class="flex-1 bg-gray-100 rounded-full h-2">
+              <div
+                class="bg-blue-500 h-2 rounded-full transition-all"
+                :style="{ width: siteUsagePercent + '%' }"
+              ></div>
+            </div>
+            <span class="text-sm font-medium text-gray-700 whitespace-nowrap">
+              {{ status.unlimited ? 'Unlimited domains' : `${status.site_count ?? 0} / ${status.site_limit} domain${status.site_limit !== 1 ? 's' : ''}` }}
+            </span>
           </div>
-          <span class="text-sm font-medium text-gray-700 whitespace-nowrap">
-            {{ status.unlimited ? 'Unlimited domains' : `${status.site_count ?? 0} / ${status.site_limit} domain${status.site_limit !== 1 ? 's' : ''}` }}
-          </span>
+        </div>
+
+        <div v-if="status.last_check" class="text-xs text-gray-400 mt-3">
+          Last verified: {{ lastVerified }}
         </div>
       </div>
 
-      <div v-if="status.last_check" class="text-xs text-gray-400 mt-3">
-        Last verified: {{ lastVerified }}
-      </div>
-    </div>
+      <hr class="mb-6" />
 
-    <!-- Activate / Update form -->
-    <div class="bg-white rounded-lg shadow border p-6">
+      <!-- Activate / Update form -->
       <h3 class="font-semibold text-gray-800 text-base mt-0 mb-4">
         {{ status.key ? 'Update License Key' : 'Activate License' }}
       </h3>
@@ -114,7 +116,6 @@
         <a href="https://softminal.com/dashboard/downloads" target="_blank" class="text-blue-600 hover:underline">Softminal dashboard</a>.
       </p>
     </div>
-    </template>
   </div>
 </template>
 
