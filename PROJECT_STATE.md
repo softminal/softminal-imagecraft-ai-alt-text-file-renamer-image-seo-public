@@ -20,7 +20,7 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 - **PHP:** 7.4+, PSR-4 (`Softminal\ImageCraft\`)
 - **Frontend:** Vue 3 + Tailwind CSS + Vite 8 (Rolldown)
 - **WordPress:** 5.8+, MySQL 5.7+
-- **Plugin version:** see `ICAIS_VERSION` in `config/constants.php` (currently 1.3.8)
+- **Plugin version:** see `ICAIS_VERSION` in `config/constants.php` (currently 1.3.9)
 
 ---
 
@@ -177,6 +177,13 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-06-15** — Released **1.3.9**: UI enhancements. Added a "Get Pro" button
+  (solid amber, white text + SVG star) to the Navbar, Dashboard daily-usage card,
+  and the non-Pro License settings upsell; hidden when `window.icais.isPro`. The
+  Settings sidebar now always shows a **License** item — Pro users
+  (`isProInstalled`) see license management, others see an upsell with Get Pro.
+  Version bumped in main plugin file, `config/constants.php`, `package.json`, and
+  `readme.txt` (Stable tag + changelog + upgrade notice).
 - **2026-06-15** — Fix (`Dashboard.vue:424`): the dashboard's setup-complete
   check only looked at `api_setting?.has_key`, so users who finished setup via
   the WordPress Native AI Connector (`api_setting` is `null`, `site_has_key`

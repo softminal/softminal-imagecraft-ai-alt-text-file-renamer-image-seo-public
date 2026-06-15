@@ -18,6 +18,20 @@
                     <span v-if="item.icon" class="mr-1">{{ item.icon }}</span>
                     {{ $t(item.name) }}
                 </router-link>
+
+                <!-- Get Pro Button -->
+                <a
+                    v-if="!isPro"
+                    :href="proUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="get-pro-btn ml-2 inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold bg-amber-500 rounded-lg shadow-sm hover:bg-amber-600 transition-colors outline-hidden focus:shadow-none"
+                >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z" />
+                    </svg>
+                    {{ $t('Get Pro') }}
+                </a>
             </div>
             <div v-else class="flex items-center gap-1 text-gray-500 text-sm">
                 {{ $t('Loading...') }}
@@ -42,6 +56,9 @@ const menuItems = ref([
     { name: 'Dashboard', path: '/' },
     { name: 'Scanner', path: '/scanner' },
 ])
+
+const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
+const isPro = window.icais?.isPro ?? false
 
 const isActive = (path) => {
     const currentPath = route.path.replace(/^#/, '')
@@ -83,6 +100,7 @@ a:hover {
 
 .nav-link {
     color: #6b7280;
+    border-radius: 0.5rem;
 }
 
 .nav-link:focus,
@@ -90,5 +108,13 @@ a:hover {
     outline: none;
     box-shadow: none;
     border-color: transparent;
+    border-radius: 0.5rem;
+}
+
+.get-pro-btn,
+.get-pro-btn:hover,
+.get-pro-btn:focus,
+.get-pro-btn:active {
+    color: #ffffff;
 }
 </style>

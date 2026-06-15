@@ -4,7 +4,7 @@ Tags: ai alt text, image alt text generator, image seo, alt text generator, acce
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.8
+Stable tag: 1.3.9
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -255,6 +255,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
+= 1.3.9 (15 June, 2026) =
+* Improvement: UI enhancements across the dashboard, navigation, and settings screens
+
 = 1.3.8 (15 June, 2026) =
 * New: **WordPress Native AI Connector** option in the Setup Wizard — select it during setup to use your site's built-in AI provider with no API key required
 * Fix: Fresh installs are no longer forced to enter an API key when a WordPress native AI connector is already active
@@ -389,6 +392,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.3.9 =
+UI enhancements across the dashboard, navigation, and settings screens.
 
 = 1.3.8 =
 Adds a WordPress Native AI Connector option to the setup wizard so sites with built-in AI can finish setup without an API key, plus site-wide config and fresh-install fixes.

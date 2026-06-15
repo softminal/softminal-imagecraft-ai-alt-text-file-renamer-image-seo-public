@@ -33,8 +33,21 @@
             </span>
             {{ $t('images') }}
           </div>
-          <div v-if="usageLimit.reset_in" class="text-xs text-gray-500">
-            {{ $t('Resets in %s', usageLimit.reset_in) }}
+          <div class="flex items-center gap-3">
+            <div v-if="usageLimit.reset_in" class="text-xs text-gray-500">
+              {{ $t('Resets in %s', usageLimit.reset_in) }}
+            </div>
+            <a
+              :href="proUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="get-pro-btn inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-amber-500 rounded-md shadow-sm hover:bg-amber-600 transition-colors no-underline"
+            >
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z" />
+              </svg>
+              {{ $t('Get Pro') }}
+            </a>
           </div>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -260,6 +273,8 @@ const auditLoading = ref(false)
 const chartUsage = ref([])
 const chartResults = ref([])
 
+const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
+
 const hasUsageData = computed(() => chartUsage.value.some(d => d.processed > 0 || d.cost > 0))
 const hasResultsData = computed(() => chartResults.value.some(d => d.value > 0))
 
@@ -464,3 +479,12 @@ onMounted(() => {
   loadDashboard();
 })
 </script>
+
+<style scoped>
+.get-pro-btn,
+.get-pro-btn:hover,
+.get-pro-btn:focus,
+.get-pro-btn:active {
+    color: #ffffff;
+}
+</style>
