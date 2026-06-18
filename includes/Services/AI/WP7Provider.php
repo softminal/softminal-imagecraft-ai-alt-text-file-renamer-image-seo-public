@@ -106,6 +106,13 @@ class WP7Provider extends BaseAIProvider
             ];
         }
 
+        if (!class_exists('\WordPress\AiClient\Files\DTO\File')) {
+            return [
+                'success' => false,
+                'error'   => __('WordPress 7.0 AI Client is not available', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
+
         try {
             $prompt    = $this->getPrompt($tone, $context);
             $imageData = $this->getImageData($imageUrl);
@@ -152,7 +159,11 @@ class WP7Provider extends BaseAIProvider
                 'tokens'   => $tokens,
                 'cost'     => 0.0, // WP7 abstracts billing — cost not available per-request
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            // Catch \Throwable (not just \Exception): WordPress core's AI Client can
+            // raise \Error/\TypeError (e.g. a missing class or signature change across
+            // WP versions). Containing every throwable here guarantees this provider
+            // can never bubble a fatal up to the caller and take a request down.
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
                 error_log('ImageCraft WP7Provider: ' . $e->getMessage());
@@ -178,9 +189,23 @@ class WP7Provider extends BaseAIProvider
             ];
         }
 
-        $builder = self::clientPrompt('test');
+        // The live capability probe reaches into WordPress core's AI Client, which
+        // can raise \Error/\TypeError as well as \Exception. Contain every throwable
+        // so the Test Connection button can never trigger a fatal.
+        try {
+            $supported = self::clientPrompt('test')->is_supported_for_text_generation();
+        } catch (\Throwable $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                error_log('ImageCraft WP7Provider: ' . $e->getMessage());
+            }
+            return [
+                'success' => false,
+                'error'   => __('Could not verify the WordPress AI Client. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
 
-        if (!$builder->is_supported_for_text_generation()) {
+        if (!$supported) {
             return [
                 'success' => false,
                 'error'   => __('No AI provider configured. Go to WordPress Settings → Connectors to set one up.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),

@@ -258,7 +258,7 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 = 1.3.10 (19 June, 2026) =
 * Fix: The WordPress Native AI Connector now appears consistently in API Settings and the Setup Wizard. Connector availability is determined locally, removing an intermittent network check that could prevent the option from displaying.
 * Improvement: Faster Settings page load on sites using the native AI connector by eliminating a redundant per-request provider lookup.
-* Improvement: Increased resilience of the Settings screen so that an error from the native AI Client can no longer interrupt page loading.
+* Improvement: Hardened all native AI Client paths (settings, connection test, and alt text generation) so that an unexpected error from WordPress core's AI Client is always handled gracefully and can never interrupt page loading or generation.
 
 = 1.3.9 (15 June, 2026) =
 * Improvement: UI enhancements across the dashboard, navigation, and settings screens
