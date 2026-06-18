@@ -30,10 +30,21 @@ class SettingsController extends Controller
         
         $configDefined = AIFactory::isConfigDefined();
 
+        // Resolve WP7 native AI availability defensively — the underlying core
+        // AI Client must never be able to bubble a fatal up and 500 this endpoint.
+        $wp7Available = false;
+        try {
+            $wp7Available = AIFactory::isWP7Available();
+        } catch (\Throwable $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('ImageCraft: WP7 availability check failed — ' . $e->getMessage());
+            }
+        }
+
         // Check if the site has any working AI configuration — used to bypass the wizard
         // for new admins on a site that is already configured by another admin.
         $siteHasKey = $configDefined;
-        if (!$siteHasKey && Settings::get('icais_use_wp7_ai', false) && AIFactory::isWP7Available()) {
+        if (!$siteHasKey && Settings::get('icais_use_wp7_ai', false) && $wp7Available) {
             $siteHasKey = true;
         }
         if (!$siteHasKey) {
@@ -74,7 +85,7 @@ class SettingsController extends Controller
                 'plugin' => SeoIntegration::getActivePlugin(),
                 'label'  => SeoIntegration::getActivePluginLabel(),
             ] : ['active' => false, 'plugin' => null, 'label' => ''],
-            'wp7_available' => AIFactory::isWP7Available(),
+            'wp7_available' => $wp7Available,
             'available_models' => AIFactory::getAvailableModels(),
             'available_languages' => \Softminal\ImageCraft\Services\AI\BaseAIProvider::getLanguageMap(),
             'woo_active' => class_exists('WooCommerce'),

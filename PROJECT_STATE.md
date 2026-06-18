@@ -20,7 +20,7 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 - **PHP:** 7.4+, PSR-4 (`Softminal\ImageCraft\`)
 - **Frontend:** Vue 3 + Tailwind CSS + Vite 8 (Rolldown)
 - **WordPress:** 5.8+, MySQL 5.7+
-- **Plugin version:** see `ICAIS_VERSION` in `config/constants.php` (currently 1.3.9)
+- **Plugin version:** see `ICAIS_VERSION` in `config/constants.php` (currently 1.3.10)
 
 ---
 
@@ -177,6 +177,20 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-06-19** — Released **1.3.10**: WordPress Native AI Connector reliability
+  fix. `WP7Provider::isAvailable()` (used to decide whether to show the connector
+  option in API Settings + Setup Wizard) previously called
+  `is_supported_for_text_generation()`, which makes a live `listModels` network
+  request to the configured provider on every settings-page load. With no
+  persistent object cache the probe ran each request and intermittently failed
+  on a network blip, hiding the connector option even when correctly configured.
+  Now gated on cheap local checks only (`function_exists('wp_ai_client_prompt')`
+  + `wp_supports_ai()`); the live capability check remains in `testConnection()`
+  and the generation path. Also wrapped the availability resolution in
+  `SettingsController::index` in `try/catch (\Throwable)` so a core AI Client
+  fatal can never 500 the settings endpoint. Version bumped in main plugin file,
+  `config/constants.php`, `package.json`, and `readme.txt` (Stable tag +
+  changelog + upgrade notice).
 - **2026-06-15** — Released **1.3.9**: UI enhancements. Added a "Get Pro" button
   (solid amber, white text + SVG star) to the Navbar, Dashboard daily-usage card,
   and the non-Pro License settings upsell; hidden when `window.icais.isPro`. The

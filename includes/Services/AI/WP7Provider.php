@@ -63,8 +63,18 @@ class WP7Provider extends BaseAIProvider
     }
 
     /**
-     * Check if the WordPress 7.0 AI Client is available and has a
-     * configured provider that supports text generation (vision).
+     * Check if the WordPress 7.0 AI Client is available on this site.
+     *
+     * Uses only cheap, deterministic local checks — the AI Client function
+     * existing and AI being supported in this environment. Deliberately does
+     * NOT call is_supported_for_text_generation() here, because that makes a
+     * live network request (listModels) to the configured provider on every
+     * call. Without a persistent object cache that probe runs on each page
+     * load and intermittently fails on a network blip, which would hide the
+     * WordPress Native AI Connector option even when it is correctly set up.
+     *
+     * The live capability/vision check still runs in testConnection() and on
+     * the actual generation path, where a real-time result is appropriate.
      */
     public static function isAvailable(): bool
     {
@@ -72,7 +82,12 @@ class WP7Provider extends BaseAIProvider
             return false;
         }
 
-        return (bool) self::clientPrompt('test')->is_supported_for_text_generation();
+        // wp_supports_ai() arrived with the native AI Client; guard for safety.
+        if (function_exists('wp_supports_ai') && !wp_supports_ai()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
