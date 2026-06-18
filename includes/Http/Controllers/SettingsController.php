@@ -37,6 +37,7 @@ class SettingsController extends Controller
             $wp7Available = AIFactory::isWP7Available();
         } catch (\Throwable $e) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
                 error_log('ImageCraft: WP7 availability check failed — ' . $e->getMessage());
             }
         }

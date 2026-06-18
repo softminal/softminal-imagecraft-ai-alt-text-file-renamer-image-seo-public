@@ -82,8 +82,12 @@ class WP7Provider extends BaseAIProvider
             return false;
         }
 
-        // wp_supports_ai() arrived with the native AI Client; guard for safety.
-        if (function_exists('wp_supports_ai') && !wp_supports_ai()) {
+        // wp_supports_ai() arrived with the native AI Client (WP 7.0). Call it via a
+        // variable — exactly like clientPrompt() does for wp_ai_client_prompt() — so
+        // static analysers don't flag a WP 7.0 function against our 5.8 minimum. The
+        // function_exists() guard already makes the call safe on older WordPress.
+        $supportsAi = 'wp_supports_ai';
+        if (function_exists($supportsAi) && !$supportsAi()) {
             return false;
         }
 
