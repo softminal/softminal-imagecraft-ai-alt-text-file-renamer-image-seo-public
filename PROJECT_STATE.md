@@ -127,10 +127,10 @@ provider `generateAltText()` → `StatsTracker` records `History` + `Stats`.
 ## 6. REST API (`/wp-json/icais/v1`)
 
 Routes defined in `Http/api.php`. Groups: `settings/*`, `scanner/*`,
-`generator/*`, `batch/*`, `stats/*`, `renamer/*`, `woocommerce/*`,
-`notice/dismiss`. Each route has a capability check (`manage_options`,
-`upload_files`, `manage_woocommerce`, or `edit_posts`). **Full table lives in
-`CLAUDE.md` → REST API** (keep both in sync).
+`generator/*`, `batch/*`, `stats/*`, `renamer/*`, `woocommerce/*`, `filebird/*`,
+`notice/dismiss`, `feedback/deactivation`. Each route has a capability check
+(`manage_options`, `upload_files`, `manage_woocommerce`, `edit_posts`, or
+`activate_plugins`). **Full table lives in `CLAUDE.md` → REST API** (keep both in sync).
 
 Key for the wizard/WP7 work:
 - `GET /settings` returns `wizard_completed`, `api_setting{provider,has_key,source}`,
@@ -177,6 +177,20 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-06-19** — New: **Deactivation feedback survey**. A modal appears when an
+  admin clicks "Deactivate" on the ImageCraft row of the Plugins screen, with a
+  reason list (no longer need / found better / couldn't get it to work /
+  temporary / don't know how to use / other + comment) and two buttons:
+  "Submit & Deactivate" and "Skip & Deactivate". Submit posts the response to
+  `POST /feedback/deactivation` (`activate_plugins`), which forwards it to the
+  Softminal endpoint via `wp_remote_post` (filterable via `icais_feedback_endpoint`
+  / `ICAIS_FEEDBACK_ENDPOINT`, default `https://admin.softminal.com/wp-json/softminal/v1/feedback`).
+  Skip sends nothing; deactivation always proceeds. New files:
+  `includes/DeactivationSurvey.php`, `includes/Http/Controllers/FeedbackController.php`,
+  `resources/admin/css/deactivation-survey.css`. Self-contained (renders on
+  `plugins.php`, outside the Vue SPA; no Vite rebuild needed). readme.txt
+  External services section updated to disclose the Softminal endpoint. Not yet
+  released — will ship in a future version.
 - **2026-06-19** — Released **1.3.10**: WordPress Native AI Connector reliability
   fix. `WP7Provider::isAvailable()` (used to decide whether to show the connector
   option in API Settings + Setup Wizard) previously called

@@ -158,6 +158,16 @@ Used to generate alt text via the Google Gemini API.
 * [Terms of Service](https://ai.google.dev/gemini-api/terms)
 * [Privacy Policy](https://policies.google.com/privacy)
 
+= Softminal (deactivation feedback) =
+
+Used only for the optional deactivation survey. When you deactivate the plugin, a short feedback form is shown. Data is sent **only if you click "Submit & Deactivate"** — clicking "Skip & Deactivate" sends nothing, and no data is ever sent automatically. The form is submitted to your own site first, which then forwards it to Softminal server-side.
+
+**Data sent (on explicit submit only):** the reason you selected, your optional comment, the action (deactivate), the plugin version, WordPress version, PHP version, and your site URL. No personal user data and no API keys are sent.
+
+* Endpoint: `https://admin.softminal.com/wp-json/softminal/v1/feedback`
+* [Terms of Service](https://softminal.com/terms)
+* [Privacy Policy](https://softminal.com/privacy)
+
 == How to Use ImageCraft ==
 
 https://www.youtube.com/watch?v=VVhnzSmrjLE

@@ -4,6 +4,7 @@ namespace Softminal\ImageCraft\Http;
 
 use Softminal\ImageCraft\AdminNotice;
 use Softminal\ImageCraft\Http\Controllers\BatchController;
+use Softminal\ImageCraft\Http\Controllers\FeedbackController;
 use Softminal\ImageCraft\Http\Controllers\FileBirdController;
 use Softminal\ImageCraft\Http\Controllers\FileRenamerController;
 use Softminal\ImageCraft\Http\Controllers\GeneratorController;
@@ -70,6 +71,11 @@ Route::prefix('renamer')->capability('upload_files')->group(function () {
 // Notice routes
 Route::prefix('notice')->capability('edit_posts')->group(function () {
     Route::post('/dismiss', [AdminNotice::class, 'dismiss']);
+});
+
+// Feedback routes (deactivation survey)
+Route::prefix('feedback')->capability('activate_plugins')->group(function () {
+    Route::post('/deactivation', [FeedbackController::class, 'deactivation']);
 });
 
 // WooCommerce routes
