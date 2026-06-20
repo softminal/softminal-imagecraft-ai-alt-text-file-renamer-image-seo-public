@@ -3,6 +3,7 @@ import Api from './services/Api';
 
 const Dashboard = () => import('./views/Dashboard.vue');
 const Scanner = () => import('./views/Scanner.vue');
+const Compression = () => import('./views/Compression.vue');
 const Batch = () => import('./views/Batch.vue');
 const Settings = () => import('./views/Settings.vue');
 const WooCommerce = () => import('./views/WooCommerce.vue');
@@ -15,6 +16,7 @@ const TitleSettings = () => import('./components/Settings/TitleSettings.vue');
 const RenameSettings = () => import('./components/Settings/RenameSettings.vue');
 const WooCommerceSettings = () => import('./components/Settings/WooCommerceSettings.vue');
 const SeoSettings = () => import('./components/Settings/SeoSettings.vue');
+const CompressionSettings = () => import('./components/Settings/CompressionSettings.vue');
 const IntegrationSettings = () => import('./components/Settings/IntegrationSettings.vue');
 const LicenseSettings = () => import('./components/Settings/LicenseSettings.vue');
 
@@ -28,6 +30,11 @@ const routes = [
         path: '/scanner',
         name: 'scanner',
         component: Scanner,
+    },
+    {
+        path: '/compression',
+        name: 'compression',
+        component: Compression,
     },
     {
         path: '/woocommerce',
@@ -49,6 +56,7 @@ const routes = [
             { path: 'alt-text', name: 'settings-alt-text', component: AltTextSettings },
             { path: 'title', name: 'settings-title', component: TitleSettings },
             { path: 'rename', name: 'settings-rename', component: RenameSettings },
+            { path: 'compression', name: 'settings-compression', component: CompressionSettings },
             { path: 'integrations', name: 'settings-integrations', component: IntegrationSettings },
             { path: 'integrations/woocommerce', name: 'settings-integration-woocommerce', component: WooCommerceSettings },
             { path: 'integrations/seo', name: 'settings-integration-seo', component: SeoSettings },

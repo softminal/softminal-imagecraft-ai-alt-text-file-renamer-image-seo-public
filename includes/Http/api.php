@@ -4,6 +4,7 @@ namespace Softminal\ImageCraft\Http;
 
 use Softminal\ImageCraft\AdminNotice;
 use Softminal\ImageCraft\Http\Controllers\BatchController;
+use Softminal\ImageCraft\Http\Controllers\CompressorController;
 use Softminal\ImageCraft\Http\Controllers\FeedbackController;
 use Softminal\ImageCraft\Http\Controllers\FileBirdController;
 use Softminal\ImageCraft\Http\Controllers\FileRenamerController;
@@ -66,6 +67,15 @@ Route::prefix('renamer')->capability('upload_files')->group(function () {
     Route::post('/rename', [FileRenamerController::class, 'rename']);
     Route::post('/rename-bulk', [FileRenamerController::class, 'renameBulk']);
     Route::get('/preview', [FileRenamerController::class, 'preview']);
+});
+
+// Image compression routes
+Route::prefix('compressor')->capability('upload_files')->group(function () {
+    Route::get('/scan', [CompressorController::class, 'scan']);
+    Route::post('/compress', [CompressorController::class, 'compress']);
+    Route::post('/restore', [CompressorController::class, 'restore']);
+    Route::get('/preview', [CompressorController::class, 'preview']);
+    Route::get('/stats', [CompressorController::class, 'stats']);
 });
 
 // Notice routes

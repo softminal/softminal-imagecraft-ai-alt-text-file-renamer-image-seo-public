@@ -55,6 +55,7 @@ const route = useRoute()
 const menuItems = ref([
     { name: 'Dashboard', path: '/' },
     { name: 'Scanner', path: '/scanner' },
+    { name: 'Compress', path: '/compression' },
 ])
 
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'

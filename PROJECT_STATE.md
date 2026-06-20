@@ -82,6 +82,7 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 | **WordPress Native AI Connector** | WP7Provider, AIFactory | ApiSettings.vue + SetupWizard.vue |
 | Auto-generate on upload | AutoGenerate.php | (none — WP hook) |
 | File rename (SEO) | FileRenamerController, FileRenamer | Scanner.vue |
+| **Image compression** | CompressorController, ImageCompressor, Compression, UsageLimiter (`canCompress`), BatchController (`type=compress`), AutoCompress | Compression.vue, CompressionSettings.vue |
 | WooCommerce images | WooCommerceController, WooCommerce | WooCommerce.vue |
 | SEO integration (Yoast/RankMath) | SeoIntegration | SeoSettings.vue |
 | Stats / dashboard | StatsController, Stats | Dashboard.vue |
@@ -127,8 +128,8 @@ provider `generateAltText()` → `StatsTracker` records `History` + `Stats`.
 ## 6. REST API (`/wp-json/icais/v1`)
 
 Routes defined in `Http/api.php`. Groups: `settings/*`, `scanner/*`,
-`generator/*`, `batch/*`, `stats/*`, `renamer/*`, `woocommerce/*`, `filebird/*`,
-`notice/dismiss`, `feedback/deactivation`. Each route has a capability check
+`generator/*`, `batch/*`, `stats/*`, `renamer/*`, `compressor/*`, `woocommerce/*`,
+`filebird/*`, `notice/dismiss`, `feedback/deactivation`. Each route has a capability check
 (`manage_options`, `upload_files`, `manage_woocommerce`, `edit_posts`, or
 `activate_plugins`). **Full table lives in `CLAUDE.md` → REST API** (keep both in sync).
 
@@ -148,7 +149,9 @@ Key for the wizard/WP7 work:
 - `history` — generation history (attachment_id, original/generated alt, status, tokens, cost)
 - `stats` — daily per-user stats
 - `batch_jobs` — batch tracking
-Schema changes go in `Install.php` with a version-gated migration.
+- `compressions` — compression history (attachment_id, user_id, original/compressed size, saved bytes/percent, method, backup_path, status) — added db_version 1.1.0
+Schema changes go in `Install.php` with a version-gated migration. `Install::DB_VERSION`
+(1.1.0) + `maybeUpgrade()` (runs on `plugins_loaded`, `try/catch \Throwable`) upgrade existing installs.
 
 ---
 
@@ -159,6 +162,14 @@ Schema changes go in `Install.php` with a version-gated migration.
 - Notable: `icais_use_wp7_ai` ('0' default, opt-in), `icais_api_provider`,
   `icais_<provider>_model`, `icais_request_timeout`, `icais_default_tone`,
   `icais_max_length`. Wizard flag: `icais_wizard_completed` (user meta + site option).
+- Compression (all opt-in, default off): `icais_compression_enabled`, `icais_compression_quality`
+  (85, visually lossless; Pro-adjustable), `icais_compression_max_width` (2048 longest edge; free
+  fixed via `ImageCompressor::FREE_MAX_DIM`, Pro-adjustable), `icais_compression_convert_webp`
+  (Pro, future), `icais_compression_keep_backup` (forced on), `icais_compression_skip_compressed`,
+  `icais_compression_min_size_kb` (50), `icais_compression_auto` (Pro). Engine: direct Imagick
+  (strip metadata + progressive JPEG, no chroma subsampling) with GD/`wp_get_image_editor`
+  fallback; writes to temp + **never-enlarge guard** (commits only if smaller). Free cap 20/day
+  via `UsageLimiter` separate counter `icais_daily_compress_<id>`; `ICAIS_PRO` removes the cap.
 - Constants (`config/constants.php`): `ICAIS_DEV_MODE`, `ICAIS_API_NAMESPACE`
   (`icais/v1`), `ICAIS_TABLE_PREFIX` (`icais_`), `ICAIS_VERSION`.
 - API keys: AES-256-CBC via `Encryption.php` (WP `AUTH_KEY`/`SECURE_AUTH_KEY`).
@@ -176,6 +187,27 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 ---
 
 ## 10. Recent Changes (newest first)
+
+- **2026-06-20** — New: **Image compression** feature (freemium, local engine).
+  Re-encodes images via `wp_get_image_editor` (+ optional max-width downscale),
+  in place so URLs never change; originals are always backed up to
+  `uploads/icais-originals/` with one-click **Restore**. New "Compress" page
+  (`Compression.vue`) scans the library, shows per-image size + savings, supports
+  single compress/restore and **bulk** compress via the existing batch engine
+  (`/batch/start` `type:'compress'`). Pro-gated via `ICAIS_PRO`: free = manual
+  compress at fixed quality 80 with a **20/day** cap (separate `UsageLimiter`
+  counter); Pro = unlimited + adjustable quality + downscale + **auto-compress on
+  upload** (`AutoCompress.php`, opt-in). New files: `Services/ImageCompressor.php`,
+  `Models/Compression.php`, `Http/Controllers/CompressorController.php`,
+  `includes/AutoCompress.php`, `views/Compression.vue`,
+  `components/Settings/CompressionSettings.vue`. Engine: direct **Imagick** pass (strip
+  metadata + progressive JPEG + 4:2:0 chroma) with GD/`wp_get_image_editor` fallback;
+  defaults quality **75** + downscale to **1920px** longest edge (free fixed, Pro adjustable)
+  → ~30–60% typical savings. New table `icais_compressions`
+  (db_version **1.1.0** via `Install::maybeUpgrade()`). Routes: `compressor/*`.
+  All code lives in the FREE plugin; the Pro add-on only flips the `ICAIS_PRO`
+  flag. WebP format-conversion intentionally deferred (would change URLs).
+  Fatal-safety verified (Throwable guards on editor/filesystem/cron/migration).
 
 - **2026-06-19** — New: **Deactivation feedback survey**. A modal appears when an
   admin clicks "Deactivate" on the ImageCraft row of the Plugins screen, with a

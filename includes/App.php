@@ -87,8 +87,8 @@ class App
             ['dir' => 'includes/Http', 'files' => ['api.php']],
             ['dir' => 'includes', 'files' => ['EnqueueAsset.php', 'Enqueue.php', 'Menu.php']],
 
-            // 8. AutoGenerate, AdminNotice and DeactivationSurvey (load last as they depend on everything)
-            ['dir' => 'includes', 'files' => ['AutoGenerate.php', 'AdminNotice.php', 'DeactivationSurvey.php']],
+            // 8. AutoGenerate, AutoCompress, AdminNotice and DeactivationSurvey (load last as they depend on everything)
+            ['dir' => 'includes', 'files' => ['AutoGenerate.php', 'AutoCompress.php', 'AdminNotice.php', 'DeactivationSurvey.php']],
         ];
 
         foreach ($loadOrder as $config) {
@@ -226,6 +226,9 @@ class App
     public function run(): void
     {
         try {
+            if (class_exists('\Softminal\ImageCraft\Install')) {
+                \Softminal\ImageCraft\Install::maybeUpgrade();
+            }
             $this->maybeMigrateWizardFlag();
             $this->enqueue->init();
             $this->menu->init();
@@ -234,6 +237,10 @@ class App
             // AutoGenerate should be loaded by now, but verify
             if (class_exists('\Softminal\ImageCraft\AutoGenerate')) {
                 \Softminal\ImageCraft\AutoGenerate::init();
+            }
+
+            if (class_exists('\Softminal\ImageCraft\AutoCompress')) {
+                \Softminal\ImageCraft\AutoCompress::init();
             }
 
             if (class_exists('\Softminal\ImageCraft\AdminNotice')) {

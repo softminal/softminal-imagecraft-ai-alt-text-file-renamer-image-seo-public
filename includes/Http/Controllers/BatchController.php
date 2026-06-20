@@ -120,10 +120,10 @@ class BatchController extends Controller
         // Store image IDs in job meta (we'll use transients for this)
         set_transient('icais_batch_' . $job->id, $imageIds, DAY_IN_SECONDS);
 
-        // Store batch type: 'alt' (default) or 'title' (title-only generation)
+        // Store batch type: 'alt' (default), 'title' (title-only), or 'compress'
         $batchType = sanitize_text_field($params['type'] ?? 'alt');
-        if ($batchType === 'title') {
-            set_transient('icais_batch_type_' . $job->id, 'title', DAY_IN_SECONDS);
+        if (in_array($batchType, ['title', 'compress'], true)) {
+            set_transient('icais_batch_type_' . $job->id, $batchType, DAY_IN_SECONDS);
         }
 
         return $this->response([
@@ -285,9 +285,12 @@ class BatchController extends Controller
 
         $skipExisting = (bool) Settings::get('icais_skip_existing', '0');
 
-        // Check if this is a title-only batch
+        // Check if this is a title-only or compression batch
         $batchType = (string) get_transient('icais_batch_type_' . $jobId);
         $isTitleOnly = ($batchType === 'title');
+        $isCompress  = ($batchType === 'compress');
+
+        $compressor = $isCompress ? new \Softminal\ImageCraft\Services\ImageCompressor() : null;
 
         $failures = [];
 
@@ -297,7 +300,41 @@ class BatchController extends Controller
                 break;
             }
 
-            if ($isTitleOnly) {
+            if ($isCompress) {
+                // Compression batch: re-encode the image locally (no AI calls)
+                try {
+                    if (!UsageLimiter::canCompress($userId, (int) $attachmentId)) {
+                        $failed++;
+                        $failures[] = [
+                            'attachment_id' => (int) $attachmentId,
+                            'reason' => __('Daily compression limit reached. Upgrade to Pro for unlimited compression.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                        ];
+                        continue;
+                    }
+
+                    $compressResult = $compressor->compress((int) $attachmentId);
+                    if ($compressResult['success'] ?? false) {
+                        if (empty($compressResult['skipped'])) {
+                            UsageLimiter::recordCompressUsage($userId, (int) $attachmentId);
+                        }
+                        $processed++;
+                    } else {
+                        $failed++;
+                        $failures[] = [
+                            'attachment_id' => (int) $attachmentId,
+                            'reason' => $compressResult['error'] ?? __('Compression failed', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                    error_log('[ImageCraft] Compress batch error for #' . $attachmentId . ': ' . $e->getMessage());
+                    $failed++;
+                    $failures[] = [
+                        'attachment_id' => (int) $attachmentId,
+                        'reason' => __('Compression failed. Check error log for details.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                    ];
+                }
+            } elseif ($isTitleOnly) {
                 // Title-only batch: generate title via AI and save to meta
                 try {
                     $titleResult = $this->generateTitleForImage((int) $attachmentId, $userId);
