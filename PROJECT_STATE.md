@@ -82,7 +82,7 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 | **WordPress Native AI Connector** | WP7Provider, AIFactory | ApiSettings.vue + SetupWizard.vue |
 | Auto-generate on upload | AutoGenerate.php | (none — WP hook) |
 | File rename (SEO) | FileRenamerController, FileRenamer | Scanner.vue |
-| **Image compression** | CompressorController, ImageCompressor, Compression, UsageLimiter (`canCompress`), BatchController (`type=compress`), AutoCompress | Compression.vue, CompressionSettings.vue |
+| **Image compression** | CompressorController, ImageCompressor, Compression, UsageLimiter (`canCompress`), BatchController (`type=compress`); **Pro unlocks via filters + auto-compress in the Pro add-on** | Compression.vue, CompressionSettings.vue |
 | WooCommerce images | WooCommerceController, WooCommerce | WooCommerce.vue |
 | SEO integration (Yoast/RankMath) | SeoIntegration | SeoSettings.vue |
 | Stats / dashboard | StatsController, Stats | Dashboard.vue |
@@ -170,6 +170,10 @@ Schema changes go in `Install.php` with a version-gated migration. `Install::DB_
   (strip metadata + progressive JPEG, no chroma subsampling) with GD/`wp_get_image_editor`
   fallback; writes to temp + **never-enlarge guard** (commits only if smaller). Free cap 20/day
   via `UsageLimiter` separate counter `icais_daily_compress_<id>`; `ICAIS_PRO` removes the cap.
+  Pro/free split: the engine reads quality/resize via `apply_filters('icais_compression_quality',85)`
+  and `apply_filters('icais_compression_max_dim',2048)`; the **Pro add-on**
+  (`imagecraft-...-pro/includes/Features/Compression.php`) overrides them + registers
+  auto-compress-on-upload, ONLY when licensed. No auto-compress code ships in the free plugin.
 - Constants (`config/constants.php`): `ICAIS_DEV_MODE`, `ICAIS_API_NAMESPACE`
   (`icais/v1`), `ICAIS_TABLE_PREFIX` (`icais_`), `ICAIS_VERSION`.
 - API keys: AES-256-CBC via `Encryption.php` (WP `AUTH_KEY`/`SECURE_AUTH_KEY`).
@@ -187,6 +191,16 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 ---
 
 ## 10. Recent Changes (newest first)
+
+- **2026-06-21** — Refactor: **compression Pro/free split for maintainability + code
+  separation**. The free engine is now Pro-agnostic — it reads quality/resize via
+  `apply_filters('icais_compression_quality',85)` and `apply_filters('icais_compression_max_dim',2048)`.
+  Removed `includes/AutoCompress.php` from the free plugin. The **Pro add-on** now owns the
+  premium behavior in `imagecraft-...-pro/includes/Features/Compression.php` (registered only when
+  the license is valid): it overrides those filters with the user's settings and registers
+  auto-compress-on-upload (`add_attachment` → `icais_auto_compress` cron → free `ImageCompressor`,
+  all `class_exists`/`\Throwable`-guarded). The 20/day cap bypass still rides `ICAIS_PRO`. Net:
+  premium *behavior* no longer ships in WordPress.org source; engine/UI/upsell stay in free.
 
 - **2026-06-20** — New: **Image compression** feature (freemium, local engine).
   Re-encodes images via `wp_get_image_editor` (+ optional max-width downscale),

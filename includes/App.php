@@ -87,8 +87,9 @@ class App
             ['dir' => 'includes/Http', 'files' => ['api.php']],
             ['dir' => 'includes', 'files' => ['EnqueueAsset.php', 'Enqueue.php', 'Menu.php']],
 
-            // 8. AutoGenerate, AutoCompress, AdminNotice and DeactivationSurvey (load last as they depend on everything)
-            ['dir' => 'includes', 'files' => ['AutoGenerate.php', 'AutoCompress.php', 'AdminNotice.php', 'DeactivationSurvey.php']],
+            // 8. AutoGenerate, AdminNotice and DeactivationSurvey (load last as they depend on everything)
+            // NOTE: auto-compress-on-upload is a Pro feature and lives in the Pro add-on, not here.
+            ['dir' => 'includes', 'files' => ['AutoGenerate.php', 'AdminNotice.php', 'DeactivationSurvey.php']],
         ];
 
         foreach ($loadOrder as $config) {
@@ -237,10 +238,6 @@ class App
             // AutoGenerate should be loaded by now, but verify
             if (class_exists('\Softminal\ImageCraft\AutoGenerate')) {
                 \Softminal\ImageCraft\AutoGenerate::init();
-            }
-
-            if (class_exists('\Softminal\ImageCraft\AutoCompress')) {
-                \Softminal\ImageCraft\AutoCompress::init();
             }
 
             if (class_exists('\Softminal\ImageCraft\AdminNotice')) {

@@ -152,18 +152,19 @@ class ImageCompressor
             return ['success' => true, 'skipped' => true, 'reason' => 'too_small'];
         }
 
-        // Resolve effective options (Pro unlocks quality/resize; free is fixed).
-        $isPro   = UsageLimiter::isPro();
+        // Resolve effective options. The free plugin ships visually-lossless
+        // defaults; the Pro add-on overrides these via filters when a valid
+        // license is active (see the Pro plugin's compression module).
         $quality = isset($opts['quality'])
             ? (int) $opts['quality']
-            : ($isPro ? (int) Settings::get('icais_compression_quality', self::DEFAULT_QUALITY) : self::DEFAULT_QUALITY);
+            : (int) apply_filters('icais_compression_quality', self::DEFAULT_QUALITY);
         $quality = max(1, min(100, $quality));
 
-        // Downscale cap (longest edge). Free gets a fixed sensible cap; Pro can
-        // tune it. 0 disables resizing.
+        // Downscale cap (longest edge). Free uses a fixed sensible cap; Pro can
+        // change or disable it (return 0) via the filter. 0 disables resizing.
         $maxDim = isset($opts['max_width'])
             ? (int) $opts['max_width']
-            : ($isPro ? (int) Settings::get('icais_compression_max_width', self::FREE_MAX_DIM) : self::FREE_MAX_DIM);
+            : (int) apply_filters('icais_compression_max_dim', self::FREE_MAX_DIM);
         $maxDim = max(0, $maxDim);
 
         // Re-encode into a TEMP file first so we can reject a result that isn't
