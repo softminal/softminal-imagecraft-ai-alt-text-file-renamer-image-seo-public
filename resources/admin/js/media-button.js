@@ -81,12 +81,18 @@
         return null;
     }
 
+    var compressIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+
     /**
-     * Create the Generate with AI button element
+     * Create the Generate with AI button element (with a Compress button when
+     * image compression is enabled).
      */
     function createButton() {
         var wrapper = document.createElement('div');
         wrapper.className = 'icais-media-btn-wrapper';
+
+        var btnRow = document.createElement('div');
+        btnRow.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
 
         var btn = document.createElement('button');
         btn.type = 'button';
@@ -104,15 +110,81 @@
         status.className = 'icais-media-status';
         status.style.display = 'none';
 
-        wrapper.appendChild(btn);
-        wrapper.appendChild(status);
-
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             handleGenerate(btn, status);
         });
 
+        btnRow.appendChild(btn);
+        wrapper.appendChild(btnRow);
+        wrapper.appendChild(status);
+
+        // Compress button — only when the compression feature is enabled.
+        if (config.compressionEnabled === '1' || config.compressionEnabled === 1 || config.compressionEnabled === true) {
+            var compressBtn = document.createElement('button');
+            compressBtn.type = 'button';
+            compressBtn.className = 'icais-media-btn icais-compress-btn';
+            compressBtn.innerHTML = '<span class="icais-btn-icon">' + compressIcon + '</span><span class="icais-btn-text">' + (config.i18n?.compress || 'Compress') + '</span>';
+            var compressStatus = document.createElement('div');
+            compressStatus.className = 'icais-media-status';
+            compressStatus.style.display = 'none';
+            compressBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                handleCompress(compressBtn, compressStatus);
+            });
+            btnRow.appendChild(compressBtn);
+            wrapper.appendChild(compressStatus);
+        }
+
         return wrapper;
+    }
+
+    /**
+     * Handle the compress button click — compress the image in place.
+     */
+    function handleCompress(btn, status) {
+        var attachmentId = getAttachmentId();
+        if (!attachmentId) {
+            showStatus(status, 'error', config.i18n?.noAttachment || 'Could not detect image. Please select an image first.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.classList.add('icais-loading');
+        btn.querySelector('.icais-btn-text').textContent = config.i18n?.compressing || 'Compressing...';
+        status.style.display = 'none';
+
+        fetch(config.apiUrl + '/compressor/compress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
+            body: JSON.stringify({ attachment_id: attachmentId })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data.success) {
+                if (data.skipped) {
+                    showStatus(status, 'success', config.i18n?.compressSkipped || 'Already optimized.');
+                } else {
+                    var msg = (config.i18n?.compressSuccess || 'Compressed — saved %s').replace('%s', data.saved_human || '0 B');
+                    showStatus(status, 'success', msg);
+                    // Refresh the attachment so the preview/size reflect the new file.
+                    try {
+                        if (window.wp && wp.media && wp.media.model) {
+                            var attachment = wp.media.model.Attachment.get(attachmentId);
+                            if (attachment) { attachment.fetch(); }
+                        }
+                    } catch (e) {}
+                }
+            } else {
+                showStatus(status, 'error', data.message || config.i18n?.compressError || 'Failed to compress image.');
+            }
+        })
+        .catch(function () { showStatus(status, 'error', config.i18n?.compressError || 'Failed to compress image.'); })
+        .finally(function () {
+            btn.disabled = false;
+            btn.classList.remove('icais-loading');
+            btn.querySelector('.icais-btn-text').textContent = config.i18n?.compress || 'Compress';
+        });
     }
 
     /**
@@ -234,6 +306,7 @@
             return;
         }
 
+        // eslint-disable-next-line no-alert -- intentional confirm before a destructive URL change
         if (!confirm(config.i18n?.renameConfirm || 'This will change the image URL. External links and cached pages may show broken images.\n\nAre you sure you want to rename this file?')) {
             return;
         }

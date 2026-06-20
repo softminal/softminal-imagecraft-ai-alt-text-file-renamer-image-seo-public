@@ -192,6 +192,12 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-06-21** — New: **Compress button in the WordPress media modal**. The standalone
+  `resources/admin/js/media-button.js` (which already injects Generate/Title/Rename buttons into
+  attachment details) now also shows a **Compress** button when `icais_compression_enabled`,
+  calling `POST /compressor/compress` and refreshing the attachment on success. New flag +
+  i18n in `Enqueue.php` (`icaisMediaButton.compressionEnabled`). Vite input → rebuilt.
+
 - **2026-06-21** — Refactor: **compression Pro/free split for maintainability + code
   separation**. The free engine is now Pro-agnostic — it reads quality/resize via
   `apply_filters('icais_compression_quality',85)` and `apply_filters('icais_compression_max_dim',2048)`.

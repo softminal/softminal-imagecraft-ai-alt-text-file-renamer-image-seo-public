@@ -84,8 +84,15 @@ class Enqueue {
             'defaultTone' => Settings::get('icais_default_tone', 'professional'),
             'generateTitle' => Settings::get('icais_generate_title', '0'),
             'autoRename' => Settings::get('icais_auto_rename', '0'),
+            'compressionEnabled' => Settings::get('icais_compression_enabled', '0'),
             'i18n' => [
                 'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'compress' => __('Compress', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'compressing' => __('Compressing...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                /* translators: %s: human-readable size saved, e.g. "120 KB" */
+                'compressSuccess' => __('Compressed — saved %s', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'compressSkipped' => __('Already optimized.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'compressError' => __('Failed to compress image.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'success' => __('Alt text generated successfully!', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'error' => __('Failed to generate alt text. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
