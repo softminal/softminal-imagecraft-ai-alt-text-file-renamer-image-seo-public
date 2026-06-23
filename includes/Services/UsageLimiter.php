@@ -7,36 +7,43 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Enforces the daily image generation limit.
+ * Enforces a single daily free-tier quota shared across all actions.
  *
- * Tracks distinct attachment IDs processed in the last 24 hours per user.
- * Alt text + title + rename on the same image counts as 1 image.
- * Resets 24 hours after the first generation in the current window.
+ * One per-user daily pool (default 50). AI generation counts once per image
+ * (alt text / title / rename are bundled, and re-generating the same image is
+ * free). Compression counts every time it runs — re-compressing an image you
+ * already compressed today consumes another slot. So compressing + generating
+ * one image uses 2; compressing it twice uses 2. Window resets 24 hours after
+ * the first action. Pro (ICAIS_PRO) is unlimited.
+ *
+ * Storage (wp_option `icais_daily_usage_<userId>`):
+ *   ['started_at' => int, 'ids' => int[], 'compress_count' => int]
+ * 'ids' is the legacy generation set (deduped); 'compress_count' is a running
+ * tally of compressions. Both may be absent on older data.
  */
 class UsageLimiter
 {
-    /** @var int Free tier daily image limit */
+    /** @var int Free tier daily limit, shared by generation + compression */
     private const DAILY_LIMIT = 50;
-
-    /** @var int Free tier daily image-compression limit (tracked separately) */
-    private const COMPRESS_DAILY_LIMIT = 20;
 
     /** @var int Window duration in seconds (24 hours) */
     private const WINDOW_SECONDS = 86400;
 
     /**
-     * Check if Pro add-on is active (unlimited generations).
+     * Check if Pro add-on is active (unlimited usage).
      */
     public static function isPro(): bool
     {
         return defined('ICAIS_PRO') && \ICAIS_PRO;
     }
 
+    // ---------------------------------------------------------------------
+    // Generation (alt text / title / rename) — one count per image
+    // ---------------------------------------------------------------------
+
     /**
      * Check if the user can generate for this attachment.
-     *
-     * Returns true if Pro is active, within the daily limit,
-     * or if the attachment was already counted in the current window.
+     * Re-generating an already-counted image is free.
      */
     public static function canGenerate(int $userId, int $attachmentId): bool
     {
@@ -46,28 +53,25 @@ class UsageLimiter
 
         $data = self::getWindowData($userId);
 
-        // Already processed this image in this window — allow without counting again
         if (in_array($attachmentId, $data['ids'], true)) {
             return true;
         }
 
-        return count($data['ids']) < self::getLimit();
+        return self::totalCount($data) < self::DAILY_LIMIT;
     }
 
     /**
-     * Record that an attachment was processed.
-     * Call this after a successful generation (any type).
+     * Record a generation against this attachment. Call after success.
      */
     public static function recordUsage(int $userId, int $attachmentId): void
     {
         $data = self::getWindowData($userId);
 
         if (in_array($attachmentId, $data['ids'], true)) {
-            return; // Already counted
+            return; // Already counted for generation
         }
 
-        // Start the window on first usage
-        if (empty($data['ids'])) {
+        if (self::totalCount($data) === 0) {
             $data['started_at'] = time();
         }
 
@@ -75,31 +79,65 @@ class UsageLimiter
         self::saveWindowData($userId, $data);
     }
 
+    // ---------------------------------------------------------------------
+    // Compression — a separate count per image, sharing the same daily pool
+    // ---------------------------------------------------------------------
+
     /**
-     * Get the number of distinct images processed in the current window.
+     * Check if the user can compress this attachment.
+     *
+     * Unlike generation, every compression counts — including re-compressing an
+     * image already compressed today — so this only checks the shared pool.
+     * $attachmentId is accepted for signature parity with canGenerate().
+     */
+    public static function canCompress(int $userId, int $attachmentId): bool
+    {
+        if (self::isPro()) {
+            return true;
+        }
+
+        return self::totalCount(self::getWindowData($userId)) < self::DAILY_LIMIT;
+    }
+
+    /**
+     * Record a compression. Call after a successful (non-skipped) compression.
+     * Always increments — re-compressing the same image counts again.
+     * $attachmentId is accepted for signature parity with recordUsage().
+     */
+    public static function recordCompressUsage(int $userId, int $attachmentId): void
+    {
+        $data = self::getWindowData($userId);
+
+        if (self::totalCount($data) === 0) {
+            $data['started_at'] = time();
+        }
+
+        $data['compress_count']++;
+        self::saveWindowData($userId, $data);
+    }
+
+    // ---------------------------------------------------------------------
+    // Shared usage / limit accessors (combined generation + compression)
+    // ---------------------------------------------------------------------
+
+    /**
+     * Total actions used in the current window (generation + compression).
      */
     public static function getDailyUsage(int $userId): int
     {
-        $data = self::getWindowData($userId);
-        return count($data['ids']);
+        return self::totalCount(self::getWindowData($userId));
     }
 
     /**
-     * Get the daily limit.
-     * Returns -1 when Pro is active (unlimited).
+     * Daily limit. Returns -1 when Pro is active (unlimited).
      */
     public static function getLimit(): int
     {
-        if (self::isPro()) {
-            return -1;
-        }
-
-        return self::DAILY_LIMIT;
+        return self::isPro() ? -1 : self::DAILY_LIMIT;
     }
 
     /**
-     * Get remaining generations in the current window.
-     * Returns -1 when Pro is active (unlimited).
+     * Remaining actions in the current window. -1 when Pro (unlimited).
      */
     public static function getRemaining(int $userId): int
     {
@@ -107,18 +145,17 @@ class UsageLimiter
             return -1;
         }
 
-        return max(0, self::getLimit() - self::getDailyUsage($userId));
+        return max(0, self::DAILY_LIMIT - self::getDailyUsage($userId));
     }
 
     /**
-     * Get the timestamp when the current window resets.
-     * Returns null if no generations have been made yet.
+     * Timestamp when the current window resets, or null if none active.
      */
     public static function getResetTime(int $userId): ?int
     {
         $data = self::getWindowData($userId);
 
-        if (empty($data['ids']) || empty($data['started_at'])) {
+        if (self::totalCount($data) === 0 || empty($data['started_at'])) {
             return null;
         }
 
@@ -126,8 +163,7 @@ class UsageLimiter
     }
 
     /**
-     * Get human-readable time until reset.
-     * Returns null if no active window.
+     * Human-readable time until reset, or null if no active window.
      */
     public static function getResetIn(int $userId): ?string
     {
@@ -160,167 +196,100 @@ class UsageLimiter
             'success' => false,
             'limit_reached' => true,
             'message' => sprintf(
-                /* translators: %d: daily image limit */
-                __('Daily limit of %d images reached. Upgrade to Pro for unlimited generations.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-                self::getLimit()
+                /* translators: %d: daily free-tier limit */
+                __('Daily free limit of %d reached. Upgrade to Pro for unlimited usage.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                self::DAILY_LIMIT
             ),
         ];
     }
 
-    /**
-     * Get the current window's usage data for a user.
-     * Auto-resets if the 24-hour window has expired.
-     *
-     * @param string $bucket Counter bucket: 'gen' (alt/title/rename) or 'compress'.
-     * @return array{started_at: int|null, ids: int[]}
-     */
-    private static function getWindowData(int $userId, string $bucket = 'gen'): array
-    {
-        $key = self::optionKey($userId, $bucket);
-        $data = get_option($key, null);
+    // ---------------------------------------------------------------------
+    // Compression aliases — same combined pool, kept so the compression call
+    // sites and the compression stats endpoint need no change.
+    // ---------------------------------------------------------------------
 
-        // No data yet
-        if (!is_array($data) || !isset($data['ids'])) {
-            return ['started_at' => null, 'ids' => []];
+    public static function getCompressDailyUsage(int $userId): int
+    {
+        return self::getDailyUsage($userId);
+    }
+
+    public static function getCompressLimit(): int
+    {
+        return self::getLimit();
+    }
+
+    public static function getCompressRemaining(int $userId): int
+    {
+        return self::getRemaining($userId);
+    }
+
+    public static function getCompressResetTime(int $userId): ?int
+    {
+        return self::getResetTime($userId);
+    }
+
+    public static function compressLimitReachedError(): array
+    {
+        return self::limitReachedError();
+    }
+
+    // ---------------------------------------------------------------------
+    // Internals
+    // ---------------------------------------------------------------------
+
+    /**
+     * Combined daily usage: distinct generated images + total compressions.
+     */
+    private static function totalCount(array $data): int
+    {
+        return count($data['ids']) + (int) $data['compress_count'];
+    }
+
+    /**
+     * Current window data, auto-reset when the 24h window expires.
+     *
+     * @return array{started_at: int|null, ids: int[], compress_count: int}
+     */
+    private static function getWindowData(int $userId): array
+    {
+        $data = get_option(self::optionKey($userId), null);
+
+        if (!is_array($data)) {
+            return ['started_at' => null, 'ids' => [], 'compress_count' => 0];
         }
 
-        // Check if 24-hour window has expired
         $startedAt = $data['started_at'] ?? 0;
         if ($startedAt > 0 && (time() - $startedAt) >= self::WINDOW_SECONDS) {
-            // Window expired — reset
-            return ['started_at' => null, 'ids' => []];
+            return ['started_at' => null, 'ids' => [], 'compress_count' => 0];
         }
 
-        return $data;
+        // Normalize legacy/partial shapes: 'ids' is the generation set.
+        // 'compress_count' is the running compression tally; fall back to the
+        // count of an older 'compress' ID array if present.
+        $compressCount = isset($data['compress_count'])
+            ? (int) $data['compress_count']
+            : (isset($data['compress']) && is_array($data['compress']) ? count($data['compress']) : 0);
+
+        return [
+            'started_at'     => $data['started_at'] ?? null,
+            'ids'            => isset($data['ids']) && is_array($data['ids']) ? $data['ids'] : [],
+            'compress_count' => $compressCount,
+        ];
     }
 
     /**
      * Save the window data for a user.
      */
-    private static function saveWindowData(int $userId, array $data, string $bucket = 'gen'): void
+    private static function saveWindowData(int $userId, array $data): void
     {
-        update_option(self::optionKey($userId, $bucket), $data, false);
+        update_option(self::optionKey($userId), $data, false);
     }
 
     /**
-     * wp_options key for a user's daily usage.
-     *
-     * The 'gen' bucket keeps its legacy key for backwards compatibility; the
-     * 'compress' bucket uses a distinct key so the two limits never interfere.
+     * wp_options key for a user's shared daily usage (legacy key retained).
      */
-    private static function optionKey(int $userId, string $bucket = 'gen'): string
+    private static function optionKey(int $userId): string
     {
-        if ($bucket === 'compress') {
-            return 'icais_daily_compress_' . $userId;
-        }
-
         return 'icais_daily_usage_' . $userId;
-    }
-
-    // ---------------------------------------------------------------------
-    // Image compression daily limit (separate counter from generation)
-    // ---------------------------------------------------------------------
-
-    /**
-     * Check if the user can compress this attachment.
-     *
-     * Returns true if Pro is active, within the daily compression limit, or if
-     * the attachment was already counted in the current window.
-     */
-    public static function canCompress(int $userId, int $attachmentId): bool
-    {
-        if (self::isPro()) {
-            return true;
-        }
-
-        $data = self::getWindowData($userId, 'compress');
-
-        if (in_array($attachmentId, $data['ids'], true)) {
-            return true;
-        }
-
-        return count($data['ids']) < self::getCompressLimit();
-    }
-
-    /**
-     * Record that an attachment was compressed.
-     * Call this after a successful compression.
-     */
-    public static function recordCompressUsage(int $userId, int $attachmentId): void
-    {
-        $data = self::getWindowData($userId, 'compress');
-
-        if (in_array($attachmentId, $data['ids'], true)) {
-            return; // Already counted
-        }
-
-        if (empty($data['ids'])) {
-            $data['started_at'] = time();
-        }
-
-        $data['ids'][] = $attachmentId;
-        self::saveWindowData($userId, $data, 'compress');
-    }
-
-    /**
-     * Number of distinct images compressed in the current window.
-     */
-    public static function getCompressDailyUsage(int $userId): int
-    {
-        return count(self::getWindowData($userId, 'compress')['ids']);
-    }
-
-    /**
-     * Daily compression limit. Returns -1 when Pro is active (unlimited).
-     */
-    public static function getCompressLimit(): int
-    {
-        if (self::isPro()) {
-            return -1;
-        }
-
-        return self::COMPRESS_DAILY_LIMIT;
-    }
-
-    /**
-     * Remaining compressions in the current window. -1 when Pro (unlimited).
-     */
-    public static function getCompressRemaining(int $userId): int
-    {
-        if (self::isPro()) {
-            return -1;
-        }
-
-        return max(0, self::getCompressLimit() - self::getCompressDailyUsage($userId));
-    }
-
-    /**
-     * Timestamp when the compression window resets, or null if none active.
-     */
-    public static function getCompressResetTime(int $userId): ?int
-    {
-        $data = self::getWindowData($userId, 'compress');
-
-        if (empty($data['ids']) || empty($data['started_at'])) {
-            return null;
-        }
-
-        return (int) $data['started_at'] + self::WINDOW_SECONDS;
-    }
-
-    /**
-     * Build a standard compression-limit-reached error response array.
-     */
-    public static function compressLimitReachedError(): array
-    {
-        return [
-            'success' => false,
-            'limit_reached' => true,
-            'message' => sprintf(
-                /* translators: %d: daily image-compression limit */
-                __('Daily limit of %d image compressions reached. Upgrade to Pro for unlimited compression.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-                self::getCompressLimit()
-            ),
-        ];
     }
 }

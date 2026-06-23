@@ -1,5 +1,37 @@
 <template>
   <div class="dashboard p-6">
+    <!-- Shared daily free quota — one pool across every action (free only) -->
+    <div v-if="usageLimit && !appVars.isPro && usageLimit.daily_limit > 0" class="bg-white rounded-lg shadow border p-4 mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm text-gray-700">
+          {{ $t('Daily free usage') }}:
+          <span class="font-bold" :class="usageLimit.daily_remaining === 0 ? 'text-red-600' : 'text-gray-900'">
+            {{ usageLimit.daily_used }} / {{ usageLimit.daily_limit }}
+          </span>
+        </span>
+        <div class="flex items-center gap-3">
+          <span v-if="usageLimit.reset_in" class="text-xs text-gray-400">{{ $t('Resets in %s', usageLimit.reset_in) }}</span>
+          <a
+            :href="proUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="get-pro-btn inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-amber-500 rounded-md shadow-sm hover:bg-amber-600 transition-colors no-underline"
+          >
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z" />
+            </svg>
+            {{ $t('Get Pro') }}
+          </a>
+        </div>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="h-2 rounded-full transition-all" :class="usageBarColor" :style="{ width: usageBarWidth + '%' }"></div>
+      </div>
+      <div class="mt-2 text-xs text-gray-500">
+        {{ $t('Shared across AI generation and compression. Generating and compressing the same image counts as two.') }}
+      </div>
+    </div>
+
     <!-- Two flagship feature panels -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- ============ AI Alt Text ============ -->
@@ -55,22 +87,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Daily usage (free only) -->
-          <div v-if="usageLimit && !appVars.isPro && usageLimit.daily_limit > 0" class="mt-5">
-            <div class="flex items-center justify-between text-xs mb-1">
-              <span class="text-gray-600">
-                {{ $t('Daily usage') }}:
-                <span class="font-semibold" :class="usageLimit.daily_remaining === 0 ? 'text-red-600' : 'text-gray-800'">
-                  {{ usageLimit.daily_used }} / {{ usageLimit.daily_limit }}
-                </span>
-              </span>
-              <span v-if="usageLimit.reset_in" class="text-gray-400">{{ $t('Resets in %s', usageLimit.reset_in) }}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="h-2 rounded-full transition-all" :class="usageBarColor" :style="{ width: usageBarWidth + '%' }"></div>
-            </div>
-          </div>
         </div>
 
         <!-- Footer CTAs -->
@@ -88,18 +104,6 @@
           >
             {{ $t('WooCommerce') }}
           </button>
-          <a
-            v-if="!appVars.isPro"
-            :href="proUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="get-pro-btn ml-auto inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-amber-500 rounded-md shadow-sm hover:bg-amber-600 transition-colors no-underline"
-          >
-            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z" />
-            </svg>
-            {{ $t('Get Pro') }}
-          </a>
         </div>
       </div>
 
@@ -136,21 +140,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Daily compression usage (free only) -->
-          <div v-if="compressUsage && !compressUsage.is_pro && compressUsage.limit > 0" class="mt-5">
-            <div class="flex items-center justify-between text-xs mb-1">
-              <span class="text-gray-600">
-                {{ $t('Daily usage') }}:
-                <span class="font-semibold" :class="compressUsage.remaining === 0 ? 'text-red-600' : 'text-gray-800'">
-                  {{ compressUsage.used }} / {{ compressUsage.limit }}
-                </span>
-              </span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="h-2 rounded-full transition-all" :class="compressBarColor" :style="{ width: compressBarWidth + '%' }"></div>
-            </div>
-          </div>
         </div>
 
         <!-- Footer CTAs -->
@@ -161,18 +150,6 @@
           >
             {{ $t('Compress Images') }} →
           </button>
-          <a
-            v-if="!compressUsage.is_pro"
-            :href="proUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="get-pro-btn ml-auto inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-amber-500 rounded-md shadow-sm hover:bg-amber-600 transition-colors no-underline"
-          >
-            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z" />
-            </svg>
-            {{ $t('Get Pro') }}
-          </a>
         </div>
       </div>
     </div>
@@ -222,7 +199,6 @@ const woocommerceInstalled = ref(false)
 const audit = ref(null)
 const auditLoading = ref(false)
 const compressionStats = ref({})
-const compressUsage = ref({ is_pro: false, used: 0, limit: 0, remaining: 0 })
 
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
 
@@ -243,19 +219,6 @@ const usageBarColor = computed(() => {
   if (pct >= 100) return 'bg-red-500'
   if (pct >= 80) return 'bg-orange-500'
   return 'bg-blue-500'
-})
-
-const compressBarWidth = computed(() => {
-  const u = compressUsage.value
-  if (!u || !u.limit || u.limit <= 0) return 0
-  return Math.min(100, (u.used / u.limit) * 100)
-})
-
-const compressBarColor = computed(() => {
-  const pct = compressBarWidth.value
-  if (pct >= 100) return 'bg-red-500'
-  if (pct >= 80) return 'bg-orange-500'
-  return 'bg-green-500'
 })
 
 const scoreColor = computed(() => {
@@ -301,7 +264,6 @@ const loadCompression = async () => {
     const result = await Api.get('/compressor/stats')
     if (result.success) {
       compressionStats.value = result.stats || {}
-      compressUsage.value = result.usage || compressUsage.value
     }
   } catch (error) {
     console.error('Failed to load compression stats:', error)

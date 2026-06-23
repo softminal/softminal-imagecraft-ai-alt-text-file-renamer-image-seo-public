@@ -172,7 +172,7 @@ const filter = ref('all')
 const perPage = ref(24)
 const pagination = ref({ current_page: 1, total_pages: 1, total: 0 })
 const stats = ref({ total_saved_human: '0 B', total_compressed: 0 })
-const usage = ref({ is_pro: isPro, used: 0, limit: 20, remaining: 20 })
+const usage = ref({ is_pro: isPro, used: 0, limit: 50, remaining: 50 })
 
 const filters = [
   { value: 'all', label: 'All' },
