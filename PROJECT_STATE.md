@@ -85,7 +85,7 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 | **Image compression** | CompressorController, ImageCompressor, Compression, UsageLimiter (`canCompress`), BatchController (`type=compress`); **Pro unlocks via filters + auto-compress in the Pro add-on** | Compression.vue, CompressionSettings.vue |
 | WooCommerce images | WooCommerceController, WooCommerce | WooCommerce.vue |
 | SEO integration (Yoast/RankMath) | SeoIntegration | SeoSettings.vue |
-| Stats / dashboard | StatsController, Stats | Dashboard.vue |
+| Stats / dashboard | StatsController, Stats, CompressorController (`stats`) | Dashboard.vue (dual-focus: Alt Text + Compression panels) |
 | Usage rate limiting | UsageLimiter | (n/a) |
 | License management (Pro) | (license-manage branch) | LicenseSettings.vue |
 
@@ -191,6 +191,16 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 ---
 
 ## 10. Recent Changes (newest first)
+
+- **2026-06-24** — Redesign: **dual-focus dashboard** (`resources/admin/views/Dashboard.vue`).
+  Rebuilt as two equal feature panels side by side — **AI Alt Text** (SEO score ring, missing
+  count, daily-usage bar, Scan/WooCommerce CTAs, folded-in API status) and **Image Compression**
+  (total saved, compressed count, "not yet optimized", daily compress-usage bar, Compress CTA) —
+  followed by a slim, labeled **Alt text health** row of three actionable problem chips
+  (Missing / Generic / Too-long) that deep-link into Scanner filters. Now also calls
+  `GET /compressor/stats`. Removed clutter: the 30-day Usage/Cost chart, the Generation-Results
+  pie, the standalone API-status and Quick-Actions cards, the standalone daily-usage card, and
+  the Recent Activity feed (`useECharts` no longer used here). Frontend-only; no API/DB changes.
 
 - **2026-06-21** — New: **Compress button in the WordPress media modal**. The standalone
   `resources/admin/js/media-button.js` (which already injects Generate/Title/Rename buttons into

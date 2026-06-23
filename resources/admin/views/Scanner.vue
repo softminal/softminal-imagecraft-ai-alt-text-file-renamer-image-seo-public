@@ -1,7 +1,7 @@
 <template>
   <div class="scanner p-6">
     <div class="mb-6">
-      <h1 class="text-2xl font-bold mb-4 mt-0!">{{ $t('Media Library Scanner') }}</h1>
+      <h1 class="text-2xl font-bold mb-4 mt-0!">{{ $t('Image SEO') }}</h1>
 
       <!-- Interrupted batch banner -->
       <div v-if="interruptedBatchId" class="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6 flex items-center justify-between">

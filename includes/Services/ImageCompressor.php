@@ -194,12 +194,15 @@ class ImageCompressor
             return ['success' => true, 'skipped' => true, 'reason' => 'already_optimized'];
         }
 
-        // Worth committing — back up the original(s) first. On re-compression (force)
-        // KEEP the existing backup: it holds the true original.
+        // Worth committing — back up the original(s) first, unless the user has
+        // disabled backups. A pre-existing backup (from an earlier compression) is
+        // ALWAYS preserved even when backups are now off: it holds the true original
+        // and still powers restore for that image.
+        $keepBackup     = (string) Settings::get('icais_compression_keep_backup', '1') === '1';
         $existingBackup = get_post_meta($attachmentId, self::META_BACKUP, true);
         if (is_array($existingBackup) && !empty($existingBackup['dir'])) {
             $backup = ['success' => true, 'manifest' => $existingBackup];
-        } else {
+        } elseif ($keepBackup) {
             $backup = $this->backupOriginals($attachmentId, $file, $fs);
             if (!$backup['success']) {
                 if ($fs->exists($tmp)) {
@@ -207,6 +210,10 @@ class ImageCompressor
                 }
                 return ['success' => false, 'error' => $backup['error']];
             }
+        } else {
+            // Backups disabled and none exists — proceed without one. This image
+            // cannot be restored (empty manifest → can_restore = false).
+            $backup = ['success' => true, 'manifest' => []];
         }
 
         // Commit: move the temp file over the original (same path/format → URL unchanged).

@@ -54,7 +54,7 @@ const route = useRoute()
 
 const menuItems = ref([
     { name: 'Dashboard', path: '/' },
-    { name: 'Scanner', path: '/scanner' },
+    { name: 'Image SEO', path: '/scanner' },
     { name: 'Compress', path: '/compression' },
 ])
 

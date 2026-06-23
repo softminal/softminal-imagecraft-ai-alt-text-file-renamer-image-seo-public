@@ -3,7 +3,6 @@
     @click="$emit('toggle-select', image.id)"
     :class="['image-card p-2 rounded-lg border-2 cursor-pointer transition',
              selected ? 'border-blue-600 bg-blue-50'
-             : altTooLong ? 'border-orange-400'
              : 'border-gray-200']"
   >
     <div class="relative mb-2">
@@ -49,7 +48,7 @@
         {{ $t('Rename File') }}
       </button>
       <div v-if="altTooLong" class="bg-orange-100 py-1 px-2 rounded-md text-orange-400">
-         {{$t("Too long")}}
+         {{ $t("Too long") }}
       </div>
     </div>
     <div v-if="renaming" class="mt-2">

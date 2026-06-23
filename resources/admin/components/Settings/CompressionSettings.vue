@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between">
       <div>
         <h2 class="text-lg font-semibold">{{ $t('Image Compression') }}</h2>
-        <p class="text-sm text-gray-500">{{ $t('Shrink image file sizes to speed up your site. Originals are always backed up.') }}</p>
+        <p class="text-sm text-gray-500">{{ $t('Shrink image file sizes to speed up your site. Originals are backed up by default so you can restore them.') }}</p>
       </div>
       <a
         v-if="!isPro"
@@ -131,10 +131,27 @@
         </p>
       </div>
 
-      <!-- Backup notice (forced on) -->
-      <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+      <!-- Back up originals -->
+      <div class="mb-4">
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            true-value="1"
+            false-value="0"
+            v-model="settings.icais_compression_keep_backup"
+          />
+          <span>{{ $t('Back up originals before compressing') }}</span>
+        </label>
+      </div>
+
+      <div v-if="keepBackup" class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
         <p class="text-xs text-green-700">
-          {{ $t('Originals are always backed up to /uploads/icais-originals/. You can restore any image from the Compress tab.') }}
+          {{ $t('Originals are backed up to /uploads/icais-originals/. You can restore any image from the Compress tab.') }}
+        </p>
+      </div>
+      <div v-else class="mt-4 p-3 bg-amber-50 border border-amber-300 rounded-lg">
+        <p class="text-xs text-amber-800">
+          {{ $t('Backups are off. Newly compressed images cannot be restored to their originals (images already backed up can still be restored). This saves disk space — use with care.') }}
         </p>
       </div>
     </template>
@@ -162,4 +179,7 @@ const qualityValue = computed(() => {
   const q = Number(settings.value?.icais_compression_quality)
   return Number.isFinite(q) && q > 0 ? q : 85
 })
+
+// Backups default ON; only an explicit '0' turns them off.
+const keepBackup = computed(() => String(settings.value?.icais_compression_keep_backup ?? '1') !== '0')
 </script>

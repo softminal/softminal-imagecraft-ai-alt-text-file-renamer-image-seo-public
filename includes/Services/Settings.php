@@ -64,7 +64,7 @@ class Settings
         'icais_compression_quality' => 85,      // visually-lossless JPEG/WebP quality 1-100 (Pro: adjustable)
         'icais_compression_max_width' => 2048,  // downscale cap on longest edge in px, 0 = no resize (Pro-adjustable; free fixed at 2048)
         'icais_compression_convert_webp' => '0',// convert to WebP on compress (Pro)
-        'icais_compression_keep_backup' => '1', // always back up original (forced on)
+        'icais_compression_keep_backup' => '1', // back up original before compressing (default on; user can disable)
         'icais_compression_skip_compressed' => '1', // skip already-compressed images
         'icais_compression_min_size_kb' => 50,  // skip images smaller than this
         'icais_compression_auto' => '0',        // auto-compress on upload (Pro)

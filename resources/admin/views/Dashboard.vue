@@ -1,97 +1,33 @@
 <template>
   <div class="dashboard p-6">
-    <!-- Dashboard Content -->
-    <div>
-      <!-- Overview Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <div class="text-sm text-gray-600 mb-1">{{ $t('Total Images') }}</div>
-          <div class="text-3xl font-bold">{{ stats.total_images || 0 }}</div>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <div class="text-sm text-gray-600 mb-1">{{ $t('Missing Alt Text') }}</div>
-          <div class="text-3xl font-bold text-orange-600">{{ stats.missing_alt || 0 }}</div>
-          <div class="text-sm text-gray-500">{{ stats.missing_percentage || 0 }}%</div>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <div class="text-sm text-gray-600 mb-1">{{ $t('This Month') }}</div>
-          <div class="text-3xl font-bold text-blue-600">{{ stats.this_month_processed || 0 }}</div>
-        </div>
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <div class="text-sm text-gray-600 mb-1">{{ $t('Success Rate') }}</div>
-          <div class="text-3xl font-bold text-green-600">{{ stats.success_rate || 0 }}%</div>
-        </div>
-      </div>
-
-      <!-- Daily Usage Limit (hidden for Pro users) -->
-      <div v-if="usageLimit && !appVars.isPro" class="bg-white p-4 rounded-lg shadow border mb-8">
-        <div class="flex items-center justify-between mb-2">
-          <div class="text-sm font-medium text-gray-700">
-            {{ $t('Daily Usage') }}:
-            <span class="font-bold" :class="usageLimit.daily_remaining === 0 ? 'text-red-600' : 'text-blue-600'">
-              {{ usageLimit.daily_used }} / {{ usageLimit.daily_limit }}
-            </span>
-            {{ $t('images') }}
-          </div>
-          <div class="flex items-center gap-3">
-            <div v-if="usageLimit.reset_in" class="text-xs text-gray-500">
-              {{ $t('Resets in %s', usageLimit.reset_in) }}
-            </div>
-            <a
-              :href="proUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="get-pro-btn inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-amber-500 rounded-md shadow-sm hover:bg-amber-600 transition-colors no-underline"
-            >
-              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z" />
+    <!-- Two flagship feature panels -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- ============ AI Alt Text ============ -->
+      <div class="bg-white rounded-lg shadow border flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-6 pt-6">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6" />
               </svg>
-              {{ $t('Get Pro') }}
-            </a>
+            </span>
+            <h3 class="text-lg font-semibold">{{ $t('AI Alt Text') }}</h3>
+          </div>
+          <!-- API status (folded into the panel header) -->
+          <div class="text-xs">
+            <span v-if="stats.api_status?.connected" class="inline-flex items-center gap-1 text-green-600">
+              <span>✓</span>{{ $t('Connected to %s', stats.api_status.provider) }}
+            </span>
+            <router-link v-else to="/settings/api" class="inline-flex items-center gap-1 text-red-600 underline">
+              <span>✗</span>{{ $t('Configure API') }}
+            </router-link>
           </div>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-2.5">
-          <div
-            class="h-2.5 rounded-full transition-all"
-            :class="usageBarColor"
-            :style="{ width: usageBarWidth + '%' }"
-          ></div>
-        </div>
-        <div v-if="usageLimit.daily_remaining === 0" class="text-xs text-red-600 mt-2">
-          {{ $t('Daily limit reached. Upgrade to Pro for unlimited generations.') }}
-        </div>
-        <div v-else class="text-xs text-gray-500 mt-1">
-          {{ $t('%d images remaining today', usageLimit.daily_remaining) }}
-        </div>
-      </div>
 
-      <!-- SEO Audit Report -->
-      <div class="bg-white p-6 rounded-lg shadow border mb-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold">{{ $t('Image SEO Audit') }}</h3>
-          <button
-            @click="runAudit"
-            :disabled="auditLoading"
-            class="text-sm bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-200 transition disabled:opacity-50"
-          >
-            {{ auditLoading ? $t('Scanning...') : $t('Refresh') }}
-          </button>
-        </div>
-
-        <div v-if="auditLoading && !audit" class="text-center py-8 text-gray-500">
-          {{ $t('Scanning media library...') }}
-        </div>
-
-        <div v-else-if="audit && audit.total_images === 0" class="text-center py-8 text-gray-500">
-          <div class="text-4xl mb-3">🖼️</div>
-          <div class="text-lg font-medium text-gray-600">{{ $t('No images found') }}</div>
-          <div class="text-sm mt-1">{{ $t('Upload images to your media library to see the SEO audit.') }}</div>
-        </div>
-
-        <div v-else-if="audit">
-          <!-- Score -->
-          <div class="flex items-center gap-6 mb-6">
-            <div class="relative w-24 h-24">
+        <div class="px-6 py-5 flex-1">
+          <!-- Score ring + headline metric -->
+          <div class="flex items-center gap-5">
+            <div class="relative w-24 h-24 shrink-0">
               <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="42" stroke="#e5e7eb" stroke-width="8" fill="none" />
                 <circle
@@ -101,185 +37,204 @@
                   fill="none"
                   stroke-linecap="round"
                   :stroke-dasharray="263.89"
-                  :stroke-dashoffset="263.89 - (263.89 * audit.score / 100)"
+                  :stroke-dashoffset="263.89 - (263.89 * (audit?.score || 0) / 100)"
                 />
               </svg>
               <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-2xl font-bold">{{ audit.score }}%</span>
+                <span class="text-xl font-bold">{{ audit?.score || 0 }}%</span>
               </div>
             </div>
             <div>
-              <div class="text-lg font-semibold" :class="scoreLabelColor">{{ scoreLabel }}</div>
-              <div class="text-sm text-gray-500">{{ $t('%1$s of %2$s images are fully optimized', audit.good, audit.total_images) }}</div>
+              <div class="text-sm font-semibold" :class="scoreLabelColor">{{ scoreLabel }} {{ $t('SEO score') }}</div>
+              <div class="mt-1 text-2xl font-bold text-orange-600">
+                {{ stats.missing_alt || 0 }}
+                <span class="text-base font-normal text-gray-500">{{ $t('missing') }}</span>
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ $t('%1$s of %2$s images optimized', audit?.good || 0, audit?.total_images || stats.total_images || 0) }}
+              </div>
             </div>
           </div>
 
-          <!-- Breakdown -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-              <div class="text-2xl font-bold text-green-700">{{ audit.good }}</div>
-              <div class="text-xs text-green-600">{{ $t('Good') }}</div>
+          <!-- Daily usage (free only) -->
+          <div v-if="usageLimit && !appVars.isPro && usageLimit.daily_limit > 0" class="mt-5">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="text-gray-600">
+                {{ $t('Daily usage') }}:
+                <span class="font-semibold" :class="usageLimit.daily_remaining === 0 ? 'text-red-600' : 'text-gray-800'">
+                  {{ usageLimit.daily_used }} / {{ usageLimit.daily_limit }}
+                </span>
+              </span>
+              <span v-if="usageLimit.reset_in" class="text-gray-400">{{ $t('Resets in %s', usageLimit.reset_in) }}</span>
             </div>
-            <router-link
-              to="/scanner?filter=missing"
-              class="bg-red-50 border border-red-200 rounded-lg p-3 text-center hover:shadow-md transition cursor-pointer block"
-            >
-              <div class="text-2xl font-bold text-red-700">{{ audit.missing }}</div>
-              <div class="text-xs text-red-600">{{ $t('Missing Alt Text') }}</div>
-            </router-link>
-            <router-link
-              to="/scanner?filter=generic"
-              class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center hover:shadow-md transition cursor-pointer block"
-            >
-              <div class="text-2xl font-bold text-yellow-700">{{ audit.generic }}</div>
-              <div class="text-xs text-yellow-600">{{ $t('Generic / Placeholder') }}</div>
-            </router-link>
-            <router-link
-              to="/scanner?filter=too_long"
-              class="bg-orange-50 border border-orange-200 rounded-lg p-3 text-center hover:shadow-md transition cursor-pointer block"
-            >
-              <div class="text-2xl font-bold text-orange-700">{{ audit.too_long }}</div>
-              <div class="text-xs text-orange-600">{{ $t('Too Long') }} (&gt;{{ audit.max_length }})</div>
-            </router-link>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="h-2 rounded-full transition-all" :class="usageBarColor" :style="{ width: usageBarWidth + '%' }"></div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Charts -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- Usage & Cost Chart -->
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <h3 class="text-lg font-semibold mb-4">{{ $t('Usage & Cost (Last 30 Days)') }}</h3>
-          <div v-if="loading" class="h-64 flex items-center justify-center text-gray-500">
-            {{ $t('Loading...') }}
-          </div>
-          <div v-else-if="!hasUsageData" class="h-64 flex items-center justify-center text-gray-400">
-            {{ $t('No usage data yet. Generate some alt texts to see trends here.') }}
-          </div>
-          <div v-else ref="usageChartRef" class="h-64"></div>
         </div>
 
-        <!-- Generation Results Chart -->
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <h3 class="text-lg font-semibold mb-4">{{ $t('Generation Results') }}</h3>
-          <div v-if="loading" class="h-64 flex items-center justify-center text-gray-500">
-            {{ $t('Loading...') }}
-          </div>
-          <div v-else-if="!hasResultsData" class="h-64 flex items-center justify-center text-gray-400">
-            {{ $t('No generation data yet. Results breakdown will appear here.') }}
-          </div>
-          <div v-else ref="resultsChartRef" class="h-64"></div>
-        </div>
-      </div>
-
-      <!-- API Status -->
-      <div class="bg-white p-6 rounded-lg shadow border mb-6">
-        <h3 class="text-lg font-semibold mb-4">{{ $t('API Status') }}</h3>
-        <div v-if="stats.api_status?.connected" class="flex items-center gap-2">
-          <span class="text-green-600">✓</span>
-          <span>{{ $t('Connected to %s', stats.api_status.provider) }}</span>
-        </div>
-        <div v-else class="flex items-center gap-2">
-          <span class="text-red-600">✗</span>
-          <span>{{ $t('Not connected') }}</span>
-          <router-link to="/settings" class="text-blue-600 underline ml-2">{{ $t('Configure API') }}</router-link>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="bg-white p-6 rounded-lg shadow border mb-6">
-        <h3 class="text-lg font-semibold mb-4">{{ $t('Quick Actions') }}</h3>
-        <div class="flex flex-wrap gap-3">
+        <!-- Footer CTAs -->
+        <div class="px-6 py-4 bg-gray-50 border-t flex flex-wrap items-center gap-3">
           <button
             @click="$router.push('/scanner')"
-            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+            class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition"
           >
-            {{ $t('Scan Media Library') }}
+            {{ $t('Scan Media Library') }} →
           </button>
           <button
             v-if="woocommerceInstalled"
             @click="$router.push('/woocommerce')"
-            class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
+            class="bg-white border text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition"
           >
-            {{ $t('WooCommerce Products') }}
+            {{ $t('WooCommerce') }}
           </button>
-          <button
-            @click="$router.push('/settings')"
-            class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
+          <a
+            v-if="!appVars.isPro"
+            :href="proUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="get-pro-btn ml-auto inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-amber-500 rounded-md shadow-sm hover:bg-amber-600 transition-colors no-underline"
           >
-            {{ $t('Settings') }}
-          </button>
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z" />
+            </svg>
+            {{ $t('Get Pro') }}
+          </a>
         </div>
       </div>
 
-      <!-- Recent Activity -->
-      <div class="bg-white p-6 rounded-lg shadow border">
-        <h3 class="text-lg font-semibold mb-4">{{ $t('Recent Activity') }}</h3>
-        <div v-if="loading" class="text-center py-8 text-gray-500">
-          {{ $t('Loading...') }}
+      <!-- ============ Image Compression ============ -->
+      <div class="bg-white rounded-lg shadow border flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-6 pt-6">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-green-50 text-green-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4l4 4m10-4l-4-4m4 4l-4 4" />
+              </svg>
+            </span>
+            <h3 class="text-lg font-semibold">{{ $t('Image Compression') }}</h3>
+          </div>
+          <span class="text-xs text-green-600 inline-flex items-center gap-1">
+            <span>✓</span>{{ $t('Local engine') }}
+          </span>
         </div>
-        <div v-else-if="recentActivity.length === 0" class="text-center py-8 text-gray-500">
-          {{ $t('No recent activity') }}
-        </div>
-        <div v-else class="space-y-3">
-          <div
-            v-for="item in recentActivity"
-            :key="item.id"
-            class="flex items-center gap-4 p-3 border rounded-lg"
-          >
-            <img
-              v-if="item.thumbnail"
-              :src="item.thumbnail"
-              class="w-16 h-16 object-cover rounded"
-              :alt="item.filename"
-            />
-            <div class="flex-1">
-              <div class="font-medium">{{ item.filename }}</div>
-              <div class="text-sm text-gray-600">{{ item.generated_alt }}</div>
+
+        <div class="px-6 py-5 flex-1">
+          <!-- Headline metric: total saved -->
+          <div class="flex items-center gap-5">
+            <div class="shrink-0 w-24 text-center">
+              <div class="text-3xl font-bold text-green-600 leading-tight">{{ compressionStats.total_saved_human || '0 B' }}</div>
+              <div class="text-xs text-gray-500">{{ $t('saved') }}</div>
             </div>
-            <div class="text-sm">
-              <span :class="{
-                'text-green-600': item.status === 'accepted',
-                'text-orange-600': item.status === 'pending',
-                'text-red-600': item.status === 'rejected'
-              }">
-                {{ item.status }}
+            <div>
+              <div class="text-2xl font-bold text-gray-800">
+                {{ compressionStats.total_compressed || 0 }}
+                <span class="text-base font-normal text-gray-500">{{ $t('compressed') }}</span>
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ $t('%s images not yet optimized', uncompressedCount) }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily compression usage (free only) -->
+          <div v-if="compressUsage && !compressUsage.is_pro && compressUsage.limit > 0" class="mt-5">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="text-gray-600">
+                {{ $t('Daily usage') }}:
+                <span class="font-semibold" :class="compressUsage.remaining === 0 ? 'text-red-600' : 'text-gray-800'">
+                  {{ compressUsage.used }} / {{ compressUsage.limit }}
+                </span>
               </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="h-2 rounded-full transition-all" :class="compressBarColor" :style="{ width: compressBarWidth + '%' }"></div>
             </div>
           </div>
         </div>
+
+        <!-- Footer CTAs -->
+        <div class="px-6 py-4 bg-gray-50 border-t flex flex-wrap items-center gap-3">
+          <button
+            @click="$router.push('/compression')"
+            class="bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition"
+          >
+            {{ $t('Compress Images') }} →
+          </button>
+          <a
+            v-if="!compressUsage.is_pro"
+            :href="proUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="get-pro-btn ml-auto inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-amber-500 rounded-md shadow-sm hover:bg-amber-600 transition-colors no-underline"
+          >
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.364 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.176 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.07 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.957z" />
+            </svg>
+            {{ $t('Get Pro') }}
+          </a>
+        </div>
       </div>
     </div>
+
+    <!-- Alt-text health: actionable problem states, deep-linking into Scanner filters -->
+    <div v-if="audit && audit.total_images > 0" class="mb-6">
+      <div class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">{{ $t('Alt text health') }}</div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <router-link
+          to="/scanner?filter=missing"
+          class="flex items-center justify-between bg-white border border-red-200 rounded-lg px-4 py-3 hover:shadow-md transition cursor-pointer"
+        >
+          <span class="text-sm text-red-600">{{ $t('Missing Alt Text') }}</span>
+          <span class="text-xl font-bold text-red-700">{{ audit.missing }}</span>
+        </router-link>
+        <router-link
+          to="/scanner?filter=generic"
+          class="flex items-center justify-between bg-white border border-yellow-200 rounded-lg px-4 py-3 hover:shadow-md transition cursor-pointer"
+        >
+          <span class="text-sm text-yellow-600">{{ $t('Generic / Placeholder') }}</span>
+          <span class="text-xl font-bold text-yellow-700">{{ audit.generic }}</span>
+        </router-link>
+        <router-link
+          to="/scanner?filter=too_long"
+          class="flex items-center justify-between bg-white border border-orange-200 rounded-lg px-4 py-3 hover:shadow-md transition cursor-pointer"
+        >
+          <span class="text-sm text-orange-600">{{ $t('Too Long') }} (&gt;{{ audit.max_length }})</span>
+          <span class="text-xl font-bold text-orange-700">{{ audit.too_long }}</span>
+        </router-link>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Api from '../services/Api'
 import { getSettings } from '../router'
 import { $t } from '../utils/i18n'
-import { useECharts } from '../composables/useECharts'
 
 const router = useRouter()
 const stats = ref({})
-const recentActivity = ref([])
 const usageLimit = ref(null)
-const loading = ref(true)
 const woocommerceInstalled = ref(false)
 const audit = ref(null)
 const auditLoading = ref(false)
-
-const chartUsage = ref([])
-const chartResults = ref([])
+const compressionStats = ref({})
+const compressUsage = ref({ is_pro: false, used: 0, limit: 0, remaining: 0 })
 
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
 
-const hasUsageData = computed(() => chartUsage.value.some(d => d.processed > 0 || d.cost > 0))
-const hasResultsData = computed(() => chartResults.value.some(d => d.value > 0))
+// Best-effort "not yet optimized" count: total images minus those already compressed.
+const uncompressedCount = computed(() => {
+  const total = stats.value.total_images || 0
+  const done = compressionStats.value.total_compressed || 0
+  return Math.max(0, total - done)
+})
 
 const usageBarWidth = computed(() => {
-  if (!usageLimit.value) return 0
+  if (!usageLimit.value || !usageLimit.value.daily_limit) return 0
   return Math.min(100, (usageLimit.value.daily_used / usageLimit.value.daily_limit) * 100)
 })
 
@@ -290,110 +245,18 @@ const usageBarColor = computed(() => {
   return 'bg-blue-500'
 })
 
-const { chartRef: usageChartRef, updateOptions: updateUsageOptions } = useECharts()
-const { chartRef: resultsChartRef, updateOptions: updateResultsOptions } = useECharts()
+const compressBarWidth = computed(() => {
+  const u = compressUsage.value
+  if (!u || !u.limit || u.limit <= 0) return 0
+  return Math.min(100, (u.used / u.limit) * 100)
+})
 
-const updateUsageChart = () => {
-  const dates = chartUsage.value.map(d => {
-    const dt = new Date(d.date)
-    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  })
-  const processed = chartUsage.value.map(d => d.processed)
-  const costs = chartUsage.value.map(d => d.cost)
-
-  updateUsageOptions({
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'cross' },
-    },
-    legend: {
-      data: [$t('Images Processed'), $t('Cost ($)')],
-      bottom: 0,
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      top: '8%',
-      containLabel: true,
-    },
-    xAxis: {
-      type: 'category',
-      data: dates,
-      axisLabel: {
-        rotate: 45,
-        fontSize: 10,
-      },
-    },
-    yAxis: [
-      {
-        type: 'value',
-        name: $t('Images'),
-        position: 'left',
-        minInterval: 1,
-      },
-      {
-        type: 'value',
-        name: $t('Cost ($)'),
-        position: 'right',
-        axisLabel: { formatter: '${value}' },
-      },
-    ],
-    series: [
-      {
-        name: $t('Images Processed'),
-        type: 'bar',
-        data: processed,
-        itemStyle: { color: '#3b82f6' },
-      },
-      {
-        name: $t('Cost ($)'),
-        type: 'line',
-        yAxisIndex: 1,
-        data: costs,
-        smooth: true,
-        itemStyle: { color: '#f59e0b' },
-      },
-    ],
-  })
-}
-
-const updateResultsChart = () => {
-  updateResultsOptions({
-    tooltip: {
-      trigger: 'item',
-      formatter: '{b}: {c} ({d}%)',
-    },
-    legend: {
-      bottom: 0,
-    },
-    series: [
-      {
-        type: 'pie',
-        radius: ['45%', '70%'],
-        center: ['50%', '45%'],
-        avoidLabelOverlap: true,
-        itemStyle: {
-          borderRadius: 6,
-          borderColor: '#fff',
-          borderWidth: 2,
-        },
-        label: {
-          show: true,
-          formatter: '{b}: {c}',
-        },
-        data: chartResults.value.map(item => ({
-          ...item,
-          itemStyle: {
-            color: item.name === 'Accepted' ? '#16a34a'
-              : item.name === 'Rejected' ? '#dc2626'
-              : '#f59e0b',
-          },
-        })),
-      },
-    ],
-  })
-}
+const compressBarColor = computed(() => {
+  const pct = compressBarWidth.value
+  if (pct >= 100) return 'bg-red-500'
+  if (pct >= 80) return 'bg-orange-500'
+  return 'bg-green-500'
+})
 
 const scoreColor = computed(() => {
   const s = audit.value?.score ?? 0
@@ -433,6 +296,18 @@ const runAudit = async () => {
   }
 }
 
+const loadCompression = async () => {
+  try {
+    const result = await Api.get('/compressor/stats')
+    if (result.success) {
+      compressionStats.value = result.stats || {}
+      compressUsage.value = result.usage || compressUsage.value
+    }
+  } catch (error) {
+    console.error('Failed to load compression stats:', error)
+  }
+}
+
 const loadDashboard = async () => {
   try {
     const settingsData = await getSettings()
@@ -448,30 +323,19 @@ const loadDashboard = async () => {
     // Read WooCommerce status from settings (no extra API call)
     woocommerceInstalled.value = settingsData.woo_active || false
 
-    // Parallelize dashboard stats and audit
+    // Parallelize dashboard stats, audit, and compression stats
     const [statsData] = await Promise.all([
       Api.get('/stats/dashboard'),
-      runAudit()
+      runAudit(),
+      loadCompression(),
     ])
 
     if (statsData.success) {
       stats.value = statsData.stats
-      recentActivity.value = statsData.recent_activity || []
-      chartUsage.value = statsData.chart_usage || []
-      chartResults.value = statsData.chart_results || []
       usageLimit.value = statsData.usage_limit || null
     }
   } catch (error) {
     console.error('Failed to load dashboard:', error)
-  } finally {
-    loading.value = false
-    await nextTick()
-    if (hasUsageData.value) {
-      updateUsageChart()
-    }
-    if (hasResultsData.value) {
-      updateResultsChart()
-    }
   }
 }
 
