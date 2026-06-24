@@ -52,7 +52,6 @@ class AdminNotice
         $reviewUrl = 'https://wordpress.org/support/plugin/imagecraft-ai-alt-text-file-renamer-image-seo/reviews/#new-post';
         $dismissUrl = esc_url(rest_url(ICAIS_API_NAMESPACE . '/notice/dismiss'));
         $nonce = wp_create_nonce('wp_rest');
-        self::enqueueReviewNoticeScript($dismissUrl, $nonce);
         ?>
         <div class="notice notice-info is-dismissible icais-review-notice">
             <p>
@@ -69,43 +68,70 @@ class AdminNotice
             </p>
         </div>
         <?php
+        self::printReviewNoticeScript($dismissUrl, $nonce);
     }
 
-    private static function enqueueReviewNoticeScript(string $dismissUrl, string $nonce): void
+    private static function printReviewNoticeScript(string $dismissUrl, string $nonce): void
     {
-        $handle = 'jquery-core';
-
-        wp_enqueue_script($handle);
-
         $script = sprintf(
             "(function() {
-                var dismissLink = document.querySelector('.icais-dismiss-review');
-                if (!dismissLink) {
-                    return;
+                function ready(fn) {
+                    if (document.readyState !== 'loading') {
+                        fn();
+                    } else {
+                        document.addEventListener('DOMContentLoaded', fn);
+                    }
                 }
 
-                dismissLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-
+                ready(function() {
                     var notice = document.querySelector('.icais-review-notice');
-                    fetch('%s', {
-                        method: 'POST',
-                        headers: {
-                            'X-WP-Nonce': '%s',
-                            'Content-Type': 'application/json'
+                    if (!notice) {
+                        return;
+                    }
+
+                    var dismissed = false;
+                    function persistDismiss() {
+                        if (dismissed) {
+                            return;
+                        }
+                        dismissed = true;
+                        fetch('%s', {
+                            method: 'POST',
+                            headers: {
+                                'X-WP-Nonce': '%s',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                    }
+
+                    // 'Maybe Later' link — hide and persist.
+                    var dismissLink = notice.querySelector('.icais-dismiss-review');
+                    if (dismissLink) {
+                        dismissLink.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            persistDismiss();
+                            notice.style.display = 'none';
+                        });
+                    }
+
+                    // Core 'X' button from is-dismissible (injected on ready, after
+                    // this may run) — delegate so the click still persists.
+                    notice.addEventListener('click', function(e) {
+                        if (e.target && e.target.classList && e.target.classList.contains('notice-dismiss')) {
+                            persistDismiss();
                         }
                     });
-
-                    if (notice) {
-                        notice.style.display = 'none';
-                    }
                 });
             })();",
             esc_js($dismissUrl),
             esc_js($nonce)
         );
 
-        wp_add_inline_script($handle, $script);
+        if (function_exists('wp_print_inline_script_tag')) {
+            wp_print_inline_script_tag($script);
+        } else {
+            echo '<script>' . $script . '</script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- inline admin-notice dismiss handler; values escaped via esc_js
+        }
     }
 
     public static function dismiss(): \WP_REST_Response
