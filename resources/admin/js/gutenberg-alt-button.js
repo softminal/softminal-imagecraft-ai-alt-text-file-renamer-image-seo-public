@@ -318,6 +318,9 @@
 
     function init() {
         if (!config.apiUrl || !config.nonce) return;
+        // Role-based permission: hide the generate button when the user's role
+        // may not use ImageCraft. Defaults to allowed when unset (backwards compat).
+        if (config.canUse === false) return;
 
         // Watch for DOM changes (React re-renders in the sidebar)
         var observer = new MutationObserver(function () {

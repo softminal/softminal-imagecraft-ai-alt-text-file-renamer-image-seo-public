@@ -60,6 +60,7 @@ const menuItems = ref([
 
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
 const isPro = window.icais?.isPro ?? false
+const isAdmin = window.icais?.isAdmin ?? false
 
 const isActive = (path) => {
     const currentPath = route.path.replace(/^#/, '')
@@ -68,6 +69,12 @@ const isActive = (path) => {
 }
 
 onMounted(async () => {
+    // Non-admins (permitted roles) get only the base items and must not call the
+    // admin-only /settings endpoint.
+    if (!isAdmin) {
+        return
+    }
+
     try {
         // Use cached settings from router guard (already fetched) or fetch fresh
         const cached = getSettingsCache()
@@ -75,7 +82,7 @@ onMounted(async () => {
         if (settings.woo_active) {
             menuItems.value.push({ name: 'WooCommerce', path: '/woocommerce', icon: '🛒' })
         }
-       
+
     } catch {
         notification.error($t('Failed to load settings'))
     } finally {

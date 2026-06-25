@@ -10,6 +10,10 @@
     'use strict';
 
     var config = window.icaisMediaButton || {};
+    // Role-based permission: when false, all ImageCraft buttons (generate alt,
+    // generate title, rename, compress) are hidden. Defaults to allowed when
+    // unset for backwards compatibility.
+    var canUse = config.canUse !== false;
     var injectedSpans = new WeakSet();
     var injectedRenameSpans = new WeakSet();
 
@@ -284,6 +288,10 @@
      * Inject button after the alt text setting field (as a sibling)
      */
     function injectButton(settingSpan) {
+        // Hidden entirely when the user's role may not use ImageCraft.
+        if (!canUse) {
+            return;
+        }
         if (injectedSpans.has(settingSpan)) {
             return;
         }
@@ -421,6 +429,9 @@
             return;
         }
         injectedRenameSpans.add(settingSpan);
+
+        // Hidden entirely when the user's role may not use ImageCraft.
+        if (!canUse) return;
 
         var hasTitle = true;
         var hasRename = config.autoRename === '1' || config.autoRename === 1;

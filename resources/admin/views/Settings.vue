@@ -61,6 +61,7 @@ const route = useRoute()
 const navItems = [
   { to: '/settings/general', section: 'General', label: 'General', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>' },
   { to: '/settings/api', label: 'API', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>' },
+  { to: '/settings/permissions', label: 'Permissions', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>' },
   { to: '/settings/alt-text', section: 'Image SEO', label: 'Alt Text', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>' },
   { to: '/settings/title', label: 'Image Title', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>' },
   { to: '/settings/rename', label: 'File Renaming', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>' },
@@ -87,6 +88,8 @@ const availableModels = ref({})
 const availableLanguages = ref({})
 const availablePostTypes = ref({})
 const excludedPostTypes = ref([])
+const availableRoles = ref({})
+const allowedRoles = ref([])
 const configApiKey = ref(false)
 const integrations = ref([])
 const wp7Available = ref(false)
@@ -142,6 +145,7 @@ const loadSettings = async () => {
       availableModels.value = result.available_models || {}
       availableLanguages.value = result.available_languages || {}
       availablePostTypes.value = result.available_post_types || {}
+      availableRoles.value = result.available_roles || {}
       woocommerceInstalled.value = result.woo_active || false
       configApiKey.value = result.config_api_key || false
       integrations.value = result.integrations || []
@@ -152,6 +156,13 @@ const loadSettings = async () => {
         excludedPostTypes.value = Array.isArray(parsed) ? parsed : []
       } catch {
         excludedPostTypes.value = []
+      }
+
+      try {
+        const parsedRoles = JSON.parse(result.settings.icais_allowed_roles || '[]')
+        allowedRoles.value = Array.isArray(parsedRoles) ? parsedRoles : []
+      } catch {
+        allowedRoles.value = []
       }
 
       if (result.api_setting && result.api_setting.is_active) {
@@ -167,6 +178,7 @@ const saveSettings = async () => {
   saving.value = true
 
   settings.value.icais_excluded_post_types = JSON.stringify(excludedPostTypes.value)
+  settings.value.icais_allowed_roles = JSON.stringify(allowedRoles.value)
 
   try {
     const result = await Api.post('/settings', {
@@ -277,6 +289,8 @@ provide('settingsContext', {
   sortedLanguages,
   availablePostTypes,
   excludedPostTypes,
+  availableRoles,
+  allowedRoles,
   currentModels,
   modelSettingKey,
   showModelSelector,

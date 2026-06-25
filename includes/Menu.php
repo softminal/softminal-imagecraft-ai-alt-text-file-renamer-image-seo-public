@@ -19,10 +19,19 @@ class Menu {
 
         $menu_title = apply_filters('icais_menu_title', 'ImageCraft');
 
+        // Admins always see the menu. Non-admins see it only when their role is
+        // permitted (Permissions settings) AND they can upload media — which is
+        // the capability floor the plugin's REST routes require.
+        $isAdmin = current_user_can('manage_options');
+        if (!$isAdmin && !\Softminal\ImageCraft\Support\Permission::isAllowed()) {
+            return;
+        }
+        $capability = $isAdmin ? 'manage_options' : 'upload_files';
+
         add_menu_page(
             $menu_title,
             $menu_title,
-            'manage_options',
+            $capability,
             'icais',
             [$this, 'render_dashboard'],
             $icon,

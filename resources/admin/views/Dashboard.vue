@@ -50,9 +50,12 @@
             <span v-if="stats.api_status?.connected" class="inline-flex items-center gap-1 text-green-600">
               <span>✓</span>{{ $t('Connected to %s', stats.api_status.provider) }}
             </span>
-            <router-link v-else to="/settings/api" class="inline-flex items-center gap-1 text-red-600 underline">
+            <router-link v-else-if="isAdmin" to="/settings/api" class="inline-flex items-center gap-1 text-red-600 underline">
               <span>✗</span>{{ $t('Configure API') }}
             </router-link>
+            <span v-else class="inline-flex items-center gap-1 text-gray-500">
+              <span>✗</span>{{ $t('Not connected') }}
+            </span>
           </div>
         </div>
 
@@ -201,6 +204,9 @@ const auditLoading = ref(false)
 const compressionStats = ref({})
 
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
+// Non-admins (permitted roles) can't reach the admin-only /settings endpoint, so
+// they skip the wizard/settings check and admin-only CTAs.
+const isAdmin = window.icais?.isAdmin ?? false
 
 // Best-effort "not yet optimized" count: total images minus those already compressed.
 const uncompressedCount = computed(() => {
@@ -272,18 +278,22 @@ const loadCompression = async () => {
 
 const loadDashboard = async () => {
   try {
-    const settingsData = await getSettings()
-    // Setup is complete when the wizard is done AND a provider is available —
-    // a BYOK key (api_setting.has_key) OR a site-wide source (config key / the
-    // WordPress Native AI Connector), surfaced as site_has_key. Mirrors the
-    // router guard in router.js so native-connector users aren't bounced.
-    if (!settingsData.wizard_completed || !(settingsData.api_setting?.has_key || settingsData.site_has_key)) {
-      router.push('/wizard')
-      return
-    }
+    // Admins verify setup via the admin-only /settings endpoint; non-admins skip
+    // it (they can't configure setup and would 403 / bounce to the wizard).
+    if (isAdmin) {
+      const settingsData = await getSettings()
+      // Setup is complete when the wizard is done AND a provider is available —
+      // a BYOK key (api_setting.has_key) OR a site-wide source (config key / the
+      // WordPress Native AI Connector), surfaced as site_has_key. Mirrors the
+      // router guard in router.js so native-connector users aren't bounced.
+      if (!settingsData.wizard_completed || !(settingsData.api_setting?.has_key || settingsData.site_has_key)) {
+        router.push('/wizard')
+        return
+      }
 
-    // Read WooCommerce status from settings (no extra API call)
-    woocommerceInstalled.value = settingsData.woo_active || false
+      // Read WooCommerce status from settings (no extra API call)
+      woocommerceInstalled.value = settingsData.woo_active || false
+    }
 
     // Parallelize dashboard stats, audit, and compression stats
     const [statsData] = await Promise.all([

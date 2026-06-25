@@ -19,6 +19,7 @@ const SeoSettings = () => import('./components/Settings/SeoSettings.vue');
 const CompressionSettings = () => import('./components/Settings/CompressionSettings.vue');
 const IntegrationSettings = () => import('./components/Settings/IntegrationSettings.vue');
 const LicenseSettings = () => import('./components/Settings/LicenseSettings.vue');
+const PermissionsSettings = () => import('./components/Settings/PermissionsSettings.vue');
 
 const routes = [
     {
@@ -57,6 +58,7 @@ const routes = [
             { path: 'title', name: 'settings-title', component: TitleSettings },
             { path: 'rename', name: 'settings-rename', component: RenameSettings },
             { path: 'compression', name: 'settings-compression', component: CompressionSettings },
+            { path: 'permissions', name: 'settings-permissions', component: PermissionsSettings },
             { path: 'integrations', name: 'settings-integrations', component: IntegrationSettings },
             { path: 'integrations/woocommerce', name: 'settings-integration-woocommerce', component: WooCommerceSettings },
             { path: 'integrations/seo', name: 'settings-integration-seo', component: SeoSettings },
@@ -89,6 +91,18 @@ const CACHE_DURATION = 5000; // 5 seconds
 
 // Check wizard completion on route change
 router.beforeEach(async (to, from, next) => {
+    // Non-admins (permitted roles) only get Dashboard / Image SEO / Compress.
+    // They cannot reach the admin-only /settings endpoint, so skip the wizard
+    // check entirely and block admin-only routes.
+    const isAdmin = window.icais?.isAdmin ?? false;
+    if (!isAdmin) {
+        const adminOnly = ['/settings', '/batch', '/woocommerce', '/wizard'];
+        if (adminOnly.some((p) => to.path === p || to.path.startsWith(p + '/'))) {
+            return next('/');
+        }
+        return next();
+    }
+
     try {
         // Use cached settings if available and fresh
         let settings;

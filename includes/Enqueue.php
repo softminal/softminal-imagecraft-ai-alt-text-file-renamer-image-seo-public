@@ -52,6 +52,9 @@ class Enqueue {
                 'pluginUrl' => ICAIS_URL,
                 'isPro'          => defined('ICAIS_PRO') && ICAIS_PRO,
                 'isProInstalled' => defined('ICAIS_PRO_INSTALLED') && ICAIS_PRO_INSTALLED,
+                'isAdmin'        => current_user_can('manage_options'),
+                'wizardCompleted' => Settings::isWizardCompleted(),
+                'canUse'         => \Softminal\ImageCraft\Support\Permission::isAllowed(),
                 'generateTitle' => Settings::get('icais_generate_title', '0'),
                 'autoRename' => Settings::get('icais_auto_rename', '0'),
                 'i18n' => TranslationStrings::get(),
@@ -85,6 +88,7 @@ class Enqueue {
             'generateTitle' => Settings::get('icais_generate_title', '0'),
             'autoRename' => Settings::get('icais_auto_rename', '0'),
             'compressionEnabled' => Settings::get('icais_compression_enabled', '0'),
+            'canUse' => \Softminal\ImageCraft\Support\Permission::isAllowed(),
             'i18n' => [
                 'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'compress' => __('Compress', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
@@ -141,6 +145,7 @@ class Enqueue {
             'nonce' => wp_create_nonce('wp_rest'),
             'previewBeforeAccept' => $previewBeforeAccept,
             'titlePreviewBeforeAccept' => $titlePreviewBeforeAccept,
+            'canUse' => \Softminal\ImageCraft\Support\Permission::isAllowed(),
             'i18n' => [
                 'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),

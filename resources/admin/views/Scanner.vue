@@ -297,7 +297,7 @@
     </div>
 
     <div v-else class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
-      <div class="p-4 border-b flex items-center justify-between gap-4">
+      <div v-if="isAdmin" class="p-4 border-b flex items-center justify-between gap-4">
         <div class="flex items-center flex-wrap gap-2">
           <label class="inline-flex items-center gap-2 cursor-pointer">
             <input
@@ -422,6 +422,9 @@ const selectedFolderId = ref('0')
 const folderDropdownOpen = ref(false)
 const folderDropdownRef = ref(null)
 const autoRename = window.icais?.autoRename === '1' || window.icais?.autoRename === 1
+// Bulk batch actions are admin-only (batch/* requires manage_options). Non-admin
+// permitted roles generate per-image instead.
+const isAdmin = window.icais?.isAdmin ?? false
 
 // Sync filters to URL query params
 const syncFiltersToUrl = () => {
@@ -763,13 +766,15 @@ onMounted(async () => {
   loadImages()
   document.addEventListener('click', onClickOutsideFolderDropdown)
 
-  // Check for interrupted batch job (non-blocking)
+  // Check for interrupted batch job (non-blocking, admin-only — batch/* is manage_options)
   // Only show banner if job is interrupted (no heartbeat), not if actively running
-  Api.get('/batch/active').then(result => {
-    if (result?.success && result.has_active && !result.is_running) {
-      interruptedBatchId.value = result.job.id
-    }
-  }).catch(() => {})
+  if (isAdmin) {
+    Api.get('/batch/active').then(result => {
+      if (result?.success && result.has_active && !result.is_running) {
+        interruptedBatchId.value = result.job.id
+      }
+    }).catch(() => {})
+  }
 })
 
 onUnmounted(() => {

@@ -64,6 +64,9 @@ class App
             // 2. HTTP Routes (base Route first)
             ['dir' => 'includes/Http/Routes', 'priority' => ['Route.php']],
 
+            // 2b. HTTP Middleware (referenced by route definitions)
+            ['dir' => 'includes/Http/Middleware', 'priority' => []],
+
             // 3. HTTP Controllers (base Controller first)
             ['dir' => 'includes/Http/Controllers', 'priority' => ['Controller.php']],
 

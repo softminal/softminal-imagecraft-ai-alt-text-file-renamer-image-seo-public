@@ -30,6 +30,12 @@ class AutoGenerate
      */
     public static function onAttachmentAdded($attachmentId)
     {
+        // Respect the role-based permission for the uploading user
+        // (admins always allowed; empty allow-list = no restriction).
+        if (!\Softminal\ImageCraft\Support\Permission::isAllowed(get_current_user_id())) {
+            return;
+        }
+
         // Check if auto-generate is enabled
         // For WooCommerce product images, respect the WooCommerce-specific setting
         $isWooProduct = false;

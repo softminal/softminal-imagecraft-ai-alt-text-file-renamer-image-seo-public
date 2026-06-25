@@ -54,7 +54,10 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
   `ChatCompletionsProvider.php`; providers — `AnthropicProvider`,
   `OpenAIProvider`, `GeminiProvider`, **`WP7Provider`** (WordPress Native AI
   Client, opt-in). Planned (commented): Mistral, OpenRouter.
-- **Support (`Support/`):** `AltTextHelper.php`, `Collection.php`.
+- **Support (`Support/`):** `AltTextHelper.php`, `Collection.php`, `Permission.php`
+  (single role-based permission gate for all features — `isAllowed()`).
+- **Middleware (`Http/Middleware/`):** `RoleGate.php` (gates the `generator`, `compressor`,
+  and `renamer` route groups via `Permission::isAllowed()`).
 
 ### Frontend (`resources/admin/`)
 - **Entry:** `main.js` → Vue app on `#imagecraft-app`.
@@ -192,6 +195,31 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-06-25** — **Non-admin SPA access for permitted roles.** Permitted roles now also
+  get the ImageCraft admin menu + SPA, limited to **Dashboard + Image SEO + Compress**;
+  Settings/Batch/License/WooCommerce/Wizard stay admin-only. `Menu.php` shows the menu to
+  permitted non-admins (`upload_files` cap; admins keep `manage_options`). `Enqueue.php` adds
+  `isAdmin`/`wizardCompleted`/`canUse` to `window.icais`. Frontend gates: `router.js` guard
+  blocks admin-only routes + skips the admin-only `/settings` fetch for non-admins;
+  `Navbar.vue` shows only the three base tabs; `Scanner.vue`/`Compression.vue` hide bulk
+  `batch/*` actions (keep per-image); `Dashboard.vue` skips settings/wizard check + admin-only
+  CTAs. Pre-existing limit: `GeneratorController` ownership check — non-admins generate only
+  for their own uploads. Additive/backwards-compatible (empty allow-list = no non-admin sees
+  the menu, identical to before).
+- **2026-06-25** — Added a **single role-based permission for all ImageCraft features**
+  on a dedicated **Permissions** settings page (`components/Settings/PermissionsSettings.vue`,
+  route `/settings/permissions`, new sidebar item in `Settings.vue`). One setting
+  `icais_allowed_roles` (JSON array of role slugs; **empty = no restriction**,
+  backwards-compatible default; administrators always allowed) governs alt text, image
+  titles, file rename, and image compression. Enforced server-side by `Http\Middleware\RoleGate`
+  on the `generator`, `compressor`, AND `renamer` route groups (after the capability check)
+  plus a guard in `AutoGenerate::onAttachmentAdded`; logic centralized in
+  `Support\Permission::isAllowed()`. `SettingsController::index()` returns `available_roles`
+  (excludes `administrator`); `update()` sanitizes/validates `icais_allowed_roles`. Manual
+  entry points (`media-button.js`, `gutenberg-alt-button.js`) hide ALL buttons
+  (Generate/Title/Rename/Compress) when the `canUse` flag (in `icaisMediaButton`/`icaisGutenberg`
+  via `Enqueue.php`) is false. Additive only — no breaking changes.
+  (Supersedes the earlier alt-text-only iteration from the same day.)
 - **2026-06-24** — Redesign: **dual-focus dashboard** (`resources/admin/views/Dashboard.vue`).
   Rebuilt as two equal feature panels side by side — **AI Alt Text** (SEO score ring, missing
   count, daily-usage bar, Scan/WooCommerce CTAs, folded-in API status) and **Image Compression**

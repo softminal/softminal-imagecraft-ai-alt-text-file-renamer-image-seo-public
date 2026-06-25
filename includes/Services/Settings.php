@@ -47,6 +47,7 @@ class Settings
         'icais_anthropic_model' => 'claude-haiku-4-5',
         'icais_gemini_model' => 'gemini-2.5-flash',
         'icais_excluded_post_types' => '[]',
+        'icais_allowed_roles' => '[]',          // roles allowed to generate alt text; empty = no restriction (admins always allowed)
         'icais_integration_kadence' => '1',
         'icais_integration_spectra' => '1',
         'icais_integration_yoast' => '1',

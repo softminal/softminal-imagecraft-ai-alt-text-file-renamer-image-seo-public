@@ -34,8 +34,8 @@ Route::prefix('scanner')->capability('upload_files')->group(function () {
     Route::get('/select-all', [ScannerController::class, 'selectAll']);
 });
 
-// Generator routes
-Route::prefix('generator')->capability('upload_files')->group(function () {
+// Generator routes (role-gated via RoleGate: alt text, title, filename generation)
+Route::prefix('generator')->capability('upload_files')->middleware([\Softminal\ImageCraft\Http\Middleware\RoleGate::class])->group(function () {
     Route::post('/generate', [GeneratorController::class, 'generate']);
     Route::post('/accept', [GeneratorController::class, 'accept']);
     Route::post('/accept-bulk', [GeneratorController::class, 'acceptBulk']);
@@ -62,15 +62,15 @@ Route::prefix('stats')->capability('upload_files')->group(function () {
     Route::get('/audit', [StatsController::class, 'audit']);
 });
 
-// File Renamer routes
-Route::prefix('renamer')->capability('upload_files')->group(function () {
+// File Renamer routes (role-gated via RoleGate)
+Route::prefix('renamer')->capability('upload_files')->middleware([\Softminal\ImageCraft\Http\Middleware\RoleGate::class])->group(function () {
     Route::post('/rename', [FileRenamerController::class, 'rename']);
     Route::post('/rename-bulk', [FileRenamerController::class, 'renameBulk']);
     Route::get('/preview', [FileRenamerController::class, 'preview']);
 });
 
-// Image compression routes
-Route::prefix('compressor')->capability('upload_files')->group(function () {
+// Image compression routes (role-gated via RoleGate)
+Route::prefix('compressor')->capability('upload_files')->middleware([\Softminal\ImageCraft\Http\Middleware\RoleGate::class])->group(function () {
     Route::get('/scan', [CompressorController::class, 'scan']);
     Route::post('/compress', [CompressorController::class, 'compress']);
     Route::post('/restore', [CompressorController::class, 'restore']);

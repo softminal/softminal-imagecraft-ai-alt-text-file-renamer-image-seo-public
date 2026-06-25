@@ -58,7 +58,7 @@
             ]"
           >{{ $t(f.label) }}</button>
         </div>
-        <div class="flex gap-2">
+        <div v-if="isAdmin" class="flex gap-2">
           <button
             @click="toggleSelectAll"
             class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 hover:bg-gray-50"
@@ -161,6 +161,8 @@ import { Pagination } from '../@ui'
 const router = useRouter()
 
 const isPro = window.icais?.isPro ?? false
+// Bulk compress uses batch/* (manage_options). Non-admins compress per-image.
+const isAdmin = window.icais?.isAdmin ?? false
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
 
 const enabled = ref(true)
