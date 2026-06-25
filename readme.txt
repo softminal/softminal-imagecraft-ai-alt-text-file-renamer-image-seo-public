@@ -1,4 +1,4 @@
-=== ImageCraft – AI Alt Text, Image Compression & Image SEO Toolkit ===
+=== ImageCraft - AI Image SEO & Compression ===
 Contributors: softminal, diptosoftminal
 Tags: ai alt text, image compression, image optimization, image seo, alt text generator
 Requires at least: 5.8
@@ -11,6 +11,8 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 All-in-one WordPress image toolkit: AI alt text & titles, smart image compression, SEO file renaming, and an image SEO audit.
 
 == Description ==
+
+[Features](https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo) | [Blog](https://www.softminal.com/blog/product/imagecraft) | [Get Support](https://support.softminal.com)
 
 ImageCraft is your all-in-one WordPress image toolkit — it handles every image task in one plugin. Generate SEO-optimized **alt text and titles** with AI, **compress images** without losing quality, **rename files** for SEO, and **audit** your media library health — no need to juggle multiple plugins.
 
@@ -306,13 +308,11 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
-= 1.4.0 (25 June, 2026) =
+= 1.4.0 (26 June, 2026) =
 * New: **Smart Image Compression** — a built-in, quality-preserving image compressor that runs locally on your server (no external service). Compress single images, bulk-optimize your entire media library, and restore originals with one click.
 * New: **Compress button in the WordPress media modal** — optimize any image without leaving the media library
 * New: **Compression batch processing** — bulk compress images with real-time progress
 * New: **Automatic original backup & restore** — every compression backs up the original so you can revert anytime
-* New: **Dual-focus dashboard** — redesigned dashboard now surfaces both Alt Text and Image Compression at a glance
-* Improvement: Unified the free daily allowance into a single shared 50/day pool across AI generation and compression
 * Note: ImageCraft is now a full image toolkit — AI alt text & titles, image compression, SEO file renaming, and image SEO audit, all in one plugin
 
 = 1.3.10 (19 June, 2026) =
