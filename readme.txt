@@ -1,37 +1,45 @@
-=== ImageCraft Alt Text, File Renaming and Image SEO ===
+=== ImageCraft – AI Alt Text, Image Compression & Image SEO Toolkit ===
 Contributors: softminal, diptosoftminal
-Tags: ai alt text, image alt text generator, image seo, alt text generator, accessibility
+Tags: ai alt text, image compression, image optimization, image seo, alt text generator
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.10
+Stable tag: 1.4.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI-powered alt text, file renaming, and image SEO for WordPress. Use OpenAI, Claude, Gemini, or the WordPress 7.0 native AI Client.
+All-in-one WordPress image toolkit: AI alt text & titles, smart image compression, SEO file renaming, and an image SEO audit.
 
 == Description ==
 
-ImageCraft helps you generate SEO-optimized alt text, rename image files, and improve image accessibility in WordPress using OpenAI, Claude, Gemini, or the WordPress 7.0 native AI Client.
+ImageCraft is your all-in-one WordPress image toolkit — it handles every image task in one plugin. Generate SEO-optimized **alt text and titles** with AI, **compress images** without losing quality, **rename files** for SEO, and **audit** your media library health — no need to juggle multiple plugins.
 
-Generate SEO-friendly alt text for hundreds of images in minutes instead of hours.
+Two headline features, one workflow:
+
+* **AI Alt Text & Title Generator** — accessible, search-friendly descriptions written automatically using OpenAI, Claude, Gemini, or the WordPress 7.0 native AI Client.
+* **Smart Image Compression** — shrink your images and speed up your site with a built-in, quality-preserving compressor that runs 100% locally on your server.
+
+Generate SEO-friendly alt text for hundreds of images and compress your entire media library in minutes instead of hours — all while keeping your pages fast and search-engine friendly.
 
 = Why ImageCraft? =
 
-Most alt text plugins charge monthly subscriptions or per-image credits through their own proxy service. ImageCraft connects directly to your AI provider — you pay only the provider's standard API rate with zero markup.
+Most plugins do one thing — either alt text **or** compression — and many charge monthly subscriptions or per-image credits through their own proxy service. ImageCraft does both in one plugin: AI generation connects directly to your provider (you pay only the standard API rate with zero markup), and image compression runs locally on your server for free.
 
 = Core Features =
 
-* AI Image Alt Text Generator (SEO optimized)
-* AI-powered File Renamer for better image SEO
-* Image SEO Audit Dashboard with quality scoring
+* **AI Image Alt Text Generator** (SEO optimized)
+* **AI Image Title Generator**
+* **Smart Image Compression** — quality-preserving, runs locally, with one-click restore
+* **AI-powered File Renamer** for better image SEO
+* **Image SEO Audit Dashboard** with quality scoring
 * SEO keyphrase integration — works with **Yoast SEO**, **Rank Math**, **AIOSEO**, and **SEOPress**
 * **WooCommerce** product-aware alt text generation
-* **Batch processing** images with real-time progress
-* Use your own API key — no subscription, no markup
+* **Batch processing** for alt text, titles, and compression with real-time progress
+* Use your own API key for AI — no subscription, no markup
 
 = Key Features =
 
+* **Smart image compression** — Reduce image file size with a built-in, quality-preserving compressor that runs locally on your server. Bulk-optimize your library, compress from the media modal, and restore originals anytime. Smaller images mean faster pages and better Core Web Vitals.
 * **3 AI providers, 17+ models** — Choose from Anthropic Claude, OpenAI, and Google Gemini models. Switch providers and models anytime.
 * **Gutenberg, Kadence, Spectra & Media Modal integration** — Generate alt text with one click from the block editor sidebar, **Kadence** image block, **Spectra** image block, or WordPress media modal. Preview, accept, or reject without leaving the editor.
 * **Spectra Block support** — Full integration with **Spectra** image block: generate alt text and title directly from the block inspector sidebar.
@@ -46,6 +54,11 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 
 = All Features =
 
+* Smart local image compression (JPG, PNG, GIF, WebP) — quality-preserving
+* Bulk compress your entire media library with batch processing
+* Compress button in the WordPress media modal — optimize without leaving the library
+* Automatic original backup and one-click restore for every compression
+* Longest-edge downscaling for oversized images
 * 3 AI providers with 17+ model options
 * Generate from **Gutenberg** editor, **Kadence** blocks, **Spectra** blocks, and WordPress media modal
 * **Kadence** image block integration — alt text, title attribute, and link title generation
@@ -82,30 +95,43 @@ Most alt text plugins charge monthly subscriptions or per-image credits through 
 * Modern SPA interface — no page reloads
 * Improves WCAG accessibility compliance for screen readers
 
+= Smart Image Compression =
+
+ImageCraft includes a built-in image compressor that reduces file size while preserving visual quality — no external service, no uploads to a third party. Everything runs locally on your server using the image libraries WordPress already uses (Imagick/GD).
+
+* **Visually-lossless compression** — strips bloated metadata and optimizes JPG, PNG, GIF, and WebP with no noticeable quality loss
+* **Automatic downscaling** — oversized images are scaled down to a sensible maximum dimension
+* **One-click bulk compression** — optimize your whole media library from the dashboard
+* **Compress from the media modal** — a Compress button right where you manage your images
+* **Safe by default** — every original is backed up, so you can restore any image with one click
+* **Never enlarges** — only keeps the result when it is actually smaller than the original
+* **Faster pages, better SEO** — smaller images improve load time and Core Web Vitals, which Google rewards in search rankings
+
 = Boost Google Image Rankings =
 
-ImageCraft not only generates alt text — it also renames your image files using AI. This improves your chances of ranking in Google Image Search and drives more organic traffic to your site.
+ImageCraft covers every image SEO factor in one place: AI alt text helps search engines understand your images, AI file renaming gives them descriptive, keyword-rich URLs, and image compression speeds up your pages for better Core Web Vitals. Together they improve your chances of ranking in Google Image Search and drive more organic traffic to your site.
 
 = Free to Start, No Lock-in =
 
-* 50 images per day — no account or signup required
-* No per-image credits or proxy services
-* Use your own API key — pay only your AI provider directly
+* 50 free actions per day — shared across AI generation and compression, no account or signup required
+* Image compression runs locally and free — no per-image credits or proxy services
+* Use your own API key for AI — pay only your AI provider directly
 * Full control over your data
 
 = Who Is This For? =
 
-* **Bloggers & content creators** — Fix hundreds of missing alt texts in minutes, not hours
-* **SEO professionals** — Keyphrase-aware alt text that aligns with your on-page SEO strategy
-* **WooCommerce store owners** — Product-aware alt text with name, category, and SKU context for every product image
-* **Agencies** — Batch process entire media libraries for client sites. BYOK means no per-site licensing
+* **Bloggers & content creators** — Fix hundreds of missing alt texts and compress oversized images in minutes, not hours
+* **SEO professionals** — Keyphrase-aware alt text plus compression and file renaming that cover the full image SEO checklist
+* **Performance-focused site owners** — Compress images to speed up page loads and improve Core Web Vitals without sacrificing quality
+* **WooCommerce store owners** — Product-aware alt text with name, category, and SKU context, plus lighter product images for faster stores
+* **Agencies** — Batch process and optimize entire media libraries for client sites. BYOK means no per-site licensing
 * **Accessibility-conscious site owners** — Improve WCAG compliance and screen reader experience across your entire site
 
 = How It Works =
 
-1. **Connect** — Add your API key in your WordPress site from Anthropic, OpenAI, or Google Gemini (3-minute setup wizard)
-2. **Generate** — Click "Generate with AI" on any image, or batch process images at once
-3. **Review** — Preview generated alt text, edit if needed, then accept. Or enable auto-accept for hands-free processing
+1. **Connect** — Add your API key in your WordPress site from Anthropic, OpenAI, or Google Gemini (3-minute setup wizard). Compression needs no key — it works right away.
+2. **Generate & optimize** — Click "Generate with AI" on any image, compress it, or batch process your whole library at once
+3. **Review** — Preview generated alt text, edit if needed, then accept. Or enable auto-accept for hands-free processing. Restore any compressed original with one click.
 
 = Typical API Costs =
 
@@ -119,12 +145,14 @@ You pay only for API usage directly to your chosen provider. Since ImageCraft us
 
 * **vs subscription plugins** — No monthly fees. Pay per use at direct API rates with zero markup.
 * **vs single-provider plugins** — 3 providers, 17+ models. Switch anytime without losing data or reconfiguring.
-* **vs alt-text-only plugins** — ImageCraft also renames files for SEO, runs an SEO audit, and integrates with your SEO plugin's focus keyphrase.
+* **vs alt-text-only plugins** — ImageCraft is a full toolkit: it also compresses images, renames files for SEO, runs an SEO audit, and integrates with your SEO plugin's focus keyphrase.
+* **vs separate compression plugins** — No second plugin to install or external service to trust. Compression runs locally alongside your alt text workflow — one dashboard for every image task.
 
 = Privacy & Security =
 
 * API keys encrypted with AES-256-CBC using WordPress salts (or stored in wp-config.php for file-based security)
 * Images sent only to your chosen AI provider when you trigger generation
+* Image compression runs entirely on your own server — images are never sent to an external compression service
 * SSRF protection on image URL fetching
 * No data routed through third-party proxy services
 
@@ -213,6 +241,18 @@ Yes. ImageCraft adds a "Generate with AI" button directly in the Gutenberg block
 
 Yes. ImageCraft uses AI to generate SEO-friendly filenames directly from image content — independent from alt text. Enable file renaming in settings and use the "Rename File" button on individual images.
 
+= Does ImageCraft compress images? =
+
+Yes. ImageCraft includes a built-in image compressor that reduces file size while keeping images visually sharp. Compression runs 100% locally on your server — no external service and no per-image fees. You can compress a single image from the media modal, bulk-compress your whole library, and restore the original at any time.
+
+= Will compression reduce my image quality? =
+
+No noticeable loss. ImageCraft uses visually-lossless settings — it strips unnecessary metadata and optimizes the image while preserving sharpness. It never enlarges images and only keeps the compressed version if it is actually smaller. Originals are backed up so you can restore them anytime.
+
+= Does image compression use an external service or slow down my site? =
+
+No. Compression happens locally on your own server using the image libraries WordPress already uses (Imagick/GD). Nothing is uploaded to a third-party service, so there are no extra requests, no API costs, and no privacy concerns — and smaller images actually make your pages load faster.
+
 = Can I generate alt text in my language? =
 
 Yes. The plugin supports 65+ languages including Spanish, French, German, Japanese, Chinese, Arabic, Hindi, Tamil, Persian, Korean, and many more.
@@ -243,11 +283,11 @@ Yes! ImageCraft has full integration with the **Kadence** image block. It adds "
 
 = Does ImageCraft improve SEO? =
 
-Yes. Descriptive alt text helps search engines understand your images, improving your chances of ranking in **Google Image Search**. Combined with AI-powered file renaming and SEO keyphrase integration, ImageCraft covers the key image SEO factors.
+Yes. Descriptive alt text helps search engines understand your images, improving your chances of ranking in **Google Image Search**. Combined with AI-powered file renaming, SEO keyphrase integration, and image compression for faster page loads (better Core Web Vitals), ImageCraft covers the key image SEO factors in one plugin.
 
 = Is it free? =
 
-Yes. Generate up to 50 images per day — no account or signup required. You provide your own API key and pay only your AI provider directly.
+Yes. You get 50 free actions per day — shared across AI generation and image compression — with no account or signup required. For AI features you provide your own API key and pay only your AI provider directly. Image compression runs locally at no cost.
 
 = Does it work with page builders like Elementor or Divi? =
 
@@ -255,15 +295,25 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Screenshots ==
 
-1. Dashboard - Image SEO audit score, daily usage tracker, stats cards, usage & cost chart, and generation results overview
-2. Media Library - Generate alt text and rename files directly from the WordPress media modal with one click
+1. Dashboard - Dual-focus dashboard with Alt Text and Image Compression panels, SEO audit score, daily usage tracker, stats cards, and usage & cost chart
+2. Media Library - Generate alt text, rename files, and compress images directly from the WordPress media modal with one click
 3. WooCommerce Products - Browse products with alt text status, filter by category, and generate alt text per product
 4. Settings - API configuration with provider and model selection, database or wp-config.php key storage, and connection testing
 5. Gutenberg Editor - Generate alt text with AI directly from the block editor image settings panel
 6. Spectra - Generate alt text and title for Spectra image blocks from the inspector sidebar
 7. Kadence Blocks - Generate alt text, title attribute, and link title for Kadence image blocks from the inspector sidebar
+8. Image Compression - Scan and compress images with before/after size savings, bulk compression, and one-click restore
 
 == Changelog ==
+
+= 1.4.0 (25 June, 2026) =
+* New: **Smart Image Compression** — a built-in, quality-preserving image compressor that runs locally on your server (no external service). Compress single images, bulk-optimize your entire media library, and restore originals with one click.
+* New: **Compress button in the WordPress media modal** — optimize any image without leaving the media library
+* New: **Compression batch processing** — bulk compress images with real-time progress
+* New: **Automatic original backup & restore** — every compression backs up the original so you can revert anytime
+* New: **Dual-focus dashboard** — redesigned dashboard now surfaces both Alt Text and Image Compression at a glance
+* Improvement: Unified the free daily allowance into a single shared 50/day pool across AI generation and compression
+* Note: ImageCraft is now a full image toolkit — AI alt text & titles, image compression, SEO file renaming, and image SEO audit, all in one plugin
 
 = 1.3.10 (19 June, 2026) =
 * Fix: The WordPress Native AI Connector now appears consistently in API Settings and the Setup Wizard. Connector availability is determined locally, removing an intermittent network check that could prevent the option from displaying.
@@ -407,6 +457,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+ImageCraft is now a full image toolkit — adds Smart Image Compression (local, quality-preserving, with one-click restore) alongside AI alt text, titles, and file renaming. Fully backwards-compatible; compression is opt-in and needs no API key.
 
 = 1.3.10 =
 The WordPress Native AI Connector now displays consistently, and the Settings screen loads faster and more reliably on sites using native AI.
