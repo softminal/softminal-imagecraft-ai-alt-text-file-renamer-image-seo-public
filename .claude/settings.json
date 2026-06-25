@@ -1,0 +1,45 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l:*)",
+      "Bash(cd:*)",
+      "Bash(wp plugin check:*)",
+      "Bash(wp plugin deactivate:*)",
+      "Bash(wp plugin activate:*)",
+      "Bash(chmod:*)",
+      "Bash(grep:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npm install:*)",
+      "Bash(for:*)",
+      "Bash(do)",
+      "Bash(if [ -f \"$dir/index.php\" ])",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(xargs sed:*)",
+      "Bash(find:*)",
+      "Bash(exiftool \\\\\n  -Title=\"ImageCraft – AI Alt Text, File Renamer & Image SEO WordPress Plugin\" \\\\\n  -Description=\"ImageCraft WordPress plugin banner showing AI-powered alt text generation for images using Anthropic Claude, OpenAI GPT-4, and Google Gemini with SEO audit, WooCommerce integration, and batch processing features\" \\\\\n  -Subject=\"WordPress plugin, AI alt text, image SEO, WooCommerce, alt text generator, Anthropic Claude, OpenAI, Google Gemini, accessibility, file renamer, bulk alt text, SEO audit\" \\\\\n  -Author=\"Softminal\" \\\\\n  -Creator=\"Softminal\" \\\\\n  -Copyright=\"© 2026 Softminal. All rights reserved.\" \\\\\n  -XMP:Rights=\"© 2026 Softminal. All rights reserved.\" \\\\\n  -IPTC:ObjectName=\"ImageCraft AI Alt Text Plugin Banner\" \\\\\n  -IPTC:Caption-Abstract=\"ImageCraft WordPress plugin banner showing AI-powered alt text generation for images using Anthropic Claude, OpenAI GPT-4, and Google Gemini with SEO audit, WooCommerce integration, and batch processing features\" \\\\\n  -IPTC:Keywords=\"WordPress plugin\" \\\\\n  -IPTC:Keywords=\"AI alt text\" \\\\\n  -IPTC:Keywords=\"image SEO\" \\\\\n  -IPTC:Keywords=\"WooCommerce\" \\\\\n  -IPTC:Keywords=\"alt text generator\" \\\\\n  -IPTC:Keywords=\"Anthropic Claude\" \\\\\n  -IPTC:Keywords=\"OpenAI\" \\\\\n  -IPTC:Keywords=\"Google Gemini\" \\\\\n  -IPTC:Keywords=\"accessibility\" \\\\\n  -IPTC:Keywords=\"file renamer\" \\\\\n  -IPTC:Keywords=\"bulk alt text\" \\\\\n  -IPTC:Keywords=\"SEO audit\" \\\\\n  -IPTC:By-line=\"Softminal\" \\\\\n  -IPTC:CopyrightNotice=\"© 2026 Softminal. All rights reserved.\" \\\\\n  -XMP:Title=\"ImageCraft – AI Alt Text, File Renamer & Image SEO WordPress Plugin\" \\\\\n  -XMP:Description=\"ImageCraft WordPress plugin banner showing AI-powered alt text generation for images using Anthropic Claude, OpenAI GPT-4, and Google Gemini with SEO audit, WooCommerce integration, and batch processing features\" \\\\\n  -overwrite_original \\\\\n  \"/Users/ziaul/My Projects/build plugins/imagecraft-ai-alt-text-file-renamer-image-seo/assets/banner-772x250.jpg\" \\\\\n  \"/Users/ziaul/My Projects/build plugins/imagecraft-ai-alt-text-file-renamer-image-seo/assets/banner-1544x500.jpg\")",
+      "Read(//Users/ziaul/My Projects/wp-play/mywordpress/**)",
+      "Bash(wp post:*)",
+      "WebSearch",
+      "Read(//Users/ziaul/**)",
+      "Bash(wp eval ' *)",
+      "Bash(wp eval *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.php) out=$(php -l \"$f\" 2>&1) || { echo \"ImageCraft fatal-safety: php -l found a SYNTAX ERROR (this would fatal the site). Fix before continuing:\" >&2; echo \"$out\" >&2; exit 2; } ;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}

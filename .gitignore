@@ -24,14 +24,18 @@ Thumbs.db
 *.map
 build/
 *.zip
+# Claude Code — share team config (commands, skills, settings, hooks) so the
+# whole team gets the same behavior. Keep personal/runtime files local.
 .claude/*
 !.claude/commands/
 !.claude/skills/
+!.claude/settings.json
+.claude/settings.local.json
+.claude/*.lock
 
 # WordPress-specific files
 wp-content/debug.log
 
-CLAUDE.md
 comparison.md
 roadmap.md
 
