@@ -41,6 +41,20 @@
               filter === f.value ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             ]"
           >{{ $t(f.label) }}<template v-if="f.value === 'compressed'"> ({{ stats.total_compressed || 0 }})</template></button>
+          <span class="w-px h-6 self-center bg-gray-200 mx-1"></span>
+          <button
+            @click="toggleSort"
+            :title="$t('Show the biggest files first')"
+            :class="[
+              'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-colors',
+              sort === 'largest' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            ]"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9M3 12h5m4 8l4-4m0 0l4 4m-4-4V8" />
+            </svg>
+            {{ $t('Largest first') }}
+          </button>
         </div>
         <div v-if="isAdmin" class="flex gap-2">
           <button
@@ -160,6 +174,7 @@ const selected = ref([])
 const busyId = ref(null)
 const restoringBulk = ref(false)
 const filter = ref('all')
+const sort = ref('date') // 'date' (newest) | 'largest' (biggest files first)
 const perPage = ref(24)
 const pagination = ref({ current_page: 1, total_pages: 1, total: 0 })
 const stats = ref({ total_saved_human: '0 B', total_compressed: 0 })
@@ -181,7 +196,7 @@ const selectedRestorable = computed(
 const loadImages = async (page = 1) => {
   loading.value = true
   try {
-    const result = await Api.get(`/compressor/scan?filter=${filter.value}&page=${page}&per_page=${perPage.value}`)
+    const result = await Api.get(`/compressor/scan?filter=${filter.value}&sort=${sort.value}&page=${page}&per_page=${perPage.value}`)
     if (result.success) {
       images.value = result.images || []
       pagination.value = result.pagination || pagination.value
@@ -199,6 +214,12 @@ const loadPage = (page) => loadImages(page)
 
 const setFilter = (value) => {
   filter.value = value
+  loadImages(1)
+}
+
+// Sort by file size (largest first) to surface the heaviest images to compress.
+const toggleSort = () => {
+  sort.value = sort.value === 'largest' ? 'date' : 'largest'
   loadImages(1)
 }
 

@@ -25,6 +25,30 @@
     button{
         cursor: pointer;
     }
+    /* Consistent input styling — overrides WordPress admin's native
+       input[type=date|number|text] rules (which outrank Tailwind utilities). */
+    .icais-input{
+        box-sizing: border-box;
+        height: 32px !important;
+        min-height: 0 !important;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: var(--color-gray-700, #374151);
+        background-color: #fff;
+        border: 1px solid var(--color-gray-300, #d1d5db);
+        border-radius: 0.5rem;
+        box-shadow: none !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .icais-input:hover{
+        border-color: var(--color-gray-400, #9ca3af);
+    }
+    .icais-input:focus{
+        border-color: var(--color-blue-500, #3b82f6);
+        box-shadow: 0 0 0 1px var(--color-blue-500, #3b82f6);
+        outline: none;
+    }
 }
 
 .php-error #adminmenuwrap {

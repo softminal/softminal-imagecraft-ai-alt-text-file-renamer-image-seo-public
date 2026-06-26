@@ -61,7 +61,7 @@ class Settings
         'icais_use_wp7_ai' => '0',              // WordPress 7.0 native AI Client (opt-in)
 
         // Image compression (all opt-in; Pro unlocks auto/webp/quality/resize)
-        'icais_compression_enabled' => '0',     // master toggle for the Compress feature
+        'icais_compression_enabled' => '1',     // master toggle for the Compress feature (on by default)
         'icais_compression_quality' => 85,      // visually-lossless JPEG/WebP quality 1-100 (Pro: adjustable)
         'icais_compression_max_width' => 2048,  // downscale cap on longest edge in px, 0 = no resize (Pro-adjustable; free fixed at 2048)
         'icais_compression_convert_webp' => '0',// convert to WebP on compress (Pro)

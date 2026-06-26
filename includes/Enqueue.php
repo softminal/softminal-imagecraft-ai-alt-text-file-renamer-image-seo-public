@@ -87,7 +87,7 @@ class Enqueue {
             'defaultTone' => Settings::get('icais_default_tone', 'professional'),
             'generateTitle' => Settings::get('icais_generate_title', '0'),
             'autoRename' => Settings::get('icais_auto_rename', '0'),
-            'compressionEnabled' => Settings::get('icais_compression_enabled', '0'),
+            'compressionEnabled' => Settings::get('icais_compression_enabled', '1'),
             'canUse' => \Softminal\ImageCraft\Support\Permission::isAllowed(),
             'i18n' => [
                 'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),

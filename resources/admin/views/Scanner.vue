@@ -141,30 +141,14 @@
             &times; {{ $t('Clear') }}
           </button>
 
-          <!-- Advanced toggle -->
-          <button
-            @click="showAdvancedFilters = !showAdvancedFilters"
-            :class="[
-              'ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors',
-              showAdvancedFilters || hasAdvancedFilters
-                ? 'bg-blue-50 text-blue-600'
-                : 'text-gray-500 hover:bg-gray-100'
-            ]"
-          >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-            {{ $t('Advanced') }}
-            <span v-if="hasAdvancedFilters" class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-          </button>
         </div>
 
-        <div v-if="folderTree.length > 0" class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-end gap-4">
-          <div class="relative" ref="folderDropdownRef">
+        <div class="mt-3 pt-3 border-t border-gray-100 flex flex-wrap items-end gap-3">
+          <div v-if="folderTree.length > 0" class="relative" ref="folderDropdownRef">
             <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('FileBird Folder') }}</label>
             <button
               type="button"
-              class="min-w-56 flex items-center justify-between gap-2 px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 text-left"
+              class="min-w-56 h-8 flex items-center justify-between gap-2 px-3 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 text-left"
               @click="folderDropdownOpen = !folderDropdownOpen"
             >
               <span class="truncate">{{ activeFolderName || $t('All folders') }}</span>
@@ -190,102 +174,72 @@
               />
             </div>
           </div>
-          <p v-if="activeFolderName" class="text-sm text-gray-500">
+
+          <!-- Date range + file size filters -->
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Upload Date From') }}</label>
+            <input v-model="dateFrom" type="date" class="icais-input" />
+          </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Upload Date To') }}</label>
+              <input v-model="dateTo" type="date" class="icais-input" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Min File Size (KB)') }}</label>
+              <input v-model.number="minSize" type="number" min="0" step="50" :placeholder="$t('e.g. 500')" class="icais-input w-28" />
+            </div>
+            <button
+              @click="allPagesSelected = false; selectedImages = []; loadImages()"
+              class="px-4 h-8 inline-flex items-center bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+            >
+              {{ $t('Apply') }}
+            </button>
+            <button
+              v-if="hasAdvancedFilters"
+              @click="dateFrom = ''; dateTo = ''; minSize = 0; allPagesSelected = false; selectedImages = []; loadImages()"
+              class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
+            >
+              {{ $t('Clear') }}
+            </button>
+
+          <!-- divider between filter controls and bulk actions -->
+
+          <!-- Quick bulk select (same row) -->
+          <div class="self-end mb-1">
+            <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Quick Bulk Select') }}</label>
+           <div class="flex gap-2">
+            <button
+              @click="bulkSelect('missing')"
+              :disabled="bulkSelecting"
+              class="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50"
+            >
+              {{ bulkSelecting === 'missing' ? $t('Selecting...') : $t('All Missing Alt Text') }}
+            </button>
+            <button
+              @click="bulkSelect('generic')"
+              :disabled="bulkSelecting"
+              class="px-3 py-1.5 text-sm bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 disabled:opacity-50"
+            >
+              {{ bulkSelecting === 'generic' ? $t('Selecting...') : $t('All Generic / Placeholder') }}
+            </button>
+            <button
+              v-if="minSize > 0"
+              @click="bulkSelect('large')"
+              :disabled="bulkSelecting"
+              class="px-3 py-1.5 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 disabled:opacity-50"
+            >
+              {{ bulkSelecting === 'large' ? $t('Selecting...') : $t('All Larger Than %s KB', minSize) }}
+            </button>
+           </div>
+          </div>
+
+          <!-- secondary info wraps to its own line -->
+          <p v-if="activeFolderName" class="w-full text-sm text-gray-500">
             {{ $t('Showing images from') }} <span class="font-bold text-gray-900">{{ activeFolderName }}</span>
           </p>
-        </div>
-
-        <!-- Advanced Filters (smooth expand) -->
-        <div
-          class="grid transition-all duration-300 ease-in-out"
-          :class="showAdvancedFilters ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0'"
-        >
-          <div class="overflow-hidden">
-            <div class="pt-4 border-t border-gray-100 space-y-4">
-              <!-- Date Range & File Size -->
-              <div class="flex flex-wrap items-end gap-4">
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Upload Date From') }}</label>
-                  <input
-                    v-model="dateFrom"
-                    type="date"
-                    class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
-                  />
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Upload Date To') }}</label>
-                  <input
-                    v-model="dateTo"
-                    type="date"
-                    class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
-                  />
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Min File Size (KB)') }}</label>
-                  <input
-                    v-model.number="minSize"
-                    type="number"
-                    min="0"
-                    step="50"
-                    :placeholder="$t('e.g. 500')"
-                    class="w-28 px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
-                  />
-                </div>
-                <button
-                  @click="allPagesSelected = false; selectedImages = []; loadImages()"
-                  class="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
-                >
-                  {{ $t('Apply') }}
-                </button>
-                <button
-                  v-if="hasAdvancedFilters"
-                  @click="dateFrom = ''; dateTo = ''; minSize = 0; allPagesSelected = false; selectedImages = []; loadImages()"
-                  class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
-                >
-                  {{ $t('Clear') }}
-                </button>
-              </div>
-
-              <!-- Bulk Select Buttons -->
-              <div>
-                <div class="text-xs font-medium text-gray-600 mb-2">{{ $t('Quick Bulk Select (across all pages)') }}</div>
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    @click="bulkSelect('missing')"
-                    :disabled="bulkSelecting"
-                    class="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50"
-                  >
-                    {{ bulkSelecting === 'missing' ? $t('Selecting...') : $t('All Missing Alt Text') }}
-                  </button>
-                  <button
-                    @click="bulkSelect('generic')"
-                    :disabled="bulkSelecting"
-                    class="px-3 py-1.5 text-sm bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 disabled:opacity-50"
-                  >
-                    {{ bulkSelecting === 'generic' ? $t('Selecting...') : $t('All Generic / Placeholder') }}
-                  </button>
-                  <button
-                    v-if="minSize > 0"
-                    @click="bulkSelect('large')"
-                    :disabled="bulkSelecting"
-                    class="px-3 py-1.5 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 disabled:opacity-50"
-                  >
-                    {{ bulkSelecting === 'large' ? $t('Selecting...') : $t('All Larger Than %s KB', minSize) }}
-                  </button>
-                  <button
-                    v-if="selectedImages.length > 0"
-                    @click="selectedImages = []"
-                    class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    {{ $t('Clear Selection (%s)', selectedImages.length) }}
-                  </button>
-                </div>
-                <p v-if="bulkSelectCount !== null" class="text-xs text-gray-500 mt-2">
-                  {{ $t('%s images selected across all pages', bulkSelectCount) }}
-                </p>
-              </div>
-            </div>
-          </div>
+          <span v-if="bulkSelectCount !== null" class="w-full text-xs text-gray-500">
+            {{ $t('%s images selected across all pages', bulkSelectCount) }}
+          </span>
         </div>
       </div>
 
@@ -403,7 +357,6 @@ const filter = ref('all')
 const interruptedBatchId = ref(null)
 const selectedImages = ref([])
 const renamingId = ref(null)
-const showAdvancedFilters = ref(false)
 const dateFrom = ref('')
 const dateTo = ref('')
 const minSize = ref(0)
@@ -442,7 +395,6 @@ const restoreFiltersFromUrl = () => {
   if (q.min_size) minSize.value = Number(q.min_size) || 0
   if (q.folder_id) selectedFolderId.value = String(q.folder_id)
   if (q.per_page) perPage.value = Number(q.per_page) || 20
-  if (q.date_from || q.date_to || q.min_size) showAdvancedFilters.value = true
 }
 
 // AbortController for cancelling stale requests

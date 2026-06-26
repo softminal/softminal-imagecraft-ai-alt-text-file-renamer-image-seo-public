@@ -34,7 +34,7 @@
 
     <!-- Two flagship feature panels -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- ============ AI Alt Text ============ -->
+      <!-- ============ Image SEO ============ -->
       <div class="bg-white rounded-lg shadow border flex flex-col overflow-hidden">
         <div class="flex items-center justify-between px-6 pt-6">
           <div class="flex items-center gap-2">
@@ -43,7 +43,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16M4 6v12a2 2 0 002 2h12a2 2 0 002-2V6" />
               </svg>
             </span>
-            <h3 class="text-lg font-semibold">{{ $t('AI Alt Text') }}</h3>
+            <h3 class="text-lg font-semibold">{{ $t('Image SEO') }}</h3>
           </div>
           <!-- API status (folded into the panel header) -->
           <div class="text-xs">
@@ -60,34 +60,51 @@
         </div>
 
         <div class="px-6 py-5 flex-1">
-          <!-- Score ring + headline metric -->
-          <div class="flex items-center gap-5">
-            <div class="relative w-24 h-24 shrink-0">
-              <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="42" stroke="#e5e7eb" stroke-width="8" fill="none" />
-                <circle
-                  cx="50" cy="50" r="42"
-                  :stroke="scoreColor"
-                  stroke-width="8"
-                  fill="none"
-                  stroke-linecap="round"
-                  :stroke-dasharray="263.89"
-                  :stroke-dashoffset="263.89 - (263.89 * (audit?.score || 0) / 100)"
-                />
-              </svg>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-xl font-bold">{{ audit?.score || 0 }}%</span>
+          <!-- Two coverage rings: Alt text + Title -->
+          <div class="flex items-center justify-around gap-4">
+            <!-- Alt text -->
+            <div class="text-center">
+              <div class="relative w-20 h-20 mx-auto">
+                <svg class="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" stroke="#e5e7eb" stroke-width="8" fill="none" />
+                  <circle
+                    cx="50" cy="50" r="42"
+                    :stroke="altColor"
+                    stroke-width="8"
+                    fill="none"
+                    stroke-linecap="round"
+                    :stroke-dasharray="263.89"
+                    :stroke-dashoffset="263.89 - (263.89 * (audit?.score || 0) / 100)"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-lg font-bold">{{ audit?.score || 0 }}%</span>
+                </div>
               </div>
+              <div class="mt-2 text-sm font-semibold text-gray-700">{{ $t('Alt text') }}</div>
+              <div class="text-xs text-gray-500">{{ $t('%s missing', audit?.missing ?? stats.missing_alt ?? 0) }}</div>
             </div>
-            <div>
-              <div class="text-sm font-semibold" :class="scoreLabelColor">{{ scoreLabel }} {{ $t('SEO score') }}</div>
-              <div class="mt-1 text-2xl font-bold text-orange-600">
-                {{ stats.missing_alt || 0 }}
-                <span class="text-base font-normal text-gray-500">{{ $t('missing') }}</span>
+            <!-- Title -->
+            <div class="text-center">
+              <div class="relative w-20 h-20 mx-auto">
+                <svg class="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" stroke="#e5e7eb" stroke-width="8" fill="none" />
+                  <circle
+                    cx="50" cy="50" r="42"
+                    :stroke="titleColor"
+                    stroke-width="8"
+                    fill="none"
+                    stroke-linecap="round"
+                    :stroke-dasharray="263.89"
+                    :stroke-dashoffset="263.89 - (263.89 * (audit?.title_score || 0) / 100)"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-lg font-bold">{{ audit?.title_score || 0 }}%</span>
+                </div>
               </div>
-              <div class="text-xs text-gray-500">
-                {{ $t('%1$s of %2$s images optimized', audit?.good || 0, audit?.total_images || stats.total_images || 0) }}
-              </div>
+              <div class="mt-2 text-sm font-semibold text-gray-700">{{ $t('Title') }}</div>
+              <div class="text-xs text-gray-500">{{ $t('%s missing', audit?.title_missing || 0) }}</div>
             </div>
           </div>
         </div>
@@ -157,31 +174,52 @@
       </div>
     </div>
 
-    <!-- Alt-text health: actionable problem states, deep-linking into Scanner filters -->
-    <div v-if="audit && audit.total_images > 0" class="mb-6">
-      <div class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">{{ $t('Alt text health') }}</div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <!-- Needs attention: actionable to-do tiles, deep-linked to the fix screens -->
+    <div v-if="audit" class="mb-6">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">{{ $t('Needs attention') }}</h3>
+      <div v-if="needsAttention.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <router-link
-          to="/scanner?filter=missing"
-          class="flex items-center justify-between bg-white border border-red-200 rounded-lg px-4 py-3 hover:shadow-md transition cursor-pointer"
+          v-for="item in needsAttention"
+          :key="item.key"
+          :to="item.to"
+          :class="['flex items-center justify-between bg-white border rounded-lg px-4 py-3 hover:shadow-md transition', toneClasses[item.tone]]"
         >
-          <span class="text-sm text-red-600">{{ $t('Missing Alt Text') }}</span>
-          <span class="text-xl font-bold text-red-700">{{ audit.missing }}</span>
+          <div>
+            <div class="text-2xl font-bold leading-tight">{{ item.count }}</div>
+            <div class="text-sm text-gray-600">{{ item.label }}</div>
+          </div>
+          <span class="text-sm font-medium">{{ $t('Fix') }} →</span>
         </router-link>
-        <router-link
-          to="/scanner?filter=generic"
-          class="flex items-center justify-between bg-white border border-yellow-200 rounded-lg px-4 py-3 hover:shadow-md transition cursor-pointer"
-        >
-          <span class="text-sm text-yellow-600">{{ $t('Generic / Placeholder') }}</span>
-          <span class="text-xl font-bold text-yellow-700">{{ audit.generic }}</span>
-        </router-link>
-        <router-link
-          to="/scanner?filter=too_long"
-          class="flex items-center justify-between bg-white border border-orange-200 rounded-lg px-4 py-3 hover:shadow-md transition cursor-pointer"
-        >
-          <span class="text-sm text-orange-600">{{ $t('Too Long') }} (&gt;{{ audit.max_length }})</span>
-          <span class="text-xl font-bold text-orange-700">{{ audit.too_long }}</span>
-        </router-link>
+      </div>
+      <div v-else class="bg-white border border-green-200 rounded-lg px-4 py-6 text-center">
+        <div class="text-green-600 font-semibold">🎉 {{ $t('Everything looks optimized!') }}</div>
+        <div class="text-xs text-gray-500 mt-1">{{ $t('No missing alt text, titles, or uncompressed images.') }}</div>
+      </div>
+    </div>
+
+    <!-- Recent activity: latest AI generations -->
+    <div v-if="recentActivity.length" class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ $t('Recent activity') }}</h3>
+        <router-link to="/scanner" class="text-xs text-blue-600 hover:underline">{{ $t('View all') }} →</router-link>
+      </div>
+      <div class="bg-white rounded-lg shadow border divide-y">
+        <div v-for="item in recentActivity" :key="item.id" class="flex items-center gap-3 px-4 py-3">
+          <img
+            v-if="item.thumbnail"
+            :src="item.thumbnail"
+            :alt="item.filename"
+            class="w-10 h-10 rounded object-cover bg-gray-100 shrink-0"
+          />
+          <div v-else class="w-10 h-10 rounded bg-gray-100 shrink-0"></div>
+          <div class="min-w-0 flex-1">
+            <div class="text-sm text-gray-800 truncate">{{ item.generated_alt || $t('(no alt text)') }}</div>
+            <div class="text-xs text-gray-400 truncate">{{ item.filename }}</div>
+          </div>
+          <span
+            :class="['shrink-0 text-xs font-medium px-2 py-0.5 rounded-full capitalize', statusBadge(item.status)]"
+          >{{ item.status }}</span>
+        </div>
       </div>
     </div>
 
@@ -202,6 +240,34 @@ const woocommerceInstalled = ref(false)
 const audit = ref(null)
 const auditLoading = ref(false)
 const compressionStats = ref({})
+const recentActivity = ref([])
+
+// Actionable to-do tiles — only surface items that actually need fixing.
+const toneClasses = {
+  red: 'border-red-200 text-red-600',
+  indigo: 'border-indigo-200 text-indigo-600',
+  green: 'border-green-200 text-green-600',
+  orange: 'border-orange-200 text-orange-600',
+  yellow: 'border-yellow-200 text-yellow-600',
+}
+
+const needsAttention = computed(() => {
+  const a = audit.value
+  if (!a) return []
+  return [
+    { key: 'missing', count: a.missing || 0, label: $t('Missing alt text'), to: '/scanner?filter=missing', tone: 'red' },
+    { key: 'title', count: a.title_missing || 0, label: $t('Missing title'), to: '/scanner?filter=missing_title', tone: 'indigo' },
+    { key: 'uncompressed', count: uncompressedCount.value, label: $t('Not compressed'), to: '/compression', tone: 'green' },
+    { key: 'too_long', count: a.too_long || 0, label: $t('Alt text too long'), to: '/scanner?filter=too_long', tone: 'orange' },
+    { key: 'generic', count: a.generic || 0, label: $t('Generic alt text'), to: '/scanner?filter=generic', tone: 'yellow' },
+  ].filter((i) => i.count > 0)
+})
+
+const statusBadge = (status) => {
+  if (status === 'accepted') return 'bg-green-100 text-green-700'
+  if (status === 'rejected') return 'bg-red-100 text-red-700'
+  return 'bg-yellow-100 text-yellow-700'
+}
 
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
 // Non-admins (permitted roles) can't reach the admin-only /settings endpoint, so
@@ -227,29 +293,15 @@ const usageBarColor = computed(() => {
   return 'bg-blue-500'
 })
 
-const scoreColor = computed(() => {
-  const s = audit.value?.score ?? 0
+// Ring stroke color by coverage score (shared by the Alt text + Title rings).
+const ringColor = (s) => {
   if (s >= 80) return '#16a34a'
   if (s >= 60) return '#ca8a04'
   if (s >= 40) return '#ea580c'
   return '#dc2626'
-})
-
-const scoreLabel = computed(() => {
-  const s = audit.value?.score ?? 0
-  if (s >= 80) return $t('Excellent')
-  if (s >= 60) return $t('Good')
-  if (s >= 40) return $t('Needs Work')
-  return $t('Poor')
-})
-
-const scoreLabelColor = computed(() => {
-  const s = audit.value?.score ?? 0
-  if (s >= 80) return 'text-green-600'
-  if (s >= 60) return 'text-yellow-600'
-  if (s >= 40) return 'text-orange-600'
-  return 'text-red-600'
-})
+}
+const altColor = computed(() => ringColor(audit.value?.score ?? 0))
+const titleColor = computed(() => ringColor(audit.value?.title_score ?? 0))
 
 const runAudit = async () => {
   auditLoading.value = true
@@ -305,6 +357,7 @@ const loadDashboard = async () => {
     if (statsData.success) {
       stats.value = statsData.stats
       usageLimit.value = statsData.usage_limit || null
+      recentActivity.value = statsData.recent_activity || []
     }
   } catch (error) {
     console.error('Failed to load dashboard:', error)

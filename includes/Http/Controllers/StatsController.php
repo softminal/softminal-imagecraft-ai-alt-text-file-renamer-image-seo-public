@@ -197,8 +197,16 @@ class StatsController extends Controller
         $generic = 0;
         $tooLong = 0;
         $good = 0;
+        $titleGood = 0;
 
         foreach ($imageIds as $id) {
+            // Title coverage is independent of alt text — count it first so images
+            // with missing alt (which `continue` below) are still tallied.
+            $generatedTitle = get_post_meta($id, '_icais_generated_title', true);
+            if (!empty($generatedTitle)) {
+                $titleGood++;
+            }
+
             $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
 
             if (empty($alt)) {
@@ -224,6 +232,7 @@ class StatsController extends Controller
         }
 
         $score = $totalImages > 0 ? round(($good / $totalImages) * 100) : 100;
+        $titleScore = $totalImages > 0 ? round(($titleGood / $totalImages) * 100) : 100;
 
         return $this->response([
             'success' => true,
@@ -235,6 +244,10 @@ class StatsController extends Controller
                 'too_long' => $tooLong,
                 'score' => $score,
                 'max_length' => $maxLength,
+                // Title coverage (additive — older clients ignore these).
+                'title_good' => $titleGood,
+                'title_missing' => $totalImages - $titleGood,
+                'title_score' => $titleScore,
             ],
         ]);
     }
