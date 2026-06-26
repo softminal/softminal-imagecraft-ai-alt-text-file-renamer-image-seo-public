@@ -26,16 +26,16 @@
           <!-- Select all row with generate buttons -->
           <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-              <label v-if="images.length > 1" class="inline-flex items-center gap-2 cursor-pointer text-sm text-gray-600">
-                <input
-                  type="checkbox"
-                  :checked="allSelected"
-                  :indeterminate="someSelected && !allSelected"
-                  @change="toggleSelectAll"
-                  class="rounded"
-                />
+              <Checkbox
+                v-if="images.length > 1"
+                size="sm"
+                :model-value="allSelected"
+                :indeterminate="someSelected && !allSelected"
+                class="text-sm text-gray-600"
+                @change="toggleSelectAll"
+              >
                 {{ $t('Select All') }}
-              </label>
+              </Checkbox>
               <span v-if="someSelected" class="text-xs text-gray-500">
                 {{ $t('%s selected', selectedIds.length) }}
               </span>
@@ -90,11 +90,11 @@
                     :src="img.thumb_url || img.url"
                     class="w-24 h-24 object-cover rounded border"
                   />
-                  <input
-                    type="checkbox"
-                    :checked="selectedIds.includes(img.id)"
+                  <Checkbox
+                    size="sm"
+                    :model-value="selectedIds.includes(img.id)"
+                    class="absolute top-1 right-1"
                     @change="toggleImageSelect(img.id)"
-                    class="absolute top-1 right-1 rounded"
                   />
                   <span
                     v-if="img.is_featured"
@@ -174,6 +174,7 @@ import { ref, computed, reactive, watch } from 'vue'
 import Api from '../../services/Api'
 import { notification } from '../../plugins/notification'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const props = defineProps({
   product: { type: Object, default: null },

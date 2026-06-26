@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">{{ $t('Image Compression') }}</h1>
-        <p class="text-gray-500">{{ $t('Shrink image file sizes to speed up your site. Originals are always backed up.') }}</p>
+        <h1 class="text-2xl font-bold text-gray-800 m-0!">{{ $t('Image Compression') }}</h1>
+        <p class="text-gray-500 mt-2">{{ $t('Shrink image file sizes to speed up your site. Originals are always backed up.') }}</p>
       </div>
       <div v-if="!isPro" class="text-right">
         <div class="text-sm text-gray-600">
@@ -24,27 +24,11 @@
       <p class="text-gray-600 mb-4">{{ $t('Image compression is turned off.') }}</p>
       <router-link
         to="/settings/compression"
-        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white! no-underline rounded-lg hover:bg-blue-700 hover:text-white!"
       >{{ $t('Enable in Settings') }}</router-link>
     </div>
 
     <template v-else>
-      <!-- Stat cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow border p-4">
-          <div class="text-xs text-gray-500 uppercase">{{ $t('Total saved') }}</div>
-          <div class="text-2xl font-bold text-green-600">{{ stats.total_saved_human || '0 B' }}</div>
-        </div>
-        <div class="bg-white rounded-lg shadow border p-4">
-          <div class="text-xs text-gray-500 uppercase">{{ $t('Images compressed') }}</div>
-          <div class="text-2xl font-bold text-gray-800">{{ stats.total_compressed || 0 }}</div>
-        </div>
-        <div class="bg-white rounded-lg shadow border p-4">
-          <div class="text-xs text-gray-500 uppercase">{{ $t('Selected') }}</div>
-          <div class="text-2xl font-bold text-blue-600">{{ selected.length }}</div>
-        </div>
-      </div>
-
       <!-- Toolbar -->
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div class="flex gap-2">
@@ -56,7 +40,7 @@
               'px-4 py-1.5 rounded-full text-sm font-medium transition-colors',
               filter === f.value ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             ]"
-          >{{ $t(f.label) }}</button>
+          >{{ $t(f.label) }}<template v-if="f.value === 'compressed'"> ({{ stats.total_compressed || 0 }})</template></button>
         </div>
         <div v-if="isAdmin" class="flex gap-2">
           <button
@@ -67,7 +51,13 @@
             :disabled="selected.length === 0"
             @click="compressSelected"
             class="px-4 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-          >{{ $t('Compress Selected') }}</button>
+          >{{ filter === 'compressed' ? $t('Re-compress Selected') : $t('Compress Selected') }}<template v-if="selected.length"> ({{ selected.length }})</template></button>
+          <button
+            v-if="selectedRestorable > 0"
+            :disabled="restoringBulk"
+            @click="restoreSelected"
+            class="px-4 py-1.5 text-sm font-medium rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 disabled:opacity-50"
+          >{{ restoringBulk ? $t('Restoring...') : $t('Restore Selected') }}</button>
         </div>
       </div>
 
@@ -92,9 +82,7 @@
               :alt="img.filename"
               class="w-full h-32 object-cover bg-gray-100"
             />
-            <label class="absolute top-2 left-2 bg-white/80 rounded p-1">
-              <input type="checkbox" :value="img.id" v-model="selected" />
-            </label>
+            <Checkbox :value="img.id" v-model="selected" class="absolute top-2 left-2" />
             <span
               v-if="img.compressed"
               class="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full"
@@ -156,7 +144,7 @@ import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 import { getSettings } from '../router'
-import { Pagination } from '../@ui'
+import { Pagination, Checkbox } from '../@ui'
 
 const router = useRouter()
 
@@ -170,6 +158,7 @@ const loading = ref(false)
 const images = ref([])
 const selected = ref([])
 const busyId = ref(null)
+const restoringBulk = ref(false)
 const filter = ref('all')
 const perPage = ref(24)
 const pagination = ref({ current_page: 1, total_pages: 1, total: 0 })
@@ -183,6 +172,11 @@ const filters = [
 ]
 
 const allSelected = computed(() => images.value.length > 0 && selected.value.length === images.value.length)
+
+// Count of currently-selected images that have a backup available to restore.
+const selectedRestorable = computed(
+  () => images.value.filter((i) => selected.value.includes(i.id) && i.can_restore).length
+)
 
 const loadImages = async (page = 1) => {
   loading.value = true
@@ -275,6 +269,38 @@ const restoreOne = async (img) => {
   }
 }
 
+const restoreSelected = async () => {
+  // Restore is per-image (no batch endpoint); run the restorable selection sequentially.
+  const targets = images.value.filter((i) => selected.value.includes(i.id) && i.can_restore)
+  if (targets.length === 0) return
+  restoringBulk.value = true
+  let restored = 0
+  let failed = 0
+  try {
+    for (const img of targets) {
+      try {
+        const result = await Api.post('/compressor/restore', { attachment_id: img.id })
+        if (result.success) {
+          restored++
+          if (result.image) {
+            const idx = images.value.findIndex((i) => i.id === img.id)
+            if (idx !== -1) images.value[idx] = result.image
+          }
+        } else {
+          failed++
+        }
+      } catch {
+        failed++
+      }
+    }
+    if (restored > 0) notification.success($t('Restored %s images', restored))
+    if (failed > 0) notification.error($t('%s images could not be restored', failed))
+    refreshStats()
+  } finally {
+    restoringBulk.value = false
+  }
+}
+
 const compressSelected = async () => {
   if (selected.value.length === 0) return
   if (selected.value.length > 500) {
@@ -285,6 +311,8 @@ const compressSelected = async () => {
     const result = await Api.post('/batch/start', {
       image_ids: selected.value,
       type: 'compress',
+      // On the Compressed filter this is a "Re-compress Selected" action.
+      force: filter.value === 'compressed',
     })
     if (result.success) {
       notification.success($t('Compression started for %s images', selected.value.length))

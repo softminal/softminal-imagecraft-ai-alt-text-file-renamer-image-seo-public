@@ -15,7 +15,9 @@
 #wpcontent{
     @apply pl-0
 }
-
+.toplevel_page_icais{
+    background-color: #FFFFFB;
+}
 #icais-app{
     input[type="checkbox"]{
         margin: unset;

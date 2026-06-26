@@ -12,11 +12,12 @@
           :alt="product.title"
           class="w-16 h-16 object-cover rounded border-2 border-purple-200"
         />
-        <input
-          type="checkbox"
-          :checked="selected"
-          @click.stop="$emit('toggle-select', product.id)"
+        <Checkbox
+          :model-value="selected"
+          size="sm"
           class="absolute top-0.5 left-0.5"
+          @click.stop
+          @change="$emit('toggle-select', product.id)"
         />
       </div>
       <template v-if="product.gallery_thumb_urls && product.gallery_thumb_urls.length > 0">
@@ -50,6 +51,7 @@
         </span>
       </div>
       <p v-if="product.sku" class="text-xs text-gray-500">{{ $t('SKU:') }} {{ product.sku }}</p>
+      <!-- eslint-disable-next-line vue/no-v-html -- WooCommerce-formatted price HTML (currency markup) -->
       <div class="text-sm text-gray-600 mt-0.5" v-html="product.price"></div>
 
       <!-- Coverage progress bar -->
@@ -88,6 +90,7 @@
 <script setup>
 import { computed } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const props = defineProps({
   product: { type: Object, required: true },

@@ -126,6 +126,11 @@ class BatchController extends Controller
             set_transient('icais_batch_type_' . $job->id, $batchType, DAY_IN_SECONDS);
         }
 
+        // Force re-compression of already-compressed images (e.g. "Re-compress Selected").
+        if ($batchType === 'compress' && !empty($params['force'])) {
+            set_transient('icais_batch_force_' . $job->id, '1', DAY_IN_SECONDS);
+        }
+
         return $this->response([
             'success' => true,
             'job_id' => $job->id,
@@ -289,6 +294,7 @@ class BatchController extends Controller
         $batchType = (string) get_transient('icais_batch_type_' . $jobId);
         $isTitleOnly = ($batchType === 'title');
         $isCompress  = ($batchType === 'compress');
+        $forceCompress = $isCompress && (string) get_transient('icais_batch_force_' . $jobId) === '1';
 
         $compressor = $isCompress ? new \Softminal\ImageCraft\Services\ImageCompressor() : null;
 
@@ -312,7 +318,7 @@ class BatchController extends Controller
                         continue;
                     }
 
-                    $compressResult = $compressor->compress((int) $attachmentId);
+                    $compressResult = $compressor->compress((int) $attachmentId, ['force' => $forceCompress]);
                     if ($compressResult['success'] ?? false) {
                         if (empty($compressResult['skipped'])) {
                             UsageLimiter::recordCompressUsage($userId, (int) $attachmentId);
@@ -506,6 +512,7 @@ class BatchController extends Controller
         // Clean up the stored image IDs, failure details, and heartbeat
         delete_transient('icais_batch_' . $jobId);
         delete_transient('icais_batch_type_' . $jobId);
+        delete_transient('icais_batch_force_' . $jobId);
         delete_transient('icais_batch_failures_' . $jobId);
         $this->clearHeartbeat($jobId);
 

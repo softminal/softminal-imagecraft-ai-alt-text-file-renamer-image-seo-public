@@ -7,26 +7,21 @@
     <hr class="mb-6" />
 
     <div class="p-4 bg-gray-50 rounded-lg border">
-      <label class="inline-flex items-center gap-1.5 mb-4 opacity-70 cursor-not-allowed">
-        <input type="checkbox" checked disabled class="rounded" />
+      <Checkbox :model-value="true" disabled size="sm" class="mb-4">
         <span class="text-sm font-medium text-gray-700">{{ $t('Administrator') }}</span>
-        <span class="text-xs text-gray-400">({{ $t('always allowed') }})</span>
-      </label>
+        <span class="text-xs text-gray-400 ml-1">({{ $t('always allowed') }})</span>
+      </Checkbox>
 
       <div class="flex flex-wrap gap-x-5 gap-y-3">
-        <label
+        <Checkbox
           v-for="(label, slug) in availableRoles"
           :key="slug"
-          class="inline-flex items-center gap-1.5 cursor-pointer"
+          size="sm"
+          :value="slug"
+          v-model="allowedRoles"
         >
-          <input
-            type="checkbox"
-            :value="slug"
-            v-model="allowedRoles"
-            class="rounded"
-          />
           <span class="text-sm text-gray-700">{{ label }}</span>
-        </label>
+        </Checkbox>
       </div>
 
       <p v-if="Object.keys(availableRoles).length === 0" class="text-xs text-gray-400">
@@ -48,6 +43,7 @@
 <script setup>
 import { inject } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const { availableRoles, allowedRoles } = inject('settingsContext')
 </script>

@@ -206,15 +206,9 @@
       <!-- Select All Row -->
       <div class="p-4 border-b flex items-center justify-between gap-4">
         <div class="flex items-center flex-wrap gap-2">
-          <label class="inline-flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              :checked="allSelected"
-              @change="toggleSelectAll"
-              class="rounded"
-            />
+          <Checkbox size="sm" :model-value="allSelected" @change="toggleSelectAll">
             <span>{{ $t('Select All') }}</span>
-          </label>
+          </Checkbox>
 
           <div
             v-if="allSelected && pagination.total > products.length"
@@ -281,7 +275,7 @@ import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 import { debounce } from '../utils/debounce'
-import { Pagination } from '../@ui'
+import { Pagination, Checkbox } from '../@ui'
 import ProductCard from '../components/WooCommerce/ProductCard.vue'
 import ProductModal from '../components/WooCommerce/ProductModal.vue'
 

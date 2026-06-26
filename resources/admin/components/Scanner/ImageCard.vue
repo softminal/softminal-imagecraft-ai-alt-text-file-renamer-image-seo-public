@@ -1,9 +1,8 @@
 <template>
   <div
     @click="$emit('toggle-select', image.id)"
-    :class="['image-card p-2 rounded-lg border-2 cursor-pointer transition',
-             selected ? 'border-blue-600 bg-blue-50'
-             : 'border-gray-200']"
+    :class="['image-card p-2 rounded-lg border cursor-pointer transition',
+             selected ? 'border-blue-300' : 'border-gray-200']"
   >
     <div class="relative mb-2">
       <div
@@ -16,11 +15,12 @@
           class="w-full h-24 object-cover rounded"
         />
       </div>
-      <input
-        type="checkbox"
-        :checked="selected"
-        @click.stop="$emit('toggle-select', image.id)"
+      <Checkbox
+        :model-value="selected"
+        size="sm"
         class="absolute top-1 right-1"
+        @click.stop
+        @change="$emit('toggle-select', image.id)"
       />
     </div>
     <div class="text-xs flex gap-1 items-baseline" :title="image.filename">
@@ -70,6 +70,7 @@
 
 <script setup>
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 defineProps({
   image: { type: Object, required: true },

@@ -299,15 +299,9 @@
     <div v-else class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
       <div v-if="isAdmin" class="p-4 border-b flex items-center justify-between gap-4">
         <div class="flex items-center flex-wrap gap-2">
-          <label class="inline-flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              :checked="allSelected"
-              @change="toggleSelectAll"
-              class="rounded"
-            />
+          <Checkbox size="sm" :model-value="allSelected" @change="toggleSelectAll">
             <span>{{ $t('Select All') }}</span>
-          </label>
+          </Checkbox>
 
           <div
             v-if="allSelected && pagination.total > images.length && !allPagesSelected"
@@ -397,7 +391,7 @@ import { $t } from '../utils/i18n'
 import { debounce } from '../utils/debounce'
 import ImageCard from '../components/Scanner/ImageCard.vue'
 import FolderCascadeMenu from '../components/Scanner/FolderCascadeMenu.vue'
-import { Pagination } from '../@ui'
+import { Pagination, Checkbox } from '../@ui'
 
 const router = useRouter()
 const route = useRoute()
