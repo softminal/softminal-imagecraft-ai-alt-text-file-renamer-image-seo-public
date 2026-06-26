@@ -127,11 +127,9 @@ class AdminNotice
             esc_js($nonce)
         );
 
-        if (function_exists('wp_print_inline_script_tag')) {
-            wp_print_inline_script_tag($script);
-        } else {
-            echo '<script>' . $script . '</script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- inline admin-notice dismiss handler; values escaped via esc_js
-        }
+        // wp_print_inline_script_tag() handles safe output of the inline handler;
+        // available since WP 5.7 (plugin floor is 5.8). Dynamic values escaped via esc_js above.
+        wp_print_inline_script_tag($script);
     }
 
     public static function dismiss(): \WP_REST_Response

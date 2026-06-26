@@ -243,9 +243,9 @@ class CompressorController extends Controller
     private function buildStats(): array
     {
         global $wpdb;
-        $table = Compression::table();
+        $table = esc_sql(Compression::table());
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from trusted constant; no user input.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name escaped via esc_sql(); no user input.
         $row = $wpdb->get_row("SELECT COUNT(*) AS cnt, COALESCE(SUM(saved_bytes),0) AS saved FROM `{$table}` WHERE status = 'completed'", ARRAY_A);
 
         $savedBytes      = $row ? (int) $row['saved'] : 0;

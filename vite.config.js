@@ -8,6 +8,13 @@ import { copyFileSync, existsSync } from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// WordPress.org Plugin Check rejects file names with spaces or special
+// characters. Vite names a shared chunk after the `@ui` directory, which would
+// emit `@ui.[hash].js/.css` — the `@` is rejected. Sanitize every output name
+// down to [A-Za-z0-9._-] so no built asset can ever fail that check.
+const safeOutputName = (name) =>
+    (name || 'chunk').replace(/[^A-Za-z0-9._-]/g, '-').replace(/^[-.]+/, '') || 'chunk';
+
 // Plugin to copy manifest to assets root after build
 const copyManifestPlugin = () => {
     return {
@@ -59,9 +66,14 @@ export default defineConfig({
         rolldownOptions: {
             input: inputs,
             output: {
-                chunkFileNames: '[name].[hash].js',
-                entryFileNames: '[name].[hash].js',
-                assetFileNames: '[name].[hash].[ext]',
+                chunkFileNames: (chunk) => `${safeOutputName(chunk.name)}.[hash].js`,
+                entryFileNames: (chunk) => `${safeOutputName(chunk.name)}.[hash].js`,
+                assetFileNames: (asset) => {
+                    const orig = (asset.names && asset.names[0]) || asset.name || 'asset';
+                    const dot = orig.lastIndexOf('.');
+                    const base = dot > 0 ? orig.slice(0, dot) : orig;
+                    return `${safeOutputName(base)}.[hash].[ext]`;
+                },
             },
         },
     },
