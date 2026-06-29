@@ -18,8 +18,48 @@ class TranslationStrings {
             self::batch(),
             self::woocommerce(),
             self::seoIntegration(),
-            self::help()
+            self::help(),
+            self::meta()
         );
+    }
+
+    /**
+     * Strings for the combined "Generate All" (alt + title + caption) feature.
+     */
+    private static function meta(): array {
+        return [
+            'Generate All (Alt + Title + Caption)' => __('Generate All (Alt + Title + Caption)', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Generate all, title and caption together in a single AI call — one click per image.' => __('Generate alt text, title and caption together in a single AI call — one click per image.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Enable the Generate All button' => __('Enable the Generate All button', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Fields to generate' => __('Fields to generate', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Alt text' => __('Alt text', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Caption' => __('Caption', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Caption Tone' => __('Caption Tone', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Max Caption Length' => __('Max Caption Length', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Characters in caption (default: 150)' => __('Characters in caption (default: 150)', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Skip images with an existing caption' => __('Skip images with an existing caption', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Auto-generate all on upload' => __('Auto-generate all on upload', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            /* translators: %s: number of selected images */
+            'Generate All (%s)' => __('Generate All (%s)', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            /* translators: %s: number of selected images */
+            'Generate Caption (%s)' => __('Generate Caption (%s)', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Generate Caption' => __('Generate Caption', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            /* translators: %s: number of selected images */
+            'Generate (%s)' => __('Generate (%s)', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Description' => __('Description', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            /* translators: %s: number of images */
+            'Generation started for %s images' => __('Generation started for %s images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            /* translators: %s: number of images */
+            'Metadata generation started for %s images' => __('Metadata generation started for %s images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+
+            // Wizard skip + no-key prompts (compression works without an API key)
+            'Skip — I only want image compression (no API key needed)' => __('Skip — I only want image compression (no API key needed)', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Skip for now' => __('Skip for now', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Failed to skip setup' => __('Failed to skip setup', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Add API key' => __('Add API key', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Add your API key to generate alt text, titles and captions.' => __('Add your API key to generate alt text, titles and captions.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Add your API key to generate alt text, titles and captions. Image compression works without a key.' => __('Add your API key to generate alt text, titles and captions. Image compression works without a key.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+        ];
     }
 
     private static function navbar(): array {

@@ -1,19 +1,8 @@
 <template>
   <div class="bg-white rounded-lg shadow border p-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-lg font-semibold">{{ $t('Image Compression') }}</h2>
-        <p class="text-sm text-gray-500">{{ $t('Shrink image file sizes to speed up your site. Originals are backed up by default so you can restore them.') }}</p>
-      </div>
-      <a
-        v-if="!isPro"
-        :href="proUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-white bg-amber-500 rounded-lg hover:bg-amber-600"
-      >
-        {{ $t('Get Pro') }}
-      </a>
+    <div>
+      <h2 class="text-lg font-semibold">{{ $t('Image Compression') }}</h2>
+      <p class="text-sm text-gray-500">{{ $t('Shrink image file sizes to speed up your site. Originals are backed up by default so you can restore them.') }}</p>
     </div>
     <hr class="my-6" />
 
@@ -166,7 +155,6 @@ const { settings } = inject('settingsContext')
 
 const isPro = window.icais?.isPro ?? false
 const freeDailyLimit = 20
-const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
 
 // `settings` is provided as a Vue ref — read through .value in script (templates auto-unwrap).
 const isEnabled = computed(() => {

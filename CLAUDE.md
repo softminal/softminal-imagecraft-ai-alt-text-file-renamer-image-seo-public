@@ -204,13 +204,13 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 
 **Entry:** `main.js` → Vue 3 app mounted to `#imagecraft-app`
 
-**Router (`router.js`):** Hash history mode with routes for Dashboard, Scanner, WooCommerce, Batch, Settings, Help, and SetupWizard. Includes guard that redirects to `/wizard` if setup incomplete.
+**Router (`router.js`):** Hash history mode with routes for Dashboard, Scanner, WooCommerce, Batch, Settings, Help, and SetupWizard. The `beforeEach` guard redirects to `/wizard` only when `wizard_completed` is false — an API key is **no longer required** to enter the SPA (the plugin can be used purely for compression). The wizard can be **skipped without a key** (`skipWizard()` → `/settings/wizard/complete`); AI features then show an inline "Add API key" prompt at point of use (`window.icais.hasAiKey`).
 
 **API Client (`services/Api.js`):** REST client using `window.imageCraft` config for baseURL and nonce.
 
 **Key Views:** Dashboard.vue, Scanner.vue, Compression.vue, Batch.vue, Settings.vue, SetupWizard.vue, WooCommerce.vue, Help.vue
 
-**Settings Sub-routes:** GeneralSettings, ApiSettings, AltTextSettings, TitleSettings, RenameSettings, CompressionSettings, WooCommerceSettings, SeoSettings, IntegrationSettings, PermissionsSettings (route `/settings/permissions` — single role allow-list for all features)
+**Settings Sub-routes:** GeneralSettings, ApiSettings, AltTextSettings, TitleSettings, MetaSettings (route `/settings/meta` — combined "Generate All"), RenameSettings, CompressionSettings, WooCommerceSettings, SeoSettings, IntegrationSettings, PermissionsSettings (route `/settings/permissions` — single role allow-list for all features)
 
 **Shared UI (`@ui/`):** Notification.vue (global notification plugin), Pagination.vue
 
@@ -340,6 +340,43 @@ PHP:
   Independent: does not use HTTP layer
 ```
 
+### Combined Meta — "Generate All" (alt + title + caption, one AI call)
+```
+PHP:
+  Services/AI/BaseAIProvider.php → setMetaMode()/getMetaPrompt() (strict JSON {alt_text,title,caption})
+  Http/Controllers/GeneratorController.php → generateMetaForImage() (core, public — also called by
+    BatchController and the Pro auto-meta add-on), generateMeta()/acceptMeta() (REST),
+    parseMetaJson()/capText()/persistMeta() (helpers)
+  Http/Controllers/BatchController.php → type='meta' branch (bulk; forceAccept)
+  Saves: alt → _wp_attachment_image_alt; title → _icais_generated_title + post_title;
+         caption → _icais_generated_caption (tracking) + post_excerpt (source of truth)
+  Usage: counts as ONE generation (UsageLimiter::recordUsage once)
+
+Frontend:
+  views/Scanner.vue → bulk **field picker** (admin): [Alt text][Title][Description] checkboxes + one
+    "Generate (N)" button → batch/start type:'meta' with fields:[...] (the picked fields override the
+    icais_meta_include_* settings for that run). Checkbox defaults come from window.icais.metaIncludeAlt/
+    Title/Caption. This REPLACED the old separate Generate Alt/Title/All buttons. Per-batch fields flow:
+    BatchController stores them in transient icais_batch_fields_<id>; generateMetaForImage($fields)
+    + BaseAIProvider::setMetaFields() keep the AI prompt and the saved fields in sync. The 'alt'/'title'
+    batch types still exist server-side but the Scanner no longer triggers them.
+    Caption has NO standalone generator — it lives only inside the combined meta path.
+  components/Settings/MetaSettings.vue → /settings/meta (toggles + caption tone/length; Pro-locked auto-on-upload)
+  resources/admin/js/media-button.js → per-image **field picker** in WP media modal (Alt/Title/Description
+    checkboxes + one Generate button, mirroring the bulk picker) → generator/generate-meta with fields:[...].
+    Always shown when canUse; checkbox defaults from icaisMediaButton.metaIncludeAlt/Title/Caption.
+    Compress + Rename remain separate buttons. (icais_meta_enabled is now vestigial — no longer gates any UI;
+    key kept in defaults for backwards-compat.)
+
+Settings (all additive, opt-in): icais_meta_enabled (master, off), icais_meta_include_alt/title/caption (on),
+  icais_meta_auto_generate (Pro-gated effect), icais_caption_max_length (150),
+  icais_caption_default_tone, icais_caption_skip_existing
+
+Pro split: auto-generate-on-upload is PRO-ONLY (mirrors auto-compress). The FREE plugin exposes the
+  reusable generateMetaForImage() core + a Pro-locked UI toggle but registers NO add_attachment hook for
+  meta; the Pro add-on registers a guarded add_attachment handler that calls the free core. ICAIS_PRO gates it.
+```
+
 ### Admin Notices
 ```
 PHP:
@@ -384,8 +421,10 @@ Frontend:
 | `GET /scanner/scan` | ScannerController::scan | upload_files |
 | `GET /scanner/select-all` | ScannerController::selectAll | upload_files |
 | `POST /generator/generate` | GeneratorController::generate | upload_files |
+| `POST /generator/generate-meta` | GeneratorController::generateMeta | upload_files |
 | `POST /generator/accept` | GeneratorController::accept | upload_files |
 | `POST /generator/accept-bulk` | GeneratorController::acceptBulk | upload_files |
+| `POST /generator/accept-meta` | GeneratorController::acceptMeta | upload_files |
 | `POST /generator/update-alt` | GeneratorController::updateAlt | upload_files |
 | `POST /generator/reject` | GeneratorController::reject | upload_files |
 | (the `generator`, `compressor`, and `renamer` groups also run `Http\Middleware\RoleGate` after the capability check — see `icais_allowed_roles` below) | | |
@@ -398,7 +437,7 @@ Frontend:
 | `POST /batch/retry-failed` | BatchController::retryFailed | manage_options |
 | `POST /batch/process` | BatchController::process | manage_options |
 | `POST /batch/cancel` | BatchController::cancel | manage_options |
-| (batch `type`) | `alt` (default) · `title` · `compress` — set on `/batch/start`, branched in `process()` | |
+| (batch `type`) | `alt` (default) · `title` · `compress` · `meta` (alt+title+caption combined) — set on `/batch/start`, branched in `process()` | |
 | `GET /stats/dashboard` | StatsController::dashboard | upload_files |
 | `GET /stats/audit` | StatsController::audit | upload_files |
 | `POST /renamer/rename` | FileRenamerController::rename | upload_files |
@@ -454,7 +493,7 @@ All providers use `BaseAIProvider` for common functionality:
 
 - Asset enqueuing auto-detects dev/prod mode via `ICAIS_DEV_MODE` constant
 - Dev mode loads from `http://localhost:4000`, prod from `assets/manifest.json`
-- Vue router uses wizard completion check stored in settings
+- Vue router uses wizard completion check stored in settings (`wizard_completed` only; the API-key requirement was dropped so compression-only users aren't blocked). `window.icais.hasAiKey` (set in `Enqueue.php`, guarded) drives the inline "Add API key" prompt shown on Dashboard/Scanner when no provider is configured.
 - Models use WP object cache with automatic version busting on updates
 - API keys are AES-256-CBC encrypted using WordPress AUTH_KEY and SECURE_AUTH_KEY
 - Settings keys are stored in wp_options with `icais_` prefix prepended (e.g. `icais_icais_max_length`)

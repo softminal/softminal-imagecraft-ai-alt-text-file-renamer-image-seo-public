@@ -120,15 +120,25 @@ class BatchController extends Controller
         // Store image IDs in job meta (we'll use transients for this)
         set_transient('icais_batch_' . $job->id, $imageIds, DAY_IN_SECONDS);
 
-        // Store batch type: 'alt' (default), 'title' (title-only), or 'compress'
+        // Store batch type: 'alt' (default), 'title' (title-only), 'compress', or 'meta' (alt+title+caption)
         $batchType = sanitize_text_field($params['type'] ?? 'alt');
-        if (in_array($batchType, ['title', 'compress'], true)) {
+        if (in_array($batchType, ['title', 'compress', 'meta'], true)) {
             set_transient('icais_batch_type_' . $job->id, $batchType, DAY_IN_SECONDS);
         }
 
         // Force re-compression of already-compressed images (e.g. "Re-compress Selected").
         if ($batchType === 'compress' && !empty($params['force'])) {
             set_transient('icais_batch_force_' . $job->id, '1', DAY_IN_SECONDS);
+        }
+
+        // For a meta batch, store the per-action field selection (alt/title/caption)
+        // so the picker overrides the icais_meta_include_* settings for this run.
+        if ($batchType === 'meta' && !empty($params['fields']) && is_array($params['fields'])) {
+            $allowed = ['alt', 'title', 'caption'];
+            $fields = array_values(array_intersect(array_map('sanitize_text_field', $params['fields']), $allowed));
+            if (!empty($fields)) {
+                set_transient('icais_batch_fields_' . $job->id, $fields, DAY_IN_SECONDS);
+            }
         }
 
         return $this->response([
@@ -187,7 +197,7 @@ class BatchController extends Controller
                 'progress' => $job->getProgress(),
                 'started_at' => $job->started_at,
                 'completed_at' => $job->completed_at,
-                'batch_type' => $batchType === 'title' ? 'title' : 'alt'
+                'batch_type' => in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt'
             ]
         ]);
     }
@@ -294,7 +304,17 @@ class BatchController extends Controller
         $batchType = (string) get_transient('icais_batch_type_' . $jobId);
         $isTitleOnly = ($batchType === 'title');
         $isCompress  = ($batchType === 'compress');
+        $isMeta      = ($batchType === 'meta');
         $forceCompress = $isCompress && (string) get_transient('icais_batch_force_' . $jobId) === '1';
+
+        // Per-action field selection for a meta batch (null = use settings defaults).
+        $metaFields = null;
+        if ($isMeta) {
+            $storedFields = get_transient('icais_batch_fields_' . $jobId);
+            if (is_array($storedFields) && !empty($storedFields)) {
+                $metaFields = $storedFields;
+            }
+        }
 
         $compressor = $isCompress ? new \Softminal\ImageCraft\Services\ImageCompressor() : null;
 
@@ -360,6 +380,36 @@ class BatchController extends Controller
                     $failures[] = [
                         'attachment_id' => (int) $attachmentId,
                         'reason' => __('Title generation failed. Check error log for details.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                    ];
+                }
+            } elseif ($isMeta) {
+                // Combined meta batch: generate alt + title + caption in one AI call
+                try {
+                    $context = SeoIntegration::buildSeoContext((int) $attachmentId);
+                    if (Settings::get('icais_integration_filebird', '1') === '1') {
+                        $folderContext = FileBird::buildFolderContext((int) $attachmentId);
+                        if ($folderContext !== null) {
+                            $context = $context !== null ? $context . ' | ' . $folderContext : $folderContext;
+                        }
+                    }
+                    $metaResult = $generator->generateMetaForImage((int) $attachmentId, $userId, $context, true, $metaFields);
+
+                    if ($metaResult['success'] ?? false) {
+                        $processed++;
+                    } else {
+                        $failed++;
+                        $failures[] = [
+                            'attachment_id' => (int) $attachmentId,
+                            'reason' => $metaResult['message'] ?? __('Metadata generation failed', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                    error_log('[ImageCraft] Meta batch error for #' . $attachmentId . ': ' . $e->getMessage());
+                    $failed++;
+                    $failures[] = [
+                        'attachment_id' => (int) $attachmentId,
+                        'reason' => __('Metadata generation failed. Check error log for details.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                     ];
                 }
             } else {
@@ -464,7 +514,7 @@ class BatchController extends Controller
                 'progress' => $job->getProgress(),
                 'started_at' => $job->started_at,
                 'completed_at' => $job->completed_at,
-                'batch_type' => $isTitleOnly ? 'title' : 'alt'
+                'batch_type' => in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt'
             ]
         ]);
     }
@@ -549,7 +599,7 @@ class BatchController extends Controller
         }
 
         $batchType = (string) get_transient('icais_batch_type_' . $job->id);
-        $batchTypeLabel = $batchType === 'title' ? 'title' : 'alt';
+        $batchTypeLabel = in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt';
 
         // Check if another browser tab is actively processing this job
         if ($this->hasHeartbeat((int) $job->id)) {
@@ -982,8 +1032,16 @@ class BatchController extends Controller
 
         set_transient('icais_batch_' . $newJob->id, $imageIds, DAY_IN_SECONDS);
 
-        if ($batchType === 'title') {
-            set_transient('icais_batch_type_' . $newJob->id, 'title', DAY_IN_SECONDS);
+        if (in_array($batchType, ['title', 'compress', 'meta'], true)) {
+            set_transient('icais_batch_type_' . $newJob->id, $batchType, DAY_IN_SECONDS);
+        }
+
+        // Preserve the meta field selection for retried meta batches.
+        if ($batchType === 'meta') {
+            $storedFields = get_transient('icais_batch_fields_' . $jobId);
+            if (is_array($storedFields) && !empty($storedFields)) {
+                set_transient('icais_batch_fields_' . $newJob->id, $storedFields, DAY_IN_SECONDS);
+            }
         }
 
         return $this->response([

@@ -13,6 +13,7 @@ const GeneralSettings = () => import('./components/Settings/GeneralSettings.vue'
 const ApiSettings = () => import('./components/Settings/ApiSettings.vue');
 const AltTextSettings = () => import('./components/Settings/AltTextSettings.vue');
 const TitleSettings = () => import('./components/Settings/TitleSettings.vue');
+const MetaSettings = () => import('./components/Settings/MetaSettings.vue');
 const RenameSettings = () => import('./components/Settings/RenameSettings.vue');
 const WooCommerceSettings = () => import('./components/Settings/WooCommerceSettings.vue');
 const SeoSettings = () => import('./components/Settings/SeoSettings.vue');
@@ -56,6 +57,7 @@ const routes = [
             { path: 'api', name: 'settings-api', component: ApiSettings },
             { path: 'alt-text', name: 'settings-alt-text', component: AltTextSettings },
             { path: 'title', name: 'settings-title', component: TitleSettings },
+            { path: 'meta', name: 'settings-meta', component: MetaSettings },
             { path: 'rename', name: 'settings-rename', component: RenameSettings },
             { path: 'compression', name: 'settings-compression', component: CompressionSettings },
             { path: 'permissions', name: 'settings-permissions', component: PermissionsSettings },
@@ -115,7 +117,11 @@ router.beforeEach(async (to, from, next) => {
             settingsCacheTime = now;
         }
 
-        const isComplete = settings.wizard_completed && (settings.api_setting?.has_key || settings.site_has_key);
+        // Completing (or skipping) the wizard is enough to enter the SPA — an API
+        // key is no longer required, because the plugin can be used purely for
+        // image compression (which needs no AI key). AI features prompt for a key
+        // at point of use instead.
+        const isComplete = settings.wizard_completed;
 
         if (to.path === '/wizard') {
             // Redirect completed users away from wizard to dashboard

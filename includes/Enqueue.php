@@ -44,6 +44,21 @@ class Enqueue {
         EnqueueAsset::style('icais-scss', 'resources/scss/index.css');
 
         if ($script_enqueued) {
+            // Whether the site has a usable AI provider (config constant, the
+            // WordPress Native AI Connector, or a stored BYOK key). Used by the SPA
+            // to show an inline "set up API key" prompt for AI features. Guarded so
+            // a missing table during activation can never fatal.
+            $hasAiKey = false;
+            try {
+                $hasAiKey = \Softminal\ImageCraft\Services\AI\AIFactory::isConfigDefined()
+                    || (Settings::get('icais_use_wp7_ai', false) && \Softminal\ImageCraft\Services\AI\AIFactory::isWP7Available());
+                if (!$hasAiKey) {
+                    $hasAiKey = \Softminal\ImageCraft\Models\ApiSetting::getActive() !== null;
+                }
+            } catch (\Throwable $e) {
+                $hasAiKey = false;
+            }
+
             wp_localize_script('icais-script', 'icais', [
                 'apiUrl' => rest_url(ICAIS_API_NAMESPACE),
                 'adminUrl' => admin_url(),
@@ -54,9 +69,14 @@ class Enqueue {
                 'isProInstalled' => defined('ICAIS_PRO_INSTALLED') && ICAIS_PRO_INSTALLED,
                 'isAdmin'        => current_user_can('manage_options'),
                 'wizardCompleted' => Settings::isWizardCompleted(),
+                'hasAiKey'       => $hasAiKey,
                 'canUse'         => \Softminal\ImageCraft\Support\Permission::isAllowed(),
                 'generateTitle' => Settings::get('icais_generate_title', '0'),
                 'autoRename' => Settings::get('icais_auto_rename', '0'),
+                'metaEnabled' => Settings::get('icais_meta_enabled', '0'),
+                'metaIncludeAlt' => Settings::get('icais_meta_include_alt', '1'),
+                'metaIncludeTitle' => Settings::get('icais_meta_include_title', '1'),
+                'metaIncludeCaption' => Settings::get('icais_meta_include_caption', '1'),
                 'i18n' => TranslationStrings::get(),
             ]);
         }
@@ -88,18 +108,25 @@ class Enqueue {
             'generateTitle' => Settings::get('icais_generate_title', '0'),
             'autoRename' => Settings::get('icais_auto_rename', '0'),
             'compressionEnabled' => Settings::get('icais_compression_enabled', '1'),
+            // Field-picker defaults (which checkboxes start ticked).
+            'metaIncludeAlt' => Settings::get('icais_meta_include_alt', '1'),
+            'metaIncludeTitle' => Settings::get('icais_meta_include_title', '1'),
+            'metaIncludeCaption' => Settings::get('icais_meta_include_caption', '1'),
             'canUse' => \Softminal\ImageCraft\Support\Permission::isAllowed(),
             'i18n' => [
-                'generate' => __('Generate with AI', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'generate' => __('Generate', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'metaSuccess' => __('Generated!', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'metaError' => __('Failed to generate metadata.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'fieldAlt' => __('Alt text', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'fieldTitle' => __('Title', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'fieldDescription' => __('Description', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'compress' => __('Compress', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'compressing' => __('Compressing...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 /* translators: %s: human-readable size saved, e.g. "120 KB" */
                 'compressSuccess' => __('Compressed — saved %s', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'compressSkipped' => __('Already optimized.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'compressError' => __('Failed to compress image.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-                'generating' => __('Generating...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-                'success' => __('Alt text generated successfully!', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
-                'error' => __('Failed to generate alt text. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'noAttachment' => __('Could not detect image. Please select an image first.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'rename' => __('Rename File', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                 'renaming' => __('Renaming...', 'imagecraft-ai-alt-text-file-renamer-image-seo'),

@@ -37,8 +37,10 @@ Route::prefix('scanner')->capability('upload_files')->group(function () {
 // Generator routes (role-gated via RoleGate: alt text, title, filename generation)
 Route::prefix('generator')->capability('upload_files')->middleware([\Softminal\ImageCraft\Http\Middleware\RoleGate::class])->group(function () {
     Route::post('/generate', [GeneratorController::class, 'generate']);
+    Route::post('/generate-meta', [GeneratorController::class, 'generateMeta']);
     Route::post('/accept', [GeneratorController::class, 'accept']);
     Route::post('/accept-bulk', [GeneratorController::class, 'acceptBulk']);
+    Route::post('/accept-meta', [GeneratorController::class, 'acceptMeta']);
     Route::post('/update-alt', [GeneratorController::class, 'updateAlt']);
     Route::post('/reject', [GeneratorController::class, 'reject']);
 });

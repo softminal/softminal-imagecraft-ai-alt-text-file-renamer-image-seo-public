@@ -234,6 +234,18 @@ class StatsController extends Controller
         $score = $totalImages > 0 ? round(($good / $totalImages) * 100) : 100;
         $titleScore = $totalImages > 0 ? round(($titleGood / $totalImages) * 100) : 100;
 
+        // Caption (description) coverage — count image attachments that have a
+        // non-empty post_excerpt. One aggregate query (no per-image N+1).
+        $captionGood = 0;
+        if ($totalImages > 0) {
+            global $wpdb;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $captionGood = (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment' AND post_mime_type LIKE 'image/%' AND post_status = 'inherit' AND post_excerpt <> ''"
+            );
+        }
+        $captionScore = $totalImages > 0 ? round(($captionGood / $totalImages) * 100) : 100;
+
         return $this->response([
             'success' => true,
             'audit' => [
@@ -248,6 +260,10 @@ class StatsController extends Controller
                 'title_good' => $titleGood,
                 'title_missing' => $totalImages - $titleGood,
                 'title_score' => $titleScore,
+                // Caption/description coverage (additive).
+                'caption_good' => $captionGood,
+                'caption_missing' => max(0, $totalImages - $captionGood),
+                'caption_score' => $captionScore,
             ],
         ]);
     }

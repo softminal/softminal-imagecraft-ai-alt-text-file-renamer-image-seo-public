@@ -96,16 +96,19 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 
 ## 5. Key Flows
 
-### Setup Wizard gating (`router.js:96`)
+### Setup Wizard gating (`router.js`)
 ```
-isComplete = wizard_completed && (api_setting.has_key || site_has_key)
+isComplete = wizard_completed        // API key NO LONGER required
 ```
-- `wizard_completed` (from `GET /settings`) = `isWizardCompleted(user)` OR
+- An API key is not needed to enter the SPA — the plugin works as a compression-only
+  tool. `wizard_completed` (from `GET /settings`) = `isWizardCompleted(user)` OR
   `ICAIS_API_KEY` config constant defined.
-- `site_has_key` = config key defined, OR (`icais_use_wp7_ai` enabled AND WP7
-  available), OR any active DB key site-wide.
-- Incomplete → redirected to `/wizard`. Settings cached 5s; `clearSettingsCache()`
-  after saving.
+- The wizard is **skippable without a key** (`SetupWizard.vue` `skipWizard()` →
+  `/settings/wizard/complete`). Incomplete → redirected to `/wizard`; once completed or
+  skipped, the SPA opens. Settings cached 5s; `clearSettingsCache()` after saving.
+- `window.icais.hasAiKey` (server-computed, guarded) → inline "Add API key" prompt on
+  Dashboard/Scanner when no provider is configured. `site_has_key` (config / WP7 / active
+  DB key) is still returned by `GET /settings` for the Settings UI.
 
 ### Setup Wizard steps (`SetupWizard.vue`)
 1. Welcome. 2. **Choose provider** — Anthropic / OpenAI / Gemini cards, plus a
@@ -177,6 +180,12 @@ Schema changes go in `Install.php` with a version-gated migration. `Install::DB_
   and `apply_filters('icais_compression_max_dim',2048)`; the **Pro add-on**
   (`imagecraft-...-pro/includes/Features/Compression.php`) overrides them + registers
   auto-compress-on-upload, ONLY when licensed. No auto-compress code ships in the free plugin.
+- Combined "Generate All" (all opt-in): `icais_meta_enabled` (master, off), `icais_meta_include_alt`,
+  `icais_meta_include_title`, `icais_meta_include_caption` (all on), `icais_meta_auto_generate`
+  (Pro-gated effect), `icais_caption_max_length` (150), `icais_caption_default_tone`,
+  `icais_caption_skip_existing`. Single combined AI call → JSON {alt_text,title,caption}; counts as 1.
+  Auto-on-upload is Pro-only (free exposes `GeneratorController::generateMetaForImage()` + Pro-locked
+  UI toggle; the Pro add-on owns the `add_attachment` handler — same split as auto-compress).
 - Constants (`config/constants.php`): `ICAIS_DEV_MODE`, `ICAIS_API_NAMESPACE`
   (`icais/v1`), `ICAIS_TABLE_PREFIX` (`icais_`), `ICAIS_VERSION`.
 - API keys: AES-256-CBC via `Encryption.php` (WP `AUTH_KEY`/`SECURE_AUTH_KEY`).
@@ -195,6 +204,46 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-06-29** — **Media modal: unified field picker.** The WP media-modal AI buttons
+  (Generate with AI / Generate Title / Generate All) were replaced by a single **field picker**
+  (Alt / Title / Description checkboxes + one Generate button), matching the bulk actions page.
+  `generate-meta` REST now accepts an explicit `fields` list; `media-button.js` posts the ticked
+  fields. Compress + Rename stay as separate buttons. The picker is always shown (canUse);
+  checkbox defaults from `icaisMediaButton.metaIncludeAlt/Title/Caption`. `icais_meta_enabled` is
+  now vestigial (no UI), so its settings toggle was removed; the key stays in defaults.
+- **2026-06-29** — **Dashboard: Description coverage ring.** The Image SEO panel now shows a
+  third ring (Alt text / Title / **Description**). `StatsController::audit` returns additive
+  `caption_good/caption_missing/caption_score`, computed with one aggregate query counting image
+  attachments with a non-empty `post_excerpt` (no per-image N+1). `Dashboard.vue` renders the ring
+  via `captionColor`.
+- **2026-06-29** — **Bulk generate field picker.** The Scanner bulk bar now shows
+  [Alt text][Title][Description] checkboxes + a single **Generate (N)** button (replacing the
+  separate Generate Alt/Title/All buttons). It fires one combined `meta` batch with only the
+  ticked fields. Per-action selection overrides the `icais_meta_include_*` settings via a new
+  `fields` param: `BatchController` stores it in `icais_batch_fields_<id>`,
+  `GeneratorController::generateMetaForImage($fields)` + `BaseAIProvider::setMetaFields()` keep
+  the AI prompt and saved fields in sync. Checkbox defaults come from the Generate-All settings
+  (`window.icais.metaIncludeAlt/Title/Caption`). Media-modal per-image buttons unchanged.
+- **2026-06-29** — **Wizard made skippable (compression-only / no-key users).** The SPA
+  router guard no longer requires an API key — `isComplete = wizard_completed` only
+  (`router.js`), mirrored in `Dashboard.vue`. `SetupWizard.vue` gains a **Skip** action
+  (welcome + provider steps) that calls `/settings/wizard/complete` with no key, so
+  compression-only users aren't trapped (skipping also un-gates the media-modal Compress
+  button, which `Enqueue.php` ties to `isWizardCompleted()`). New `window.icais.hasAiKey`
+  flag (`Enqueue.php`, guarded via `AIFactory::isConfigDefined()`/`isWP7Available()` +
+  `ApiSetting::getActive()`) drives an inline "Add API key" prompt on Dashboard + Scanner
+  when no provider is configured. Only loosens gating → fully backwards-compatible.
+- **2026-06-29** — **"Generate All" combined metadata (alt + title + caption).** New opt-in
+  feature that generates all three image fields in a **single AI call** returning strict JSON
+  `{alt_text, title, caption}`. Backend: `BaseAIProvider::setMetaMode()/getMetaPrompt()`;
+  `GeneratorController::generateMetaForImage()` core (public, reused by batch + Pro) +
+  `generateMeta()`/`acceptMeta()` REST (`/generator/generate-meta`, `/generator/accept-meta`);
+  `BatchController` `type:'meta'` branch. Caption → `post_excerpt` (+ `_icais_generated_caption`
+  tracking). Counts as **1** generation. Frontend: `MetaSettings.vue` (`/settings/meta`), Scanner
+  bulk "Generate All", media-modal per-image "Generate All" (`media-button.js`). New settings
+  `icais_meta_*` / `icais_caption_*` (feature off by default; fields on). **Auto-on-upload is
+  Pro-only** (mirrors auto-compress: free exposes the core + Pro-locked toggle, Pro add-on owns
+  the `add_attachment` handler). Fully additive / backwards-compatible.
 - **2026-06-25** — **Non-admin SPA access for permitted roles.** Permitted roles now also
   get the ImageCraft admin menu + SPA, limited to **Dashboard + Image SEO + Compress**;
   Settings/Batch/License/WooCommerce/Wizard stay admin-only. `Menu.php` shows the menu to

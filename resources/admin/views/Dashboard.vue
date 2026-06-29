@@ -1,5 +1,20 @@
 <template>
   <div class="dashboard p-6">
+    <!-- No API key configured: AI features need a key; compression does not. -->
+    <div v-if="!hasAiKey" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="text-sm text-blue-800">
+          {{ $t('Add your API key to generate alt text, titles and captions. Image compression works without a key.') }}
+        </p>
+      </div>
+      <a href="#/settings/api" class="shrink-0 text-sm font-semibold text-blue-700 underline hover:text-blue-900">
+        {{ $t('Add API key') }}
+      </a>
+    </div>
+
     <!-- Shared daily free quota — one pool across every action (free only) -->
     <div v-if="usageLimit && !appVars.isPro && usageLimit.daily_limit > 0" class="bg-white rounded-lg shadow border p-4 mb-6">
       <div class="flex items-center justify-between mb-2">
@@ -60,7 +75,7 @@
         </div>
 
         <div class="px-6 py-5 flex-1">
-          <!-- Two coverage rings: Alt text + Title -->
+          <!-- Coverage rings: Alt text + Title + Description -->
           <div class="flex items-center justify-around gap-4">
             <!-- Alt text -->
             <div class="text-center">
@@ -105,6 +120,28 @@
               </div>
               <div class="mt-2 text-sm font-semibold text-gray-700">{{ $t('Title') }}</div>
               <div class="text-xs text-gray-500">{{ $t('%s missing', audit?.title_missing || 0) }}</div>
+            </div>
+            <!-- Description (Caption) -->
+            <div class="text-center">
+              <div class="relative w-20 h-20 mx-auto">
+                <svg class="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" stroke="#e5e7eb" stroke-width="8" fill="none" />
+                  <circle
+                    cx="50" cy="50" r="42"
+                    :stroke="captionColor"
+                    stroke-width="8"
+                    fill="none"
+                    stroke-linecap="round"
+                    :stroke-dasharray="263.89"
+                    :stroke-dashoffset="263.89 - (263.89 * (audit?.caption_score || 0) / 100)"
+                  />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-lg font-bold">{{ audit?.caption_score || 0 }}%</span>
+                </div>
+              </div>
+              <div class="mt-2 text-sm font-semibold text-gray-700">{{ $t('Description') }}</div>
+              <div class="text-xs text-gray-500">{{ $t('%s missing', audit?.caption_missing || 0) }}</div>
             </div>
           </div>
         </div>
@@ -273,6 +310,9 @@ const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-r
 // Non-admins (permitted roles) can't reach the admin-only /settings endpoint, so
 // they skip the wizard/settings check and admin-only CTAs.
 const isAdmin = window.icais?.isAdmin ?? false
+// Show the "add API key" prompt only when we know there is no usable AI provider
+// (undefined → assume configured, so existing setups never see a spurious nag).
+const hasAiKey = window.icais?.hasAiKey ?? true
 
 // Best-effort "not yet optimized" count: total images minus those already compressed.
 const uncompressedCount = computed(() => {
@@ -302,6 +342,7 @@ const ringColor = (s) => {
 }
 const altColor = computed(() => ringColor(audit.value?.score ?? 0))
 const titleColor = computed(() => ringColor(audit.value?.title_score ?? 0))
+const captionColor = computed(() => ringColor(audit.value?.caption_score ?? 0))
 
 const runAudit = async () => {
   auditLoading.value = true
@@ -334,11 +375,10 @@ const loadDashboard = async () => {
     // it (they can't configure setup and would 403 / bounce to the wizard).
     if (isAdmin) {
       const settingsData = await getSettings()
-      // Setup is complete when the wizard is done AND a provider is available —
-      // a BYOK key (api_setting.has_key) OR a site-wide source (config key / the
-      // WordPress Native AI Connector), surfaced as site_has_key. Mirrors the
-      // router guard in router.js so native-connector users aren't bounced.
-      if (!settingsData.wizard_completed || !(settingsData.api_setting?.has_key || settingsData.site_has_key)) {
+      // Setup is complete once the wizard is done (or skipped). An API key is no
+      // longer required — compression-only users can use the plugin without one,
+      // and AI features prompt for a key at point of use. Mirrors router.js.
+      if (!settingsData.wizard_completed) {
         router.push('/wizard')
         return
       }

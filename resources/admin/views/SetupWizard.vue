@@ -33,6 +33,15 @@
         >
           {{ $t('Get Started') }}
         </button>
+        <div class="mt-4">
+          <button
+            @click="skipWizard"
+            :disabled="saving"
+            class="text-sm text-gray-500 hover:text-gray-700 underline disabled:opacity-50"
+          >
+            {{ $t('Skip — I only want image compression (no API key needed)') }}
+          </button>
+        </div>
       </div>
 
       <!-- Video Tutorial -->
@@ -107,17 +116,26 @@
 
       </div>
 
-      <div class="flex justify-between">
+      <div class="flex justify-between items-center">
         <button @click="currentStep = 1" class="text-gray-600 hover:text-gray-800">
           ← {{ $t('Back') }}
         </button>
-        <button
-          @click="currentStep = 3"
-          :disabled="!selectedProvider"
-          class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {{ $t('Continue') }}
-        </button>
+        <div class="flex items-center gap-4">
+          <button
+            @click="skipWizard"
+            :disabled="saving"
+            class="text-sm text-gray-500 hover:text-gray-700 underline disabled:opacity-50"
+          >
+            {{ $t('Skip for now') }}
+          </button>
+          <button
+            @click="currentStep = 3"
+            :disabled="!selectedProvider"
+            class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ $t('Continue') }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -455,6 +473,22 @@ const saveWP7AndComplete = async () => {
 const goToDashboard = () => {
   window.location.hash = '#/'
   window.location.reload()
+}
+
+// Skip setup without configuring an API key. Marks the wizard complete so the
+// user can use the plugin (e.g. image compression, which needs no key); AI
+// features prompt for a key at point of use.
+const skipWizard = async () => {
+  saving.value = true
+  try {
+    await Api.post('/settings/wizard/complete')
+    window.location.hash = '#/'
+    window.location.reload()
+  } catch {
+    notification.error($t('Failed to skip setup'))
+  } finally {
+    saving.value = false
+  }
 }
 
 const saveApiKey = async () => {

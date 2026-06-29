@@ -69,6 +69,18 @@ class Settings
         'icais_compression_skip_compressed' => '1', // skip already-compressed images
         'icais_compression_min_size_kb' => 50,  // skip images smaller than this
         'icais_compression_auto' => '0',        // auto-compress on upload (Pro)
+
+        // Combined "Generate All" metadata (alt + title + caption in one AI call).
+        // Feature is opt-in (master toggle off) so existing installs are unaffected;
+        // when used, all three fields default on. Auto-on-upload is Pro-only.
+        'icais_meta_enabled' => '0',            // master toggle for the Generate All feature
+        'icais_meta_include_alt' => '1',        // include alt text in combined generation
+        'icais_meta_include_title' => '1',      // include title in combined generation
+        'icais_meta_include_caption' => '1',    // include caption in combined generation
+        'icais_meta_auto_generate' => '0',      // auto-generate all on upload (effect is Pro-gated; free never acts)
+        'icais_caption_max_length' => 150,      // caption max characters
+        'icais_caption_default_tone' => 'professional', // caption tone
+        'icais_caption_skip_existing' => '0',   // skip caption when one already exists
     ];
 
     /**

@@ -5,6 +5,35 @@
     overflow: hidden;
 }
 
+/* Field picker (Alt / Title / Description checkboxes) above the Generate row. */
+.icais-field-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin-bottom: 8px;
+}
+
+.icais-field-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #50575e;
+    cursor: pointer;
+    user-select: none;
+}
+
+.icais-field-option input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Row holding the Generate + Compress buttons. */
+.icais-media-btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 .icais-media-btn {
     display: inline-flex;
     align-items: center;

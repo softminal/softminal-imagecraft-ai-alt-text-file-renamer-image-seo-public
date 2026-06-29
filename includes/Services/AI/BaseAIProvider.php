@@ -16,6 +16,9 @@ abstract class BaseAIProvider
     protected bool $titleOnlyMode = false;
     protected bool $linkTitleMode = false;
     protected bool $filenameMode = false;
+    protected bool $metaMode = false;
+    /** @var array|null Explicit field set for the next meta call (overrides settings). */
+    protected ?array $metaFields = null;
 
     /** @var bool|null Cached result of isLocalDevelopment() — value never changes within a request. */
     private static ?bool $isLocalDevCache = null;
@@ -93,8 +96,39 @@ abstract class BaseAIProvider
         return $this;
     }
 
+    /**
+     * Enable combined meta mode for the next generateAltText() call.
+     * The AI will return a strict JSON object containing alt_text, title and
+     * caption together (one request). The caller is responsible for decoding
+     * the JSON (see GeneratorController::generateMetaForImage()).
+     */
+    public function setMetaMode(bool $enabled = true): self
+    {
+        $this->metaMode = $enabled;
+        return $this;
+    }
+
+    /**
+     * Set an explicit field list for the next meta call, overriding the
+     * icais_meta_include_* settings (e.g. a per-batch picker selection).
+     * Pass null to fall back to the settings defaults.
+     *
+     * @param array|null $fields Subset of ['alt', 'title', 'caption']
+     */
+    public function setMetaFields(?array $fields): self
+    {
+        $this->metaFields = $fields;
+        return $this;
+    }
+
     protected function getPrompt(string $tone, ?string $context = null): string
     {
+        // Combined meta mode: generate alt text + title + caption as one JSON object
+        if ($this->metaMode) {
+            $this->metaMode = false;
+            return $this->getMetaPrompt($tone, $context);
+        }
+
         // Filename mode: generate a short SEO slug
         if ($this->filenameMode) {
             $this->filenameMode = false;
@@ -238,6 +272,87 @@ abstract class BaseAIProvider
         if ($language !== 'en') {
             $languageName = $this->getLanguageName($language);
             $prompt .= " You MUST write in {$languageName}.";
+        }
+
+        return $prompt;
+    }
+
+    /**
+     * Build a combined "meta" prompt that asks the model to return alt text,
+     * title and caption together as a single strict JSON object.
+     *
+     * Only the fields enabled via the icais_meta_include_* settings are
+     * requested, but the model is always told to return all three keys
+     * (disabled ones as empty strings) so the caller can parse uniformly.
+     */
+    protected function getMetaPrompt(string $tone, ?string $context = null): string
+    {
+        $altMax     = (int) Settings::get('icais_max_length', 125);
+        $titleMax   = (int) Settings::get('icais_title_max_length', 30);
+        $captionMax = (int) Settings::get('icais_caption_max_length', 150);
+
+        // Explicit per-call field selection (e.g. bulk picker) overrides settings.
+        if (is_array($this->metaFields)) {
+            $includeAlt     = in_array('alt', $this->metaFields, true);
+            $includeTitle   = in_array('title', $this->metaFields, true);
+            $includeCaption = in_array('caption', $this->metaFields, true);
+            $this->metaFields = null;
+        } else {
+            $includeAlt     = Settings::getBoolean('icais_meta_include_alt', true);
+            $includeTitle   = Settings::getBoolean('icais_meta_include_title', true);
+            $includeCaption = Settings::getBoolean('icais_meta_include_caption', true);
+        }
+
+        // Per-field instructions (only for enabled fields).
+        $fieldLines = [];
+        if ($includeAlt) {
+            $fieldLines[] = "- \"alt_text\": Accessible alt text under {$altMax} characters. Describe the main subject, key action and relevant context. Never start with \"Image of\", \"Photo of\" or \"Picture of\".";
+        }
+        if ($includeTitle) {
+            $fieldLines[] = "- \"title\": A concise, keyword-focused title under {$titleMax} characters. No filler words.";
+        }
+        if ($includeCaption) {
+            $fieldLines[] = "- \"caption\": A natural, descriptive caption under {$captionMax} characters that could appear beneath the image on a page.";
+        }
+
+        // Defensive: if every field is somehow disabled, still ask for alt text
+        // so the request is never empty.
+        if (empty($fieldLines)) {
+            $fieldLines[] = "- \"alt_text\": Accessible alt text under {$altMax} characters.";
+        }
+
+        $prompt  = "Analyze this image and generate SEO metadata for it.\n";
+        $prompt .= implode("\n", $fieldLines) . "\n\n";
+        $prompt .= "Return ONLY a single strict, minified JSON object — no markdown, no code fences, no commentary — with EXACTLY these keys: \"alt_text\", \"title\", \"caption\". ";
+        $prompt .= "Set any field you were not asked to write to an empty string. Do not wrap field values in quotation marks beyond the JSON syntax.";
+
+        // SEO tone hint reuse: bias all fields toward keywords when an SEO-ish tone is selected.
+        if (in_array($tone, ['seo', 'woo_seo'], true)) {
+            $prompt .= " Weave relevant keywords naturally into each field without keyword stuffing.";
+        }
+
+        // Prepend context with explicit product name extraction (mirrors getPrompt()).
+        if (!empty($context)) {
+            $productName = $this->extractProductName($context);
+
+            if ($productName) {
+                $prompt = "This is a product called \"{$productName}\". Additional product info: " . trim($context) . "\n\nIMPORTANT: Each generated field MUST contain the product name \"{$productName}\".\n\n" . $prompt;
+            } else {
+                $prompt = "[CONTEXT: " . trim($context) . "]\n\n" . $prompt;
+            }
+        }
+
+        // Append SEO keyphrase instruction if present in context.
+        if (!empty($context) && preg_match('/SEO Focus Keyphrase:\s*(.+?)(?:\s*\||$)/', $context, $seoMatches)) {
+            $keyphrase = trim($seoMatches[1]);
+            $prompt .= "\n\nSEO INSTRUCTION: The target keyword for this page is \"{$keyphrase}\". Include this exact keyword or a very close variation naturally in the alt_text and caption.";
+        }
+
+        // Append language instruction for non-English.
+        $language = Settings::get('icais_language', 'en');
+        if ($language !== 'en') {
+            $languageName = $this->getLanguageName($language);
+            $prompt .= " You MUST write every field in {$languageName}.";
         }
 
         return $prompt;

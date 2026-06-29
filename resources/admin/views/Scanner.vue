@@ -3,6 +3,21 @@
     <div class="mb-6">
       <h1 class="text-2xl font-bold mb-4 mt-0!">{{ $t('Image SEO') }}</h1>
 
+      <!-- No API key configured: AI generation needs a key. -->
+      <div v-if="!hasAiKey" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm text-blue-800">
+            {{ $t('Add your API key to generate alt text, titles and captions.') }}
+          </p>
+        </div>
+        <a href="#/settings/api" class="shrink-0 text-sm font-semibold text-blue-700 underline hover:text-blue-900">
+          {{ $t('Add API key') }}
+        </a>
+      </div>
+
       <!-- Interrupted batch banner -->
       <div v-if="interruptedBatchId" class="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -284,22 +299,29 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
-          <button
-            v-if="selectedImages.length > 0"
-            @click="startBatch"
-            class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700 shadow-sm transition-colors"
-          >
-            {{ $t('Generate Alt (%s)', selectedImages.length) }}
-          </button>
-          <button
-            v-if="selectedImages.length > 0"
-            @click="startTitleBatch"
-            class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-purple-700 shadow-sm transition-colors"
-          >
-            {{ $t('Generate Title (%s)', selectedImages.length) }}
-          </button>
-        </div>
+        <transition name="icais-btn-pop">
+          <div v-if="selectedImages.length > 0" class="flex items-center gap-4 shrink-0">
+            <!-- Pick which fields to generate, then one Generate button. -->
+            <div class="flex items-center gap-3">
+              <Checkbox size="sm" v-model="bulkFields" value="alt">
+                <span class="text-sm text-gray-700">{{ $t('Alt text') }}</span>
+              </Checkbox>
+              <Checkbox size="sm" v-model="bulkFields" value="title">
+                <span class="text-sm text-gray-700">{{ $t('Title') }}</span>
+              </Checkbox>
+              <Checkbox size="sm" v-model="bulkFields" value="caption">
+                <span class="text-sm text-gray-700">{{ $t('Description') }}</span>
+              </Checkbox>
+            </div>
+            <button
+              :disabled="bulkFields.length === 0"
+              @click="startGenerate"
+              class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-blue-700 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ $t('Generate (%s)', selectedImages.length) }}
+            </button>
+          </div>
+        </transition>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
@@ -372,6 +394,16 @@ const autoRename = window.icais?.autoRename === '1' || window.icais?.autoRename 
 // Bulk batch actions are admin-only (batch/* requires manage_options). Non-admin
 // permitted roles generate per-image instead.
 const isAdmin = window.icais?.isAdmin ?? false
+// Bulk generate field picker (alt / title / caption). One combined AI call per
+// image generates whichever fields are ticked. Defaults come from the Generate-All
+// settings (icais_meta_include_*), falling back to all-on.
+const defaultBulkFields = ['alt', 'title', 'caption'].filter(
+  (f) => window.icais?.['metaInclude' + f.charAt(0).toUpperCase() + f.slice(1)] !== '0'
+)
+const bulkFields = ref(defaultBulkFields.length ? defaultBulkFields : ['alt', 'title', 'caption'])
+// Show the "add API key" prompt only when there is no usable AI provider
+// (undefined → assume configured, so existing setups never see a spurious nag).
+const hasAiKey = window.icais?.hasAiKey ?? true
 
 // Sync filters to URL query params
 const syncFiltersToUrl = () => {
@@ -601,8 +633,10 @@ const bulkSelect = async (quality) => {
   }
 }
 
-const startTitleBatch = async () => {
-  if (selectedImages.value.length === 0) return
+// Unified bulk generate: one combined AI call per image for the ticked fields
+// (alt / title / caption). Replaces the separate Generate Alt/Title/All buttons.
+const startGenerate = async () => {
+  if (selectedImages.value.length === 0 || bulkFields.value.length === 0) return
 
   if (selectedImages.value.length > 500) {
     notification.error($t('Maximum 500 images per batch job. Please reduce your selection.'))
@@ -612,38 +646,12 @@ const startTitleBatch = async () => {
   try {
     const result = await Api.post('/batch/start', {
       image_ids: selectedImages.value,
-      type: 'title'
+      type: 'meta',
+      fields: bulkFields.value
     })
 
     if (result.success) {
-      notification.success($t('Title generation started for %s images', selectedImages.value.length))
-      router.push(`/batch/${result.job_id}`)
-    }
-  } catch (error) {
-    if (error.response?.job_id) {
-      notification.warning($t('A batch job is already in progress.'))
-      router.push(`/batch/${error.response.job_id}`)
-    } else {
-      notification.error(error.message || $t('Failed to start batch'))
-    }
-  }
-}
-
-const startBatch = async () => {
-  if (selectedImages.value.length === 0) return
-
-  if (selectedImages.value.length > 500) {
-    notification.error($t('Maximum 500 images per batch job. Please reduce your selection.'))
-    return
-  }
-
-  try {
-    const result = await Api.post('/batch/start', {
-      image_ids: selectedImages.value
-    })
-
-    if (result.success) {
-      notification.success($t('Batch job started for %s images', selectedImages.value.length))
+      notification.success($t('Generation started for %s images', selectedImages.value.length))
       router.push(`/batch/${result.job_id}`)
     }
   } catch (error) {
@@ -730,3 +738,16 @@ onUnmounted(() => {
   document.removeEventListener('click', onClickOutsideFolderDropdown)
 })
 </script>
+
+<style scoped>
+/* Smoothly fade + slide the bulk action buttons in/out as selection changes. */
+.icais-btn-pop-enter-active,
+.icais-btn-pop-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.icais-btn-pop-enter-from,
+.icais-btn-pop-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+}
+</style>

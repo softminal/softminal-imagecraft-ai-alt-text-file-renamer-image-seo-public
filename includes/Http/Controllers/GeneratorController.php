@@ -148,7 +148,451 @@ class GeneratorController extends Controller
 
         return $this->response($result);
     }
-    
+
+    /**
+     * Generate combined metadata (alt text + title + caption) for one image
+     * in a single AI call (REST API endpoint).
+     */
+    public function generateMeta($request)
+    {
+        $params = $request->get_json_params();
+        $attachmentId = (int) ($params['attachment_id'] ?? 0);
+
+        if (!$attachmentId) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Attachment ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 400);
+        }
+
+        // Ownership: only the attachment owner or an admin may generate metadata.
+        $attachment = get_post($attachmentId);
+        if (!$attachment || ((int) $attachment->post_author !== get_current_user_id() && !current_user_can('manage_options'))) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Not authorized to edit this attachment', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 403);
+        }
+
+        // Daily usage limit check (a combined call counts as one generation).
+        if (!UsageLimiter::canGenerate(get_current_user_id(), $attachmentId)) {
+            return $this->response(UsageLimiter::limitReachedError(), 429);
+        }
+
+        // Integration source check
+        $source = sanitize_text_field($params['source'] ?? '');
+        if (!self::isIntegrationAllowed($source)) {
+            return $this->response([
+                'success' => false,
+                'message' => __('This integration is disabled.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 403);
+        }
+
+        // Explicit per-action field selection (media-modal picker). Null = settings defaults.
+        $fields = null;
+        if (!empty($params['fields']) && is_array($params['fields'])) {
+            $allowed = ['alt', 'title', 'caption'];
+            $fields = array_values(array_intersect(array_map('sanitize_text_field', $params['fields']), $allowed));
+        }
+
+        // Build context (WooCommerce product → page title → SEO keyphrase → FileBird folder).
+        // Mirrors the assembly in generate() so combined generation gets the same signals.
+        $context = null;
+        $productId = (int) ($params['product_id'] ?? 0);
+        if ($productId > 0) {
+            $context = $this->detectWooCommerceContext($attachmentId, $productId);
+        }
+
+        if ($context === null) {
+            $postTitle = sanitize_text_field($params['post_title'] ?? '');
+            if (!empty($postTitle)) {
+                $postTitle = mb_substr($postTitle, 0, 200);
+                $postTitle = preg_replace('/[\[\]{}|]/', '', $postTitle);
+                if (!empty($postTitle)) {
+                    $context = 'Page: ' . $postTitle;
+                }
+            }
+        }
+
+        $postId = (int) ($params['post_id'] ?? 0);
+        $seoContext = SeoIntegration::buildSeoContext($attachmentId, $postId);
+        if ($seoContext !== null) {
+            $context = $context !== null ? $context . ' | ' . $seoContext : $seoContext;
+        }
+
+        if (Settings::get('icais_integration_filebird', '1') === '1') {
+            $folderContext = FileBird::buildFolderContext($attachmentId);
+            if ($folderContext !== null) {
+                $context = $context !== null ? $context . ' | ' . $folderContext : $folderContext;
+            }
+        }
+
+        // Contain any throwable from the AI/JSON boundary at the REST edge so a
+        // provider \Error can never white-screen the request.
+        try {
+            $result = $this->generateMetaForImage($attachmentId, null, $context, false, $fields);
+        } catch (\Throwable $e) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                error_log('ImageCraft: generateMeta failed for attachment ' . $attachmentId . ': ' . $e->getMessage());
+            }
+            return $this->response([
+                'success' => false,
+                'message' => __('Failed to generate metadata. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 500);
+        }
+
+        if (empty($result['success'])) {
+            return $this->response($result, 400);
+        }
+
+        return $this->response($result);
+    }
+
+    /**
+     * Generate combined metadata for one image (internal core, callable directly).
+     *
+     * Sends the image to the AI once with meta mode enabled and decodes the
+     * returned JSON ({alt_text, title, caption}). Honors per-field include
+     * toggles, per-field max lengths, and per-field skip-existing. Counts as a
+     * single generation against the daily usage limit.
+     *
+     * @param bool $forceAccept When true, persist immediately (skip preview). Used by batch.
+     * @return array
+     */
+    public function generateMetaForImage(int $attachmentId, ?int $userId = null, ?string $context = null, bool $forceAccept = false, ?array $fields = null): array
+    {
+        if (!$attachmentId) {
+            return [
+                'success' => false,
+                'message' => __('Attachment ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
+
+        if (!wp_attachment_is_image($attachmentId)) {
+            return [
+                'success' => false,
+                'message' => __('Invalid image attachment', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
+
+        if ($userId === null) {
+            $userId = get_current_user_id();
+        }
+
+        // Which fields the user wants (matches what getMetaPrompt() will request).
+        // Explicit field list (e.g. from the bulk picker) overrides the settings.
+        if (is_array($fields)) {
+            $wantAlt     = in_array('alt', $fields, true);
+            $wantTitle   = in_array('title', $fields, true);
+            $wantCaption = in_array('caption', $fields, true);
+        } else {
+            $wantAlt     = Settings::getBoolean('icais_meta_include_alt', true);
+            $wantTitle   = Settings::getBoolean('icais_meta_include_title', true);
+            $wantCaption = Settings::getBoolean('icais_meta_include_caption', true);
+        }
+
+        // Per-field skip-existing reuses the existing alt/title settings plus a new caption one.
+        $skipAlt     = Settings::getBoolean('icais_skip_existing', false);
+        $skipTitle   = Settings::getBoolean('icais_title_skip_existing', false);
+        $skipCaption = Settings::getBoolean('icais_caption_skip_existing', false);
+
+        $existingAlt    = (string) get_post_meta($attachmentId, '_wp_attachment_image_alt', true);
+        $existingTitle  = (string) get_post_meta($attachmentId, '_icais_generated_title', true);
+        $attachmentPost = get_post($attachmentId);
+        $existingCaption = $attachmentPost ? (string) $attachmentPost->post_excerpt : '';
+
+        // Effective save flags — a field is saved only when wanted and not skipped-as-existing.
+        $saveAlt     = $wantAlt     && !($skipAlt && $existingAlt !== '');
+        $saveTitle   = $wantTitle   && !($skipTitle && $existingTitle !== '');
+        $saveCaption = $wantCaption && !($skipCaption && $existingCaption !== '');
+
+        // Everything already satisfied — skip the AI call (and usage) entirely.
+        if (!$saveAlt && !$saveTitle && !$saveCaption) {
+            return [
+                'success'  => true,
+                'skipped'  => true,
+                'alt_text' => $existingAlt,
+                'title'    => $existingTitle,
+                'caption'  => $existingCaption,
+                'message'  => __('Metadata already exists — skipped', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
+
+        // Daily usage limit check
+        if (!UsageLimiter::canGenerate($userId, $attachmentId)) {
+            return UsageLimiter::limitReachedError();
+        }
+
+        $aiProvider = AIFactory::getProviderForUser($userId);
+        if (!$aiProvider) {
+            return [
+                'success' => false,
+                'message' => __('No API key configured. Please set up your API key in settings.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
+
+        $imageUrl = wp_get_attachment_url($attachmentId);
+        if (!$imageUrl) {
+            return [
+                'success' => false,
+                'message' => __('Failed to get image URL', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
+
+        $tone = Settings::get('icais_default_tone', 'professional');
+
+        // Single combined AI call.
+        try {
+            $aiProvider->setMetaMode(true);
+            // Keep the prompt's requested fields in sync with what we'll actually save.
+            $promptFields = [];
+            if ($saveAlt) {
+                $promptFields[] = 'alt';
+            }
+            if ($saveTitle) {
+                $promptFields[] = 'title';
+            }
+            if ($saveCaption) {
+                $promptFields[] = 'caption';
+            }
+            $aiProvider->setMetaFields($promptFields);
+            $result = $aiProvider->generateAltText($imageUrl, $tone, $context);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            if (strpos($msg, 'Failed to fetch image') !== false || strpos($msg, 'Failed to read local image') !== false) {
+                return [
+                    'success' => false,
+                    'message' => __('Image file not found or inaccessible. Please verify the image exists in your media library.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                ];
+            }
+            throw $e;
+        }
+
+        if (empty($result['success'])) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                error_log('ImageCraft: Meta generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
+            }
+            return [
+                'success' => false,
+                'message' => __('Failed to generate metadata. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
+
+        // Decode the combined JSON response defensively.
+        $parsed = $this->parseMetaJson($result['alt_text'] ?? '');
+
+        $altMax     = (int) Settings::get('icais_max_length', 125);
+        $titleMax   = (int) Settings::get('icais_title_max_length', 30);
+        $captionMax = (int) Settings::get('icais_caption_max_length', 150);
+
+        $altText = $saveAlt ? $this->capText($parsed['alt_text'], $altMax) : '';
+        $title   = $saveTitle ? AltTextHelper::truncateTitle($parsed['title'], $titleMax) : '';
+        $caption = $saveCaption ? $this->capText($parsed['caption'], $captionMax) : '';
+
+        // Track daily usage — once per combined generation.
+        UsageLimiter::recordUsage($userId, $attachmentId);
+
+        // Record one history row. Use alt as the primary tracked value, falling
+        // back to title/caption when alt is disabled.
+        $historyAlt = $altText !== '' ? $altText : ($title !== '' ? $title : $caption);
+
+        $previewSetting = Settings::get('icais_preview_before_accept', '1');
+        $previewBeforeAccept = !$forceAccept && ($previewSetting === '1' || $previewSetting === 1 || $previewSetting === true);
+        $initialStatus = $previewBeforeAccept ? 'pending' : 'accepted';
+
+        $history = StatsTracker::recordGeneration([
+            'attachment_id' => $attachmentId,
+            'original_alt'  => $existingAlt,
+            'alt_text'      => $historyAlt,
+            'user_id'       => $userId,
+            'tone'          => $tone,
+            'status'        => $initialStatus,
+            'tokens'        => $result['tokens'] ?? 0,
+            'cost'          => $result['cost'] ?? 0,
+        ]);
+
+        // Auto-accept (preview disabled or batch): persist immediately.
+        if (!$previewBeforeAccept) {
+            $this->persistMeta($attachmentId, $altText, $title, $caption, $saveAlt, $saveTitle, $saveCaption);
+        }
+
+        return [
+            'success'         => true,
+            'alt_text'        => $altText,
+            'title'           => $title,
+            'caption'         => $caption,
+            'include_alt'     => $saveAlt,
+            'include_title'   => $saveTitle,
+            'include_caption' => $saveCaption,
+            'preview'         => $previewBeforeAccept,
+            'history_id'      => $history->id,
+            'tokens'          => $result['tokens'] ?? 0,
+            'cost'            => $result['cost'] ?? 0,
+        ];
+    }
+
+    /**
+     * Accept combined metadata generated for an image (REST API endpoint).
+     */
+    public function acceptMeta($request)
+    {
+        $params = $request->get_json_params();
+        $historyId = (int) ($params['history_id'] ?? 0);
+
+        if (!$historyId) {
+            return $this->response([
+                'success' => false,
+                'message' => __('History ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 400);
+        }
+
+        $history = History::find($historyId);
+        if (!$history) {
+            return $this->response([
+                'success' => false,
+                'message' => __('History not found', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 404);
+        }
+
+        // Verify ownership
+        if ((int) $history->user_id !== get_current_user_id()) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Not authorized', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 403);
+        }
+
+        $attachmentId = (int) $history->attachment_id;
+        $altText = isset($params['alt_text']) ? sanitize_text_field($params['alt_text']) : '';
+        $title   = isset($params['title']) ? sanitize_text_field($params['title']) : '';
+        $caption = isset($params['caption']) ? sanitize_text_field($params['caption']) : '';
+
+        // skip_meta_update: update history/stats only (used by block-level integrations).
+        $skipMetaUpdate = !empty($params['skip_meta_update']);
+        if (!$skipMetaUpdate) {
+            $this->persistMeta(
+                $attachmentId,
+                $altText,
+                $title,
+                $caption,
+                $altText !== '',
+                $title !== '',
+                $caption !== ''
+            );
+        }
+
+        $history->status = 'accepted';
+        if ($altText !== '') {
+            $history->generated_alt = $altText;
+        }
+        if (!$history->save()) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Failed to update history record', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 500);
+        }
+
+        StatsTracker::recordAccept($history->user_id);
+
+        return $this->response([
+            'success' => true,
+            'message' => __('Metadata saved successfully', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+        ]);
+    }
+
+    /**
+     * Decode the combined meta JSON returned by the AI, defensively.
+     *
+     * Always returns an array with string keys alt_text/title/caption. On any
+     * parse failure the raw text is used as alt_text so the caller never breaks.
+     */
+    private function parseMetaJson(string $raw): array
+    {
+        $fields = ['alt_text' => '', 'title' => '', 'caption' => ''];
+
+        try {
+            $clean = trim($raw);
+
+            // Strip markdown code fences if the model added them.
+            if (strpos($clean, '```') !== false) {
+                $clean = preg_replace('/```(?:json)?/i', '', $clean);
+                $clean = is_string($clean) ? trim($clean) : '';
+            }
+
+            // Isolate the first {...} block to tolerate leading/trailing prose.
+            $start = strpos($clean, '{');
+            $end = strrpos($clean, '}');
+            if ($start !== false && $end !== false && $end > $start) {
+                $clean = substr($clean, $start, $end - $start + 1);
+            }
+
+            $decoded = json_decode($clean, true);
+            if (is_array($decoded)) {
+                foreach (['alt_text', 'title', 'caption'] as $key) {
+                    if (isset($decoded[$key]) && is_scalar($decoded[$key])) {
+                        $fields[$key] = trim((string) $decoded[$key]);
+                    }
+                }
+                return $fields;
+            }
+        } catch (\Throwable $e) {
+            // Fall through to the raw-text fallback below.
+        }
+
+        // Fallback: treat the entire response as alt text.
+        $fields['alt_text'] = trim($raw);
+        return $fields;
+    }
+
+    /**
+     * Trim and cap a text value to a maximum character length.
+     */
+    private function capText(string $text, int $max): string
+    {
+        $text = trim($text);
+        if ($max > 0 && mb_strlen($text) > $max) {
+            $text = rtrim(mb_substr($text, 0, $max));
+        }
+        return $text;
+    }
+
+    /**
+     * Persist combined metadata to the attachment.
+     *
+     * alt → _wp_attachment_image_alt; title → _icais_generated_title + post_title;
+     * caption → _icais_generated_caption (tracking) + post_excerpt (source of truth).
+     * Each save is guarded; nothing here ever throws.
+     */
+    private function persistMeta(int $attachmentId, string $altText, string $title, string $caption, bool $saveAlt, bool $saveTitle, bool $saveCaption): void
+    {
+        if ($saveAlt && $altText !== '') {
+            update_post_meta($attachmentId, '_wp_attachment_image_alt', sanitize_text_field($altText));
+        }
+
+        if ($saveTitle && $title !== '') {
+            update_post_meta($attachmentId, '_icais_generated_title', sanitize_text_field($title));
+            global $wpdb;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->update($wpdb->posts, ['post_title' => $title], ['ID' => $attachmentId], ['%s'], ['%d']);
+            clean_post_cache($attachmentId);
+        }
+
+        if ($saveCaption && $caption !== '') {
+            update_post_meta($attachmentId, '_icais_generated_caption', sanitize_text_field($caption));
+            $updated = wp_update_post([
+                'ID'           => $attachmentId,
+                'post_excerpt' => sanitize_text_field($caption),
+            ], true);
+            // Guard: wp_update_post returns WP_Error on failure — never dereference/throw.
+            if (is_wp_error($updated) && defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                error_log('ImageCraft: Failed to save caption for attachment ' . $attachmentId . ': ' . $updated->get_error_message());
+            }
+        }
+    }
+
     /**
      * Generate alt text for a single image (internal method, can be called directly)
      *

@@ -88,48 +88,64 @@
     var compressIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
 
     /**
-     * Create the Generate with AI button element (with a Compress button when
-     * image compression is enabled).
+     * Create the AI field picker (Alt / Title / Description checkboxes + a single
+     * Generate button), mirroring the bulk actions page. A Compress button is
+     * added alongside when compression is enabled.
      */
     function createButton() {
         var wrapper = document.createElement('div');
         wrapper.className = 'icais-media-btn-wrapper';
 
+        // Field checkboxes — defaults come from the Generate-All settings.
+        var picker = document.createElement('div');
+        picker.className = 'icais-field-picker';
+        var fieldDefs = [
+            { key: 'alt', label: config.i18n?.fieldAlt || 'Alt text', def: config.metaIncludeAlt },
+            { key: 'title', label: config.i18n?.fieldTitle || 'Title', def: config.metaIncludeTitle },
+            { key: 'caption', label: config.i18n?.fieldDescription || 'Description', def: config.metaIncludeCaption }
+        ];
+        fieldDefs.forEach(function (f) {
+            var lbl = document.createElement('label');
+            lbl.className = 'icais-field-option';
+            var cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.className = 'icais-field-cb';
+            cb.setAttribute('data-field', f.key);
+            // Default ticked unless the setting is explicitly off.
+            cb.checked = (f.def !== '0' && f.def !== 0 && f.def !== false);
+            var span = document.createElement('span');
+            span.textContent = f.label;
+            lbl.appendChild(cb);
+            lbl.appendChild(span);
+            picker.appendChild(lbl);
+        });
+        wrapper.appendChild(picker);
+
         var btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
+        btnRow.className = 'icais-media-btn-row';
 
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'icais-media-btn';
-        var iconSpan = document.createElement('span');
-        iconSpan.className = 'icais-btn-icon';
-        iconSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
-        var textSpan = document.createElement('span');
-        textSpan.className = 'icais-btn-text';
-        textSpan.textContent = config.i18n?.generate || 'Generate with AI';
-        btn.appendChild(iconSpan);
-        btn.appendChild(textSpan);
-
+        // Generate button (runs the combined generation for the ticked fields).
+        var genBtn = document.createElement('button');
+        genBtn.type = 'button';
+        genBtn.className = 'icais-media-btn';
+        genBtn.innerHTML = '<span class="icais-btn-icon">' + starIcon + '</span><span class="icais-btn-text">' + (config.i18n?.generate || 'Generate') + '</span>';
         var status = document.createElement('div');
         status.className = 'icais-media-status';
         status.style.display = 'none';
-
-        btn.addEventListener('click', function (e) {
+        genBtn.addEventListener('click', function (e) {
             e.preventDefault();
-            handleGenerate(btn, status);
+            handlePickerGenerate(wrapper, genBtn, status);
         });
+        btnRow.appendChild(genBtn);
 
-        btnRow.appendChild(btn);
-        wrapper.appendChild(btnRow);
-        wrapper.appendChild(status);
-
-        // Compress button — only when the compression feature is enabled.
+        // Compress button — separate action, only when compression is enabled.
+        var compressStatus = null;
         if (config.compressionEnabled === '1' || config.compressionEnabled === 1 || config.compressionEnabled === true) {
             var compressBtn = document.createElement('button');
             compressBtn.type = 'button';
             compressBtn.className = 'icais-media-btn icais-compress-btn';
             compressBtn.innerHTML = '<span class="icais-btn-icon">' + compressIcon + '</span><span class="icais-btn-text">' + (config.i18n?.compress || 'Compress') + '</span>';
-            var compressStatus = document.createElement('div');
+            compressStatus = document.createElement('div');
             compressStatus.className = 'icais-media-status';
             compressStatus.style.display = 'none';
             compressBtn.addEventListener('click', function (e) {
@@ -137,6 +153,11 @@
                 handleCompress(compressBtn, compressStatus);
             });
             btnRow.appendChild(compressBtn);
+        }
+
+        wrapper.appendChild(btnRow);
+        wrapper.appendChild(status);
+        if (compressStatus) {
             wrapper.appendChild(compressStatus);
         }
 
@@ -192,80 +213,103 @@
     }
 
     /**
-     * Handle the generate button click
+     * Handle the picker "Generate" click — generate the ticked fields (alt /
+     * title / caption) in one combined call and populate the matching modal
+     * fields. Modal edits are persisted by WordPress; we also nudge the model.
      */
-    function handleGenerate(btn, status) {
+    function handlePickerGenerate(wrapper, btn, status) {
         var attachmentId = getAttachmentId();
         if (!attachmentId) {
             showStatus(status, 'error', config.i18n?.noAttachment || 'Could not detect image. Please select an image first.');
             return;
         }
 
-        // Set loading state
+        // Collect the ticked fields.
+        var fields = [];
+        var cbs = wrapper.querySelectorAll('.icais-field-cb');
+        for (var i = 0; i < cbs.length; i++) {
+            if (cbs[i].checked) {
+                fields.push(cbs[i].getAttribute('data-field'));
+            }
+        }
+        if (fields.length === 0) {
+            showStatus(status, 'error', config.i18n?.metaError || 'Select at least one field.');
+            return;
+        }
+
         btn.disabled = true;
         btn.classList.add('icais-loading');
         btn.querySelector('.icais-btn-text').textContent = config.i18n?.generating || 'Generating...';
         status.style.display = 'none';
 
-        var url = config.apiUrl + '/generator/generate';
-
-        // Build request body — don't send tone so the backend can auto-select
-        // the WooCommerce tone (woo_seo) when product context is detected
-        var requestBody = {
-            attachment_id: attachmentId
-        };
-
-        // Send the current post ID so the backend can look up SEO focus keyphrase
+        var requestBody = { attachment_id: attachmentId, fields: fields };
         var postIdInput = document.getElementById('post_ID');
         var postTypeInput = document.getElementById('post_type');
         if (postIdInput) {
             requestBody.post_id = parseInt(postIdInput.value, 10);
-
-            // Detect if we're on a WooCommerce product edit page and pass product_id
             if (postTypeInput && postTypeInput.value === 'product') {
                 requestBody.product_id = requestBody.post_id;
             }
         }
 
-        fetch(url, {
+        fetch(config.apiUrl + '/generator/generate-meta', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-WP-Nonce': config.nonce
-            },
+            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
             body: JSON.stringify(requestBody)
         })
-        .then(function (response) {
-            return response.json();
-        })
+        .then(function (r) { return r.json(); })
         .then(function (data) {
-            if (data.success) {
-                // Always query the DOM fresh — the alt textarea may have been
-                // replaced by WordPress when the user switched images
-                var textarea = document.querySelector('.setting[data-setting="alt"] textarea, [data-setting="alt"] textarea');
-
-                if (textarea) {
-                    textarea.value = data.alt_text;
-                    // Dispatch events so WordPress Backbone model picks up the change
-                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-                    textarea.dispatchEvent(new Event('change', { bubbles: true }));
-                    // Also trigger keyup which some WP handlers listen for
-                    textarea.dispatchEvent(new Event('keyup', { bubbles: true }));
-                }
-
-                showStatus(status, 'success', config.i18n?.success || 'Alt text generated successfully!');
-            } else {
-                showStatus(status, 'error', data.message || config.i18n?.error || 'Failed to generate alt text.');
+            if (!data.success) {
+                showStatus(status, 'error', data.message || config.i18n?.metaError || 'Failed to generate metadata.');
+                return;
             }
+
+            var attachment = null;
+            try {
+                if (window.wp && wp.media && wp.media.model) {
+                    attachment = wp.media.model.Attachment.get(attachmentId);
+                }
+            } catch (e) {}
+
+            setField('alt', data.alt_text, attachment, 'alt');
+            setField('title', data.title, attachment, 'title');
+            setField('caption', data.caption, attachment, 'caption');
+
+            showStatus(status, 'success', config.i18n?.metaSuccess || 'Generated!');
         })
-        .catch(function () {
-            showStatus(status, 'error', config.i18n?.error || 'Failed to generate alt text. Please try again.');
-        })
+        .catch(function () { showStatus(status, 'error', config.i18n?.metaError || 'Failed to generate metadata.'); })
         .finally(function () {
             btn.disabled = false;
             btn.classList.remove('icais-loading');
-            btn.querySelector('.icais-btn-text').textContent = config.i18n?.generate || 'Generate with AI';
+            btn.querySelector('.icais-btn-text').textContent = config.i18n?.generate || 'Generate';
         });
+    }
+
+    /**
+     * Populate a media-modal setting field and sync the Backbone model.
+     * Skips empty values so disabled/skipped fields are left untouched.
+     */
+    function setField(setting, value, attachment, modelKey) {
+        if (!value) {
+            return;
+        }
+        var el = document.querySelector(
+            '.setting[data-setting="' + setting + '"] textarea,' +
+            '[data-setting="' + setting + '"] textarea,' +
+            '.setting[data-setting="' + setting + '"] input,' +
+            '[data-setting="' + setting + '"] input'
+        );
+        if (el) {
+            el.value = value;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+            el.dispatchEvent(new Event('keyup', { bubbles: true }));
+        }
+        try {
+            if (attachment && modelKey) {
+                attachment.set(modelKey, value);
+            }
+        } catch (e) {}
     }
 
     /**
@@ -299,8 +343,10 @@
 
         var buttonEl = createButton();
 
-        // Insert the button wrapper as a sibling AFTER the alt setting span
-        settingSpan.parentNode.insertBefore(buttonEl, settingSpan.nextSibling);
+        // Insert the picker ABOVE the Alt Text field. The picker generates alt +
+        // title + description, so it belongs at the head of that field group
+        // rather than wedged between Alt Text and Title. Same (robust) alt anchor.
+        settingSpan.parentNode.insertBefore(buttonEl, settingSpan);
     }
     const starIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
 
@@ -353,76 +399,10 @@
     }
 
     /**
-     * Handle the generate title button click
-     */
-    function handleGenerateTitle(btn, status) {
-        var attachmentId = getAttachmentId();
-        if (!attachmentId) {
-            showStatus(status, 'error', config.i18n?.noAttachment || 'Could not detect image. Please select an image first.');
-            return;
-        }
-
-        btn.disabled = true;
-        btn.classList.add('icais-loading');
-        btn.querySelector('.icais-btn-text').textContent = config.i18n?.generatingTitle || 'Generating title...';
-        status.style.display = 'none';
-
-        fetch(config.apiUrl + '/generator/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
-            body: JSON.stringify({ attachment_id: attachmentId, title_only: true })
-        })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-            if (data.success && data.generated_title) {
-                // Update the title input field in the media modal
-                // Try multiple selectors — WP uses different DOM structures in different views
-                var titleInput = document.querySelector(
-                    '.setting[data-setting="title"] input,' +
-                    '[data-setting="title"] input,' +
-                    '.setting[data-setting="title"] textarea,' +
-                    '[data-setting="title"] textarea,' +
-                    '#attachment-details-two-column-title,' +
-                    'label[data-setting="title"] input'
-                );
-                if (titleInput) {
-                    titleInput.value = data.generated_title;
-                    titleInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    titleInput.dispatchEvent(new Event('change', { bubbles: true }));
-                    titleInput.dispatchEvent(new Event('keyup', { bubbles: true }));
-                }
-
-                // Update Backbone model directly — do NOT call fetch() as it
-                // would overwrite with old server data before the title is persisted
-                try {
-                    if (window.wp && wp.media && wp.media.model) {
-                        var attachment = wp.media.model.Attachment.get(attachmentId);
-                        if (attachment) {
-                            attachment.set('title', data.generated_title);
-                        }
-                    }
-                } catch (e) {}
-
-                var msg = (config.i18n?.titleSuccess || 'Title updated to: %s').replace('%s', data.generated_title);
-                showStatus(status, 'success', msg);
-            } else {
-                showStatus(status, 'error', data.message || config.i18n?.titleError || 'Failed to generate title.');
-            }
-        })
-        .catch(function () { showStatus(status, 'error', config.i18n?.titleError || 'Failed to generate title.'); })
-        .finally(function () {
-            btn.disabled = false;
-            btn.classList.remove('icais-loading');
-            btn.querySelector('.icais-btn-text').textContent = config.i18n?.generateTitle || 'Generate Title';
-        });
-    }
-
-    /**
-     * Inject button(s) after the title setting field.
+     * Inject the Rename File button after the title setting field.
      *
-     * [Generate Title] — shown when icais_generate_title is enabled
-     * [Rename File] — shown when rename_mode is title_and_filename
-     * Both can appear simultaneously.
+     * Title generation now lives in the alt-area field picker, so the title
+     * area only carries the optional [Rename File] action (when enabled).
      */
     function injectRenameButton(settingSpan) {
         if (injectedRenameSpans.has(settingSpan)) {
@@ -433,48 +413,27 @@
         // Hidden entirely when the user's role may not use ImageCraft.
         if (!canUse) return;
 
-        var hasTitle = true;
         var hasRename = config.autoRename === '1' || config.autoRename === 1;
+        if (!hasRename) return;
 
-        if (!hasTitle && !hasRename) return;
-
-        // Single wrapper with flex button row inside
         var wrapper = document.createElement('div');
         wrapper.className = 'icais-media-btn-wrapper icais-rename-btn-wrapper';
 
         var btnRow = document.createElement('div');
-        btnRow.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
+        btnRow.className = 'icais-media-btn-row';
 
-        var titleStatus = null;
-        var renameStatus = null;
-
-        if (hasTitle) {
-            var titleBtn = document.createElement('button');
-            titleBtn.type = 'button';
-            titleBtn.className = 'icais-media-btn icais-title-btn';
-            titleBtn.innerHTML = '<span class="icais-btn-icon">' + starIcon + '</span><span class="icais-btn-text">' + (config.i18n?.generateTitle || 'Generate Title') + '</span>';
-            titleStatus = document.createElement('div');
-            titleStatus.className = 'icais-media-status';
-            titleStatus.style.display = 'none';
-            titleBtn.addEventListener('click', function (e) { e.preventDefault(); handleGenerateTitle(titleBtn, titleStatus); });
-            btnRow.appendChild(titleBtn);
-        }
-
-        if (hasRename) {
-            var renameBtn = document.createElement('button');
-            renameBtn.type = 'button';
-            renameBtn.className = 'icais-media-btn icais-rename-btn';
-            renameBtn.innerHTML = '<span class="icais-btn-icon">' + starIcon + '</span><span class="icais-btn-text">' + (config.i18n?.rename || 'Rename File') + '</span>';
-            renameStatus = document.createElement('div');
-            renameStatus.className = 'icais-media-status';
-            renameStatus.style.display = 'none';
-            renameBtn.addEventListener('click', function (e) { e.preventDefault(); handleRename(renameBtn, renameStatus); });
-            btnRow.appendChild(renameBtn);
-        }
+        var renameBtn = document.createElement('button');
+        renameBtn.type = 'button';
+        renameBtn.className = 'icais-media-btn icais-rename-btn';
+        renameBtn.innerHTML = '<span class="icais-btn-icon">' + starIcon + '</span><span class="icais-btn-text">' + (config.i18n?.rename || 'Rename File') + '</span>';
+        var renameStatus = document.createElement('div');
+        renameStatus.className = 'icais-media-status';
+        renameStatus.style.display = 'none';
+        renameBtn.addEventListener('click', function (e) { e.preventDefault(); handleRename(renameBtn, renameStatus); });
+        btnRow.appendChild(renameBtn);
 
         wrapper.appendChild(btnRow);
-        if (titleStatus) wrapper.appendChild(titleStatus);
-        if (renameStatus) wrapper.appendChild(renameStatus);
+        wrapper.appendChild(renameStatus);
 
         settingSpan.parentNode.insertBefore(wrapper, settingSpan.nextSibling);
     }

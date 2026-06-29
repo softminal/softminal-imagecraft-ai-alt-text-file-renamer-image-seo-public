@@ -291,6 +291,8 @@ const batchTypeLabel = computed(() => {
   const type = job.value?.batch_type || interruptedJob.value?.batch_type
   if (type === 'title') return $t('Title Generation')
   if (type === 'alt') return $t('Alt Text Generation')
+  if (type === 'meta') return $t('Generate All (Alt + Title + Caption)')
+  if (type === 'compress') return $t('Image Compression')
   return ''
 })
 
