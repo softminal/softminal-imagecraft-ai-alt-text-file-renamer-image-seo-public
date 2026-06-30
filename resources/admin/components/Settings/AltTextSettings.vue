@@ -42,52 +42,25 @@
       />
     </div>
 
-    <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_auto_generate"
-        />
-        <span>{{ $t('Auto-generate on upload') }}</span>
-      </label>
-    </div>
-
-    <!-- Post type exclusion -->
-    <div v-if="settings.icais_auto_generate === '1' || settings.icais_auto_generate === 1 || settings.icais_auto_generate === true" class="mb-4 ml-6 p-3 bg-gray-50 rounded-lg border">
-      <p class="text-sm font-medium text-gray-700 mb-2">{{ $t('Exclude post types from auto-generation') }}</p>
-      <p class="text-xs text-gray-500 mb-3">{{ $t('Images uploaded to these post types will not be auto-generated.') }}</p>
-      <div class="flex flex-wrap gap-3">
-        <label
-          v-for="(label, slug) in availablePostTypes"
-          :key="slug"
-          class="inline-flex items-center gap-1.5 cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            :value="slug"
-            v-model="excludedPostTypes"
-            class="rounded"
-          />
-          <span class="text-sm text-gray-700">{{ label }}</span>
-        </label>
-      </div>
-      <p v-if="Object.keys(availablePostTypes).length === 0" class="text-xs text-gray-400">
-        {{ $t('No post types available') }}
+    <!-- Auto-generate on upload (Pro) -->
+    <div class="mb-4" :class="{ 'opacity-60': !isPro }">
+      <Checkbox true-value="1" false-value="0" :disabled="!isPro" v-model="settings.icais_auto_generate">
+        <span>
+          {{ $t('Auto-generate alt text on upload') }}
+          <span v-if="!isPro" class="ml-1 text-xs text-amber-600 font-semibold">{{ $t('Pro') }}</span>
+        </span>
+      </Checkbox>
+      <p class="text-xs text-gray-500 mt-1">
+        {{ isPro
+          ? $t('Automatically generate alt text when an image is uploaded.')
+          : $t('Upgrade to Pro to auto-generate alt text on upload.') }}
       </p>
     </div>
 
     <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_preview_before_accept"
-        />
+      <Checkbox true-value="1" false-value="0" v-model="settings.icais_preview_before_accept">
         <span>{{ $t('Preview before accepting') }}</span>
-      </label>
+      </Checkbox>
       <div class="mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
         <p class="text-xs text-amber-800">
           {{ $t('When enabled, generated alt text is shown for review with accept/reject buttons before applying. Works in the Gutenberg editor and Kadence blocks.') }}
@@ -96,15 +69,9 @@
     </div>
 
     <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_skip_existing"
-        />
+      <Checkbox true-value="1" false-value="0" v-model="settings.icais_skip_existing">
         <span>{{ $t('Skip images with existing alt text') }}</span>
-      </label>
+      </Checkbox>
     </div>
   </div>
 </template>
@@ -112,6 +79,9 @@
 <script setup>
 import { inject } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
-const { settings, availablePostTypes, excludedPostTypes } = inject('settingsContext')
+const { settings } = inject('settingsContext')
+
+const isPro = window.icais?.isPro ?? false
 </script>

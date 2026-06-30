@@ -77,7 +77,8 @@ class Settings
         'icais_meta_include_alt' => '1',        // include alt text in combined generation
         'icais_meta_include_title' => '1',      // include title in combined generation
         'icais_meta_include_caption' => '1',    // include caption in combined generation
-        'icais_meta_auto_generate' => '0',      // auto-generate all on upload (effect is Pro-gated; free never acts)
+        'icais_meta_auto_generate' => '0',      // auto-generate ALL fields on upload (priority; Pro-gated; free never acts)
+        'icais_caption_auto_generate' => '0',   // auto-generate description/caption on upload (Pro-gated)
         'icais_caption_max_length' => 150,      // caption max characters
         'icais_caption_default_tone' => 'professional', // caption tone
         'icais_caption_skip_existing' => '0',   // skip caption when one already exists

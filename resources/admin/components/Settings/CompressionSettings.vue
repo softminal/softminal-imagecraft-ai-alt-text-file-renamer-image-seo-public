@@ -8,15 +8,9 @@
 
     <!-- Master toggle -->
     <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_compression_enabled"
-        />
+      <Checkbox true-value="1" false-value="0" v-model="settings.icais_compression_enabled">
         <span>{{ $t('Enable image compression') }}</span>
-      </label>
+      </Checkbox>
       <p class="text-xs text-gray-500 mt-1">
         {{ $t('Adds the Compress tab and per-image compress buttons. Free plan includes %d compressions per day.', freeDailyLimit) }}
       </p>
@@ -72,19 +66,12 @@
 
       <!-- Auto-compress on upload (Pro) -->
       <div class="mb-5" :class="{ 'opacity-60': !isPro }">
-        <label class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            true-value="1"
-            false-value="0"
-            :disabled="!isPro"
-            v-model="settings.icais_compression_auto"
-          />
+        <Checkbox true-value="1" false-value="0" :disabled="!isPro" v-model="settings.icais_compression_auto">
           <span>
             {{ $t('Auto-compress new uploads') }}
             <span v-if="!isPro" class="ml-1 text-xs text-amber-600 font-semibold">{{ $t('Pro') }}</span>
           </span>
-        </label>
+        </Checkbox>
         <p class="text-xs text-gray-500 mt-1">
           {{ $t('Automatically compress every image as it is uploaded, in the background.') }}
         </p>
@@ -94,15 +81,9 @@
 
       <!-- Skip already compressed -->
       <div class="mb-4">
-        <label class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            true-value="1"
-            false-value="0"
-            v-model="settings.icais_compression_skip_compressed"
-          />
+        <Checkbox true-value="1" false-value="0" v-model="settings.icais_compression_skip_compressed">
           <span>{{ $t('Skip images that are already compressed') }}</span>
-        </label>
+        </Checkbox>
       </div>
 
       <!-- Min size -->
@@ -122,15 +103,9 @@
 
       <!-- Back up originals -->
       <div class="mb-4">
-        <label class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            true-value="1"
-            false-value="0"
-            v-model="settings.icais_compression_keep_backup"
-          />
+        <Checkbox true-value="1" false-value="0" v-model="settings.icais_compression_keep_backup">
           <span>{{ $t('Back up originals before compressing') }}</span>
-        </label>
+        </Checkbox>
       </div>
 
       <div v-if="keepBackup" class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -150,6 +125,7 @@
 <script setup>
 import { inject, computed } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const { settings } = inject('settingsContext')
 

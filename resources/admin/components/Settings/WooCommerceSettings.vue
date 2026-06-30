@@ -12,30 +12,9 @@
       <p class="text-sm text-gray-600 mb-4">{{ $t('Configure alt text generation for WooCommerce products') }}</p>
 
       <div class="mb-4">
-        <label class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            true-value="1"
-            false-value="0"
-            v-model="settings.icais_woo_auto_generate"
-          />
-          <span>{{ $t('Auto-generate on product upload') }}</span>
-        </label>
-        <p class="text-xs text-gray-500 mt-1">
-          {{ $t('Automatically generate alt text when adding product images') }}
-        </p>
-      </div>
-
-      <div class="mb-4">
-        <label class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            true-value="1"
-            false-value="0"
-            v-model="settings.icais_woo_include_product_info"
-          />
+        <Checkbox true-value="1" false-value="0" v-model="settings.icais_woo_include_product_info">
           <span>{{ $t('Include product information') }}</span>
-        </label>
+        </Checkbox>
         <p class="text-xs text-gray-500 mt-1">
           {{ $t('Use product name, categories, and SKU in alt text generation') }}
         </p>
@@ -85,6 +64,7 @@
 <script setup>
 import { inject } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const { settings, woocommerceInstalled } = inject('settingsContext')
 </script>

@@ -13,15 +13,9 @@
     </p>
 
     <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_seo_use_keyphrase"
-        />
+      <Checkbox true-value="1" false-value="0" v-model="settings.icais_seo_use_keyphrase">
         <span>{{ $t('Include focus keyphrase in alt text') }}</span>
-      </label>
+      </Checkbox>
       <p class="text-xs text-gray-500 mt-1">
         {{ $t('The AI will naturally incorporate the focus keyphrase from the parent post/page into the generated alt text. The image must be attached to a post that has a focus keyphrase set.') }}
       </p>
@@ -32,6 +26,7 @@
 <script setup>
 import { inject } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const { settings, seoPlugin } = inject('settingsContext')
 </script>

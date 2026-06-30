@@ -17,7 +17,7 @@
       </div>
       <Checkbox
         :model-value="selected"
-        size="sm"
+        size="lg"
         class="absolute top-1 right-1"
         @click.stop
         @change="$emit('toggle-select', image.id)"

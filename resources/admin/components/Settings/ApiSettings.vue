@@ -13,15 +13,14 @@
             {{ $t('Your site has a WordPress AI connector configured. You can use it instead of entering your own API key — no key storage needed.') }}
           </p>
         </div>
-        <label class="flex shrink-0 cursor-pointer items-center gap-2 pt-0.5">
-          <input
-            type="checkbox"
-            class="rounded accent-blue-600"
-            :checked="settings.icais_use_wp7_ai === '1'"
-            @change="settings.icais_use_wp7_ai = $event.target.checked ? '1' : '0'"
-          />
+        <Checkbox
+          true-value="1"
+          false-value="0"
+          v-model="settings.icais_use_wp7_ai"
+          class="shrink-0 pt-0.5"
+        >
           <span class="text-sm font-medium text-blue-900 whitespace-nowrap">{{ $t('Use WordPress AI Client') }}</span>
-        </label>
+        </Checkbox>
       </div>
 
       <!-- Active state: test button + status -->
@@ -196,6 +195,7 @@
 <script setup>
 import { ref, inject, watch } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const { settings, apiKey, apiSetting, configApiKey, testing, testResult, currentModels, modelSettingKey, showModelSelector, apiDocsUrl, apiDocsLabel, pricingUrl, testConnection, testWP7Connection, saveApiKey, wp7Available } = inject('settingsContext')
 

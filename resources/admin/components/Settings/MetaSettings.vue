@@ -12,34 +12,16 @@
       <p class="text-xs text-gray-500 mb-3">
         {{ $t('Which fields are pre-selected in the Media Library bulk picker (you can still change them per action).') }}
       </p>
-      <div class="space-y-3">
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            true-value="1"
-            false-value="0"
-            v-model="settings.icais_meta_include_alt"
-          />
+      <div class="flex flex-col gap-3 items-start">
+        <Checkbox true-value="1" false-value="0" v-model="settings.icais_meta_include_alt">
           <span class="text-sm text-gray-900">{{ $t('Alt text') }}</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            true-value="1"
-            false-value="0"
-            v-model="settings.icais_meta_include_title"
-          />
+        </Checkbox>
+        <Checkbox true-value="1" false-value="0" v-model="settings.icais_meta_include_title">
           <span class="text-sm text-gray-900">{{ $t('Title') }}</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            true-value="1"
-            false-value="0"
-            v-model="settings.icais_meta_include_caption"
-          />
+        </Checkbox>
+        <Checkbox true-value="1" false-value="0" v-model="settings.icais_meta_include_caption">
           <span class="text-sm text-gray-900">{{ $t('Description (Caption)') }}</span>
-        </label>
+        </Checkbox>
       </div>
       <p class="text-xs text-gray-500 mt-2">
         {{ $t('Alt text and title use their own tone/length settings (Alt Text and Image Title pages). Caption settings are below.') }}
@@ -79,48 +61,83 @@
     </div>
 
     <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_caption_skip_existing"
-        />
+      <Checkbox true-value="1" false-value="0" v-model="settings.icais_caption_skip_existing">
         <span>{{ $t('Skip images with an existing caption') }}</span>
-      </label>
+      </Checkbox>
     </div>
 
     <hr class="my-6" />
 
-    <!-- Auto-generate on upload (Pro) -->
-    <div class="mb-2" :class="{ 'opacity-60': !isPro }">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          :disabled="!isPro"
-          v-model="settings.icais_meta_auto_generate"
-        />
+    <h3 class="text-sm font-semibold text-gray-900 mb-1">{{ $t('Auto-generate on upload') }}</h3>
+    <p class="text-xs text-gray-500 mb-3">
+      {{ $t('Generate metadata automatically when an image is uploaded. Alt text and title have their own toggles on their settings pages.') }}
+    </p>
+
+    <!-- Auto-generate description on upload (Pro) -->
+    <div class="mb-3" :class="{ 'opacity-60': !isPro }">
+      <Checkbox true-value="1" false-value="0" :disabled="!isPro" v-model="settings.icais_caption_auto_generate">
         <span>
-          {{ $t('Auto-generate on upload') }}
+          {{ $t('Auto-generate description on upload') }}
           <span v-if="!isPro" class="ml-1 text-xs text-amber-600 font-semibold">{{ $t('Pro') }}</span>
         </span>
-      </label>
+      </Checkbox>
+    </div>
+
+    <!-- Auto-generate ALL fields on upload (Pro, priority) -->
+    <div class="mb-2" :class="{ 'opacity-60': !isPro }">
+      <Checkbox true-value="1" false-value="0" :disabled="!isPro" v-model="settings.icais_meta_auto_generate">
+        <span>
+          {{ $t('Auto-generate ALL fields on upload') }}
+          <span v-if="!isPro" class="ml-1 text-xs text-amber-600 font-semibold">{{ $t('Pro') }}</span>
+        </span>
+      </Checkbox>
       <p class="text-xs text-gray-500 mt-1">
-        {{ isPro
-          ? $t('Automatically generate the default fields whenever an image is uploaded, in the background.')
-          : $t('Upgrade to Pro to automatically generate metadata whenever an image is uploaded.') }}
+        {{ $t('Generates every selected field in one call. Takes priority — when on, it overrides the individual alt / title / description auto-generate options.') }}
+      </p>
+    </div>
+
+    <!-- Post type exclusion (applies to auto-generate-on-upload) -->
+    <div
+      v-if="isPro && autoEnabled"
+      class="mb-2 ml-6 p-3 bg-gray-50 rounded-lg border"
+    >
+      <p class="text-sm font-medium text-gray-700 mb-2">{{ $t('Exclude post types from auto-generation') }}</p>
+      <p class="text-xs text-gray-500 mb-3">{{ $t('Images uploaded to these post types will not be auto-generated.') }}</p>
+      <div class="flex flex-wrap gap-3">
+        <Checkbox
+          v-for="(label, slug) in availablePostTypes"
+          :key="slug"
+          :value="slug"
+          v-model="excludedPostTypes"
+          size="sm"
+        >
+          <span class="text-sm text-gray-700">{{ label }}</span>
+        </Checkbox>
+      </div>
+      <p v-if="Object.keys(availablePostTypes).length === 0" class="text-xs text-gray-400">
+        {{ $t('No post types available') }}
       </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { inject } from 'vue'
+import { inject, computed } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
-const { settings } = inject('settingsContext')
+const { settings, availablePostTypes, excludedPostTypes } = inject('settingsContext')
 
 const isPro = window.icais?.isPro ?? false
+
+// `settings` is a Vue ref — read through .value in script (templates auto-unwrap).
+// Post-type exclusion applies to any auto-on-upload, so show it when any toggle is on.
+const autoEnabled = computed(() => {
+  const on = (k) => {
+    const v = settings.value?.[k]
+    return v === '1' || v === 1 || v === true
+  }
+  return on('icais_meta_auto_generate') || on('icais_caption_auto_generate')
+    || on('icais_auto_generate') || on('icais_title_auto_generate')
+})
 </script>

@@ -49,6 +49,11 @@ class TranslationStrings {
             'Description' => __('Description', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             /* translators: %s: number of images */
             'Generation started for %s images' => __('Generation started for %s images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+
+            // Dashboard: overall optimization KPI + ring labels
+            'Overall optimization' => __('Overall optimization', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Blended across alt text, titles, descriptions and compression.' => __('Blended across alt text, titles, descriptions and compression.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'covered' => __('covered', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             /* translators: %s: number of images */
             'Metadata generation started for %s images' => __('Metadata generation started for %s images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
 

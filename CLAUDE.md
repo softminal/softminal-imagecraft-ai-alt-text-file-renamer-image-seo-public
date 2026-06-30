@@ -160,7 +160,7 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 - `EnqueueAsset.php` - Vite dev/prod asset resolution helper
 - `Menu.php` - WordPress admin menu registration. Shows the ImageCraft menu to admins (`manage_options`) always, and to permitted non-admin roles (`Permission::isAllowed()`) with the `upload_files` capability. Non-permitted roles get no menu.
 - `Install.php` - Database table creation and version-gated migrations
-- `AutoGenerate.php` - Auto-generates alt text on image upload (WordPress hook)
+- `AutoGenerate.php` - Legacy auto-generate-on-upload (alt/title/Woo). **No longer initialized** — `App::run()` does NOT call `AutoGenerate::init()`. Auto-generate-on-upload is now a **Pro-only** feature owned by the Pro add-on (`Features\Meta`), which calls the free `GeneratorController::generateMetaForImage` core. File kept for backwards-compat references only.
 - `AdminNotice.php` - Admin dashboard notices with dismiss functionality
 - `DeactivationSurvey.php` - Deactivation feedback modal on the Plugins screen (renders survey, forwards feedback via FeedbackController)
 
@@ -332,12 +332,18 @@ Frontend:
   components/Settings/SeoSettings.vue → Api.js (settings POST)
 ```
 
-### Auto-Generate (on upload)
+### Auto-Generate (on upload) — PRO-ONLY
 ```
-PHP:
-  includes/AutoGenerate.php → AIFactory, Settings, StatsTracker
-  Triggered by: WordPress add_attachment hook
-  Independent: does not use HTTP layer
+The FREE plugin does NOT auto-generate on upload (AutoGenerate::init() is not called).
+This is now a Pro feature, mirroring auto-compress:
+  PRO: imagecraft-...-pro/includes/Features/Meta.php registers add_attachment (license-gated)
+       → schedules icais_auto_generate_meta cron → calls the FREE reusable core
+       GeneratorController::generateMetaForImage (alt + title + caption per icais_meta_include_*).
+  Pro autoEnabled() also honors the legacy toggles (icais_auto_generate / icais_title_auto_generate /
+       icais_woo_auto_generate) so existing Pro users keep auto without reconfiguring.
+  Settings UI: the single Pro-locked "Auto-generate on upload" toggle lives in MetaSettings.vue
+       (+ post-type exclusion). The old per-page auto toggles (Alt Text / Image Title / WooCommerce)
+       were REMOVED. Legacy setting keys remain in defaults (inert in free) for backwards-compat.
 ```
 
 ### Combined Meta — "Generate All" (alt + title + caption, one AI call)

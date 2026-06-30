@@ -5,15 +5,9 @@
     <hr class="mb-6" />
 
     <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_auto_rename"
-        />
+      <Checkbox true-value="1" false-value="0" v-model="settings.icais_auto_rename">
         <span>{{ $t('Enable file renaming') }}</span>
-      </label>
+      </Checkbox>
       <p class="text-xs text-gray-500 mt-1">
         {{ $t('Shows "Rename File" buttons to generate SEO-friendly filenames using AI. This changes image URLs.') }}
       </p>
@@ -46,6 +40,7 @@
 <script setup>
 import { inject } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const { settings } = inject('settingsContext')
 </script>

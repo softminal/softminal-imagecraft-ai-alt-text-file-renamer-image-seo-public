@@ -84,53 +84,18 @@
       </div>
 
       <!-- Grid -->
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <CompressionCard
           v-for="img in images"
           :key="img.id"
-          class="bg-white rounded-lg shadow border overflow-hidden flex flex-col"
-        >
-          <div class="relative">
-            <img
-              :src="img.thumbnail || img.url"
-              :alt="img.filename"
-              class="w-full h-32 object-cover bg-gray-100"
-            />
-            <Checkbox :value="img.id" v-model="selected" class="absolute top-2 left-2" />
-            <span
-              v-if="img.compressed"
-              class="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-0.5 rounded-full"
-            >{{ $t('Compressed') }}</span>
-          </div>
-          <div class="p-3 flex-1 flex flex-col">
-            <div class="text-xs text-gray-600 truncate" :title="img.filename">{{ img.filename }}</div>
-            <div class="text-sm font-medium text-gray-800">{{ img.size_human }}</div>
-            <div v-if="img.compressed && img.saved_percent > 0" class="text-xs text-green-600 mt-1">
-              {{ $t('Saved %s (%s%)', img.saved_human, img.saved_percent) }}
-            </div>
-            <div class="mt-auto pt-2 flex gap-2">
-              <button
-                v-if="!img.compressed"
-                :disabled="busyId === img.id"
-                @click="compressOne(img)"
-                class="flex-1 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 disabled:opacity-50"
-              >{{ busyId === img.id ? $t('Compressing...') : $t('Compress') }}</button>
-              <template v-else>
-                <button
-                  :disabled="busyId === img.id"
-                  @click="compressOne(img, true)"
-                  class="flex-1 text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 disabled:opacity-50"
-                >{{ $t('Re-compress') }}</button>
-                <button
-                  v-if="img.can_restore"
-                  :disabled="busyId === img.id"
-                  @click="restoreOne(img)"
-                  class="flex-1 text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded hover:bg-amber-200 disabled:opacity-50"
-                >{{ $t('Restore') }}</button>
-              </template>
-            </div>
-          </div>
-        </div>
+          :image="img"
+          :selected="selected.includes(img.id)"
+          :busy="busyId === img.id"
+          @toggle="toggleSelect"
+          @compress="compressOne($event)"
+          @recompress="compressOne($event, true)"
+          @restore="restoreOne($event)"
+        />
       </div>
 
       <!-- Pagination -->
@@ -158,7 +123,8 @@ import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 import { getSettings } from '../router'
-import { Pagination, Checkbox } from '../@ui'
+import { Pagination } from '../@ui'
+import CompressionCard from '../components/Compression/CompressionCard.vue'
 
 const router = useRouter()
 
@@ -225,6 +191,15 @@ const toggleSort = () => {
 
 const toggleSelectAll = () => {
   selected.value = allSelected.value ? [] : images.value.map((i) => i.id)
+}
+
+const toggleSelect = (id) => {
+  const i = selected.value.indexOf(id)
+  if (i > -1) {
+    selected.value.splice(i, 1)
+  } else {
+    selected.value.push(id)
+  }
 }
 
 const refreshStats = async () => {

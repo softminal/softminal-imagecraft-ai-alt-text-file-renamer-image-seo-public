@@ -268,7 +268,7 @@
     <div v-else class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
       <div v-if="isAdmin" class="p-4 border-b flex items-center justify-between gap-4">
         <div class="flex items-center flex-wrap gap-2">
-          <Checkbox size="sm" :model-value="allSelected" @change="toggleSelectAll">
+          <Checkbox :model-value="allSelected" @change="toggleSelectAll">
             <span>{{ $t('Select All') }}</span>
           </Checkbox>
 

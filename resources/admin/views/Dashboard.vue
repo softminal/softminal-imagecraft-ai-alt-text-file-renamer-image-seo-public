@@ -47,11 +47,30 @@
       </div>
     </div>
 
-    <!-- Two flagship feature panels -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- ============ Image SEO ============ -->
-      <div class="bg-white rounded-lg shadow border flex flex-col overflow-hidden">
-        <div class="flex items-center justify-between px-6 pt-6">
+    <!-- Needs attention: actionable to-do tiles, deep-linked to the fix screens -->
+    <div v-if="audit && needsAttention.length" class="mb-6">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">{{ $t('Needs attention') }}</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <router-link
+          v-for="item in needsAttention"
+          :key="item.key"
+          :to="item.to"
+          :class="['flex items-center justify-between bg-white border rounded-lg px-4 py-3 hover:shadow-md transition', toneClasses[item.tone]]"
+        >
+          <div>
+            <div class="text-2xl font-bold leading-tight">{{ item.count }}</div>
+            <div class="text-sm text-gray-600">{{ item.label }}</div>
+          </div>
+          <span class="text-sm font-medium">{{ $t('Fix') }} →</span>
+        </router-link>
+      </div>
+    </div>
+
+    <!-- Two flagship feature panels: Image SEO (wide) + Compression (compact widget) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <!-- ============ Image SEO (spans 2 columns) ============ -->
+      <div class="lg:col-span-2 bg-white rounded-lg shadow border flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between px-6 pt-3">
           <div class="flex items-center gap-2">
             <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -97,7 +116,7 @@
                 </div>
               </div>
               <div class="mt-2 text-sm font-semibold text-gray-700">{{ $t('Alt text') }}</div>
-              <div class="text-xs text-gray-500">{{ $t('%s missing', audit?.missing ?? stats.missing_alt ?? 0) }}</div>
+              <div class="text-xs text-gray-400">{{ $t('covered') }}</div>
             </div>
             <!-- Title -->
             <div class="text-center">
@@ -119,7 +138,7 @@
                 </div>
               </div>
               <div class="mt-2 text-sm font-semibold text-gray-700">{{ $t('Title') }}</div>
-              <div class="text-xs text-gray-500">{{ $t('%s missing', audit?.title_missing || 0) }}</div>
+              <div class="text-xs text-gray-400">{{ $t('covered') }}</div>
             </div>
             <!-- Description (Caption) -->
             <div class="text-center">
@@ -141,7 +160,7 @@
                 </div>
               </div>
               <div class="mt-2 text-sm font-semibold text-gray-700">{{ $t('Description') }}</div>
-              <div class="text-xs text-gray-500">{{ $t('%s missing', audit?.caption_missing || 0) }}</div>
+              <div class="text-xs text-gray-400">{{ $t('covered') }}</div>
             </div>
           </div>
         </div>
@@ -166,7 +185,7 @@
 
       <!-- ============ Image Compression ============ -->
       <div class="bg-white rounded-lg shadow border flex flex-col overflow-hidden">
-        <div class="flex items-center justify-between px-6 pt-6">
+        <div class="flex items-center justify-between px-6 pt-3">
           <div class="flex items-center gap-2">
             <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-green-50 text-green-600">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -181,21 +200,12 @@
         </div>
 
         <div class="px-6 py-5 flex-1">
-          <!-- Headline metric: total saved -->
-          <div class="flex items-center gap-5">
-            <div class="shrink-0 w-24 text-center">
-              <div class="text-3xl font-bold text-green-600 leading-tight">{{ compressionStats.total_saved_human || '0 B' }}</div>
-              <div class="text-xs text-gray-500">{{ $t('saved') }}</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-gray-800">
-                {{ compressionStats.total_compressed || 0 }}
-                <span class="text-base font-normal text-gray-500">{{ $t('compressed') }}</span>
-              </div>
-              <div class="text-xs text-gray-500">
-                {{ $t('%s images not yet optimized', uncompressedCount) }}
-              </div>
-            </div>
+          <!-- Compact widget: total saved + compressed count stacked -->
+          <div class="text-3xl font-bold text-green-600 leading-tight">{{ compressionStats.total_saved_human || '0 B' }}</div>
+          <div class="text-xs text-gray-500">{{ $t('saved') }}</div>
+          <div class="mt-4 text-xl font-bold text-gray-800">
+            {{ compressionStats.total_compressed || 0 }}
+            <span class="text-sm font-normal text-gray-500">{{ $t('compressed') }}</span>
           </div>
         </div>
 
@@ -211,26 +221,29 @@
       </div>
     </div>
 
-    <!-- Needs attention: actionable to-do tiles, deep-linked to the fix screens -->
-    <div v-if="audit" class="mb-6">
-      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">{{ $t('Needs attention') }}</h3>
-      <div v-if="needsAttention.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <router-link
-          v-for="item in needsAttention"
-          :key="item.key"
-          :to="item.to"
-          :class="['flex items-center justify-between bg-white border rounded-lg px-4 py-3 hover:shadow-md transition', toneClasses[item.tone]]"
-        >
-          <div>
-            <div class="text-2xl font-bold leading-tight">{{ item.count }}</div>
-            <div class="text-sm text-gray-600">{{ item.label }}</div>
-          </div>
-          <span class="text-sm font-medium">{{ $t('Fix') }} →</span>
-        </router-link>
+    <!-- Overall optimization: single blended KPI across SEO + compression -->
+    <div v-if="audit" class="bg-white rounded-lg shadow border p-5 mb-6 flex items-center gap-5">
+      <div class="relative w-24 h-24 shrink-0">
+        <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="42" stroke="#e5e7eb" stroke-width="9" fill="none" />
+          <circle
+            cx="50" cy="50" r="42"
+            :stroke="overallColor"
+            stroke-width="9"
+            fill="none"
+            stroke-linecap="round"
+            :stroke-dasharray="263.89"
+            :stroke-dashoffset="263.89 - (263.89 * overallScore / 100)"
+          />
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="text-2xl font-bold">{{ overallScore }}%</span>
+        </div>
       </div>
-      <div v-else class="bg-white border border-green-200 rounded-lg px-4 py-6 text-center">
-        <div class="text-green-600 font-semibold">🎉 {{ $t('Everything looks optimized!') }}</div>
-        <div class="text-xs text-gray-500 mt-1">{{ $t('No missing alt text, titles, or uncompressed images.') }}</div>
+      <div class="min-w-0">
+        <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ $t('Overall optimization') }}</div>
+        <div class="text-lg font-semibold text-gray-800">{{ overallLabel }}</div>
+        <div class="text-sm text-gray-500">{{ $t('Blended across alt text, titles, descriptions and compression.') }}</div>
       </div>
     </div>
 
@@ -343,6 +356,30 @@ const ringColor = (s) => {
 const altColor = computed(() => ringColor(audit.value?.score ?? 0))
 const titleColor = computed(() => ringColor(audit.value?.title_score ?? 0))
 const captionColor = computed(() => ringColor(audit.value?.caption_score ?? 0))
+
+// Compression coverage (% of images compressed) and a single blended
+// "overall optimization" score across alt text, titles, descriptions and
+// compression — a motivational headline KPI (new data, not a duplicate).
+const compressionScore = computed(() => {
+  const total = stats.value.total_images || 0
+  if (total <= 0) return 0
+  const done = compressionStats.value.total_compressed || 0
+  return Math.min(100, Math.round((done / total) * 100))
+})
+const overallScore = computed(() => {
+  const a = audit.value
+  if (!a) return 0
+  const parts = [a.score || 0, a.title_score || 0, a.caption_score || 0, compressionScore.value]
+  return Math.round(parts.reduce((sum, n) => sum + n, 0) / parts.length)
+})
+const overallColor = computed(() => ringColor(overallScore.value))
+const overallLabel = computed(() => {
+  const s = overallScore.value
+  if (s >= 80) return $t('Excellent')
+  if (s >= 60) return $t('Good')
+  if (s >= 40) return $t('Needs Work')
+  return $t('Poor')
+})
 
 const runAudit = async () => {
   auditLoading.value = true

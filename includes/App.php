@@ -238,10 +238,11 @@ class App
             $this->menu->init();
             $this->router->init();
 
-            // AutoGenerate should be loaded by now, but verify
-            if (class_exists('\Softminal\ImageCraft\AutoGenerate')) {
-                \Softminal\ImageCraft\AutoGenerate::init();
-            }
+            // Auto-generate-on-upload is a Pro feature: the Pro add-on owns the
+            // add_attachment handler (Features\Meta), which calls the free
+            // GeneratorController::generateMetaForImage core. The free plugin no
+            // longer auto-generates on upload (AutoGenerate::init() intentionally
+            // not called). The class file is kept for backwards-compat references.
 
             if (class_exists('\Softminal\ImageCraft\AdminNotice')) {
                 \Softminal\ImageCraft\AdminNotice::init();

@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white rounded-lg shadow border p-6">
-    <h2 class="text-lg font-semibold">{{ $t('Image Title Generation') }}</h2>
-    <p class="text-sm text-gray-500 mb-4">{{ $t('Generate SEO-optimized titles for your images using AI.') }}</p>
+    <h2 class="text-lg font-semibold m-0!">{{ $t('Image Title Generation') }}</h2>
+    <p class="text-sm text-gray-500 mt-0! mb-4">{{ $t('Generate SEO-optimized titles for your images using AI.') }}</p>
     <hr class="mb-6" />
 
     <div class="mb-4">
@@ -21,7 +21,7 @@
     <div class="mb-4">
       <label class="block text-sm font-medium mb-3">{{ $t('Title Context') }}</label>
       <div class="space-y-3">
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex items-baseline gap-2 cursor-pointer">
           <input
             type="radio"
             value="image"
@@ -30,10 +30,10 @@
           />
           <div>
             <span class="text-sm font-medium text-gray-900">{{ $t('Image Based') }}</span>
-            <p class="text-xs text-gray-500 mt-0.5">{{ $t('Generate title purely from image content.') }}</p>
+            <p class="text-xs text-gray-500 mt-0!">{{ $t('Generate title purely from image content.') }}</p>
           </div>
         </label>
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex items-baseline gap-2 cursor-pointer">
           <input
             type="radio"
             value="context"
@@ -42,7 +42,7 @@
           />
           <div>
             <span class="text-sm font-medium text-gray-900">{{ $t('Context Based') }}</span>
-            <p class="text-xs text-gray-500 mt-0.5">{{ $t('Generate title using post title, product info, and SEO keyphrase.') }}</p>
+            <p class="text-xs text-gray-500 mt-0!">{{ $t('Generate title using post title, product info, and SEO keyphrase.') }}</p>
           </div>
         </label>
       </div>
@@ -76,15 +76,9 @@
     </div>
 
     <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_title_preview_before_accept"
-        />
+      <Checkbox true-value="1" false-value="0" v-model="settings.icais_title_preview_before_accept">
         <span>{{ $t('Preview before accepting') }}</span>
-      </label>
+      </Checkbox>
       <div class="mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
         <p class="text-xs text-amber-800">
           {{ $t('When enabled, generated titles are shown for review with accept/reject buttons before applying. Works in the Gutenberg editor and Kadence blocks.') }}
@@ -92,31 +86,25 @@
       </div>
     </div>
 
-    <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_title_auto_generate"
-        />
-        <span>{{ $t('Auto-generate title on upload') }}</span>
-      </label>
+    <!-- Auto-generate on upload (Pro) -->
+    <div class="mb-4" :class="{ 'opacity-60': !isPro }">
+      <Checkbox true-value="1" false-value="0" :disabled="!isPro" v-model="settings.icais_title_auto_generate">
+        <span>
+          {{ $t('Auto-generate title on upload') }}
+          <span v-if="!isPro" class="ml-1 text-xs text-amber-600 font-semibold">{{ $t('Pro') }}</span>
+        </span>
+      </Checkbox>
       <p class="text-xs text-gray-500 mt-1">
-        {{ $t('Automatically generate a title when an image is uploaded.') }}
+        {{ isPro
+          ? $t('Automatically generate a title when an image is uploaded.')
+          : $t('Upgrade to Pro to auto-generate titles on upload.') }}
       </p>
     </div>
 
     <div class="mb-4">
-      <label class="flex items-center gap-2">
-        <input
-          type="checkbox"
-          true-value="1"
-          false-value="0"
-          v-model="settings.icais_title_skip_existing"
-        />
+      <Checkbox true-value="1" false-value="0" v-model="settings.icais_title_skip_existing">
         <span>{{ $t('Skip images with existing title') }}</span>
-      </label>
+      </Checkbox>
     </div>
   </div>
 </template>
@@ -124,6 +112,9 @@
 <script setup>
 import { inject } from 'vue'
 import { $t } from '../../utils/i18n'
+import { Checkbox } from '../../@ui'
 
 const { settings } = inject('settingsContext')
+
+const isPro = window.icais?.isPro ?? false
 </script>

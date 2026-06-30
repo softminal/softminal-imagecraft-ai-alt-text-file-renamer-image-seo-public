@@ -204,6 +204,17 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-06-30** — **Auto-generate-on-upload is now Pro-only (hard cut).** The FREE plugin no
+  longer auto-generates on upload (`App::run()` does not call `AutoGenerate::init()`). The single
+  Pro `Features\Meta` handler (alt+title+caption) owns all auto-on-upload; its `autoEnabled()` also
+  honors the legacy toggles so existing Pro users keep working. The per-page auto toggles (Alt Text,
+  Image Title, WooCommerce) were removed; the only auto control is the Pro-locked one in
+  `MetaSettings.vue` (+ post-type exclusion moved there). Legacy keys kept in defaults (inert).
+  NOTE: this removes a previously-free feature from existing free users on update (intentional).
+- **2026-06-30** — **Dashboard redesign.** Needs Attention moved to top; panels are now Image SEO
+  (2/3) + Compression (compact 1/3 widget); per-ring "X missing" + compression "not optimized"
+  removed (deduped vs the Needs Attention cards); new blended **Overall optimization** KPI card
+  before Recent Activity (`overallScore` = avg of alt/title/caption coverage + compression coverage).
 - **2026-06-29** — **Media modal: unified field picker.** The WP media-modal AI buttons
   (Generate with AI / Generate Title / Generate All) were replaced by a single **field picker**
   (Alt / Title / Description checkboxes + one Generate button), matching the bulk actions page.
