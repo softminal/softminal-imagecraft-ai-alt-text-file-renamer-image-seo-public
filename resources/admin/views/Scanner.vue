@@ -146,6 +146,37 @@
             </button>
           </div>
 
+          <div class="w-px h-6 bg-gray-200"></div>
+
+          <!-- Description group -->
+          <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{{ $t('Description') }}</span>
+          <div class="flex items-center gap-1.5">
+            <button
+              @click="filter = 'missing_caption'; debouncedLoadImages()"
+              :class="[
+                'px-3 py-1.5 rounded-full text-sm transition-colors',
+                filter === 'missing_caption'
+                  ? 'bg-red-500 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ]"
+            >
+              {{ $t('Missing') }}
+              <span :class="['ml-1 text-xs', filter === 'missing_caption' ? 'text-red-200' : 'text-gray-500']">{{ scanStats.missing_caption || 0 }}</span>
+            </button>
+            <button
+              @click="filter = 'has_caption'; debouncedLoadImages()"
+              :class="[
+                'px-3 py-1.5 rounded-full text-sm transition-colors',
+                filter === 'has_caption'
+                  ? 'bg-emerald-500 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ]"
+            >
+              {{ $t('Has') }}
+              <span :class="['ml-1 text-xs', filter === 'has_caption' ? 'text-emerald-200' : 'text-gray-500']">{{ scanStats.has_caption || 0 }}</span>
+            </button>
+          </div>
+
           <!-- Clear filter -->
           <div v-if="filter !== 'all'" class="w-px h-6 bg-gray-200"></div>
           <button
@@ -419,7 +450,7 @@ const syncFiltersToUrl = () => {
 
 const restoreFiltersFromUrl = () => {
   const q = route.query
-  if (q.filter && ['all', 'missing', 'has_alt', 'generic', 'too_long', 'missing_title', 'has_title', 'title_too_long'].includes(q.filter)) {
+  if (q.filter && ['all', 'missing', 'has_alt', 'generic', 'too_long', 'missing_title', 'has_title', 'title_too_long', 'missing_caption', 'has_caption', 'caption_too_long'].includes(q.filter)) {
     filter.value = q.filter
   }
   if (q.date_from) dateFrom.value = q.date_from

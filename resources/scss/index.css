@@ -49,6 +49,61 @@
         box-shadow: 0 0 0 1px var(--color-blue-500, #3b82f6);
         outline: none;
     }
+    /* Consistent <select> styling — matches .icais-input plus a custom chevron
+       (native arrow removed via appearance:none). Mirrors the FileBird Folder
+       dropdown look so every select across the app is visually identical. */
+    .icais-select{
+        box-sizing: border-box;
+        height: 32px !important;
+        min-height: 0 !important;
+        padding: 0.25rem 2rem 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: var(--color-gray-700, #374151);
+        background-color: #fff;
+        border: 1px solid var(--color-gray-300, #d1d5db);
+        border-radius: 0.5rem;
+        box-shadow: none !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        background-size: 1rem 1rem;
+    }
+    .icais-select:hover{
+        border-color: var(--color-gray-400, #9ca3af);
+    }
+    .icais-select:focus{
+        border-color: var(--color-blue-500, #3b82f6);
+        box-shadow: 0 0 0 1px var(--color-blue-500, #3b82f6);
+        outline: none;
+    }
+    /* Consistent <textarea> styling — matches .icais-input border/focus but
+       keeps a flexible (multi-line) height. */
+    .icais-textarea{
+        box-sizing: border-box;
+        min-height: 0 !important;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: var(--color-gray-700, #374151);
+        background-color: #fff;
+        border: 1px solid var(--color-gray-300, #d1d5db);
+        border-radius: 0.5rem;
+        box-shadow: none !important;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .icais-textarea:hover{
+        border-color: var(--color-gray-400, #9ca3af);
+    }
+    .icais-textarea:focus{
+        border-color: var(--color-blue-500, #3b82f6);
+        box-shadow: 0 0 0 1px var(--color-blue-500, #3b82f6);
+        outline: none;
+    }
 }
 
 .php-error #adminmenuwrap {

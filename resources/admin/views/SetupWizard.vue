@@ -206,7 +206,7 @@
           <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
           <select
             v-model="currentSelectedModel"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="icais-select w-full"
           >
             <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
           </select>
@@ -268,7 +268,7 @@
           <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
           <select
             v-model="currentSelectedModel"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="icais-select w-full"
           >
             <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
           </select>
@@ -279,7 +279,7 @@
           <input
             v-model="apiKey"
             type="password"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="icais-input w-full"
             :placeholder="$t('Enter your API key')"
           />
           <p class="text-xs text-gray-500 mt-1">

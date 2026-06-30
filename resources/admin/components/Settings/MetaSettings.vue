@@ -37,7 +37,7 @@
       <label class="block text-sm font-medium mb-2">{{ $t('Caption Tone') }}</label>
       <select
         v-model="settings.icais_caption_default_tone"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-select w-full"
       >
         <option value="professional">{{ $t('Professional') }}</option>
         <option value="casual">{{ $t('Casual') }}</option>
@@ -53,7 +53,7 @@
         type="number"
         min="20"
         max="500"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-input w-40"
       />
       <p class="text-xs text-gray-500 mt-1">
         {{ $t('Characters in caption (default: 150)') }}

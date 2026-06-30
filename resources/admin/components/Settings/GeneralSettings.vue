@@ -8,7 +8,7 @@
       <label class="block text-sm font-medium mb-2">{{ $t('Language') }}</label>
       <select
         v-model="settings.icais_language"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-select w-full"
       >
         <option v-for="(name, code) in sortedLanguages" :key="code" :value="code">{{ $t(name) }}</option>
       </select>
@@ -22,7 +22,7 @@
       <input
         v-model.number="settings.icais_batch_size"
         type="number"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-input w-40"
         min="1"
         max="20"
       />
@@ -34,7 +34,7 @@
       <input
         v-model.number="settings.icais_request_timeout"
         type="number"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-input w-40"
         min="30"
         max="120"
       />

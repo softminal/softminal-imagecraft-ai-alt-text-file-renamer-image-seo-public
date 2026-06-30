@@ -101,6 +101,30 @@ class WooCommerce
                 $tooLongIds = self::getProductIdsWithQualityIssues('too_long');
                 $args['post__in'] = !empty($tooLongIds) ? $tooLongIds : [0];
                 break;
+            case 'missing_title':
+                $missingTitleIds = self::getProductIdsMissingTitle();
+                $args['post__in'] = !empty($missingTitleIds) ? $missingTitleIds : [0];
+                break;
+            case 'has_title':
+                $hasTitleIds = self::getProductIdsWithTitle();
+                $args['post__in'] = !empty($hasTitleIds) ? $hasTitleIds : [0];
+                break;
+            case 'title_too_long':
+                $titleTooLongIds = self::getProductIdsWithTitleTooLong();
+                $args['post__in'] = !empty($titleTooLongIds) ? $titleTooLongIds : [0];
+                break;
+            case 'missing_caption':
+                $missingCaptionIds = self::getProductIdsMissingCaption();
+                $args['post__in'] = !empty($missingCaptionIds) ? $missingCaptionIds : [0];
+                break;
+            case 'has_caption':
+                $hasCaptionIds = self::getProductIdsWithCaption();
+                $args['post__in'] = !empty($hasCaptionIds) ? $hasCaptionIds : [0];
+                break;
+            case 'caption_too_long':
+                $captionTooLongIds = self::getProductIdsWithCaptionTooLong();
+                $args['post__in'] = !empty($captionTooLongIds) ? $captionTooLongIds : [0];
+                break;
         }
 
         $query = new \WP_Query($args);
@@ -146,10 +170,12 @@ class WooCommerce
 
             $altText = '';
             $imageTitle = '';
+            $imageCaption = '';
             if ($thumbnailId) {
                 $altText = get_post_meta($thumbnailId, '_wp_attachment_image_alt', true);
                 $thumbPost = get_post($thumbnailId);
                 $imageTitle = $thumbPost ? $thumbPost->post_title : '';
+                $imageCaption = $thumbPost ? $thumbPost->post_excerpt : '';
             }
 
             // Calculate image coverage (featured + gallery)
@@ -157,6 +183,7 @@ class WooCommerce
             $totalImages = count($allIds);
             $hasAltCount = 0;
             $hasTitleCount = 0;
+            $hasCaptionCount = 0;
             foreach ($allIds as $imgId) {
                 $imgAlt = get_post_meta($imgId, '_wp_attachment_image_alt', true);
                 if (!empty($imgAlt)) {
@@ -165,6 +192,10 @@ class WooCommerce
                 $imgTitleMeta = get_post_meta($imgId, '_icais_generated_title', true);
                 if (!empty($imgTitleMeta)) {
                     $hasTitleCount++;
+                }
+                $imgCaptionMeta = get_post_meta($imgId, '_icais_generated_caption', true);
+                if (!empty($imgCaptionMeta)) {
+                    $hasCaptionCount++;
                 }
             }
 
@@ -186,6 +217,7 @@ class WooCommerce
                 'full_url' => $thumbnailId ? wp_get_attachment_url($thumbnailId) : null,
                 'alt_text' => $altText,
                 'image_title' => $imageTitle,
+                'image_caption' => $imageCaption,
                 'has_alt' => !empty($altText),
                 'gallery_ids' => array_values($galleryIds),
                 'price' => wp_kses_post($product->get_price_html()),
@@ -194,6 +226,7 @@ class WooCommerce
                     'total' => $totalImages,
                     'has_alt' => $hasAltCount,
                     'has_title' => $hasTitleCount,
+                    'has_caption' => $hasCaptionCount,
                 ],
                 'gallery_thumb_urls' => $galleryThumbUrls,
             ];
@@ -233,12 +266,23 @@ class WooCommerce
         $missingAlt = $totalProducts - $hasAlt;
         $percentage = $totalProducts > 0 ? round(($missingAlt / $totalProducts) * 100, 1) : 0;
 
+        $hasTitle = self::countProductsWithTitle();
+        $missingTitle = $totalProducts - $hasTitle;
+        $hasCaption = self::countProductsWithCaption();
+        $missingCaption = $totalProducts - $hasCaption;
+
         return [
             'total_products' => $totalProducts,
             'missing_alt' => $missingAlt,
             'has_alt' => $hasAlt,
             'missing_percentage' => $percentage,
             'max_length' => (int) Settings::get('icais_max_length', 125),
+            'has_title' => $hasTitle,
+            'missing_title' => $missingTitle,
+            'title_max_length' => (int) Settings::get('icais_title_max_length', 30),
+            'has_caption' => $hasCaption,
+            'missing_caption' => $missingCaption,
+            'caption_max_length' => (int) Settings::get('icais_caption_max_length', 150),
         ];
     }
 
@@ -387,6 +431,288 @@ class WooCommerce
             if ($quality === 'generic' && AltTextHelper::isGeneric($alt)) {
                 $filtered[] = (int) $row->ID;
             } elseif ($quality === 'too_long' && mb_strlen($alt) > $maxLength) {
+                $filtered[] = (int) $row->ID;
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * Count published products whose featured image has a non-empty generated title.
+     * Title is tracked in _icais_generated_title on the attachment (mirrors Scanner).
+     */
+    private static function countProductsWithTitle(): int
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT p.ID)
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} ttl
+                     ON thumb.meta_value = ttl.post_id
+                     AND ttl.meta_key = %s
+                     AND ttl.meta_value != ''
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_icais_generated_title',
+                'product',
+                'publish'
+            )
+        );
+    }
+
+    /**
+     * Get IDs of published products whose featured image has a non-empty generated title.
+     *
+     * @return int[]
+     */
+    private static function getProductIdsWithTitle(): array
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} ttl
+                     ON thumb.meta_value = ttl.post_id
+                     AND ttl.meta_key = %s
+                     AND ttl.meta_value != ''
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_icais_generated_title',
+                'product',
+                'publish'
+            )
+        );
+
+        return array_map('intval', $ids);
+    }
+
+    /**
+     * Get IDs of published products whose featured image has no generated title
+     * (or no featured image at all).
+     *
+     * @return int[]
+     */
+    private static function getProductIdsMissingTitle(): array
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID
+                 FROM {$wpdb->posts} p
+                 LEFT JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 LEFT JOIN {$wpdb->postmeta} ttl
+                     ON thumb.meta_value = ttl.post_id
+                     AND ttl.meta_key = %s
+                     AND ttl.meta_value != ''
+                 WHERE p.post_type = %s
+                     AND p.post_status = %s
+                     AND (thumb.meta_value IS NULL OR ttl.meta_value IS NULL OR ttl.meta_value = '')",
+                '_thumbnail_id',
+                '_icais_generated_title',
+                'product',
+                'publish'
+            )
+        );
+
+        return array_map('intval', $ids);
+    }
+
+    /**
+     * Get IDs of products whose featured image has a generated title whose
+     * attachment post_title exceeds the configured title length (mirrors Scanner).
+     *
+     * @return int[]
+     */
+    private static function getProductIdsWithTitleTooLong(): array
+    {
+        global $wpdb;
+
+        // Featured-image attachment post_title for products that have a generated title.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID, att.post_title AS image_title
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} ttl
+                     ON thumb.meta_value = ttl.post_id
+                     AND ttl.meta_key = %s
+                     AND ttl.meta_value != ''
+                 INNER JOIN {$wpdb->posts} att
+                     ON att.ID = thumb.meta_value
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_icais_generated_title',
+                'product',
+                'publish'
+            )
+        );
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $maxLength = (int) Settings::get('icais_title_max_length', 30);
+        $filtered = [];
+
+        foreach ($rows as $row) {
+            if (mb_strlen((string) $row->image_title) > $maxLength) {
+                $filtered[] = (int) $row->ID;
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * Count published products whose featured image has a non-empty generated caption.
+     * Caption is tracked in _icais_generated_caption on the attachment (mirrors Scanner).
+     */
+    private static function countProductsWithCaption(): int
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(DISTINCT p.ID)
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} cap
+                     ON thumb.meta_value = cap.post_id
+                     AND cap.meta_key = %s
+                     AND cap.meta_value != ''
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_icais_generated_caption',
+                'product',
+                'publish'
+            )
+        );
+    }
+
+    /**
+     * Get IDs of published products whose featured image has a non-empty generated caption.
+     *
+     * @return int[]
+     */
+    private static function getProductIdsWithCaption(): array
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} cap
+                     ON thumb.meta_value = cap.post_id
+                     AND cap.meta_key = %s
+                     AND cap.meta_value != ''
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_icais_generated_caption',
+                'product',
+                'publish'
+            )
+        );
+
+        return array_map('intval', $ids);
+    }
+
+    /**
+     * Get IDs of published products whose featured image has no generated caption
+     * (or no featured image at all).
+     *
+     * @return int[]
+     */
+    private static function getProductIdsMissingCaption(): array
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID
+                 FROM {$wpdb->posts} p
+                 LEFT JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 LEFT JOIN {$wpdb->postmeta} cap
+                     ON thumb.meta_value = cap.post_id
+                     AND cap.meta_key = %s
+                     AND cap.meta_value != ''
+                 WHERE p.post_type = %s
+                     AND p.post_status = %s
+                     AND (thumb.meta_value IS NULL OR cap.meta_value IS NULL OR cap.meta_value = '')",
+                '_thumbnail_id',
+                '_icais_generated_caption',
+                'product',
+                'publish'
+            )
+        );
+
+        return array_map('intval', $ids);
+    }
+
+    /**
+     * Get IDs of products whose featured image has a generated caption whose
+     * attachment post_excerpt exceeds the configured caption length (mirrors Scanner).
+     *
+     * @return int[]
+     */
+    private static function getProductIdsWithCaptionTooLong(): array
+    {
+        global $wpdb;
+
+        // Featured-image attachment post_excerpt for products that have a generated caption.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT DISTINCT p.ID, att.post_excerpt AS image_caption
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} thumb
+                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
+                 INNER JOIN {$wpdb->postmeta} cap
+                     ON thumb.meta_value = cap.post_id
+                     AND cap.meta_key = %s
+                     AND cap.meta_value != ''
+                 INNER JOIN {$wpdb->posts} att
+                     ON att.ID = thumb.meta_value
+                 WHERE p.post_type = %s AND p.post_status = %s",
+                '_thumbnail_id',
+                '_icais_generated_caption',
+                'product',
+                'publish'
+            )
+        );
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $maxLength = (int) Settings::get('icais_caption_max_length', 150);
+        $filtered = [];
+
+        foreach ($rows as $row) {
+            if (mb_strlen((string) $row->image_caption) > $maxLength) {
                 $filtered[] = (int) $row->ID;
             }
         }

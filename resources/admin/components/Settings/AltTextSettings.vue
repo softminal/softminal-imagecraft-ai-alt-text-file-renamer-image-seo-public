@@ -8,7 +8,7 @@
       <label class="block text-sm font-medium mb-2">{{ $t('Default Tone') }}</label>
       <select
         v-model="settings.icais_default_tone"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-select w-full"
       >
         <option value="professional">{{ $t('Professional') }}</option>
         <option value="casual">{{ $t('Casual') }}</option>
@@ -22,7 +22,7 @@
       <label class="block text-sm font-medium mb-2">{{ $t('Custom Prompt') }}</label>
       <textarea
         v-model="settings.icais_custom_prompt"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-textarea w-full"
         rows="4"
         :placeholder="$t('e.g. Generate alt text describing the subject, colors, and setting. Do not start with \'Image of\'. Return only the alt text.')"
       ></textarea>
@@ -36,7 +36,7 @@
       <input
         v-model.number="settings.icais_max_length"
         type="number"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-input w-40"
         min="50"
         max="200"
       />

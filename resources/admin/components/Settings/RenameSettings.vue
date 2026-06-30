@@ -27,7 +27,7 @@
           type="number"
           min="50"
           max="150"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          class="icais-input w-40"
         />
         <p class="text-xs text-gray-500 mt-1">
           {{ $t('Characters in filename (default: 120)') }}

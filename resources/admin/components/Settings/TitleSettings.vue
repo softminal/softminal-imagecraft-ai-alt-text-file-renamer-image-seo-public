@@ -8,7 +8,7 @@
       <label class="block text-sm font-medium mb-2">{{ $t('Title Tone') }}</label>
       <select
         v-model="settings.icais_title_default_tone"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-select w-full"
       >
         <option value="professional">{{ $t('Professional') }}</option>
         <option value="casual">{{ $t('Casual') }}</option>
@@ -53,7 +53,7 @@
       <textarea
         v-model="settings.icais_title_custom_prompt"
         rows="3"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-textarea w-full"
         :placeholder="$t('Write a title for this image. Max {max_length} characters...')"
       />
       <p class="text-xs text-gray-500 mt-1">
@@ -68,7 +68,7 @@
         type="number"
         min="10"
         max="150"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-input w-40"
       />
       <p class="text-xs text-gray-500 mt-1">
         {{ $t('Characters in title (default: 30)') }}

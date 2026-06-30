@@ -63,6 +63,19 @@ class ScannerController extends Controller
                 ['key' => '_icais_generated_title', 'compare' => 'EXISTS'],
                 ['key' => '_icais_generated_title', 'value' => '', 'compare' => '!='],
             ];
+        } elseif ($filter === 'missing_caption') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $args['meta_query'] = [
+                'relation' => 'OR',
+                ['key' => '_icais_generated_caption', 'compare' => 'NOT EXISTS'],
+                ['key' => '_icais_generated_caption', 'value' => '', 'compare' => '='],
+            ];
+        } elseif ($filter === 'has_caption' || $filter === 'caption_too_long') {
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $args['meta_query'] = [
+                ['key' => '_icais_generated_caption', 'compare' => 'EXISTS'],
+                ['key' => '_icais_generated_caption', 'value' => '', 'compare' => '!='],
+            ];
         }
 
         if ($dateFrom || $dateTo) {
@@ -104,6 +117,8 @@ class ScannerController extends Controller
                 'missing' => 0,
                 'has_title' => 0,
                 'missing_title' => 0,
+                'has_caption' => 0,
+                'missing_caption' => 0,
             ];
         }
 
@@ -111,15 +126,20 @@ class ScannerController extends Controller
 
         $missing = 0;
         $hasTitle = 0;
+        $hasCaption = 0;
 
         foreach ($ids as $id) {
             $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
             $title = get_post_meta($id, '_icais_generated_title', true);
+            $caption = get_post_meta($id, '_icais_generated_caption', true);
             if ($alt === '') {
                 $missing++;
             }
             if ($title !== '') {
                 $hasTitle++;
+            }
+            if ($caption !== '') {
+                $hasCaption++;
             }
         }
 
@@ -130,6 +150,8 @@ class ScannerController extends Controller
             'missing' => $missing,
             'has_title' => $hasTitle,
             'missing_title' => $total - $hasTitle,
+            'has_caption' => $hasCaption,
+            'missing_caption' => $total - $hasCaption,
         ];
     }
 
@@ -144,9 +166,9 @@ class ScannerController extends Controller
         $perPage = min(max(1, (int) ($params['per_page'] ?? 50)), 100);
         $minSize = (int) ($params['min_size'] ?? 0);
         $filter = sanitize_text_field($params['filter'] ?? 'all');
-        $needsPhpFilter = $minSize > 0 || $filter === 'generic' || $filter === 'too_long' || $filter === 'title_too_long';
+        $needsPhpFilter = $minSize > 0 || $filter === 'generic' || $filter === 'too_long' || $filter === 'title_too_long' || $filter === 'caption_too_long';
 
-        // When min_size/generic/too_long/title_too_long filter is active, we need PHP-level filtering
+        // When min_size/generic/too_long/title_too_long/caption_too_long filter is active, we need PHP-level filtering
         // so fetch all matching IDs first, filter, then paginate manually
         if ($needsPhpFilter) {
             $allArgs = $this->buildQueryArgs($params, [
@@ -193,6 +215,22 @@ class ScannerController extends Controller
                     }
                 }
                 $allIds = $titleFiltered;
+            }
+
+            // PHP-level filtering for caption too long (caption lives in post_excerpt)
+            if ($filter === 'caption_too_long') {
+                $captionMaxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_caption_max_length', 150);
+                if (!empty($allIds)) {
+                    _prime_post_caches($allIds, false, false);
+                }
+                $captionFiltered = [];
+                foreach ($allIds as $id) {
+                    $post = get_post($id);
+                    if ($post && mb_strlen($post->post_excerpt) > $captionMaxLength) {
+                        $captionFiltered[] = $id;
+                    }
+                }
+                $allIds = $captionFiltered;
             }
 
             // Filter by file size
@@ -245,6 +283,7 @@ class ScannerController extends Controller
                     'alt_text' => $alt ?: '',
                     'has_alt' => !empty($alt),
                     'generated_title' => $generatedTitle ?: '',
+                    'generated_caption' => $post->post_excerpt ?: '',
                     'date' => $post->post_date,
                     'folder_id' => $folderId,
                 ];
@@ -286,6 +325,7 @@ class ScannerController extends Controller
                     'alt_text' => $alt ?: '',
                     'has_alt' => !empty($alt),
                     'generated_title' => $generatedTitle ?: '',
+                    'generated_caption' => $post->post_excerpt ?: '',
                     'date' => $post->post_date,
                     'folder_id' => $folderId,
                 ];
@@ -317,6 +357,9 @@ class ScannerController extends Controller
                 'has_title' => $imageCounts['has_title'],
                 'missing_title' => $imageCounts['missing_title'],
                 'title_max_length' => (int) \Softminal\ImageCraft\Services\Settings::get('icais_title_max_length', 30),
+                'has_caption' => $imageCounts['has_caption'] ?? 0,
+                'missing_caption' => $imageCounts['missing_caption'] ?? 0,
+                'caption_max_length' => (int) \Softminal\ImageCraft\Services\Settings::get('icais_caption_max_length', 150),
             ]
         ]);
     }
@@ -380,6 +423,22 @@ class ScannerController extends Controller
             foreach ($ids as $id) {
                 $post = get_post($id);
                 if ($post && mb_strlen($post->post_title) > $titleMaxLength) {
+                    $filtered[] = $id;
+                }
+            }
+            $ids = $filtered;
+        }
+
+        // PHP-level caption length filtering (caption lives in post_excerpt)
+        if ($quality === 'caption_too_long') {
+            $captionMaxLength = (int) \Softminal\ImageCraft\Services\Settings::get('icais_caption_max_length', 150);
+            if (!empty($ids)) {
+                _prime_post_caches($ids, false, false);
+            }
+            $filtered = [];
+            foreach ($ids as $id) {
+                $post = get_post($id);
+                if ($post && mb_strlen($post->post_excerpt) > $captionMaxLength) {
                     $filtered[] = $id;
                 }
             }

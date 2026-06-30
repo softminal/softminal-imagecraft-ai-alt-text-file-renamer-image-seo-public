@@ -24,7 +24,7 @@
         <label class="block text-sm font-medium mb-2">{{ $t('Default Tone for Products') }}</label>
         <select
           v-model="settings.icais_woo_default_tone"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          class="icais-select w-full"
         >
           <optgroup :label="$t('WooCommerce Optimized')">
             <option value="woo_seo">{{ $t('Product SEO (Recommended)') }}</option>
@@ -45,7 +45,7 @@
         <label class="block text-sm font-medium mb-2">{{ $t('Custom WooCommerce Prompt') }}</label>
         <textarea
           v-model="settings.icais_woo_custom_prompt"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          class="icais-textarea w-full"
           rows="4"
           :placeholder="$t('e.g. Generate product alt text with the product name, visible features, and use case. Do not start with \'Image of\'. Return only the alt text.')"
         ></textarea>

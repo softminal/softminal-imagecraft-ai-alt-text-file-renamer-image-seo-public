@@ -56,61 +56,71 @@
             {{ $t('Largest first') }}
           </button>
         </div>
-        <div v-if="isAdmin" class="flex gap-2">
-          <button
-            @click="toggleSelectAll"
-            class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 hover:bg-gray-50"
-          >{{ allSelected ? $t('Clear') : $t('Select page') }}</button>
-          <button
-            :disabled="selected.length === 0"
-            @click="compressSelected"
-            class="px-4 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-          >{{ filter === 'compressed' ? $t('Re-compress Selected') : $t('Compress Selected') }}<template v-if="selected.length"> ({{ selected.length }})</template></button>
-          <button
-            v-if="selectedRestorable > 0"
-            :disabled="restoringBulk"
-            @click="restoreSelected"
-            class="px-4 py-1.5 text-sm font-medium rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 disabled:opacity-50"
-          >{{ restoringBulk ? $t('Restoring...') : $t('Restore Selected') }}</button>
+      </div>
+
+      <!-- Card: select-all header + grid + pagination (matches Scanner/WooCommerce) -->
+      <div v-if="loading && images.length === 0" class="text-center py-12 text-gray-500">
+        {{ $t('Loading...') }}
+      </div>
+
+      <div v-else class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
+        <div v-if="isAdmin" class="p-4 border-b flex items-center justify-between gap-4">
+          <div class="flex items-center flex-wrap gap-2">
+            <Checkbox size="sm" :model-value="allSelected" @change="toggleSelectAll">
+              <span>{{ $t('Select All') }}</span>
+            </Checkbox>
+          </div>
+
+          <transition name="icais-btn-pop">
+            <div v-if="selected.length > 0" class="flex items-center gap-2 shrink-0">
+              <button
+                @click="compressSelected"
+                class="px-4 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors"
+              >{{ filter === 'compressed' ? $t('Re-compress Selected') : $t('Compress Selected') }} ({{ selected.length }})</button>
+              <button
+                v-if="selectedRestorable > 0"
+                :disabled="restoringBulk"
+                @click="restoreSelected"
+                class="px-4 py-1.5 text-sm font-medium rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 disabled:opacity-50"
+              >{{ restoringBulk ? $t('Restoring...') : $t('Restore Selected') }}</button>
+            </div>
+          </transition>
         </div>
-      </div>
 
-      <!-- Loading -->
-      <div v-if="loading" class="text-center py-12 text-gray-500">{{ $t('Loading...') }}</div>
+        <!-- Empty -->
+        <div v-if="images.length === 0" class="text-center py-12 text-gray-500">
+          {{ $t('No images found.') }}
+        </div>
 
-      <!-- Empty -->
-      <div v-else-if="images.length === 0" class="text-center py-12 text-gray-500">
-        {{ $t('No images found.') }}
-      </div>
+        <!-- Grid -->
+        <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 p-4">
+          <CompressionCard
+            v-for="img in images"
+            :key="img.id"
+            :image="img"
+            :selected="selected.includes(img.id)"
+            :busy="busyId === img.id"
+            @toggle="toggleSelect"
+            @compress="compressOne($event)"
+            @recompress="compressOne($event, true)"
+            @restore="restoreOne($event)"
+          />
+        </div>
 
-      <!-- Grid -->
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <CompressionCard
-          v-for="img in images"
-          :key="img.id"
-          :image="img"
-          :selected="selected.includes(img.id)"
-          :busy="busyId === img.id"
-          @toggle="toggleSelect"
-          @compress="compressOne($event)"
-          @recompress="compressOne($event, true)"
-          @restore="restoreOne($event)"
-        />
-      </div>
-
-      <!-- Pagination -->
-      <div class="mt-6">
-        <Pagination
-          :current-page="pagination.current_page || 1"
-          :total-pages="pagination.total_pages || 1"
-          :total="pagination.total || 0"
-          :per-page="perPage"
-          show-per-page
-          @page-change="loadPage"
-          :page-sizes="[12, 24, 48, 96]"
-          :align="'right'"
-          @per-page-change="perPage = $event; loadImages()"
-        />
+        <!-- Pagination -->
+        <div class="text-center">
+          <Pagination
+            :current-page="pagination.current_page || 1"
+            :total-pages="pagination.total_pages || 1"
+            :total="pagination.total || 0"
+            :per-page="perPage"
+            show-per-page
+            @page-change="loadPage"
+            :page-sizes="[12, 24, 48, 96]"
+            :align="'right'"
+            @per-page-change="perPage = $event; loadImages()"
+          />
+        </div>
       </div>
     </template>
   </div>
@@ -123,7 +133,7 @@ import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 import { getSettings } from '../router'
-import { Pagination } from '../@ui'
+import { Pagination, Checkbox } from '../@ui'
 import CompressionCard from '../components/Compression/CompressionCard.vue'
 
 const router = useRouter()
@@ -338,3 +348,16 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+/* Smoothly fade + slide the bulk action buttons in/out as selection changes. */
+.icais-btn-pop-enter-active,
+.icais-btn-pop-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.icais-btn-pop-enter-from,
+.icais-btn-pop-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+}
+</style>

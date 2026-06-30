@@ -54,7 +54,7 @@
       <label class="block text-sm font-medium mb-2">{{ $t('Provider') }}</label>
       <select
         v-model="settings.icais_api_provider"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-select w-full"
       >
         <option value="anthropic">{{ $t('Anthropic Claude') }}</option>
         <option value="openai">{{ $t('OpenAI GPT-4') }}</option>
@@ -66,7 +66,7 @@
       <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
       <select
         v-model="settings[modelSettingKey]"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+        class="icais-select w-full"
       >
         <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
       </select>
@@ -102,7 +102,7 @@
         <input
           v-model="apiKey"
           type="password"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          class="icais-input w-full"
           :placeholder="$t('Enter API key')"
         />
         <p class="text-xs text-gray-500 mt-1">

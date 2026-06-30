@@ -55,7 +55,7 @@
           max="10000"
           :disabled="!isPro"
           :placeholder="!isPro ? '1920' : ''"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          class="icais-input w-40"
         />
         <p class="text-xs text-gray-500 mt-1">
           {{ isPro
@@ -94,7 +94,7 @@
           type="number"
           min="0"
           max="102400"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          class="icais-input w-40"
         />
         <p class="text-xs text-gray-500 mt-1">
           {{ $t('Tiny images barely benefit from compression. Default: 50 KB.') }}
