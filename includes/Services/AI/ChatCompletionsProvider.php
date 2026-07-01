@@ -95,6 +95,7 @@ abstract class ChatCompletionsProvider extends BaseAIProvider
                 'alt_text' => $altText,
                 'tokens' => $tokens,
                 'cost' => $cost,
+                'finish_reason' => $response['choices'][0]['finish_reason'] ?? null,
             ];
         } catch (\Exception $e) {
             return [

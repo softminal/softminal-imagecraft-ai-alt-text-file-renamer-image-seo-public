@@ -212,12 +212,26 @@ const saveApiKey = async () => {
       provider: settings.value.icais_api_provider,
       api_key: apiKey.value
     })
-    if (result.success) {
-      notification.success($t('API key saved successfully'))
-      setTimeout(() => window.location.reload(), 1000)
-    } else {
+    if (!result.success) {
       notification.error(result.message || $t('Failed to save API key'))
+      return
     }
+
+    // The key saved. Now persist the surrounding API settings — most importantly
+    // the "Use WordPress AI Client" toggle. Clicking "Save API Key" from the BYOK
+    // form means the user chose their own key over the WP AI Client, so that OFF
+    // state (icais_use_wp7_ai) must be saved too; otherwise the hard reload below
+    // restores the old DB value and the plugin keeps using the WP AI Client.
+    try {
+      await Api.post('/settings', { settings: settings.value })
+    } catch {
+      // Non-fatal: the key itself saved. Surface nothing extra; the reload will
+      // reflect whatever persisted.
+    }
+
+    notification.success($t('API key saved successfully'))
+    clearSettingsCache()
+    setTimeout(() => window.location.reload(), 1000)
   } catch {
     notification.error($t('Failed to save API key'))
   }

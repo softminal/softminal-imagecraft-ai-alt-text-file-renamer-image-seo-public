@@ -75,7 +75,8 @@ class GeminiProvider extends BaseAIProvider
                 'success' => true,
                 'alt_text' => $altText,
                 'tokens' => $tokens,
-                'cost' => $cost
+                'cost' => $cost,
+                'finish_reason' => $response['candidates'][0]['finishReason'] ?? null,
             ];
         } catch (\Exception $e) {
             return [

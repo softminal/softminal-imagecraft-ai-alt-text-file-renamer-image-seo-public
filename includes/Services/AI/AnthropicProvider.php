@@ -73,7 +73,8 @@ class AnthropicProvider extends BaseAIProvider
                 'success' => true,
                 'alt_text' => $altText,
                 'tokens' => $tokens,
-                'cost' => $cost
+                'cost' => $cost,
+                'finish_reason' => $response['stop_reason'] ?? null,
             ];
         } catch (\Exception $e) {
             return [

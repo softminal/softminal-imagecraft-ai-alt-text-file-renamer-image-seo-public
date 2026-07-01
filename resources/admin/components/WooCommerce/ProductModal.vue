@@ -266,6 +266,7 @@ watch(() => props.product, async (product) => {
       thumb_url: product.thumbnail_url,
       alt_text: product.alt_text || '',
       title: product.image_title || '',
+      has_title: !!product.image_has_title,
       caption: product.image_caption || '',
       is_featured: true,
       generating_alt: false,
@@ -285,6 +286,7 @@ watch(() => props.product, async (product) => {
           thumb_url: gImg.thumb_url,
           alt_text: gImg.alt_text || '',
           title: gImg.title || '',
+          has_title: !!gImg.has_title,
           caption: gImg.caption || '',
           is_featured: false,
           generating_alt: false,
@@ -298,39 +300,60 @@ watch(() => props.product, async (product) => {
   }
 }, { immediate: true })
 
-// Per-image generation. `field` is one of 'alt' | 'title' | 'caption'. Uses the
-// combined generate-meta endpoint (single AI call) restricted to the one field so
-// alt, title and description all share the same code path and product context.
+// Per-image generation. Fields are any of 'alt' | 'title' | 'caption'. Uses the
+// combined generate-meta endpoint, which returns all requested fields from a
+// SINGLE AI call — so we always pass every wanted field in one request rather
+// than one request per field (which would multiply API calls, cost, latency and
+// rate-limit/timeout risk).
 const FIELD_FLAG = { alt: 'generating_alt', title: 'generating_title', caption: 'generating_caption' }
 
-const generateForImage = async (img, field = 'alt') => {
-  if (!props.product) return
+// Core generator: one combined-meta call for `fields` (array). Applies results
+// to the image and returns { success, error } instead of notifying directly, so
+// bulk callers can suppress per-image toasts and report one consolidated result.
+const generateFieldsForImage = async (img, fields, { silent = false } = {}) => {
+  if (!props.product || fields.length === 0) return { success: false, error: '' }
 
-  const flag = FIELD_FLAG[field]
-  img[flag] = true
+  fields.forEach(f => { img[FIELD_FLAG[f]] = true })
+  let outcome = { success: false, error: '' }
   try {
     const result = await Api.post('/generator/generate-meta', {
       attachment_id: img.id,
       product_id: props.product.id,
-      fields: [field],
+      fields,
     })
     if (result.success) {
-      if (field === 'alt' && typeof result.alt_text === 'string') img.alt_text = result.alt_text
-      if (field === 'title' && typeof result.title === 'string') img.title = result.title
-      if (field === 'caption' && typeof result.caption === 'string') img.caption = result.caption
+      if (fields.includes('alt') && typeof result.alt_text === 'string') img.alt_text = result.alt_text
+      if (fields.includes('title') && typeof result.title === 'string') {
+        img.title = result.title
+        img.has_title = true
+      }
+      if (fields.includes('caption') && typeof result.caption === 'string') img.caption = result.caption
+      outcome = { success: true, error: '' }
     } else {
-      notification.error(result.error || result.message || $t('Failed to generate'))
+      const message = result.error || result.message || $t('Failed to generate')
+      if (!silent) notification.error(message)
+      outcome = { success: false, error: message }
     }
   } catch (error) {
-    notification.error($t('Failed to generate'))
+    const message = $t('Failed to generate')
+    if (!silent) notification.error(message)
+    outcome = { success: false, error: message }
   } finally {
-    img[flag] = false
+    fields.forEach(f => { img[FIELD_FLAG[f]] = false })
   }
+  return outcome
 }
 
+// Per-field "Generate" link handler (single field, one call).
+const generateForImage = (img, field = 'alt', opts = {}) =>
+  generateFieldsForImage(img, [field], opts)
+
 // Field accessor so bulk ops can read/skip whichever fields are selected.
+// Title needs special handling: WordPress auto-fills post_title from the upload
+// filename, so a non-empty img.title doesn't mean a real title was ever set —
+// only img.has_title (from AltTextHelper::hasRealTitle()) tells us that.
 const fieldValue = (img, field) =>
-  field === 'alt' ? img.alt_text : field === 'title' ? img.title : img.caption
+  field === 'alt' ? img.alt_text : field === 'title' ? (img.has_title ? img.title : '') : img.caption
 
 // Bulk generation for the fields ticked in the header (alt / title / description).
 const generateAll = async () => {
@@ -339,13 +362,14 @@ const generateAll = async () => {
   const fields = bulkFields.value.slice()
   if (fields.length === 0) return
 
-  // Only (image, field) pairs that are still empty, so we don't overwrite edits.
+  // One unit of work PER IMAGE (not per field): the combined-meta endpoint
+  // returns every requested field from a single AI call. Only include fields
+  // still empty for that image, so we never overwrite the user's edits.
   const pool = getTargetImages()
   const work = []
   for (const img of pool) {
-    for (const field of fields) {
-      if (!fieldValue(img, field)) work.push({ img, field })
-    }
+    const missing = fields.filter(field => !fieldValue(img, field))
+    if (missing.length > 0) work.push({ img, fields: missing })
   }
 
   if (work.length === 0) {
@@ -357,13 +381,32 @@ const generateAll = async () => {
   progress.current = 0
   progress.total = work.length
 
-  for (const { img, field } of work) {
-    await generateForImage(img, field)
+  // Suppress per-image toasts here; report one consolidated result at the end.
+  const failedImageIds = new Set()
+  let lastError = ''
+  for (const { img, fields: imgFields } of work) {
+    const outcome = await generateFieldsForImage(img, imgFields, { silent: true })
+    if (!outcome.success) {
+      failedImageIds.add(img.id)
+      lastError = outcome.error || lastError
+    }
     progress.current++
   }
 
   generatingAll.value = false
-  notification.success($t('Generated metadata for %s images', pool.length))
+
+  const succeededCount = work.length - failedImageIds.size
+  if (failedImageIds.size === 0) {
+    notification.success($t('Generated %1$s out of %2$s images', succeededCount, work.length))
+  } else {
+    notification.warning($t(
+      'Generated %1$s out of %2$s images — %3$s failed: %4$s',
+      succeededCount,
+      work.length,
+      failedImageIds.size,
+      lastError || $t('Failed to generate')
+    ))
+  }
 }
 
 // Save

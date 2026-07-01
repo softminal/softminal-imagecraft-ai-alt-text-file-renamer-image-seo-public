@@ -179,27 +179,52 @@
 
     </div><!-- end BYOK form -->
 
-    <!-- Current status -->
-    <div v-if="apiSetting" class="mt-4 pt-4 border-t text-sm text-gray-600 space-y-1">
-      <div class="flex items-center gap-2">
-        <span :class="apiSetting.is_active ? 'text-green-600' : 'text-red-600'">{{ apiSetting.is_active ? '●' : '○' }}</span>
-        <span>{{ apiSetting.is_active ? $t('Connected') : $t('Inactive') }} — {{ apiSetting.provider }}</span>
-      </div>
-      <div v-if="apiSetting.source" class="text-xs text-gray-400">
-        {{ $t('Key source:') }} {{ apiSetting.source === 'config' ? 'wp-config.php' : $t('Database (encrypted)') }}
-      </div>
+    <!-- Current status — reflects the real active source in backend priority
+         order: wp-config.php key > WordPress AI Client > Database key. -->
+    <div v-if="wp7Active || apiSetting" class="mt-4 pt-4 border-t text-sm text-gray-600 space-y-1">
+      <!-- WordPress AI Client is the active source -->
+      <template v-if="wp7Active">
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">●</span>
+          <span>{{ $t('Active — WordPress AI Client') }}</span>
+        </div>
+        <div v-if="apiSetting" class="text-xs text-gray-400">
+          {{ $t('Your saved %1$s key (%2$s) is kept as a fallback — used if you turn off the WordPress AI Client.', apiSetting.provider, apiSetting.source === 'config' ? 'wp-config.php' : $t('Database, encrypted')) }}
+        </div>
+        <div v-else class="text-xs text-gray-400">
+          {{ $t('No API key needed.') }}
+        </div>
+      </template>
+      <!-- A stored/config key is the active source -->
+      <template v-else>
+        <div class="flex items-center gap-2">
+          <span :class="apiSetting.is_active ? 'text-green-600' : 'text-red-600'">{{ apiSetting.is_active ? '●' : '○' }}</span>
+          <span>{{ apiSetting.is_active ? $t('Connected') : $t('Inactive') }} — {{ apiSetting.provider }}</span>
+        </div>
+        <div v-if="apiSetting.source" class="text-xs text-gray-400">
+          {{ $t('Key source:') }} {{ apiSetting.source === 'config' ? 'wp-config.php' : $t('Database (encrypted)') }}
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, inject, watch } from 'vue'
+import { ref, computed, inject, watch } from 'vue'
 import { $t } from '../../utils/i18n'
 import { Checkbox } from '../../@ui'
 
 const { settings, apiKey, apiSetting, configApiKey, testing, testResult, currentModels, modelSettingKey, showModelSelector, apiDocsUrl, apiDocsLabel, pricingUrl, testConnection, testWP7Connection, saveApiKey, wp7Available } = inject('settingsContext')
 
 const activeTab = ref(configApiKey.value ? 'config' : 'database')
+
+// WordPress AI Client is the active generation source only when the connector is
+// detected, the user enabled it, AND no wp-config.php key is defined. Mirrors the
+// backend priority in AIFactory::getProviderForUser():
+//   1. wp-config.php key  2. WordPress AI Client  3. Database key
+// A wp-config.php key wins over the WP AI Client, so don't claim "Active — WP AI
+// Client" when one is present.
+const wp7Active = computed(() => !configApiKey.value && wp7Available.value && settings.value.icais_use_wp7_ai === '1')
 
 // Reset test result when switching tabs
 watch(activeTab, () => {

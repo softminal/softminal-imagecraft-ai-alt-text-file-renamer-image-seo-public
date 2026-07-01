@@ -4,7 +4,7 @@ Tags: ai alt text, image compression, image optimization, image seo, alt text ge
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -309,6 +309,19 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
+= 1.4.2 (1 July, 2026) =
+* Note: **Auto-generate on upload** (automatically creating alt text/title/description as soon as an image is uploaded) is now a Pro feature. If you were previously using this on the free plan, it will no longer run automatically after updating — you can still generate alt text, titles, and descriptions manually anytime from the Image SEO screen or the media library, or upgrade to Pro to restore automatic generation on upload.
+* New: **Generate All** — create alt text, title, and description in a single combined AI call (counts as one generation), with a bulk field picker (Alt/Title/Description) on the Image SEO screen and a matching per-image field picker in the WordPress media modal
+* New: Setup wizard is now skippable for compression-only users — no API key required to start; an inline "Add API key" prompt appears wherever AI features are used
+* New: Title and Description filters (Missing/Has/Long) added to both the Image SEO screen and WooCommerce products page, matching the existing Alt Text filters
+* New: "Larger than (KB)" size filter on the Compression page
+* New: Dashboard redesign — Needs Attention moved to the top, a blended "Overall optimization" summary card, and a compact Compression widget alongside Image SEO
+* Improvement: WooCommerce product Generate button unified into one field picker (alt/title/description) using the combined generation endpoint
+* Improvement: Consistent form controls (selects, textareas, checkboxes) across all Settings pages and the Setup Wizard
+* Fix: Combined metadata generation could occasionally truncate mid-response on longer results, leaking raw JSON into the alt text field; the response budget was increased and unparsable output is now treated as a failed generation instead of being saved
+* Fix: Title "Missing/Has" filters and counts on the Image SEO screen and WooCommerce products page now correctly recognize real titles set outside ImageCraft, instead of only checking ImageCraft's own generated-title record
+* Fix: Settings api config saving issue
+
 = 1.4.1 (1 July, 2026) =
 * Note: **Auto-generate on upload** (automatically creating alt text/title/description as soon as an image is uploaded) is now a Pro feature. If you were previously using this on the free plan, it will no longer run automatically after updating — you can still generate alt text, titles, and descriptions manually anytime from the Image SEO screen or the media library, or upgrade to Pro to restore automatic generation on upload.
 * New: **Generate All** — create alt text, title, and description in a single combined AI call (counts as one generation), with a bulk field picker (Alt/Title/Description) on the Image SEO screen and a matching per-image field picker in the WordPress media modal
@@ -471,6 +484,9 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.4.1 =
+Adds Generate All (combined alt text + title + description in one AI call) and new filters. Note: if you had "auto-generate on upload" enabled on the free plan, it is now a Pro feature — generation is still available manually anytime from the Image SEO screen or media library.
 
 = 1.4.1 =
 Adds Generate All (combined alt text + title + description in one AI call) and new filters. Note: if you had "auto-generate on upload" enabled on the free plan, it is now a Pro feature — generation is still available manually anytime from the Image SEO screen or media library.

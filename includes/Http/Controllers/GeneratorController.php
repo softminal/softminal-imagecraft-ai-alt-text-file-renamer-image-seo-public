@@ -262,6 +262,16 @@ class GeneratorController extends Controller
      */
     public function generateMetaForImage(int $attachmentId, ?int $userId = null, ?string $context = null, bool $forceAccept = false, ?array $fields = null): array
     {
+        // Safety net for shared/local hosting with a low max_execution_time
+        // (commonly 30s). The AI call can take close to icais_request_timeout
+        // (default 60s), so without this a slow provider response gets killed
+        // by PHP mid-request — an uncatchable fatal, not a WP_Error our
+        // try/catch can handle — surfacing as a raw 500 "internal_server_error".
+        if (function_exists('set_time_limit')) {
+            // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Necessary to prevent timeout during AI generation
+            set_time_limit(120);
+        }
+
         if (!$attachmentId) {
             return [
                 'success' => false,
@@ -370,13 +380,17 @@ class GeneratorController extends Controller
         }
 
         if (empty($result['success'])) {
+            $providerError = (string) ($result['error'] ?? '');
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                error_log('ImageCraft: Meta generation failed for attachment ' . $attachmentId . ': ' . ($result['error'] ?? 'unknown'));
+                error_log('ImageCraft: Meta generation failed for attachment ' . $attachmentId . ': ' . ($providerError !== '' ? $providerError : 'unknown'));
             }
             return [
                 'success' => false,
-                'message' => __('Failed to generate metadata. Please check your API key and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                // Match the message to the real cause. "Check your API key" is only
+                // right for auth failures — a timeout or rate limit sends the user
+                // chasing the wrong problem.
+                'message' => self::classifyProviderError($providerError),
             ];
         }
 
@@ -386,13 +400,26 @@ class GeneratorController extends Controller
         // so garbage never reaches history or the attachment.
         $parsed = $this->parseMetaJson($result['alt_text'] ?? '');
         if (!empty($parsed['_parse_failed'])) {
+            $finishReason = (string) ($result['finish_reason'] ?? '');
+            // 'max_tokens'/'length' = the provider cut the response off before it
+            // finished (output-token budget hit, sometimes a symptom of the
+            // account nearing a rate/usage limit). Any other reason means the
+            // model returned complete-but-unparsable text.
+            $wasTruncated = in_array($finishReason, ['max_tokens', 'length', 'MAX_TOKENS'], true);
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-                error_log('ImageCraft: Meta generation returned unparsable JSON for attachment ' . $attachmentId);
+                error_log(sprintf(
+                    'ImageCraft: Meta generation returned unparsable JSON for attachment %d (finish_reason: %s, raw: %s)',
+                    $attachmentId,
+                    $finishReason !== '' ? $finishReason : 'unknown',
+                    substr((string) ($result['alt_text'] ?? ''), 0, 300)
+                ));
             }
             return [
                 'success' => false,
-                'message' => __('Failed to generate metadata — the AI response was incomplete. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                'message' => $wasTruncated
+                    ? __('Failed to generate metadata — the AI cut its response short, possibly due to rate limiting or high demand on your provider account. Please try again in a moment.', 'imagecraft-ai-alt-text-file-renamer-image-seo')
+                    : __('Failed to generate metadata — the AI response was incomplete. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             ];
         }
 
@@ -516,6 +543,57 @@ class GeneratorController extends Controller
     }
 
     /**
+     * Turn a raw provider error string into an accurate, user-facing message.
+     *
+     * The provider layer surfaces the underlying reason (HTTP status text or a
+     * cURL/transport error) in $result['error']. Blindly telling the user to
+     * "check your API key" is wrong for timeouts and rate limits — the two most
+     * common transient failures during bulk generation — so classify first.
+     */
+    private static function classifyProviderError(string $error): string
+    {
+        $e = strtolower($error);
+
+        // Transport/execution timeout (cURL 28, WP HTTP timeout, PHP max_execution_time).
+        if (
+            strpos($e, 'timed out') !== false
+            || strpos($e, 'timeout') !== false
+            || strpos($e, 'curl error 28') !== false
+            || strpos($e, 'max execution time') !== false
+            || strpos($e, 'maximum execution time') !== false
+        ) {
+            return __('The request timed out before the AI could respond. This often happens on slower hosts or with larger images — please try again, ideally one image at a time.', 'imagecraft-ai-alt-text-file-renamer-image-seo');
+        }
+
+        // Rate limiting / capacity (HTTP 429, provider "overloaded"/quota messages).
+        if (
+            strpos($e, '429') !== false
+            || strpos($e, 'rate limit') !== false
+            || strpos($e, 'rate_limit') !== false
+            || strpos($e, 'too many requests') !== false
+            || strpos($e, 'overloaded') !== false
+            || strpos($e, 'quota') !== false
+        ) {
+            return __('Your AI provider is rate limiting or over capacity right now. Please wait a moment and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo');
+        }
+
+        // Genuine auth failures (HTTP 401/403, invalid key).
+        if (
+            strpos($e, '401') !== false
+            || strpos($e, '403') !== false
+            || strpos($e, 'unauthorized') !== false
+            || strpos($e, 'invalid api key') !== false
+            || strpos($e, 'invalid x-api-key') !== false
+            || strpos($e, 'authentication') !== false
+        ) {
+            return __('Authentication failed. Please check your API key in Settings and try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo');
+        }
+
+        // Unknown: keep a generic message but don't wrongly blame the API key.
+        return __('Failed to generate metadata. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo');
+    }
+
+    /**
      * Decode the combined meta JSON returned by the AI, defensively.
      *
      * Always returns an array with string keys alt_text/title/caption. On any
@@ -622,6 +700,13 @@ class GeneratorController extends Controller
      */
     public function generateAltText(int $attachmentId, string $tone = 'professional', ?int $userId = null, ?string $context = null, bool $forceAccept = false): array
     {
+        // Safety net for shared/local hosting with a low max_execution_time —
+        // see the matching comment in generateMetaForImage() above.
+        if (function_exists('set_time_limit')) {
+            // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Necessary to prevent timeout during AI generation
+            set_time_limit(120);
+        }
+
         if (!$attachmentId) {
             return [
                 'success' => false,

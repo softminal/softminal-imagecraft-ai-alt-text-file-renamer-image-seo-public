@@ -288,11 +288,22 @@ const isProcessing = computed(() => {
 })
 
 const batchTypeLabel = computed(() => {
-  const type = job.value?.batch_type || interruptedJob.value?.batch_type
+  const activeJob = job.value || interruptedJob.value
+  const type = activeJob?.batch_type
   if (type === 'title') return $t('Title Generation')
   if (type === 'alt') return $t('Alt Text Generation')
-  if (type === 'meta') return $t('Generate All (Alt + Title + Caption)')
   if (type === 'compress') return $t('Image Compression')
+  if (type === 'meta') {
+    // Reflect the exact fields chosen for this batch. Empty/absent = all fields
+    // (legacy jobs or "Generate All" with no explicit subset stored).
+    const fields = Array.isArray(activeJob?.batch_fields) ? activeJob.batch_fields : []
+    if (fields.length === 0 || fields.length === 3) {
+      return $t('Generate All (Alt + Title + Caption)')
+    }
+    const labelMap = { alt: $t('Alt Text'), title: $t('Title'), caption: $t('Description') }
+    const names = fields.map(f => labelMap[f] || f).join(' + ')
+    return $t('Generate — %s', names)
+  }
   return ''
 })
 

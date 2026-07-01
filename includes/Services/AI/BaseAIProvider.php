@@ -131,7 +131,7 @@ abstract class BaseAIProvider
      */
     protected function getMaxOutputTokens(): int
     {
-        return $this->metaMode ? 700 : 300;
+        return $this->metaMode ? 1024 : 300;
     }
 
     protected function getPrompt(string $tone, ?string $context = null): string

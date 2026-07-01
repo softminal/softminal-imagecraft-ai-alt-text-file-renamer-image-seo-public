@@ -187,6 +187,7 @@ class WooCommerce
             $hasAltCount = 0;
             $hasTitleCount = 0;
             $hasCaptionCount = 0;
+            $imageHasTitle = false;
             foreach ($allIds as $imgId) {
                 $imgAlt = get_post_meta($imgId, '_wp_attachment_image_alt', true);
                 if (!empty($imgAlt)) {
@@ -195,8 +196,12 @@ class WooCommerce
                 $imgTitleMeta = get_post_meta($imgId, '_icais_generated_title', true);
                 $imgPost = get_post($imgId);
                 $imgAttachedFile = get_post_meta($imgId, '_wp_attached_file', true);
-                if ($imgPost && AltTextHelper::hasRealTitle((string) $imgPost->post_title, (string) $imgTitleMeta, (string) $imgAttachedFile)) {
+                $imgHasRealTitle = $imgPost && AltTextHelper::hasRealTitle((string) $imgPost->post_title, (string) $imgTitleMeta, (string) $imgAttachedFile);
+                if ($imgHasRealTitle) {
                     $hasTitleCount++;
+                }
+                if ($thumbnailId && $imgId === $thumbnailId) {
+                    $imageHasTitle = $imgHasRealTitle;
                 }
                 $imgCaptionMeta = get_post_meta($imgId, '_icais_generated_caption', true);
                 if (!empty($imgCaptionMeta)) {
@@ -224,6 +229,7 @@ class WooCommerce
                 'image_title' => $imageTitle,
                 'image_caption' => $imageCaption,
                 'has_alt' => !empty($altText),
+                'image_has_title' => $imageHasTitle,
                 'gallery_ids' => array_values($galleryIds),
                 'price' => wp_kses_post($product->get_price_html()),
                 'status' => $product->get_status(),

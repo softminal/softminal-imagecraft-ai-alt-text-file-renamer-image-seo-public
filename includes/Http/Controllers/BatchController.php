@@ -58,6 +58,22 @@ class BatchController extends Controller
     }
 
     /**
+     * Per-field selection stored for a meta batch (subset of alt/title/caption),
+     * or an empty array for non-meta batches / legacy "all fields" jobs where no
+     * explicit subset was stored. Lets the UI show the exact fields being generated.
+     *
+     * @return string[]
+     */
+    private function getBatchFields(int $jobId): array
+    {
+        $stored = get_transient('icais_batch_fields_' . $jobId);
+        if (is_array($stored) && !empty($stored)) {
+            return array_values(array_intersect($stored, ['alt', 'title', 'caption']));
+        }
+        return [];
+    }
+
+    /**
      * Find batch job and verify ownership
      */
     private function findOwnedJob(int $jobId)
@@ -197,7 +213,8 @@ class BatchController extends Controller
                 'progress' => $job->getProgress(),
                 'started_at' => $job->started_at,
                 'completed_at' => $job->completed_at,
-                'batch_type' => in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt'
+                'batch_type' => in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt',
+                'batch_fields' => $this->getBatchFields((int) $job->id)
             ]
         ]);
     }
@@ -514,7 +531,8 @@ class BatchController extends Controller
                 'progress' => $job->getProgress(),
                 'started_at' => $job->started_at,
                 'completed_at' => $job->completed_at,
-                'batch_type' => in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt'
+                'batch_type' => in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt',
+                'batch_fields' => $this->getBatchFields((int) $job->id)
             ]
         ]);
     }
@@ -616,7 +634,8 @@ class BatchController extends Controller
                     'progress' => $job->getProgress(),
                     'remaining' => 0,
                     'started_at' => $job->started_at,
-                    'batch_type' => $batchTypeLabel
+                    'batch_type' => $batchTypeLabel,
+                    'batch_fields' => $this->getBatchFields((int) $job->id)
                 ]
             ]);
         }
@@ -653,7 +672,8 @@ class BatchController extends Controller
                 'progress' => $job->getProgress(),
                 'remaining' => $remaining,
                 'started_at' => $job->started_at,
-                'batch_type' => $batchTypeLabel
+                'batch_type' => $batchTypeLabel,
+                'batch_fields' => $this->getBatchFields((int) $job->id)
             ]
         ]);
     }
