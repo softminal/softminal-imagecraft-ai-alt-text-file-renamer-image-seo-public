@@ -871,6 +871,7 @@ class WooCommerce
             $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
             $galleryPost = get_post($id);
             $title = $galleryPost ? $galleryPost->post_title : '';
+            $caption = $galleryPost ? $galleryPost->post_excerpt : '';
             $gallery[] = [
                 'id' => $id,
                 'url' => wp_get_attachment_url($id),
@@ -879,6 +880,8 @@ class WooCommerce
                 'has_alt' => !empty($alt),
                 'title' => $title,
                 'has_title' => !empty($title),
+                'caption' => $caption,
+                'has_caption' => !empty($caption),
             ];
         }
 

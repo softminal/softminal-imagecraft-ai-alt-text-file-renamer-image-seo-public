@@ -380,8 +380,21 @@ class GeneratorController extends Controller
             ];
         }
 
-        // Decode the combined JSON response defensively.
+        // Decode the combined JSON response defensively. If the AI's response
+        // wasn't valid JSON (e.g. truncated mid-response), never save the raw
+        // text as alt/title/caption — treat it as a failed generation instead
+        // so garbage never reaches history or the attachment.
         $parsed = $this->parseMetaJson($result['alt_text'] ?? '');
+        if (!empty($parsed['_parse_failed'])) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                error_log('ImageCraft: Meta generation returned unparsable JSON for attachment ' . $attachmentId);
+            }
+            return [
+                'success' => false,
+                'message' => __('Failed to generate metadata — the AI response was incomplete. Please try again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ];
+        }
 
         $altMax     = (int) Settings::get('icais_max_length', 125);
         $titleMax   = (int) Settings::get('icais_title_max_length', 30);
@@ -506,7 +519,9 @@ class GeneratorController extends Controller
      * Decode the combined meta JSON returned by the AI, defensively.
      *
      * Always returns an array with string keys alt_text/title/caption. On any
-     * parse failure the raw text is used as alt_text so the caller never breaks.
+     * parse failure (e.g. the AI's response was truncated mid-JSON), the raw
+     * text is NEVER used as alt_text — instead '_parse_failed' is set so the
+     * caller can treat it as a failed generation and avoid saving garbage.
      */
     private function parseMetaJson(string $raw): array
     {
@@ -538,11 +553,11 @@ class GeneratorController extends Controller
                 return $fields;
             }
         } catch (\Throwable $e) {
-            // Fall through to the raw-text fallback below.
+            // Fall through to the parse-failure fallback below.
         }
 
-        // Fallback: treat the entire response as alt text.
-        $fields['alt_text'] = trim($raw);
+        // Fallback: unparsable JSON — signal failure rather than saving raw text.
+        $fields['_parse_failed'] = true;
         return $fields;
     }
 
@@ -1122,6 +1137,19 @@ class GeneratorController extends Controller
             global $wpdb;
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->update($wpdb->posts, ['post_title' => $title], ['ID' => $attachmentId], ['%s'], ['%d']);
+            update_post_meta($attachmentId, '_icais_generated_title', $title);
+            clean_post_cache($attachmentId);
+        }
+
+        // Optionally update image caption/description if provided. Caption is the
+        // attachment post_excerpt (source of truth) plus a tracking meta, mirroring
+        // persistMeta() so the Scanner/WooCommerce "has caption" counts stay in sync.
+        if (isset($params['caption'])) {
+            $caption = sanitize_text_field($params['caption']);
+            global $wpdb;
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->update($wpdb->posts, ['post_excerpt' => $caption], ['ID' => $attachmentId], ['%s'], ['%d']);
+            update_post_meta($attachmentId, '_icais_generated_caption', $caption);
             clean_post_cache($attachmentId);
         }
 

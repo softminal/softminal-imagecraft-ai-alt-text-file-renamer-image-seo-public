@@ -118,6 +118,8 @@ class WP7Provider extends BaseAIProvider
         }
 
         try {
+            // Capture before getPrompt(), which resets metaMode as a side effect.
+            $maxTokens = $this->getMaxOutputTokens();
             $prompt    = $this->getPrompt($tone, $context);
             $imageData = $this->getImageData($imageUrl);
 
@@ -131,7 +133,7 @@ class WP7Provider extends BaseAIProvider
                 ->with_file($file)
                 ->with_text($prompt)
                 ->using_system_instruction('Return only plain text. No markdown, no bullet points, no special characters, no formatting of any kind.')
-                ->using_max_tokens(300)
+                ->using_max_tokens($maxTokens)
                 ->generate_text_result();
 
             if (is_wp_error($result)) {

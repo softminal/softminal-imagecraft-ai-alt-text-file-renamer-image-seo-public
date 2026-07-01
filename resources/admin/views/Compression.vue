@@ -56,6 +56,29 @@
             {{ $t('Largest first') }}
           </button>
         </div>
+
+        <!-- Size filter -->
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-600 shrink-0">{{ $t('Larger than (KB)') }}</label>
+          <input
+            v-model.number="minSize"
+            type="number"
+            min="0"
+            step="10"
+            :placeholder="$t('e.g. 60')"
+            class="icais-input w-24"
+            @keyup.enter="applyMinSize"
+          />
+          <button
+            @click="applyMinSize"
+            class="px-3 h-8 inline-flex items-center bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+          >{{ $t('Apply') }}</button>
+          <button
+            v-if="minSize > 0"
+            @click="minSize = 0; applyMinSize()"
+            class="px-3 h-8 inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
+          >{{ $t('Clear') }}</button>
+        </div>
       </div>
 
       <!-- Card: select-all header + grid + pagination (matches Scanner/WooCommerce) -->
@@ -64,7 +87,7 @@
       </div>
 
       <div v-else class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
-        <div v-if="isAdmin" class="p-4 border-b flex items-center justify-between gap-4">
+        <div v-if="isAdmin" class="p-4 border-b flex items-center justify-between gap-4 min-h-16">
           <div class="flex items-center flex-wrap gap-2">
             <Checkbox size="sm" :model-value="allSelected" @change="toggleSelectAll">
               <span>{{ $t('Select All') }}</span>
@@ -151,6 +174,7 @@ const busyId = ref(null)
 const restoringBulk = ref(false)
 const filter = ref('all')
 const sort = ref('date') // 'date' (newest) | 'largest' (biggest files first)
+const minSize = ref(0) // KB; 0 = no size filter
 const perPage = ref(24)
 const pagination = ref({ current_page: 1, total_pages: 1, total: 0 })
 const stats = ref({ total_saved_human: '0 B', total_compressed: 0 })
@@ -172,7 +196,7 @@ const selectedRestorable = computed(
 const loadImages = async (page = 1) => {
   loading.value = true
   try {
-    const result = await Api.get(`/compressor/scan?filter=${filter.value}&sort=${sort.value}&page=${page}&per_page=${perPage.value}`)
+    const result = await Api.get(`/compressor/scan?filter=${filter.value}&sort=${sort.value}&min_size=${minSize.value || 0}&page=${page}&per_page=${perPage.value}`)
     if (result.success) {
       images.value = result.images || []
       pagination.value = result.pagination || pagination.value
@@ -196,6 +220,11 @@ const setFilter = (value) => {
 // Sort by file size (largest first) to surface the heaviest images to compress.
 const toggleSort = () => {
   sort.value = sort.value === 'largest' ? 'date' : 'largest'
+  loadImages(1)
+}
+
+const applyMinSize = () => {
+  selected.value = []
   loadImages(1)
 }
 

@@ -275,6 +275,24 @@
             setField('title', data.title, attachment, 'title');
             setField('caption', data.caption, attachment, 'caption');
 
+            // When "preview before accept" is on, generate-meta only returns a
+            // preview — it hasn't written anything to the DB yet. The modal
+            // field update above is optimistic only, so commit it explicitly
+            // instead of relying on WordPress's own compat-field autosave to
+            // catch it (otherwise it can silently revert on next page load).
+            if (data.preview && data.history_id) {
+                fetch(config.apiUrl + '/generator/accept-meta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': config.nonce },
+                    body: JSON.stringify({
+                        history_id: data.history_id,
+                        alt_text: data.alt_text || '',
+                        title: data.title || '',
+                        caption: data.caption || ''
+                    })
+                }).catch(function () {});
+            }
+
             showStatus(status, 'success', config.i18n?.metaSuccess || 'Generated!');
         })
         .catch(function () { showStatus(status, 'error', config.i18n?.metaError || 'Failed to generate metadata.'); })

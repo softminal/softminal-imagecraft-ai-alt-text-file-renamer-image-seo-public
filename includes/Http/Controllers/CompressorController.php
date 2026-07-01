@@ -29,6 +29,7 @@ class CompressorController extends Controller
         $perPage = min(100, max(1, (int) ($params['per_page'] ?? 24)));
         $filter  = sanitize_text_field($params['filter'] ?? 'all');
         $sort    = sanitize_text_field($params['sort'] ?? 'date');
+        $minSize = max(0, (int) ($params['min_size'] ?? 0)) * 1024; // KB -> bytes
 
         $metaQuery = [];
         if ($filter === 'uncompressed') {
@@ -51,10 +52,11 @@ class CompressorController extends Controller
             $args['meta_query'] = $metaQuery; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Indexed meta key, paginated.
         }
 
-        if ($sort === 'largest') {
-            // Sort by file size (largest first). File size isn't a queryable column,
-            // so fetch all matching IDs, size each, sort, and paginate in PHP. This is
-            // opt-in, so the cost is only paid when the user explicitly sorts by size.
+        if ($sort === 'largest' || $minSize > 0) {
+            // Sort by file size and/or filter by a minimum size. File size isn't a
+            // queryable column, so fetch all matching IDs, size each, filter/sort,
+            // and paginate in PHP. Opt-in only, so the cost is paid only when the
+            // user explicitly sorts by size or sets a minimum size filter.
             $allArgs = $args;
             $allArgs['posts_per_page'] = -1;
             unset($allArgs['paged']);
@@ -65,7 +67,17 @@ class CompressorController extends Controller
                 $path = get_attached_file($id);
                 $sizes[$id] = ($path && file_exists($path)) ? (int) filesize($path) : 0;
             }
-            arsort($sizes, SORT_NUMERIC);
+
+            if ($minSize > 0) {
+                $sizes = array_filter($sizes, function ($size) use ($minSize) {
+                    return $size >= $minSize;
+                });
+            }
+
+            if ($sort === 'largest') {
+                arsort($sizes, SORT_NUMERIC);
+            }
+
             $sortedIds = array_keys($sizes);
 
             $total      = count($sortedIds);

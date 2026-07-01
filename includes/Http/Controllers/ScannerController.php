@@ -50,19 +50,6 @@ class ScannerController extends Controller
                 ['key' => '_wp_attachment_image_alt', 'compare' => 'EXISTS'],
                 ['key' => '_wp_attachment_image_alt', 'value' => '', 'compare' => '!='],
             ];
-        } elseif ($filter === 'missing_title') {
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-            $args['meta_query'] = [
-                'relation' => 'OR',
-                ['key' => '_icais_generated_title', 'compare' => 'NOT EXISTS'],
-                ['key' => '_icais_generated_title', 'value' => '', 'compare' => '='],
-            ];
-        } elseif ($filter === 'has_title' || $filter === 'title_too_long') {
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-            $args['meta_query'] = [
-                ['key' => '_icais_generated_title', 'compare' => 'EXISTS'],
-                ['key' => '_icais_generated_title', 'value' => '', 'compare' => '!='],
-            ];
         } elseif ($filter === 'missing_caption') {
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
             $args['meta_query'] = [
@@ -102,6 +89,41 @@ class ScannerController extends Controller
     }
 
     /**
+     * Filter a list of attachment IDs by "real title" status. A post_title is
+     * only a real title when ImageCraft generated one, or it clearly differs
+     * from the upload filename (see AltTextHelper::hasRealTitle()) — WordPress
+     * auto-fills post_title from the filename on upload, so a raw, untouched
+     * post_title should not count as "has title".
+     */
+    private function filterIdsByTitleStatus(array $ids, string $filter): array
+    {
+        if (empty($ids)) {
+            return $ids;
+        }
+
+        _prime_post_caches($ids, false, false);
+
+        $filtered = [];
+        foreach ($ids as $id) {
+            $post = get_post($id);
+            if (!$post) {
+                continue;
+            }
+            $generatedTitle = get_post_meta($id, '_icais_generated_title', true);
+            $attachedFile = get_post_meta($id, '_wp_attached_file', true);
+            $hasReal = AltTextHelper::hasRealTitle((string) $post->post_title, (string) $generatedTitle, (string) $attachedFile);
+
+            if ($filter === 'has_title' && $hasReal) {
+                $filtered[] = $id;
+            } elseif ($filter === 'missing_title' && !$hasReal) {
+                $filtered[] = $id;
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
      * Compute scanner stats for a specific FileBird folder.
      */
     private function getFolderImageCounts(int $folderId): array
@@ -128,14 +150,18 @@ class ScannerController extends Controller
         $hasTitle = 0;
         $hasCaption = 0;
 
+        _prime_post_caches($ids, false, false);
+
         foreach ($ids as $id) {
             $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
-            $title = get_post_meta($id, '_icais_generated_title', true);
+            $generatedTitle = get_post_meta($id, '_icais_generated_title', true);
             $caption = get_post_meta($id, '_icais_generated_caption', true);
+            $post = get_post($id);
+            $attachedFile = get_post_meta($id, '_wp_attached_file', true);
             if ($alt === '') {
                 $missing++;
             }
-            if ($title !== '') {
+            if ($post && AltTextHelper::hasRealTitle((string) $post->post_title, (string) $generatedTitle, (string) $attachedFile)) {
                 $hasTitle++;
             }
             if ($caption !== '') {
@@ -166,10 +192,13 @@ class ScannerController extends Controller
         $perPage = min(max(1, (int) ($params['per_page'] ?? 50)), 100);
         $minSize = (int) ($params['min_size'] ?? 0);
         $filter = sanitize_text_field($params['filter'] ?? 'all');
-        $needsPhpFilter = $minSize > 0 || $filter === 'generic' || $filter === 'too_long' || $filter === 'title_too_long' || $filter === 'caption_too_long';
+        $needsPhpFilter = $minSize > 0 || $filter === 'generic' || $filter === 'too_long'
+            || $filter === 'title_too_long' || $filter === 'caption_too_long'
+            || $filter === 'missing_title' || $filter === 'has_title';
 
-        // When min_size/generic/too_long/title_too_long/caption_too_long filter is active, we need PHP-level filtering
-        // so fetch all matching IDs first, filter, then paginate manually
+        // When min_size/generic/too_long/title_too_long/caption_too_long/missing_title/has_title
+        // filter is active, we need PHP-level filtering so fetch all matching IDs first, filter,
+        // then paginate manually
         if ($needsPhpFilter) {
             $allArgs = $this->buildQueryArgs($params, [
                 'posts_per_page' => -1,
@@ -199,6 +228,11 @@ class ScannerController extends Controller
                     }
                 }
                 $allIds = $qualityFiltered;
+            }
+
+            // PHP-level filtering for real title status (missing/has)
+            if ($filter === 'missing_title' || $filter === 'has_title') {
+                $allIds = $this->filterIdsByTitleStatus($allIds, $filter);
             }
 
             // PHP-level filtering for title too long
@@ -371,6 +405,7 @@ class ScannerController extends Controller
     {
         $params = $request->get_params();
         $quality = sanitize_text_field($params['quality'] ?? '');
+        $filter = sanitize_text_field($params['filter'] ?? '');
 
         $args = $this->buildQueryArgs($params, [
             'posts_per_page' => -1,
@@ -392,6 +427,12 @@ class ScannerController extends Controller
         // Batch-prime postmeta to avoid N+1 queries in filter loops
         if (!empty($ids)) {
             update_meta_cache('post', $ids);
+        }
+
+        // PHP-level filtering for real title status (missing/has) — buildQueryArgs()
+        // no longer restricts these via meta_query (see filterIdsByTitleStatus()).
+        if ($filter === 'missing_title' || $filter === 'has_title') {
+            $ids = $this->filterIdsByTitleStatus($ids, $filter);
         }
 
         // PHP-level quality filtering

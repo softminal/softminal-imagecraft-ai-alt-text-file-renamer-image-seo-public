@@ -19,7 +19,8 @@
       <template v-else>
         <!-- Filter Bar -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-3">
             <!-- All -->
             <button
               @click="filter = 'all'; debouncedLoadProducts()"
@@ -185,12 +186,13 @@
                 &times; {{ $t('Clear') }}
               </button>
             </template>
+            </div>
 
             <!-- Advanced toggle -->
             <button
               @click="showAdvancedFilters = !showAdvancedFilters"
               :class="[
-                'ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors',
+                'shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors',
                 showAdvancedFilters || hasAdvancedFilters
                   ? 'bg-purple-50 text-purple-600'
                   : 'text-gray-500 hover:bg-gray-100'
@@ -277,7 +279,7 @@
 
     <div v-else-if="woocommerceActive" class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
       <!-- Select All Row -->
-      <div class="p-4 border-b flex items-center justify-between gap-4">
+      <div class="p-4 border-b flex items-center justify-between gap-4 min-h-16">
         <div class="flex items-center flex-wrap gap-2">
           <Checkbox size="sm" :model-value="allSelected" @change="toggleSelectAll">
             <span>{{ $t('Select All') }}</span>

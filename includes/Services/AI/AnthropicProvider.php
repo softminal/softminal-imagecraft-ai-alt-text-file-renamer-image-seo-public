@@ -27,6 +27,8 @@ class AnthropicProvider extends BaseAIProvider
 
     public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
     {
+        // Capture before getPrompt(), which resets metaMode as a side effect.
+        $maxTokens = $this->getMaxOutputTokens();
         $prompt = $this->getPrompt($tone, $context);
 
         // Get image data
@@ -34,7 +36,7 @@ class AnthropicProvider extends BaseAIProvider
 
         $data = [
             'model' => $this->model,
-            'max_tokens' => 300,
+            'max_tokens' => $maxTokens,
             'messages' => [
                 [
                     'role' => 'user',

@@ -36,7 +36,8 @@
 
       <!-- Filters -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-3">
           <!-- All -->
           <button
             @click="filter = 'all'; debouncedLoadImages()"
@@ -186,9 +187,67 @@
           >
             &times; {{ $t('Clear') }}
           </button>
+          </div>
+
+          <!-- Advanced toggle -->
+          <button
+            @click="showAdvancedFilters = !showAdvancedFilters"
+            :class="[
+              'shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-colors',
+              showAdvancedFilters || hasAdvancedFilters
+                ? 'bg-purple-50 text-purple-600'
+                : 'text-gray-500 hover:bg-gray-100'
+            ]"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            {{ $t('Advanced') }}
+            <span v-if="hasAdvancedFilters" class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+          </button>
 
         </div>
 
+        <!-- Advanced Filters (smooth expand) -->
+        <div
+          class="grid transition-all duration-300 ease-in-out"
+          :class="showAdvancedFilters ? 'grid-rows-[1fr] opacity-100 mt-3' : 'grid-rows-[0fr] opacity-0 mt-0'"
+        >
+          <div class="overflow-hidden">
+            <div class="pt-3 border-t border-gray-100">
+              <div class="flex flex-wrap items-end gap-3">
+                <!-- Date range + file size filters -->
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Upload Date From') }}</label>
+                  <input v-model="dateFrom" type="date" class="icais-input" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Upload Date To') }}</label>
+                  <input v-model="dateTo" type="date" class="icais-input" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Min File Size (KB)') }}</label>
+                  <input v-model.number="minSize" type="number" min="0" step="50" :placeholder="$t('e.g. 500')" class="icais-input w-28" />
+                </div>
+                <button
+                  @click="clearSelection(); loadImages()"
+                  class="px-4 h-8 inline-flex items-center bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                >
+                  {{ $t('Apply') }}
+                </button>
+                <button
+                  v-if="hasAdvancedFilters"
+                  @click="dateFrom = ''; dateTo = ''; minSize = 0; clearSelection(); loadImages()"
+                  class="px-3 h-8 inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
+                >
+                  {{ $t('Clear') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Folder + quick bulk select (always visible) -->
         <div class="mt-3 pt-3 border-t border-gray-100 flex flex-wrap items-end gap-3">
           <div v-if="folderTree.length > 0" class="relative" ref="folderDropdownRef">
             <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('FileBird Folder') }}</label>
@@ -221,62 +280,35 @@
             </div>
           </div>
 
-          <!-- Date range + file size filters -->
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Upload Date From') }}</label>
-            <input v-model="dateFrom" type="date" class="icais-input" />
-          </div>
-            <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Upload Date To') }}</label>
-              <input v-model="dateTo" type="date" class="icais-input" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Min File Size (KB)') }}</label>
-              <input v-model.number="minSize" type="number" min="0" step="50" :placeholder="$t('e.g. 500')" class="icais-input w-28" />
-            </div>
-            <button
-              @click="allPagesSelected = false; selectedImages = []; loadImages()"
-              class="px-4 h-8 inline-flex items-center bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
-            >
-              {{ $t('Apply') }}
-            </button>
-            <button
-              v-if="hasAdvancedFilters"
-              @click="dateFrom = ''; dateTo = ''; minSize = 0; allPagesSelected = false; selectedImages = []; loadImages()"
-              class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
-            >
-              {{ $t('Clear') }}
-            </button>
-
           <!-- divider between filter controls and bulk actions -->
 
           <!-- Quick bulk select (same row) -->
-          <div class="self-end mb-1">
+          <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">{{ $t('Quick Bulk Select') }}</label>
-           <div class="flex gap-2">
-            <button
-              @click="bulkSelect('missing')"
-              :disabled="bulkSelecting"
-              class="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50"
-            >
-              {{ bulkSelecting === 'missing' ? $t('Selecting...') : $t('All Missing Alt Text') }}
-            </button>
-            <button
-              @click="bulkSelect('generic')"
-              :disabled="bulkSelecting"
-              class="px-3 py-1.5 text-sm bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 disabled:opacity-50"
-            >
-              {{ bulkSelecting === 'generic' ? $t('Selecting...') : $t('All Generic / Placeholder') }}
-            </button>
-            <button
-              v-if="minSize > 0"
-              @click="bulkSelect('large')"
-              :disabled="bulkSelecting"
-              class="px-3 py-1.5 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 disabled:opacity-50"
-            >
-              {{ bulkSelecting === 'large' ? $t('Selecting...') : $t('All Larger Than %s KB', minSize) }}
-            </button>
-           </div>
+            <div class="flex gap-2">
+              <button
+                @click="bulkSelect('missing')"
+                :disabled="bulkSelecting"
+                class="px-3 h-8 inline-flex items-center text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50"
+              >
+                {{ bulkSelecting === 'missing' ? $t('Selecting...') : $t('All Missing Alt Text') }}
+              </button>
+              <button
+                @click="bulkSelect('generic')"
+                :disabled="bulkSelecting"
+                class="px-3 h-8 inline-flex items-center text-sm bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 disabled:opacity-50"
+              >
+                {{ bulkSelecting === 'generic' ? $t('Selecting...') : $t('All Generic / Placeholder') }}
+              </button>
+              <button
+                v-if="minSize > 0"
+                @click="bulkSelect('large')"
+                :disabled="bulkSelecting"
+                class="px-3 h-8 inline-flex items-center text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 disabled:opacity-50"
+              >
+                {{ bulkSelecting === 'large' ? $t('Selecting...') : $t('All Larger Than %s KB', minSize) }}
+              </button>
+            </div>
           </div>
 
           <!-- secondary info wraps to its own line -->
@@ -297,7 +329,7 @@
     </div>
 
     <div v-else class="bg-white rounded-lg shadow border" :class="{ 'opacity-60 pointer-events-none': loading }">
-      <div v-if="isAdmin" class="p-4 border-b flex items-center justify-between gap-4">
+      <div v-if="isAdmin" class="p-4 border-b flex items-center justify-between gap-4 min-h-16">
         <div class="flex items-center flex-wrap gap-2">
           <Checkbox :model-value="allSelected" @change="toggleSelectAll">
             <span>{{ $t('Select All') }}</span>
@@ -322,7 +354,7 @@
           >
             <span>{{ $t('All %s selected.', selectedImages.length) }}</span>
             <button
-              @click="selectedImages = []; allPagesSelected = false"
+              @click="clearSelection"
               class="font-semibold underline hover:text-green-900"
             >
               {{ $t('Clear') }}
@@ -413,6 +445,7 @@ const renamingId = ref(null)
 const dateFrom = ref('')
 const dateTo = ref('')
 const minSize = ref(0)
+const showAdvancedFilters = ref(false)
 const perPage = ref(20)
 const bulkSelecting = ref(false)
 const bulkSelectCount = ref(null)
@@ -537,8 +570,7 @@ const loadImages = async (page = 1) => {
 
 // Debounced version for rapid filter clicks — resets cross-page selection since criteria changed
 const debouncedLoadImages = debounce(() => {
-  allPagesSelected.value = false
-  selectedImages.value = []
+  clearSelection()
   loadImages()
 }, 300)
 
@@ -557,12 +589,22 @@ const toggleSelect = (imageId) => {
   }
 }
 
+// Reset every piece of selection state (per-page selection, cross-page
+// selection, and the "N selected across all pages" counter) in one place so
+// the UI never shows a stale selection message or lingering checkmarks.
+const clearSelection = () => {
+  selectedImages.value = []
+  allPagesSelected.value = false
+  bulkSelectCount.value = null
+}
+
 const toggleSelectAll = () => {
   const currentPageIds = images.value.map(img => img.id)
   if (allSelected.value) {
     // Uncheck: remove only current page's images from selection
     selectedImages.value = selectedImages.value.filter(id => !currentPageIds.includes(id))
     allPagesSelected.value = false
+    bulkSelectCount.value = null
   } else {
     // Check: add current page's images to existing selection (no duplicates)
     const existing = new Set(selectedImages.value)
@@ -607,9 +649,7 @@ const buildSelectParams = (filterOverride, quality) => {
 const selectFolder = (id) => {
   selectedFolderId.value = id
   folderDropdownOpen.value = false
-  allPagesSelected.value = false
-  selectedImages.value = []
-  bulkSelectCount.value = null
+  clearSelection()
   loadImages()
 }
 

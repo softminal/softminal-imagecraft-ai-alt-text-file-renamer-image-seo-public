@@ -32,9 +32,9 @@
       <span v-if="image.alt_text" class="text-green-600 truncate">{{ image.alt_text }}</span>
       <span v-else class="text-red-500 italic">{{ $t('Missing') }}</span>
     </div>
-    <div class="text-xs mt-1 flex gap-1 items-baseline" :title="image.generated_title || image.title">
+    <div class="text-xs mt-1 flex gap-1 items-baseline" :title="displayTitle">
       <span class="font-medium text-gray-700 shrink-0">{{ $t('Title:') }}</span>
-      <span v-if="image.generated_title || image.title" class="text-blue-600 truncate">{{ image.generated_title || image.title }}</span>
+      <span v-if="displayTitle" class="text-blue-600 truncate">{{ displayTitle }}</span>
       <span v-else class="text-red-500 italic">{{ $t('Missing') }}</span>
     </div>
     <div v-if="image.has_alt && !renaming && autoRename" class="flex justify-between mt-2">
@@ -69,10 +69,11 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { $t } from '../../utils/i18n'
 import { Checkbox } from '../../@ui'
 
-defineProps({
+const props = defineProps({
   image: { type: Object, required: true },
   selected: { type: Boolean, default: false },
   renaming: { type: Boolean, default: false },
@@ -81,4 +82,26 @@ defineProps({
 })
 
 defineEmits(['toggle-select', 'open-modal', 'rename'])
+
+// Normalize a filename or title for comparison: strip extension, replace
+// separators with spaces, lowercase, collapse whitespace.
+const normalizeForCompare = (value) => {
+  return (value || '')
+    .replace(/\.[a-z0-9]+$/i, '')
+    .replace(/[-_]+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+// WordPress auto-fills post_title from the filename on upload, so a raw
+// post_title is not a real title unless ImageCraft generated one, or it
+// clearly differs from the filename (a human customized it). Without this,
+// every "Missing" title would still show the filename as if it were set.
+const displayTitle = computed(() => {
+  if (props.image.generated_title) return props.image.generated_title
+  const title = props.image.title || ''
+  if (!title) return ''
+  if (normalizeForCompare(title) === normalizeForCompare(props.image.filename)) return ''
+  return title
+})
 </script>

@@ -121,6 +121,19 @@ abstract class BaseAIProvider
         return $this;
     }
 
+    /**
+     * Output token budget for the next generateAltText() call. Combined meta
+     * mode asks for a JSON object containing alt_text + title + caption in one
+     * response, which needs more headroom than a single alt text — otherwise
+     * the response can be truncated mid-JSON and fail to parse.
+     *
+     * Must be called BEFORE getPrompt(), since getPrompt() resets $metaMode.
+     */
+    protected function getMaxOutputTokens(): int
+    {
+        return $this->metaMode ? 700 : 300;
+    }
+
     protected function getPrompt(string $tone, ?string $context = null): string
     {
         // Combined meta mode: generate alt text + title + caption as one JSON object

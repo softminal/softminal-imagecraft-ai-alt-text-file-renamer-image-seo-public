@@ -40,20 +40,25 @@
                 {{ $t('%s selected', selectedIds.length) }}
               </span>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-3 shrink-0">
+              <!-- Pick which fields to generate, then one Generate button. -->
+              <div class="flex items-center gap-3">
+                <Checkbox size="sm" v-model="bulkFields" value="alt">
+                  <span class="text-sm text-gray-700">{{ $t('Alt text') }}</span>
+                </Checkbox>
+                <Checkbox size="sm" v-model="bulkFields" value="title">
+                  <span class="text-sm text-gray-700">{{ $t('Title') }}</span>
+                </Checkbox>
+                <Checkbox size="sm" v-model="bulkFields" value="caption">
+                  <span class="text-sm text-gray-700">{{ $t('Description') }}</span>
+                </Checkbox>
+              </div>
               <button
-                @click="generateAll('alt')"
-                :disabled="generatingAll"
-                class="text-sm px-3 py-1.5 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 disabled:opacity-50"
+                @click="generateAll"
+                :disabled="generatingAll || bulkFields.length === 0"
+                class="text-sm px-4 py-1.5 rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {{ generatingAll === 'alt' ? $t('Generating...') : (someSelected ? $t('Generate Alt (%s)', selectedIds.length) : $t('Generate All Alt Text')) }}
-              </button>
-              <button
-                @click="generateAll('title')"
-                :disabled="generatingAll"
-                class="text-sm px-3 py-1.5 rounded-lg bg-indigo-100 text-indigo-700 hover:bg-indigo-200 disabled:opacity-50"
-              >
-                {{ generatingAll === 'title' ? $t('Generating...') : (someSelected ? $t('Generate Title (%s)', selectedIds.length) : $t('Generate All Titles')) }}
+                {{ generatingAll ? $t('Generating...') : (someSelected ? $t('Generate (%s)', selectedIds.length) : $t('Generate All')) }}
               </button>
             </div>
           </div>
@@ -111,7 +116,7 @@
                       <button
                         @click="generateForImage(img, 'alt')"
                         :disabled="img.generating_alt"
-                        class="text-xs text-purple-600 hover:text-purple-800 disabled:opacity-50"
+                        class="text-xs text-purple-600 underline hover:text-purple-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                       >
                         {{ img.generating_alt ? '...' : $t('Generate') }}
                       </button>
@@ -130,7 +135,7 @@
                       <button
                         @click="generateForImage(img, 'title')"
                         :disabled="img.generating_title"
-                        class="text-xs text-indigo-600 hover:text-indigo-800 disabled:opacity-50"
+                        class="text-xs text-indigo-600 underline hover:text-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                       >
                         {{ img.generating_title ? '...' : $t('Generate') }}
                       </button>
@@ -140,6 +145,25 @@
                       type="text"
                       class="w-full text-xs border rounded p-1.5"
                       :placeholder="$t('Image title...')"
+                    />
+                  </div>
+                  <!-- Description -->
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <label class="text-xs font-medium text-gray-600">{{ $t('Description') }}</label>
+                      <button
+                        @click="generateForImage(img, 'caption')"
+                        :disabled="img.generating_caption"
+                        class="text-xs text-emerald-600 underline hover:text-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        {{ img.generating_caption ? '...' : $t('Generate') }}
+                      </button>
+                    </div>
+                    <textarea
+                      v-model="img.caption"
+                      rows="2"
+                      class="w-full text-xs border rounded p-1.5 resize-y"
+                      :placeholder="$t('Description...')"
                     />
                   </div>
                 </div>
@@ -185,7 +209,8 @@ const emit = defineEmits(['close', 'saved'])
 // State
 const images = ref([])
 const selectedIds = ref([])
-const generatingAll = ref(null) // 'alt' | 'title' | null
+const bulkFields = ref(['alt', 'title', 'caption']) // which fields the bulk Generate touches
+const generatingAll = ref(false)
 const progress = reactive({ current: 0, total: 0 })
 const saving = ref(false)
 
@@ -227,7 +252,7 @@ const toggleSelectAll = () => {
 watch(() => props.product, async (product) => {
   images.value = []
   selectedIds.value = []
-  generatingAll.value = null
+  generatingAll.value = false
   progress.current = 0
   progress.total = 0
 
@@ -241,9 +266,11 @@ watch(() => props.product, async (product) => {
       thumb_url: product.thumbnail_url,
       alt_text: product.alt_text || '',
       title: product.image_title || '',
+      caption: product.image_caption || '',
       is_featured: true,
       generating_alt: false,
       generating_title: false,
+      generating_caption: false,
     })
   }
 
@@ -258,9 +285,11 @@ watch(() => props.product, async (product) => {
           thumb_url: gImg.thumb_url,
           alt_text: gImg.alt_text || '',
           title: gImg.title || '',
+          caption: gImg.caption || '',
           is_featured: false,
           generating_alt: false,
           generating_title: false,
+          generating_caption: false,
         })
       }
     }
@@ -269,80 +298,72 @@ watch(() => props.product, async (product) => {
   }
 }, { immediate: true })
 
-// Per-image generation
-const generateForImage = async (img, type = 'alt') => {
+// Per-image generation. `field` is one of 'alt' | 'title' | 'caption'. Uses the
+// combined generate-meta endpoint (single AI call) restricted to the one field so
+// alt, title and description all share the same code path and product context.
+const FIELD_FLAG = { alt: 'generating_alt', title: 'generating_title', caption: 'generating_caption' }
+
+const generateForImage = async (img, field = 'alt') => {
   if (!props.product) return
 
-  if (type === 'title') {
-    img.generating_title = true
-    try {
-      const result = await Api.post('/generator/generate', {
-        attachment_id: img.id,
-        title_only: true
-      })
-      if (result.success) {
-        img.title = result.generated_title
-      } else {
-        notification.error(result.error || result.message || $t('Failed to generate'))
-      }
-    } catch (error) {
-      notification.error($t('Failed to generate title'))
-    } finally {
-      img.generating_title = false
-    }
-    return
-  }
-
-  img.generating_alt = true
+  const flag = FIELD_FLAG[field]
+  img[flag] = true
   try {
-    let result
-    if (img.is_featured) {
-      result = await Api.post('/woocommerce/generate', {
-        product_id: props.product.id
-      })
-    } else {
-      result = await Api.post('/generator/generate', {
-        attachment_id: img.id,
-        product_id: props.product.id
-      })
-    }
+    const result = await Api.post('/generator/generate-meta', {
+      attachment_id: img.id,
+      product_id: props.product.id,
+      fields: [field],
+    })
     if (result.success) {
-      img.alt_text = result.alt_text
+      if (field === 'alt' && typeof result.alt_text === 'string') img.alt_text = result.alt_text
+      if (field === 'title' && typeof result.title === 'string') img.title = result.title
+      if (field === 'caption' && typeof result.caption === 'string') img.caption = result.caption
     } else {
       notification.error(result.error || result.message || $t('Failed to generate'))
     }
   } catch (error) {
-    notification.error($t('Failed to generate alt text'))
+    notification.error($t('Failed to generate'))
   } finally {
-    img.generating_alt = false
+    img[flag] = false
   }
 }
 
-// Bulk generation
-const generateAll = async (type = 'alt') => {
+// Field accessor so bulk ops can read/skip whichever fields are selected.
+const fieldValue = (img, field) =>
+  field === 'alt' ? img.alt_text : field === 'title' ? img.title : img.caption
+
+// Bulk generation for the fields ticked in the header (alt / title / description).
+const generateAll = async () => {
   if (generatingAll.value || images.value.length === 0) return
 
-  const toGenerate = getTargetImages(img => {
-    if (type === 'alt') return !img.alt_text
-    return !img.title
-  })
+  const fields = bulkFields.value.slice()
+  if (fields.length === 0) return
 
-  if (toGenerate.length === 0) {
-    notification.info($t('All images already have %s', type === 'alt' ? 'alt text' : 'titles'))
+  // Only (image, field) pairs that are still empty, so we don't overwrite edits.
+  const pool = getTargetImages()
+  const work = []
+  for (const img of pool) {
+    for (const field of fields) {
+      if (!fieldValue(img, field)) work.push({ img, field })
+    }
+  }
+
+  if (work.length === 0) {
+    notification.info($t('Selected images already have the chosen fields'))
     return
   }
 
-  generatingAll.value = type
+  generatingAll.value = true
   progress.current = 0
-  progress.total = toGenerate.length
+  progress.total = work.length
 
-  for (const img of toGenerate) {
-    await generateForImage(img, type)
+  for (const { img, field } of work) {
+    await generateForImage(img, field)
     progress.current++
   }
 
-  generatingAll.value = null
-  notification.success($t('Generated %s for %s images', type === 'alt' ? 'alt text' : 'titles', toGenerate.length))
+  generatingAll.value = false
+  notification.success($t('Generated metadata for %s images', pool.length))
 }
 
 // Save
@@ -359,7 +380,8 @@ const saveAll = async () => {
       const result = await Api.post('/generator/update-alt', {
         attachment_id: img.id,
         alt_text: img.alt_text || '',
-        title: img.title || ''
+        title: img.title || '',
+        caption: img.caption || ''
       })
       if (result.success) {
         successCount++

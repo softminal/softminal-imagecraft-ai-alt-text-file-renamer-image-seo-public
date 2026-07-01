@@ -58,6 +58,39 @@ class AltTextHelper
     }
 
     /**
+     * Normalize a filename or title for comparison: strip extension, replace
+     * separators with spaces, lowercase, collapse whitespace.
+     */
+    private static function normalizeForCompare(string $value): string
+    {
+        $value = (string) preg_replace('/\.[a-z0-9]+$/i', '', $value);
+        $value = str_replace(['-', '_'], ' ', $value);
+        $value = trim((string) preg_replace('/\s+/', ' ', $value));
+        return strtolower($value);
+    }
+
+    /**
+     * A post_title only counts as a "real" title when ImageCraft generated
+     * one, or when it clearly differs from the upload filename (a human
+     * customized it). WordPress auto-fills post_title from the filename on
+     * upload, so a raw, untouched post_title is not a meaningful title.
+     */
+    public static function hasRealTitle(string $postTitle, string $generatedTitle, string $attachedFile): bool
+    {
+        if ($generatedTitle !== '') {
+            return true;
+        }
+        if ($postTitle === '') {
+            return false;
+        }
+        $filename = basename($attachedFile);
+        if ($filename === '') {
+            return true; // No filename to compare against — assume it's real.
+        }
+        return self::normalizeForCompare($postTitle) !== self::normalizeForCompare($filename);
+    }
+
+    /**
      * Truncate text to a max length, trimming to the last complete word.
      *
      * @param string $text      The text to truncate.
@@ -74,10 +107,13 @@ class AltTextHelper
     }
 
     /**
-     * Get total image count and missing-alt count in a single query.
+     * Get total image count, missing-alt count, and "real title"/caption counts.
      *
-     * Uses a single SQL round-trip with LEFT JOIN + SUM(CASE) instead of
-     * two separate WP_Query calls.
+     * Row-level fetch (not a single aggregate query) because "has a real
+     * title" requires comparing post_title against the upload filename in
+     * PHP — a comparison that isn't reliably portable in SQL on the MySQL 5.7
+     * floor. Still a single round-trip; the per-row work is cheap string
+     * comparison, not additional queries.
      *
      * @return array{total: int, missing: int}
      */
@@ -85,12 +121,13 @@ class AltTextHelper
     {
         global $wpdb;
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Lightweight aggregation; not worth caching for a single page load
-        $row = $wpdb->get_row(
-            "SELECT COUNT(*) AS total,
-                    SUM(CASE WHEN pm.meta_value IS NULL OR pm.meta_value = '' THEN 1 ELSE 0 END) AS missing,
-                    SUM(CASE WHEN tm.meta_value IS NOT NULL AND tm.meta_value != '' THEN 1 ELSE 0 END) AS has_title,
-                    SUM(CASE WHEN cm.meta_value IS NOT NULL AND cm.meta_value != '' THEN 1 ELSE 0 END) AS has_caption
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Lightweight; not worth caching for a single page load
+        $rows = $wpdb->get_results(
+            "SELECT p.ID, p.post_title,
+                    pm.meta_value AS alt_text,
+                    tm.meta_value AS generated_title,
+                    cm.meta_value AS generated_caption,
+                    af.meta_value AS attached_file
              FROM {$wpdb->posts} p
              LEFT JOIN {$wpdb->postmeta} pm
                     ON pm.post_id = p.ID AND pm.meta_key = '_wp_attachment_image_alt'
@@ -98,18 +135,33 @@ class AltTextHelper
                     ON tm.post_id = p.ID AND tm.meta_key = '_icais_generated_title'
              LEFT JOIN {$wpdb->postmeta} cm
                     ON cm.post_id = p.ID AND cm.meta_key = '_icais_generated_caption'
+             LEFT JOIN {$wpdb->postmeta} af
+                    ON af.post_id = p.ID AND af.meta_key = '_wp_attached_file'
              WHERE p.post_type = 'attachment'
                AND p.post_status = 'inherit'
                AND p.post_mime_type LIKE 'image/%'"
         );
 
-        $total = (int) ($row->total ?? 0);
-        $hasTitle = (int) ($row->has_title ?? 0);
-        $hasCaption = (int) ($row->has_caption ?? 0);
+        $total = count($rows);
+        $missing = 0;
+        $hasTitle = 0;
+        $hasCaption = 0;
+
+        foreach ($rows as $row) {
+            if ((string) $row->alt_text === '') {
+                $missing++;
+            }
+            if (self::hasRealTitle((string) $row->post_title, (string) $row->generated_title, (string) $row->attached_file)) {
+                $hasTitle++;
+            }
+            if ((string) $row->generated_caption !== '') {
+                $hasCaption++;
+            }
+        }
 
         return [
             'total' => $total,
-            'missing' => (int) ($row->missing ?? 0),
+            'missing' => $missing,
             'has_title' => $hasTitle,
             'missing_title' => $total - $hasTitle,
             'has_caption' => $hasCaption,

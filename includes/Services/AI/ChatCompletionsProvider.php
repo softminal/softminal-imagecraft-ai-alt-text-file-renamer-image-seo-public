@@ -57,6 +57,8 @@ abstract class ChatCompletionsProvider extends BaseAIProvider
 
     public function generateAltText(string $imageUrl, string $tone = 'professional', ?string $context = null): array
     {
+        // Capture before getPrompt(), which resets metaMode as a side effect.
+        $maxTokens = $this->getMaxOutputTokens();
         $prompt = $this->getPrompt($tone, $context);
         $imageData = $this->getImageData($imageUrl);
 
@@ -79,7 +81,7 @@ abstract class ChatCompletionsProvider extends BaseAIProvider
                     ],
                 ],
             ],
-            $this->getMaxTokensParam() => 300,
+            $this->getMaxTokensParam() => $maxTokens,
         ];
 
         try {
