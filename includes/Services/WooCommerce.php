@@ -152,9 +152,12 @@ class WooCommerce
             ];
         }
 
-        // Prime meta cache for all image IDs in one query
+        // Prime post + meta cache for all image IDs in one query (get_post() is
+        // now called per image below to compare titles against filenames).
         if (!empty($allImageIds)) {
-            update_meta_cache('post', array_unique($allImageIds));
+            $allImageIds = array_unique($allImageIds);
+            update_meta_cache('post', $allImageIds);
+            _prime_post_caches($allImageIds, false, false);
         }
 
         $products = [];
@@ -190,7 +193,9 @@ class WooCommerce
                     $hasAltCount++;
                 }
                 $imgTitleMeta = get_post_meta($imgId, '_icais_generated_title', true);
-                if (!empty($imgTitleMeta)) {
+                $imgPost = get_post($imgId);
+                $imgAttachedFile = get_post_meta($imgId, '_wp_attached_file', true);
+                if ($imgPost && AltTextHelper::hasRealTitle((string) $imgPost->post_title, (string) $imgTitleMeta, (string) $imgAttachedFile)) {
                     $hasTitleCount++;
                 }
                 $imgCaptionMeta = get_post_meta($imgId, '_icais_generated_caption', true);
@@ -439,140 +444,120 @@ class WooCommerce
     }
 
     /**
-     * Count published products whose featured image has a non-empty generated title.
-     * Title is tracked in _icais_generated_title on the attachment (mirrors Scanner).
+     * Raw per-product featured-image title data used by the title
+     * has/missing/too-long helpers below. Cached per-request since multiple
+     * callers (stats + filtered product list) may need it in one request.
+     *
+     * @return array<object{product_id:int, attachment_id:int, post_title:string, generated_title:string, attached_file:string}>
      */
-    private static function countProductsWithTitle(): int
+    private static ?array $productFeaturedTitleCache = null;
+
+    private static function getProductFeaturedTitleData(): array
     {
+        if (self::$productFeaturedTitleCache !== null) {
+            return self::$productFeaturedTitleCache;
+        }
+
         global $wpdb;
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        return (int) $wpdb->get_var(
+        $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT COUNT(DISTINCT p.ID)
+                "SELECT p.ID AS product_id, thumb.meta_value AS attachment_id,
+                        att.post_title AS post_title,
+                        ttl.meta_value AS generated_title,
+                        af.meta_value AS attached_file
                  FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} thumb
+                 LEFT JOIN {$wpdb->postmeta} thumb
                      ON p.ID = thumb.post_id AND thumb.meta_key = %s
-                 INNER JOIN {$wpdb->postmeta} ttl
-                     ON thumb.meta_value = ttl.post_id
-                     AND ttl.meta_key = %s
-                     AND ttl.meta_value != ''
+                 LEFT JOIN {$wpdb->posts} att
+                     ON att.ID = thumb.meta_value
+                 LEFT JOIN {$wpdb->postmeta} ttl
+                     ON thumb.meta_value = ttl.post_id AND ttl.meta_key = %s
+                 LEFT JOIN {$wpdb->postmeta} af
+                     ON thumb.meta_value = af.post_id AND af.meta_key = %s
                  WHERE p.post_type = %s AND p.post_status = %s",
                 '_thumbnail_id',
                 '_icais_generated_title',
+                '_wp_attached_file',
                 'product',
                 'publish'
             )
         );
+
+        self::$productFeaturedTitleCache = $rows;
+
+        return $rows;
     }
 
     /**
-     * Get IDs of published products whose featured image has a non-empty generated title.
+     * Whether a product's featured image has a "real" title — mirrors
+     * AltTextHelper::hasRealTitle(): ImageCraft-generated, or the attachment's
+     * post_title clearly differs from its upload filename.
+     */
+    private static function rowHasRealTitle(object $row): bool
+    {
+        if (empty($row->attachment_id)) {
+            return false;
+        }
+        return AltTextHelper::hasRealTitle((string) $row->post_title, (string) $row->generated_title, (string) $row->attached_file);
+    }
+
+    /**
+     * Count published products whose featured image has a real title.
+     */
+    private static function countProductsWithTitle(): int
+    {
+        return count(self::getProductIdsWithTitle());
+    }
+
+    /**
+     * Get IDs of published products whose featured image has a real title.
      *
      * @return int[]
      */
     private static function getProductIdsWithTitle(): array
     {
-        global $wpdb;
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $ids = $wpdb->get_col(
-            $wpdb->prepare(
-                "SELECT DISTINCT p.ID
-                 FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} thumb
-                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
-                 INNER JOIN {$wpdb->postmeta} ttl
-                     ON thumb.meta_value = ttl.post_id
-                     AND ttl.meta_key = %s
-                     AND ttl.meta_value != ''
-                 WHERE p.post_type = %s AND p.post_status = %s",
-                '_thumbnail_id',
-                '_icais_generated_title',
-                'product',
-                'publish'
-            )
-        );
-
-        return array_map('intval', $ids);
+        $ids = [];
+        foreach (self::getProductFeaturedTitleData() as $row) {
+            if (self::rowHasRealTitle($row)) {
+                $ids[] = (int) $row->product_id;
+            }
+        }
+        return $ids;
     }
 
     /**
-     * Get IDs of published products whose featured image has no generated title
+     * Get IDs of published products whose featured image has no real title
      * (or no featured image at all).
      *
      * @return int[]
      */
     private static function getProductIdsMissingTitle(): array
     {
-        global $wpdb;
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $ids = $wpdb->get_col(
-            $wpdb->prepare(
-                "SELECT DISTINCT p.ID
-                 FROM {$wpdb->posts} p
-                 LEFT JOIN {$wpdb->postmeta} thumb
-                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
-                 LEFT JOIN {$wpdb->postmeta} ttl
-                     ON thumb.meta_value = ttl.post_id
-                     AND ttl.meta_key = %s
-                     AND ttl.meta_value != ''
-                 WHERE p.post_type = %s
-                     AND p.post_status = %s
-                     AND (thumb.meta_value IS NULL OR ttl.meta_value IS NULL OR ttl.meta_value = '')",
-                '_thumbnail_id',
-                '_icais_generated_title',
-                'product',
-                'publish'
-            )
-        );
-
-        return array_map('intval', $ids);
+        $ids = [];
+        foreach (self::getProductFeaturedTitleData() as $row) {
+            if (!self::rowHasRealTitle($row)) {
+                $ids[] = (int) $row->product_id;
+            }
+        }
+        return $ids;
     }
 
     /**
-     * Get IDs of products whose featured image has a generated title whose
-     * attachment post_title exceeds the configured title length (mirrors Scanner).
+     * Get IDs of products whose featured image title exceeds the configured
+     * title length (mirrors Scanner).
      *
      * @return int[]
      */
     private static function getProductIdsWithTitleTooLong(): array
     {
-        global $wpdb;
-
-        // Featured-image attachment post_title for products that have a generated title.
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $rows = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT DISTINCT p.ID, att.post_title AS image_title
-                 FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} thumb
-                     ON p.ID = thumb.post_id AND thumb.meta_key = %s
-                 INNER JOIN {$wpdb->postmeta} ttl
-                     ON thumb.meta_value = ttl.post_id
-                     AND ttl.meta_key = %s
-                     AND ttl.meta_value != ''
-                 INNER JOIN {$wpdb->posts} att
-                     ON att.ID = thumb.meta_value
-                 WHERE p.post_type = %s AND p.post_status = %s",
-                '_thumbnail_id',
-                '_icais_generated_title',
-                'product',
-                'publish'
-            )
-        );
-
-        if (empty($rows)) {
-            return [];
-        }
-
         $maxLength = (int) Settings::get('icais_title_max_length', 30);
         $filtered = [];
 
-        foreach ($rows as $row) {
-            if (mb_strlen((string) $row->image_title) > $maxLength) {
-                $filtered[] = (int) $row->ID;
+        foreach (self::getProductFeaturedTitleData() as $row) {
+            if (!empty($row->attachment_id) && mb_strlen((string) $row->post_title) > $maxLength) {
+                $filtered[] = (int) $row->product_id;
             }
         }
 
@@ -872,6 +857,8 @@ class WooCommerce
             $galleryPost = get_post($id);
             $title = $galleryPost ? $galleryPost->post_title : '';
             $caption = $galleryPost ? $galleryPost->post_excerpt : '';
+            $generatedTitle = get_post_meta($id, '_icais_generated_title', true);
+            $attachedFile = get_post_meta($id, '_wp_attached_file', true);
             $gallery[] = [
                 'id' => $id,
                 'url' => wp_get_attachment_url($id),
@@ -879,7 +866,7 @@ class WooCommerce
                 'alt_text' => $alt,
                 'has_alt' => !empty($alt),
                 'title' => $title,
-                'has_title' => !empty($title),
+                'has_title' => AltTextHelper::hasRealTitle((string) $title, (string) $generatedTitle, (string) $attachedFile),
                 'caption' => $caption,
                 'has_caption' => !empty($caption),
             ];
