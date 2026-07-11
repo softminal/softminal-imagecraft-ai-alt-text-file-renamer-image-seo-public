@@ -4,7 +4,7 @@ Tags: ai alt text, image compression, image optimization, image seo, alt text ge
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.4.2
+Stable tag: 1.5.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,7 @@ Most plugins do one thing — either alt text **or** compression — and many ch
 * **Smart Image Compression** — quality-preserving, runs locally, with one-click restore
 * **AI-powered File Renamer** for better image SEO
 * **Image SEO Audit Dashboard** with quality scoring
+* **Image Fallbacks** — replace broken images for visitors and set a default featured image for posts without one (non-destructive)
 * SEO keyphrase integration — works with **Yoast SEO**, **Rank Math**, **AIOSEO**, and **SEOPress**
 * **WooCommerce** product-aware alt text generation
 * **Batch processing** for alt text, titles, and compression with real-time progress
@@ -42,6 +43,8 @@ Most plugins do one thing — either alt text **or** compression — and many ch
 = Key Features =
 
 * **Smart image compression** — Reduce image file size with a built-in, quality-preserving compressor that runs locally on your server. Bulk-optimize your library, compress from the media modal, and restore originals anytime. Smaller images mean faster pages and better Core Web Vitals.
+
+* **Image fallbacks (never show a broken image)** — Pick one fallback image and ImageCraft shows it whenever an image on your site fails to load, and as the featured image for posts that don't have one. It even carries proper alt text, and a broken-image scan on the dashboard tells you which media files are missing. Nothing is written to your content — turn it off and everything reverts.
 * **3 AI providers, 17+ models** — Choose from Anthropic Claude, OpenAI, and Google Gemini models. Switch providers and models anytime.
 * **Gutenberg, Kadence, Spectra & Media Modal integration** — Generate alt text with one click from the block editor sidebar, **Kadence** image block, **Spectra** image block, or WordPress media modal. Preview, accept, or reject without leaving the editor.
 * **Spectra Block support** — Full integration with **Spectra** image block: generate alt text and title directly from the block inspector sidebar.
@@ -271,6 +274,10 @@ Yes. ImageCraft includes a custom prompt builder for both general images and Woo
 
 Only if you choose to. The "Skip images with existing alt text" option is available in settings. When preview mode is enabled, nothing is saved until you explicitly accept it.
 
+= What are Image Fallbacks? =
+
+Image Fallbacks make sure your visitors never see a broken image. You pick one fallback image and ImageCraft (1) swaps it in whenever an image on your site fails to load — deleted files, dead external links — and (2) uses it as the featured image for posts that don't have one, in archives and social previews. The fallback carries proper alt text, nothing is ever written to your posts or database, and turning the feature off reverts everything instantly.
+
 = What image formats are supported? =
 
 JPG, PNG, GIF, and WebP. Images are read from your local WordPress uploads directory when possible (avoiding SSL issues on localhost) or fetched via URL for remote images.
@@ -297,7 +304,7 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Screenshots ==
 
-1. Dashboard - Dual-focus dashboard with Alt Text and Image Compression panels, SEO audit score, daily usage tracker, stats cards, and usage & cost chart
+1. Dashboard - At-a-glance stat cards (total images, alt text coverage, compression savings), Quick Actions, a Needs Attention list with one-click fixes, and Image SEO + Compression panels
 2. Image SEO Audit - Scan your entire media library and filter images by missing, generic, or too-long alt text and titles, browse by FileBird folder, and fix issues in bulk
 3. Media Library - Generate alt text, rename files, and compress images directly from the WordPress media modal with one click
 4. WooCommerce Products - Browse products with alt text status, filter by category, and generate alt text per product
@@ -308,6 +315,15 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 9. Image Compression - Scan and compress images with before/after size savings, bulk compression, and one-click restore
 
 == Changelog ==
+
+= 1.5.0 (11 July, 2026) =
+* New: **Image Fallbacks** — never show a broken image again. Pick one fallback image: it replaces broken images for your visitors (with proper alt text) and acts as the default featured image for posts that have none. Fully non-destructive (nothing is written to your content) and off by default — enable it under Settings → Image Fallbacks or from the new setup wizard step
+* New: **Broken-image scan** — the dashboard now finds media library images whose files are missing from disk and lists them under Needs Attention
+* New: Dashboard redesign — personal greeting, at-a-glance stat cards (total images, alt text coverage, compressed count, space saved), a Quick Actions widget, and a compact Needs Attention list with one-click fixes
+* New: Optional Image Fallbacks step in the setup wizard — one image enables both fallback features in a single click
+* Improvement: Pro users can set a different featured-image fallback per post type and schedule automatic broken-image scans with email alerts (requires ImageCraft Pro)
+* Improvement: WordPress media modal is available on the ImageCraft settings pages for choosing fallback images
+
 
 = 1.4.2 (1 July, 2026) =
 * Note: **Auto-generate on upload** (automatically creating alt text/title/description as soon as an image is uploaded) is now a Pro feature. If you were previously using this on the free plan, it will no longer run automatically after updating — you can still generate alt text, titles, and descriptions manually anytime from the Image SEO screen or the media library, or upgrade to Pro to restore automatic generation on upload.
@@ -484,6 +500,10 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+NEW: Image Fallbacks — never show a broken image. One fallback image replaces broken images for visitors and acts as the default featured image for posts without one. Non-destructive and off by default. Plus a redesigned dashboard with stat cards and quick actions.
+
 
 = 1.4.1 =
 Adds Generate All (combined alt text + title + description in one AI call) and new filters. Note: if you had "auto-generate on upload" enabled on the free plan, it is now a Pro feature — generation is still available manually anytime from the Image SEO screen or media library.

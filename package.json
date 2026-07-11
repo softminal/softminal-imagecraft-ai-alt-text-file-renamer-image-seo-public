@@ -1,6 +1,6 @@
 {
   "name": "imagecraft",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "A WordPress plugin that generates alt text for images using AI.",
   "main": "resources/admin/main.js",
   "scripts": {
