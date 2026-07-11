@@ -1,5 +1,25 @@
 <template>
   <div class="dashboard p-6">
+    <!-- Greeting header -->
+    <div class="flex items-center gap-4 mb-6">
+      <img
+        v-if="userAvatar"
+        :src="userAvatar"
+        alt=""
+        class="w-12 h-12 rounded-full bg-purple-100 object-cover shrink-0"
+      />
+      <div
+        v-else
+        class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-bold shrink-0"
+      >
+        {{ (userName || 'I').charAt(0).toUpperCase() }}
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900 m-0 leading-tight">{{ greeting }} {{ userName }} 👋</h2>
+        <p class="text-gray-500 m-0 mt-0.5">{{ $t('Welcome to ImageCraft') }}</p>
+      </div>
+    </div>
+
     <!-- No API key configured: AI features need a key; compression does not. -->
     <div v-if="!hasAiKey" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start justify-between gap-4">
       <div class="flex items-start gap-3">
@@ -51,7 +71,6 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       <!-- Needs attention: actionable to-do tiles, deep-linked to the fix screens -->
       <div v-if="audit && needsAttention.length" class="lg:col-span-2">
-        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">{{ $t('Needs attention') }}</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <router-link
             v-for="item in needsAttention"
@@ -441,6 +460,16 @@ const statusBadge = (status) => {
   if (status === 'rejected') return 'bg-red-100 text-red-700'
   return 'bg-yellow-100 text-yellow-700'
 }
+
+// Greeting header: time-of-day greeting + current user's name/avatar (from PHP).
+const userName = window.icais?.userName || ''
+const userAvatar = window.icais?.userAvatar || ''
+const greeting = computed(() => {
+  const h = new Date().getHours()
+  if (h < 12) return $t('Good morning')
+  if (h < 17) return $t('Good afternoon')
+  return $t('Good evening')
+})
 
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
 // Non-admins (permitted roles) can't reach the admin-only /settings endpoint, so
