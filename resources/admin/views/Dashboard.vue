@@ -67,49 +67,27 @@
       </div>
     </div>
 
-    <!-- Needs attention (2/3) + Quick Actions widget (1/3) — mirrors the panels grid below -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-      <!-- Needs attention: actionable to-do tiles, deep-linked to the fix screens -->
-      <div v-if="audit && needsAttention.length" class="lg:col-span-2">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <router-link
-            v-for="item in needsAttention"
-            :key="item.key"
-            :to="item.to"
-            :class="['flex items-center justify-between bg-white border rounded-lg px-4 py-3 hover:shadow-md transition', toneClasses[item.tone]]"
-          >
-            <div>
-              <div class="text-2xl font-bold leading-tight">{{ item.count }}</div>
-              <div class="text-sm text-gray-600">{{ item.label }}</div>
-            </div>
-            <span class="text-sm font-medium">{{ $t('Fix') }} →</span>
-          </router-link>
-        </div>
-      </div>
-
-      <!-- Quick Actions: compact side widget with a vertical link list -->
-      <div :class="['bg-white rounded-lg shadow border p-5', (audit && needsAttention.length) ? '' : 'lg:col-span-3']">
-        <h3 class="text-base font-semibold text-gray-900 mb-3 mt-0">{{ $t('Quick Actions') }}</h3>
-        <ul class="m-0 p-0 list-none flex flex-col">
-          <li v-for="action in quickActions" :key="action.key" class="m-0">
-            <router-link
-              :to="action.to"
-              class="quick-action inline-flex items-center gap-3 py-2 text-[15px] font-medium text-gray-800"
-            >
+    <!-- Main layout: content (3/4) + full-height sidebar (1/4) -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- ==================== LEFT: main content ==================== -->
+      <div class="lg:col-span-3 flex flex-col gap-6">
+        <!-- Stat cards -->
+        <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          <div v-for="stat in statCards" :key="stat.key" class="bg-white rounded-lg shadow border p-5">
+            <span :class="['inline-flex items-center justify-center w-11 h-11 rounded-xl mb-3', stat.iconClass]">
               <!-- eslint-disable-next-line vue/no-v-html -->
-              <svg class="w-5 h-5 shrink-0 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="action.icon"></svg>
-              <span>{{ action.label }}</span>
-            </router-link>
-          </li>
-        </ul>
-      </div>
-    </div>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="stat.icon"></svg>
+            </span>
+            <div class="text-sm text-gray-500">{{ stat.label }}</div>
+            <div class="text-2xl font-bold text-gray-900 mt-0.5">{{ stat.value }}</div>
+          </div>
+        </div>
 
-    <!-- Image Fallbacks discovery card — admins only, while the module is OFF, until dismissed -->
-    <div
-      v-if="showFallbackPromo"
-      class="bg-white border border-blue-200 rounded-lg p-4 mb-6 flex items-start justify-between gap-4"
-    >
+        <!-- Image Fallbacks discovery card — admins only, while the module is OFF, until dismissed -->
+        <div
+          v-if="showFallbackPromo"
+          class="bg-white border border-blue-200 rounded-lg p-4 flex items-start justify-between gap-4"
+        >
       <div class="flex items-start gap-3 min-w-0">
         <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -143,8 +121,8 @@
       </div>
     </div>
 
-    <!-- Two flagship feature panels: Image SEO (wide) + Compression (compact widget) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Two flagship feature panels: Image SEO (wide) + Compression (compact widget) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- ============ Image SEO (spans 2 columns) ============ -->
       <div class="lg:col-span-2 bg-white rounded-lg shadow border flex flex-col overflow-hidden">
         <div class="flex items-center justify-between px-6 pt-3">
@@ -298,8 +276,8 @@
       </div>
     </div>
 
-    <!-- Overall optimization: single blended KPI across SEO + compression -->
-    <div v-if="audit" class="bg-white rounded-lg shadow border p-5 mb-6 flex items-center gap-5">
+        <!-- Overall optimization: single blended KPI across SEO + compression -->
+        <div v-if="audit" class="bg-white rounded-lg shadow border p-5 flex items-center gap-5">
       <div class="relative w-24 h-24 shrink-0">
         <svg class="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="42" stroke="#e5e7eb" stroke-width="9" fill="none" />
@@ -321,6 +299,50 @@
         <div class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ $t('Overall optimization') }}</div>
         <div class="text-lg font-semibold text-gray-800">{{ overallLabel }}</div>
         <div class="text-sm text-gray-500">{{ $t('Blended across alt text, titles, descriptions and compression.') }}</div>
+      </div>
+        </div>
+      </div>
+
+      <!-- ==================== RIGHT: full-height sidebar ==================== -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow border p-5 lg:sticky lg:top-6">
+          <!-- Quick Actions -->
+          <h3 class="text-base font-semibold text-gray-900 mb-2 mt-0">{{ $t('Quick Actions') }}</h3>
+          <ul class="m-0 p-0 list-none flex flex-col">
+            <li v-for="action in quickActions" :key="action.key" class="m-0">
+              <router-link
+                :to="action.to"
+                class="quick-action inline-flex items-center gap-3 py-2 text-[15px] font-medium text-gray-800"
+              >
+                <!-- eslint-disable-next-line vue/no-v-html -->
+                <svg class="w-5 h-5 shrink-0 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="action.icon"></svg>
+                <span>{{ action.label }}</span>
+              </router-link>
+            </li>
+          </ul>
+
+          <!-- Needs attention: compact list, deep-linked to the fix screens -->
+          <template v-if="audit && needsAttention.length">
+            <hr class="my-4 border-gray-100" />
+            <h3 class="text-base font-semibold text-gray-900 mb-2 mt-0">{{ $t('Needs Attention') }}</h3>
+            <ul class="m-0 p-0 list-none flex flex-col">
+              <li v-for="item in needsAttention" :key="item.key" class="m-0">
+                <router-link
+                  :to="item.to"
+                  class="attention-row flex items-center justify-between gap-2 py-2"
+                >
+                  <span class="flex items-center gap-2 min-w-0">
+                    <span :class="['inline-flex items-center justify-center min-w-[28px] h-6 px-1.5 rounded-md text-xs font-bold', badgeClasses[item.tone]]">
+                      {{ item.count }}
+                    </span>
+                    <span class="text-sm text-gray-700 truncate">{{ item.label }}</span>
+                  </span>
+                  <span class="text-xs font-medium text-blue-600 shrink-0">{{ $t('Fix') }} →</span>
+                </router-link>
+              </li>
+            </ul>
+          </template>
+        </div>
       </div>
     </div>
 
@@ -406,13 +428,13 @@ const dismissFallbackPromo = () => {
   }
 }
 
-// Actionable to-do tiles — only surface items that actually need fixing.
-const toneClasses = {
-  red: 'border-red-200 text-red-600',
-  indigo: 'border-indigo-200 text-indigo-600',
-  green: 'border-green-200 text-green-600',
-  orange: 'border-orange-200 text-orange-600',
-  yellow: 'border-yellow-200 text-yellow-600',
+// Needs-attention count badges (sidebar list).
+const badgeClasses = {
+  red: 'bg-red-50 text-red-600',
+  indigo: 'bg-indigo-50 text-indigo-600',
+  green: 'bg-green-50 text-green-600',
+  orange: 'bg-orange-50 text-orange-600',
+  yellow: 'bg-yellow-50 text-yellow-600',
 }
 
 const needsAttention = computed(() => {
@@ -427,6 +449,38 @@ const needsAttention = computed(() => {
     { key: 'generic', count: a.generic || 0, label: $t('Generic alt text'), to: '/scanner?filter=generic', tone: 'yellow' },
   ].filter((i) => i.count > 0)
 })
+
+// Stat cards row — the at-a-glance numbers (FluentMembers-style layout).
+const statCards = computed(() => [
+  {
+    key: 'total',
+    label: $t('Total Images'),
+    value: stats.value.total_images ?? 0,
+    iconClass: 'bg-blue-50 text-blue-600',
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>',
+  },
+  {
+    key: 'alt',
+    label: $t('Alt Text Coverage'),
+    value: (audit.value?.score ?? 0) + '%',
+    iconClass: 'bg-purple-50 text-purple-600',
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
+  },
+  {
+    key: 'compressed',
+    label: $t('Images Compressed'),
+    value: compressionStats.value.total_compressed ?? 0,
+    iconClass: 'bg-green-50 text-green-600',
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4l4 4m10-4l-4-4m4 4l-4 4"/>',
+  },
+  {
+    key: 'saved',
+    label: $t('Space Saved'),
+    value: compressionStats.value.total_saved_human || '0 B',
+    iconClass: 'bg-teal-50 text-teal-600',
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7M4 7c0-2 1.5-3 3.5-3h9c2 0 3.5 1 3.5 3M4 7c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3m-16 5c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3"/>',
+  },
+])
 
 // Greeting header: time-of-day greeting + current user's name/avatar (from PHP).
 const userName = window.icais?.userName || ''
@@ -611,6 +665,21 @@ onMounted(() => {
 }
 .quick-action:focus,
 .quick-action:active {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Needs-attention rows are links — keep them quiet until hover. */
+.attention-row {
+    text-decoration: none;
+}
+.attention-row:hover span.text-gray-700 {
+    color: #1d4ed8;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.attention-row:focus,
+.attention-row:active {
     outline: none;
     box-shadow: none;
 }
