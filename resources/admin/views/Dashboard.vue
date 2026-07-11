@@ -47,22 +47,42 @@
       </div>
     </div>
 
-    <!-- Needs attention: actionable to-do tiles, deep-linked to the fix screens -->
-    <div v-if="audit && needsAttention.length" class="mb-6">
-      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">{{ $t('Needs attention') }}</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <router-link
-          v-for="item in needsAttention"
-          :key="item.key"
-          :to="item.to"
-          :class="['flex items-center justify-between bg-white border rounded-lg px-4 py-3 hover:shadow-md transition', toneClasses[item.tone]]"
-        >
-          <div>
-            <div class="text-2xl font-bold leading-tight">{{ item.count }}</div>
-            <div class="text-sm text-gray-600">{{ item.label }}</div>
-          </div>
-          <span class="text-sm font-medium">{{ $t('Fix') }} →</span>
-        </router-link>
+    <!-- Needs attention (2/3) + Quick Actions widget (1/3) — mirrors the panels grid below -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <!-- Needs attention: actionable to-do tiles, deep-linked to the fix screens -->
+      <div v-if="audit && needsAttention.length" class="lg:col-span-2">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">{{ $t('Needs attention') }}</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <router-link
+            v-for="item in needsAttention"
+            :key="item.key"
+            :to="item.to"
+            :class="['flex items-center justify-between bg-white border rounded-lg px-4 py-3 hover:shadow-md transition', toneClasses[item.tone]]"
+          >
+            <div>
+              <div class="text-2xl font-bold leading-tight">{{ item.count }}</div>
+              <div class="text-sm text-gray-600">{{ item.label }}</div>
+            </div>
+            <span class="text-sm font-medium">{{ $t('Fix') }} →</span>
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Quick Actions: compact side widget with a vertical link list -->
+      <div :class="['bg-white rounded-lg shadow border p-5', (audit && needsAttention.length) ? '' : 'lg:col-span-3']">
+        <h3 class="text-base font-semibold text-gray-900 mb-3 mt-0">{{ $t('Quick Actions') }}</h3>
+        <ul class="m-0 p-0 list-none flex flex-col">
+          <li v-for="action in quickActions" :key="action.key" class="m-0">
+            <router-link
+              :to="action.to"
+              class="quick-action inline-flex items-center gap-3 py-2 text-[15px] font-medium text-gray-800"
+            >
+              <!-- eslint-disable-next-line vue/no-v-html -->
+              <svg class="w-5 h-5 shrink-0 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="action.icon"></svg>
+              <span>{{ action.label }}</span>
+            </router-link>
+          </li>
+        </ul>
       </div>
     </div>
 
@@ -102,23 +122,6 @@
           ✕
         </button>
       </div>
-    </div>
-
-    <!-- Quick actions: one-click jump to every core task (link list) -->
-    <div class="bg-white rounded-lg shadow border p-5 mb-6">
-      <h3 class="text-base font-semibold text-gray-900 mb-4 mt-0">{{ $t('Quick Actions') }}</h3>
-      <ul class="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1">
-        <li v-for="action in quickActions" :key="action.key" class="m-0">
-          <router-link
-            :to="action.to"
-            class="quick-action inline-flex items-center gap-3 py-2 text-[15px] font-medium text-gray-800"
-          >
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <svg class="w-5 h-5 shrink-0 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="action.icon"></svg>
-            <span>{{ action.label }}</span>
-          </router-link>
-        </li>
-      </ul>
     </div>
 
     <!-- Two flagship feature panels: Image SEO (wide) + Compression (compact widget) -->
