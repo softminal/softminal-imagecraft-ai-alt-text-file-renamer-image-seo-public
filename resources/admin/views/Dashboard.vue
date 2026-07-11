@@ -70,20 +70,8 @@
     <!-- Main layout: content (3/4) + full-height sidebar (1/4) -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
       <!-- ==================== LEFT: main content ==================== -->
+       
       <div class="lg:col-span-3 flex flex-col gap-6">
-        <!-- Stat cards -->
-        <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          <div v-for="stat in statCards" :key="stat.key" class="bg-white rounded-lg shadow border p-5">
-            <span :class="['inline-flex items-center justify-center w-11 h-11 rounded-xl mb-3', stat.iconClass]">
-              <!-- eslint-disable-next-line vue/no-v-html -->
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="stat.icon"></svg>
-            </span>
-            <div class="text-sm text-gray-500">{{ stat.label }}</div>
-            <div class="text-2xl font-bold text-gray-900 mt-0.5">{{ stat.value }}</div>
-          </div>
-        </div>
-
-        <!-- Image Fallbacks discovery card — admins only, while the module is OFF, until dismissed -->
         <div
           v-if="showFallbackPromo"
           class="bg-white border border-blue-200 rounded-lg p-4 flex items-start justify-between gap-4"
@@ -120,6 +108,17 @@
         </button>
       </div>
     </div>
+        <!-- Stat cards -->
+        <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          <div v-for="stat in statCards" :key="stat.key" class="bg-white rounded-lg shadow border p-5">
+            <span :class="['inline-flex items-center justify-center w-11 h-11 rounded-xl mb-3', stat.iconClass]">
+              <!-- eslint-disable-next-line vue/no-v-html -->
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="stat.icon"></svg>
+            </span>
+            <div class="text-sm text-gray-500">{{ stat.label }}</div>
+            <div class="text-2xl font-bold text-gray-900 mt-0.5">{{ stat.value }}</div>
+          </div>
+        </div>
 
         <!-- Two flagship feature panels: Image SEO (wide) + Compression (compact widget) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -305,25 +304,26 @@
 
       <!-- ==================== RIGHT: full-height sidebar ==================== -->
       <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow border p-5 lg:sticky lg:top-6">
-          <!-- Quick Actions -->
-          <h3 class="text-base font-semibold text-gray-900 mb-2 mt-0">{{ $t('Quick Actions') }}</h3>
-          <ul class="m-0 p-0 list-none flex flex-col">
-            <li v-for="action in quickActions" :key="action.key" class="m-0">
-              <router-link
-                :to="action.to"
-                class="quick-action inline-flex items-center gap-3 py-2 text-[15px] font-medium text-gray-800"
-              >
-                <!-- eslint-disable-next-line vue/no-v-html -->
-                <svg class="w-5 h-5 shrink-0 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="action.icon"></svg>
-                <span>{{ action.label }}</span>
-              </router-link>
-            </li>
-          </ul>
+        <div class="flex flex-col gap-6 lg:sticky lg:top-6">
+          <!-- Quick Actions widget -->
+          <div class="bg-white rounded-lg shadow border p-5">
+            <h3 class="text-base font-semibold text-gray-900 mb-2 mt-0">{{ $t('Quick Actions') }}</h3>
+            <ul class="m-0 p-0 list-none flex flex-col">
+              <li v-for="action in quickActions" :key="action.key" class="m-0">
+                <router-link
+                  :to="action.to"
+                  class="quick-action inline-flex items-center gap-3 py-2 text-[15px] font-medium text-gray-800"
+                >
+                  <!-- eslint-disable-next-line vue/no-v-html -->
+                  <svg class="w-5 h-5 shrink-0 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="action.icon"></svg>
+                  <span>{{ action.label }}</span>
+                </router-link>
+              </li>
+            </ul>
+          </div>
 
-          <!-- Needs attention: compact list, deep-linked to the fix screens -->
-          <template v-if="audit && needsAttention.length">
-            <hr class="my-4 border-gray-100" />
+          <!-- Needs Attention widget: compact list, deep-linked to the fix screens -->
+          <div v-if="audit && needsAttention.length" class="bg-white rounded-lg shadow border p-5">
             <h3 class="text-base font-semibold text-gray-900 mb-2 mt-0">{{ $t('Needs Attention') }}</h3>
             <ul class="m-0 p-0 list-none flex flex-col">
               <li v-for="item in needsAttention" :key="item.key" class="m-0">
@@ -341,7 +341,7 @@
                 </router-link>
               </li>
             </ul>
-          </template>
+          </div>
         </div>
       </div>
     </div>
