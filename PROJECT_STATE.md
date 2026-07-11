@@ -41,10 +41,14 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 ### PHP (`includes/`)
 - **Bootstrap:** `App.php` (singleton, `$loadOrder`), `Enqueue.php`,
   `EnqueueAsset.php`, `Menu.php`, `Install.php` (DB + migrations),
-  `AutoGenerate.php` (alt text on upload), `AdminNotice.php`.
+  `AutoGenerate.php` (alt text on upload), `AdminNotice.php`,
+  `Fallback.php` (Image Fallbacks — the plugin's only public-frontend surface;
+  broken-`<img>` JS swap + `_thumbnail_id` meta-filter featured fallback; opt-in,
+  non-destructive).
 - **HTTP:** `Http/api.php` (all routes), `Http/Routes/{Route,Router}.php`,
   `Http/Controllers/` — Generator, Scanner, Batch, Settings, Stats,
-  FileRenamer, WooCommerce.
+  FileRenamer, WooCommerce, Fallback (time-budgeted broken-image scan;
+  `scanBrokenCore()` reusable by the Pro cron).
 - **Models (`Models/`):** Eloquent-like ORM — `ApiSetting`, `History`, `Stats`,
   `BatchJob` (+ `Model.php` base, WP object cache).
 - **Services (`Services/`):** `Settings.php`, `Encryption.php`, `Database.php`,
@@ -65,7 +69,10 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 - **API client:** `services/Api.js` (reads `window.imageCraft`).
 - **Views:** Dashboard, Scanner, Batch, Settings, **SetupWizard**, WooCommerce, Help.
 - **Settings sub-routes (`components/Settings/`):** General, Api, AltText, Title,
-  Rename, WooCommerce, Seo, Integration, License.
+  Rename, WooCommerce, Seo, Integration, License, Fallback (`/settings/fallback`,
+  uses shared `ImagePick.vue` wp.media picker).
+- **Public frontend JS (`resources/public/js/`):** `fallback.js` — raw (non-Vite)
+  broken-image onerror swap; copied into releases by `build.sh`.
 - **Shared UI (`@ui/`):** Notification, Pagination. Plugins: `notification.js`.
 - **Standalone JS entries:** `js/gutenberg-alt-button.js`, `js/block-editor-common.js`,
   `js/kadence-alt-button.js`, `js/spectra-alt-button.js`, `js/media-button.js`.
@@ -86,6 +93,7 @@ It follows a **BYOK (Bring Your Own Key)** model, and also supports the
 | Auto-generate on upload | AutoGenerate.php | (none — WP hook) |
 | File rename (SEO) | FileRenamerController, FileRenamer | Scanner.vue |
 | **Image compression** | CompressorController, ImageCompressor, Compression, UsageLimiter (`canCompress`), BatchController (`type=compress`); **Pro unlocks via filters + auto-compress in the Pro add-on** | Compression.vue, CompressionSettings.vue |
+| **Image Fallbacks** (broken + missing featured) | Fallback.php (frontend hooks), FallbackController (scan); **Pro: per-post-type images via `icais_fallback_featured_image_id` filter + scheduled scan/email cron in the Pro add-on** | FallbackSettings.vue, ImagePick.vue, Dashboard.vue (Broken images tile + score penalty), resources/public/js/fallback.js |
 | WooCommerce images | WooCommerceController, WooCommerce | WooCommerce.vue |
 | SEO integration (Yoast/RankMath) | SeoIntegration | SeoSettings.vue |
 | Stats / dashboard | StatsController, Stats, CompressorController (`stats`) | Dashboard.vue (dual-focus: Alt Text + Compression panels) |
@@ -134,8 +142,8 @@ provider `generateAltText()` → `StatsTracker` records `History` + `Stats`.
 ## 6. REST API (`/wp-json/icais/v1`)
 
 Routes defined in `Http/api.php`. Groups: `settings/*`, `scanner/*`,
-`generator/*`, `batch/*`, `stats/*`, `renamer/*`, `compressor/*`, `woocommerce/*`,
-`filebird/*`, `notice/dismiss`, `feedback/deactivation`. Each route has a capability check
+`generator/*`, `batch/*`, `stats/*`, `renamer/*`, `compressor/*`, `fallback/*`,
+`woocommerce/*`, `filebird/*`, `notice/dismiss`, `feedback/deactivation`. Each route has a capability check
 (`manage_options`, `upload_files`, `manage_woocommerce`, `edit_posts`, or
 `activate_plugins`). **Full table lives in `CLAUDE.md` → REST API** (keep both in sync).
 
@@ -203,6 +211,38 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 ---
 
 ## 10. Recent Changes (newest first)
+
+- **2026-07-11** — **Update-discovery + Quick Actions.** (1) One-time wp-admin "What's New:
+  Image Fallbacks" notice (`AdminNotice::displayFallbackFeatureNotice`) — admins only, per-user
+  dismissal (`icais_fallback_notice_dismissed`, cleaned on uninstall), hidden when the module is
+  on or wizard incomplete; the wizard's Fallbacks step auto-dismisses it so fresh installs never
+  see it. `POST /notice/dismiss` gained an additive `notice` param (`review`|`fallback_feature`);
+  the dismiss inline JS was refactored into a shared `printDismissScript()`. (2) Dashboard
+  **Quick actions** widget: card grid → Generate alt text / Compress / Rename / Set up fallbacks
+  (admin) / WooCommerce images (admin + Woo). Both verified with Playwright (notice shows,
+  dismiss persists across reload, widget navigates).
+
+- **2026-07-11** — **NEW: Image Fallbacks module (opt-in, default off; first public-frontend
+  surface).** (1) Broken-image fallback: raw JS (`resources/public/js/fallback.js`, capture-phase
+  error listener + already-failed sweep) swaps any broken `<img>` to a chosen fallback attachment
+  and fills empty alt (SEO-aware). (2) Missing-featured-image fallback: `get_post_metadata`
+  (`_thumbnail_id`) filter (primary; `is_admin()` bail, recursion guard) + `post_thumbnail_html`
+  (secondary) — non-destructive, nothing written to DB. (3) Admin broken-image scan:
+  `GET /fallback/scan-broken` (upload_files), time-budgeted + resumable via `icais_broken_scan`
+  transient (`partial:true` → re-call); Dashboard "Broken images" tile + ≤10-pt score penalty.
+  New: `includes/Fallback.php`, `FallbackController.php`, `FallbackSettings.vue`, `ImagePick.vue`,
+  route `/settings/fallback`; `wp_enqueue_media()` on the ImageCraft page; `build.sh` now copies
+  `resources/public/`. Settings: `icais_fallback_{enabled,broken_enabled,broken_image_id,
+  featured_enabled,featured_image_id,featured_post_types}` + Pro-effect (inert in free)
+  `icais_fallback_{featured_map,scan_schedule,scan_email}`. **Pro split (mirrors Compression):**
+  free = global fallback image + manual scan; Pro = per-post-type images via
+  `apply_filters('icais_fallback_featured_image_id')` + `icais_fallback_scan` cron with
+  email-on-new-broken (Pro add-on `Features/Fallbacks.php`; free registers NO cron).
+  **Discovery UX:** Dashboard promo card (admins, while module off, localStorage-dismissible);
+  SetupWizard step 4 = optional one-picker Fallbacks setup (one image for both sub-features;
+  wizard completes before the step so abandoning is safe; step 5 = success screen); the
+  Broken-images tile scans even when the module is off. FallbackSettings adds inline
+  "choose an image" warnings + "use the same image" shortcut.
 
 - **2026-06-30** — **Auto-generate-on-upload is now Pro-only (hard cut).** The FREE plugin no
   longer auto-generates on upload (`App::run()` does not call `AutoGenerate::init()`). The single

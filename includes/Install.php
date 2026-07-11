@@ -240,6 +240,7 @@ class Install
         // Delete user meta for all users
         delete_metadata('user', 0, ICAIS_TABLE_PREFIX . 'wizard_completed', '', true);
         delete_metadata('user', 0, 'icais_review_notice_dismissed', '', true);
+        delete_metadata('user', 0, 'icais_fallback_notice_dismissed', '', true);
 
         // Clean up all plugin transients (batch, heartbeat, rate-limit, etc.)
         global $wpdb;

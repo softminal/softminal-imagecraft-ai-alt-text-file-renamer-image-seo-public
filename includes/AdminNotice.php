@@ -12,10 +12,64 @@ class AdminNotice
 {
     private static $generationThreshold = 8;
     private static $metaKey = 'icais_review_notice_dismissed';
+    private static $fallbackMetaKey = 'icais_fallback_notice_dismissed';
 
     public static function init(): void
     {
         add_action('admin_notices', [self::class, 'displayReviewNotice']);
+        add_action('admin_notices', [self::class, 'displayFallbackFeatureNotice']);
+    }
+
+    /**
+     * One-time "What's New" notice for the Image Fallbacks feature.
+     *
+     * Reaches existing users who updated but don't visit the ImageCraft page
+     * (where the Dashboard promo card lives). Self-limiting: hidden for
+     * non-admins, once dismissed (per user), once the module is enabled, and
+     * for fresh installs (the setup wizard's Fallbacks step marks it dismissed).
+     */
+    public static function displayFallbackFeatureNotice(): void
+    {
+        $userId = get_current_user_id();
+
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        if (get_user_meta($userId, self::$fallbackMetaKey, true)) {
+            return;
+        }
+
+        // Mid-wizard installs are excluded; the wizard itself introduces the feature.
+        if (!Settings::isWizardCompleted($userId)) {
+            return;
+        }
+
+        // Already using it — nothing to announce.
+        if (Settings::get('icais_fallback_enabled', '0') === '1') {
+            return;
+        }
+
+        $setupUrl = admin_url('admin.php?page=icais#/settings/fallback');
+        $dismissUrl = esc_url(rest_url(ICAIS_API_NAMESPACE . '/notice/dismiss'));
+        $nonce = wp_create_nonce('wp_rest');
+        ?>
+        <div class="notice notice-info is-dismissible icais-fallback-notice">
+            <p>
+                <strong><?php echo esc_html__('New in ImageCraft: Image Fallbacks — never show a broken image again.', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?></strong><br>
+                <?php echo esc_html__('Pick one fallback image: it replaces broken images for your visitors and acts as the featured image for posts without one. Non-destructive and off by default.', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
+            </p>
+            <p>
+                <a href="<?php echo esc_url($setupUrl); ?>" class="button button-primary">
+                    <?php echo esc_html__('Set up Image Fallbacks', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
+                </a>
+                <a href="#" class="button button-link icais-dismiss-fallback" style="margin-left: 10px;">
+                    <?php echo esc_html__('Dismiss', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
+                </a>
+            </p>
+        </div>
+        <?php
+        self::printDismissScript('.icais-fallback-notice', '.icais-dismiss-fallback', $dismissUrl . '?notice=fallback_feature', $nonce);
     }
 
     public static function displayReviewNotice(): void
@@ -68,10 +122,15 @@ class AdminNotice
             </p>
         </div>
         <?php
-        self::printReviewNoticeScript($dismissUrl, $nonce);
+        self::printDismissScript('.icais-review-notice', '.icais-dismiss-review', $dismissUrl, $nonce);
     }
 
-    private static function printReviewNoticeScript(string $dismissUrl, string $nonce): void
+    /**
+     * Print the shared dismiss handler for a notice: the inline dismiss link
+     * and core's is-dismissible 'X' both hide the notice and persist the
+     * dismissal via the REST endpoint.
+     */
+    private static function printDismissScript(string $noticeSelector, string $dismissLinkSelector, string $dismissUrl, string $nonce): void
     {
         $script = sprintf(
             "(function() {
@@ -84,7 +143,7 @@ class AdminNotice
                 }
 
                 ready(function() {
-                    var notice = document.querySelector('.icais-review-notice');
+                    var notice = document.querySelector('%s');
                     if (!notice) {
                         return;
                     }
@@ -104,8 +163,8 @@ class AdminNotice
                         });
                     }
 
-                    // 'Maybe Later' link — hide and persist.
-                    var dismissLink = notice.querySelector('.icais-dismiss-review');
+                    // Inline dismiss link — hide and persist.
+                    var dismissLink = notice.querySelector('%s');
                     if (dismissLink) {
                         dismissLink.addEventListener('click', function(e) {
                             e.preventDefault();
@@ -123,8 +182,10 @@ class AdminNotice
                     });
                 });
             })();",
+            esc_js($noticeSelector),
             esc_js($dismissUrl),
-            esc_js($nonce)
+            esc_js($nonce),
+            esc_js($dismissLinkSelector)
         );
 
         // wp_print_inline_script_tag() handles safe output of the inline handler;
@@ -132,10 +193,21 @@ class AdminNotice
         wp_print_inline_script_tag($script);
     }
 
-    public static function dismiss(): \WP_REST_Response
+    /**
+     * Persist a per-user notice dismissal. The optional `notice` param selects
+     * which notice (additive — omitting it keeps the legacy review behavior).
+     */
+    public static function dismiss($request = null): \WP_REST_Response
     {
         $userId = get_current_user_id();
-        update_user_meta($userId, self::$metaKey, '1');
+
+        $notice = 'review';
+        if ($request && is_callable([$request, 'get_param'])) {
+            $notice = sanitize_key((string) ($request->get_param('notice') ?: 'review'));
+        }
+
+        $metaKey = $notice === 'fallback_feature' ? self::$fallbackMetaKey : self::$metaKey;
+        update_user_meta($userId, $metaKey, '1');
 
         return new \WP_REST_Response(['success' => true]);
     }

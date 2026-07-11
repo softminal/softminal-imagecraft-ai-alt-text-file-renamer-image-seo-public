@@ -129,10 +129,10 @@ class SettingsController extends Controller
         }
 
         // Sanitize setting values based on type
-        $intKeys = ['icais_max_length', 'icais_title_max_length', 'icais_batch_size', 'icais_request_timeout', 'icais_rename_max_length', 'icais_compression_quality', 'icais_compression_max_width', 'icais_compression_min_size_kb', 'icais_caption_max_length'];
-        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_generate_title', 'icais_title_preview_before_accept', 'icais_title_skip_existing', 'icais_title_auto_generate', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase', 'icais_integration_kadence', 'icais_integration_spectra', 'icais_integration_yoast', 'icais_integration_rankmath', 'icais_integration_aioseo', 'icais_integration_seopress', 'icais_integration_woocommerce', 'icais_integration_wpml', 'icais_integration_polylang', 'icais_integration_filebird', 'icais_use_wp7_ai', 'icais_compression_enabled', 'icais_compression_convert_webp', 'icais_compression_keep_backup', 'icais_compression_skip_compressed', 'icais_compression_auto', 'icais_meta_enabled', 'icais_meta_include_alt', 'icais_meta_include_title', 'icais_meta_include_caption', 'icais_meta_auto_generate', 'icais_caption_auto_generate', 'icais_caption_skip_existing'];
+        $intKeys = ['icais_max_length', 'icais_title_max_length', 'icais_batch_size', 'icais_request_timeout', 'icais_rename_max_length', 'icais_compression_quality', 'icais_compression_max_width', 'icais_compression_min_size_kb', 'icais_caption_max_length', 'icais_fallback_broken_image_id', 'icais_fallback_featured_image_id'];
+        $boolKeys = ['icais_auto_generate', 'icais_preview_before_accept', 'icais_skip_existing', 'icais_generate_title', 'icais_title_preview_before_accept', 'icais_title_skip_existing', 'icais_title_auto_generate', 'icais_auto_rename', 'icais_woo_auto_generate', 'icais_woo_include_product_info', 'icais_seo_integration', 'icais_seo_use_keyphrase', 'icais_integration_kadence', 'icais_integration_spectra', 'icais_integration_yoast', 'icais_integration_rankmath', 'icais_integration_aioseo', 'icais_integration_seopress', 'icais_integration_woocommerce', 'icais_integration_wpml', 'icais_integration_polylang', 'icais_integration_filebird', 'icais_use_wp7_ai', 'icais_compression_enabled', 'icais_compression_convert_webp', 'icais_compression_keep_backup', 'icais_compression_skip_compressed', 'icais_compression_auto', 'icais_meta_enabled', 'icais_meta_include_alt', 'icais_meta_include_title', 'icais_meta_include_caption', 'icais_meta_auto_generate', 'icais_caption_auto_generate', 'icais_caption_skip_existing', 'icais_fallback_enabled', 'icais_fallback_broken_enabled', 'icais_fallback_featured_enabled', 'icais_fallback_scan_email'];
         $textareaKeys = ['icais_custom_prompt', 'icais_title_custom_prompt', 'icais_woo_custom_prompt'];
-        $jsonArrayKeys = ['icais_excluded_post_types', 'icais_allowed_roles'];
+        $jsonArrayKeys = ['icais_excluded_post_types', 'icais_allowed_roles', 'icais_fallback_featured_post_types'];
 
         // Server-side caps for integer settings to prevent DoS
         $intCaps = [
@@ -178,6 +178,27 @@ class SettingsController extends Controller
                 $submitted = is_array($submitted) ? $submitted : [];
                 $clean = array_values(array_diff(array_intersect($submitted, $validRoles), ['administrator']));
                 $settings[$key] = wp_json_encode($clean);
+            }
+
+            // Fallbacks: per-post-type featured map is a JSON object {post_type: attachment_id}
+            if ($key === 'icais_fallback_featured_map') {
+                $map = is_array($value) ? $value : json_decode((string) $value, true);
+                $clean = [];
+                if (is_array($map)) {
+                    foreach ($map as $postType => $attachmentId) {
+                        $postType = sanitize_key($postType);
+                        $attachmentId = absint($attachmentId);
+                        if ($postType !== '' && $attachmentId > 0) {
+                            $clean[$postType] = $attachmentId;
+                        }
+                    }
+                }
+                $settings[$key] = wp_json_encode((object) $clean);
+            }
+
+            // Fallbacks: scheduled scan cadence is a fixed enum
+            if ($key === 'icais_fallback_scan_schedule' && !in_array($settings[$key], ['0', 'daily', 'weekly'], true)) {
+                $settings[$key] = '0';
             }
 
             // Validate language against supported list — correct invalid values to default

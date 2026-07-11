@@ -39,6 +39,11 @@ class Enqueue {
             return;
         }
 
+        // WP media modal for the Fallback settings image pickers (frame + templates).
+        if (function_exists('wp_enqueue_media')) {
+            wp_enqueue_media();
+        }
+
         $deps = ['jquery', 'wp-api-fetch', 'wp-i18n'];
         $script_enqueued = EnqueueAsset::script('icais-script', 'resources/admin/main.js', $deps);
         EnqueueAsset::style('icais-scss', 'resources/scss/index.css');
@@ -68,6 +73,11 @@ class Enqueue {
                 'isPro'          => defined('ICAIS_PRO') && ICAIS_PRO,
                 'isProInstalled' => defined('ICAIS_PRO_INSTALLED') && ICAIS_PRO_INSTALLED,
                 'isAdmin'        => current_user_can('manage_options'),
+                // Dashboard greeting header (guarded — never fatal on odd user state)
+                'userName'       => ($u = wp_get_current_user()) && $u->exists()
+                    ? ($u->first_name ?: $u->display_name)
+                    : '',
+                'userAvatar'     => get_avatar_url(get_current_user_id(), ['size' => 96]) ?: '',
                 'wizardCompleted' => Settings::isWizardCompleted(),
                 'hasAiKey'       => $hasAiKey,
                 'canUse'         => \Softminal\ImageCraft\Support\Permission::isAllowed(),
