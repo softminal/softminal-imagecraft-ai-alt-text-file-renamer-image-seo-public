@@ -383,22 +383,16 @@ const showFallbackPromo = computed(() => isAdmin && !fallbackEnabled.value && !f
 const quickActions = computed(() => {
   const actions = [
     {
-      key: 'alt',
-      label: $t('Generate alt text'),
-      to: '/scanner?filter=missing',
-      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>',
-    },
-    {
       key: 'compress',
       label: $t('Compress images'),
       to: '/compression',
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4l4 4m10-4l-4-4m4 4l-4 4"/>',
     },
     {
-      key: 'rename',
-      label: $t('Rename files'),
-      to: '/scanner',
-      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
+      key: 'alt',
+      label: $t('Generate alt text'),
+      to: '/scanner?filter=missing',
+      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>',
     },
   ]
   if (isAdmin) {
@@ -417,6 +411,12 @@ const quickActions = computed(() => {
       })
     }
   }
+  actions.push({
+    key: 'rename',
+    label: $t('Rename files'),
+    to: '/scanner',
+    icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
+  })
   return actions
 })
 const dismissFallbackPromo = () => {
