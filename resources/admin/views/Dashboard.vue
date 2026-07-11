@@ -6,17 +6,17 @@
         v-if="userAvatar"
         :src="userAvatar"
         alt=""
-        class="w-12 h-12 rounded-full bg-purple-100 object-cover shrink-0"
+        class="w-14 h-14 rounded-full bg-purple-100 object-cover shrink-0"
       />
       <div
         v-else
-        class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-bold shrink-0"
+        class="w-14 h-14 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-2xl font-bold shrink-0"
       >
         {{ (userName || 'I').charAt(0).toUpperCase() }}
       </div>
       <div>
-        <h2 class="text-2xl font-bold text-gray-900 m-0 leading-tight">{{ greeting }} {{ userName }} 👋</h2>
-        <p class="text-gray-500 m-0 mt-0.5">{{ $t('Welcome to ImageCraft') }}</p>
+        <h2 class="text-[26px]! font-bold! text-gray-900 m-0! p-0! leading-tight">{{ greeting }} {{ userName }} 👋</h2>
+        <p class="text-[17px]! text-gray-500 m-0! mt-1! leading-tight">{{ $t('Welcome to ImageCraft') }}</p>
       </div>
     </div>
 
@@ -324,32 +324,6 @@
       </div>
     </div>
 
-    <!-- Recent activity: latest AI generations -->
-    <div v-if="recentActivity.length" class="mb-6">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ $t('Recent activity') }}</h3>
-        <router-link to="/scanner" class="text-xs text-blue-600 hover:underline">{{ $t('View all') }} →</router-link>
-      </div>
-      <div class="bg-white rounded-lg shadow border divide-y">
-        <div v-for="item in recentActivity" :key="item.id" class="flex items-center gap-3 px-4 py-3">
-          <img
-            v-if="item.thumbnail"
-            :src="item.thumbnail"
-            :alt="item.filename"
-            class="w-10 h-10 rounded object-cover bg-gray-100 shrink-0"
-          />
-          <div v-else class="w-10 h-10 rounded bg-gray-100 shrink-0"></div>
-          <div class="min-w-0 flex-1">
-            <div class="text-sm text-gray-800 truncate">{{ item.generated_alt || $t('(no alt text)') }}</div>
-            <div class="text-xs text-gray-400 truncate">{{ item.filename }}</div>
-          </div>
-          <span
-            :class="['shrink-0 text-xs font-medium px-2 py-0.5 rounded-full capitalize', statusBadge(item.status)]"
-          >{{ item.status }}</span>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -367,7 +341,6 @@ const woocommerceInstalled = ref(false)
 const audit = ref(null)
 const auditLoading = ref(false)
 const compressionStats = ref({})
-const recentActivity = ref([])
 const brokenCount = ref(0)
 
 // Image Fallbacks discovery card: shown to admins while the module is off and
@@ -454,12 +427,6 @@ const needsAttention = computed(() => {
     { key: 'generic', count: a.generic || 0, label: $t('Generic alt text'), to: '/scanner?filter=generic', tone: 'yellow' },
   ].filter((i) => i.count > 0)
 })
-
-const statusBadge = (status) => {
-  if (status === 'accepted') return 'bg-green-100 text-green-700'
-  if (status === 'rejected') return 'bg-red-100 text-red-700'
-  return 'bg-yellow-100 text-yellow-700'
-}
 
 // Greeting header: time-of-day greeting + current user's name/avatar (from PHP).
 const userName = window.icais?.userName || ''
@@ -608,7 +575,6 @@ const loadDashboard = async () => {
     if (statsData.success) {
       stats.value = statsData.stats
       usageLimit.value = statsData.usage_limit || null
-      recentActivity.value = statsData.recent_activity || []
     }
   } catch (error) {
     console.error('Failed to load dashboard:', error)
