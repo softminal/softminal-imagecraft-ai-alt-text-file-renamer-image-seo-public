@@ -104,23 +104,21 @@
       </div>
     </div>
 
-    <!-- Quick actions: one-click jump to every core task -->
-    <div class="mb-6">
-      <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">{{ $t('Quick actions') }}</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <router-link
-          v-for="action in quickActions"
-          :key="action.key"
-          :to="action.to"
-          class="quick-action flex flex-col items-center gap-2 bg-white border rounded-lg px-3 py-4 text-center hover:shadow-md hover:border-blue-300 transition no-underline"
-        >
-          <span :class="['inline-flex items-center justify-center w-9 h-9 rounded-lg', action.iconClass]">
+    <!-- Quick actions: one-click jump to every core task (link list) -->
+    <div class="bg-white rounded-lg shadow border p-5 mb-6">
+      <h3 class="text-base font-semibold text-gray-900 mb-4 mt-0">{{ $t('Quick Actions') }}</h3>
+      <ul class="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1">
+        <li v-for="action in quickActions" :key="action.key" class="m-0">
+          <router-link
+            :to="action.to"
+            class="quick-action inline-flex items-center gap-3 py-2 text-[15px] font-medium text-gray-800"
+          >
             <!-- eslint-disable-next-line vue/no-v-html -->
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="action.icon"></svg>
-          </span>
-          <span class="text-sm font-medium text-gray-700 leading-tight">{{ action.label }}</span>
-        </router-link>
-      </div>
+            <svg class="w-5 h-5 shrink-0 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" v-html="action.icon"></svg>
+            <span>{{ action.label }}</span>
+          </router-link>
+        </li>
+      </ul>
     </div>
 
     <!-- Two flagship feature panels: Image SEO (wide) + Compression (compact widget) -->
@@ -371,21 +369,18 @@ const quickActions = computed(() => {
       key: 'alt',
       label: $t('Generate alt text'),
       to: '/scanner?filter=missing',
-      iconClass: 'bg-blue-50 text-blue-600',
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>',
     },
     {
       key: 'compress',
       label: $t('Compress images'),
       to: '/compression',
-      iconClass: 'bg-green-50 text-green-600',
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4l4 4m10-4l-4-4m4 4l-4 4"/>',
     },
     {
       key: 'rename',
       label: $t('Rename files'),
       to: '/scanner',
-      iconClass: 'bg-indigo-50 text-indigo-600',
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>',
     },
   ]
@@ -394,7 +389,6 @@ const quickActions = computed(() => {
       key: 'fallback',
       label: fallbackEnabled.value ? $t('Image fallbacks') : $t('Set up fallbacks'),
       to: '/settings/fallback',
-      iconClass: 'bg-amber-50 text-amber-600',
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m1 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"/>',
     })
     if (woocommerceInstalled.value) {
@@ -402,7 +396,6 @@ const quickActions = computed(() => {
         key: 'woo',
         label: $t('WooCommerce images'),
         to: '/woocommerce',
-        iconClass: 'bg-purple-50 text-purple-600',
         icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>',
       })
     }
@@ -607,16 +600,20 @@ onMounted(() => {
     color: #ffffff;
 }
 
-/* Quick-action cards are links — neutralize WP admin link styling. */
-.quick-action,
+/* Quick actions: link-style rows — dark text, underline on hover. */
+.quick-action {
+    color: #1f2937;
+    text-decoration: none;
+}
 .quick-action:hover,
+.quick-action:focus {
+    color: #1d4ed8;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
 .quick-action:focus,
 .quick-action:active {
-    text-decoration: none;
     outline: none;
     box-shadow: none;
-}
-.quick-action:hover {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 </style>
