@@ -63,7 +63,7 @@ class AdminNotice
                 <a href="<?php echo esc_url($setupUrl); ?>" class="button button-primary">
                     <?php echo esc_html__('Set up Image Fallbacks', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
                 </a>
-                <a href="#" class="button button-link icais-dismiss-fallback" style="margin-left: 10px;">
+                <a href="#" class="icais-dismiss-fallback" style="margin-left: 12px; color: #646970; text-decoration: none; box-shadow: none; outline: none;">
                     <?php echo esc_html__('Dismiss', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
                 </a>
             </p>

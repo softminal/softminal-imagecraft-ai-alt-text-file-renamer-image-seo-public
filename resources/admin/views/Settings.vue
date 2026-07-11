@@ -169,6 +169,10 @@ const loadSettings = async () => {
 
       if (result.api_setting && result.api_setting.is_active) {
         settings.value.icais_api_provider = result.api_setting.provider
+      } else if (!result.config_api_key) {
+        // Nothing connected yet (no saved key, no wp-config key) — show the
+        // "Select Provider" placeholder instead of implying a default provider.
+        settings.value.icais_api_provider = ''
       }
     }
   } catch {
@@ -203,6 +207,10 @@ const saveSettings = async () => {
 }
 
 const saveApiKey = async () => {
+  if (!settings.value.icais_api_provider) {
+    notification.error($t('Please select a provider first'))
+    return
+  }
   if (!apiKey.value) {
     notification.error($t('Please enter an API key'))
     return
@@ -239,6 +247,10 @@ const saveApiKey = async () => {
 }
 
 const testConnection = async () => {
+  if (!settings.value.icais_api_provider) {
+    notification.error($t('Please select a provider first'))
+    return
+  }
   if (!configApiKey.value && !apiKey.value) {
     notification.error($t('Please enter an API key'))
     return

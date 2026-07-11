@@ -201,6 +201,14 @@ class SettingsController extends Controller
                 $settings[$key] = '0';
             }
 
+            // Provider must be a known slug — drop empty/invalid values so the
+            // "Select Provider" UI placeholder ('') can never be persisted and
+            // break AI generation for existing installs.
+            if ($key === 'icais_api_provider' && !in_array($settings[$key], ['anthropic', 'openai', 'gemini'], true)) {
+                unset($settings[$key]);
+                continue;
+            }
+
             // Validate language against supported list — correct invalid values to default
             if ($key === 'icais_language') {
                 if (empty($settings[$key]) || !in_array($settings[$key], \Softminal\ImageCraft\Services\AI\BaseAIProvider::getSupportedLanguages(), true)) {

@@ -56,6 +56,7 @@
         v-model="settings.icais_api_provider"
         class="icais-select w-full"
       >
+        <option value="" disabled>{{ $t('Select Provider') }}</option>
         <option value="anthropic">{{ $t('Anthropic Claude') }}</option>
         <option value="openai">{{ $t('OpenAI GPT-4') }}</option>
         <option value="gemini">{{ $t('Google Gemini') }}</option>
