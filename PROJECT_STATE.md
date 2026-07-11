@@ -212,6 +212,16 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ## 10. Recent Changes (newest first)
 
+- **2026-07-11** — **Update-discovery + Quick Actions.** (1) One-time wp-admin "What's New:
+  Image Fallbacks" notice (`AdminNotice::displayFallbackFeatureNotice`) — admins only, per-user
+  dismissal (`icais_fallback_notice_dismissed`, cleaned on uninstall), hidden when the module is
+  on or wizard incomplete; the wizard's Fallbacks step auto-dismisses it so fresh installs never
+  see it. `POST /notice/dismiss` gained an additive `notice` param (`review`|`fallback_feature`);
+  the dismiss inline JS was refactored into a shared `printDismissScript()`. (2) Dashboard
+  **Quick actions** widget: card grid → Generate alt text / Compress / Rename / Set up fallbacks
+  (admin) / WooCommerce images (admin + Woo). Both verified with Playwright (notice shows,
+  dismiss persists across reload, widget navigates).
+
 - **2026-07-11** — **NEW: Image Fallbacks module (opt-in, default off; first public-frontend
   surface).** (1) Broken-image fallback: raw JS (`resources/public/js/fallback.js`, capture-phase
   error listener + already-failed sweep) swaps any broken `<img>` to a chosen fallback attachment

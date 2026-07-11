@@ -162,7 +162,7 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 - `Install.php` - Database table creation and version-gated migrations
 - `AutoGenerate.php` - Legacy auto-generate-on-upload (alt/title/Woo). **No longer initialized** — `App::run()` does NOT call `AutoGenerate::init()`. Auto-generate-on-upload is now a **Pro-only** feature owned by the Pro add-on (`Features\Meta`), which calls the free `GeneratorController::generateMetaForImage` core. File kept for backwards-compat references only.
 - `Fallback.php` - Image Fallbacks frontend surface (the plugin's ONLY public-frontend code). Opt-in, default off, non-destructive: (1) broken-`<img>` onerror swap via a raw JS asset (`resources/public/js/fallback.js`); (2) missing-featured-image fallback via a `get_post_metadata` (`_thumbnail_id`) filter (primary — makes `has_post_thumbnail()` true) + `post_thumbnail_html` (secondary). Bails on `is_admin()`; hot-path meta filter does cheap key/flag bails first with static-cached settings and a recursion guard. Pro unlock point: `apply_filters('icais_fallback_featured_image_id', $globalId, $postId, $postType)`.
-- `AdminNotice.php` - Admin dashboard notices with dismiss functionality
+- `AdminNotice.php` - Admin dashboard notices with dismiss functionality. Two notices: the review ask and a one-time "What's New: Image Fallbacks" announcement (admins only, hidden once dismissed / module enabled / mid-wizard; the wizard's Fallbacks step auto-dismisses it for fresh installs). `POST /notice/dismiss` takes an optional additive `notice` param (`review` default | `fallback_feature`) selecting the per-user meta key.
 - `DeactivationSurvey.php` - Deactivation feedback modal on the Plugins screen (renders survey, forwards feedback via FeedbackController)
 
 **HTTP Layer:**
@@ -352,7 +352,12 @@ Frontend:
   components/Settings/ImagePick.vue → shared wp.media image picker (preview + choose/remove)
   views/Dashboard.vue → loadBrokenScan() loops GET /fallback/scan-broken while partial;
     "Broken images" Needs-attention tile (links /settings/fallback); ≤10-point overallScore penalty
-  Discovery UX: (1) Dashboard promo card (admins, only while icais_fallback_enabled is off,
+  views/Dashboard.vue → "Quick actions" widget: card grid linking Generate alt text
+    (/scanner?filter=missing), Compress, Rename, Set up fallbacks (admin), WooCommerce
+    (admin + installed); non-admin roles see only the first three (router blocks the rest)
+  Discovery UX: (0) one-time wp-admin "What's New" notice (AdminNotice::displayFallbackFeatureNotice,
+    manage_options, per-user dismissal via notice=fallback_feature; wizard auto-dismisses for
+    fresh installs); (1) Dashboard promo card (admins, only while icais_fallback_enabled is off,
     dismissible via localStorage key icais_fallback_promo_dismissed) → /settings/fallback;
     (2) SetupWizard.vue step 4 "Image Fallbacks" (optional, one ImagePick used for BOTH broken +
     featured; wizard/complete fires BEFORE step 4 so abandoning loses nothing; step 5 = success
@@ -505,6 +510,7 @@ Frontend:
 | `GET /fallback/scan-broken` | FallbackController::scanBroken | upload_files |
 | (`?refresh=1` busts the `icais_broken_scan` transient; response may be `partial: true` — re-call to resume the time-budgeted scan) | | |
 | `POST /notice/dismiss` | AdminNotice::dismiss | edit_posts |
+| (optional `notice` param: `review` (default) \| `fallback_feature` — selects which per-user notice dismissal to persist; additive) | | |
 | `POST /feedback/deactivation` | FeedbackController::deactivation | activate_plugins |
 | `GET /woocommerce/products` | WooCommerceController::getProducts | manage_woocommerce |
 | `GET /woocommerce/categories` | WooCommerceController::getCategories | manage_woocommerce |
