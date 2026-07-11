@@ -39,6 +39,11 @@ class Enqueue {
             return;
         }
 
+        // WP media modal for the Fallback settings image pickers (frame + templates).
+        if (function_exists('wp_enqueue_media')) {
+            wp_enqueue_media();
+        }
+
         $deps = ['jquery', 'wp-api-fetch', 'wp-i18n'];
         $script_enqueued = EnqueueAsset::script('icais-script', 'resources/admin/main.js', $deps);
         EnqueueAsset::style('icais-scss', 'resources/scss/index.css');

@@ -321,7 +321,46 @@
       </div>
     </div>
 
-    <div v-if="currentStep === 4" class="success-step text-center">
+    <!-- Optional extra: Image Fallbacks (no API key needed — one picker, one click) -->
+    <div v-if="currentStep === 4" class="fallback-step">
+      <div class="text-center mb-8">
+        <div class="text-5xl mb-4">🖼️</div>
+        <h2 class="text-2xl font-bold mb-2">{{ $t('One more thing — never show a broken image') }}</h2>
+        <p class="text-gray-600 max-w-xl mx-auto">
+          {{ $t('Pick one image and ImageCraft will show it whenever an image on your site is broken, and as the featured image for posts that have none. Nothing is written to your content — turn it off anytime.') }}
+        </p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow border p-6 max-w-md mx-auto mb-8">
+        <label class="block text-sm font-medium mb-3">{{ $t('Your fallback image') }}</label>
+        <ImagePick
+          :attachment-id="fallbackImageId"
+          @pick="(id) => (fallbackImageId = id)"
+        />
+        <p class="text-xs text-gray-500 mt-3">
+          {{ $t('Tip: use your logo or a simple branded placeholder. You can fine-tune everything later in Settings → Image Fallbacks.') }}
+        </p>
+      </div>
+
+      <div class="flex justify-center items-center gap-4">
+        <button
+          @click="finishWizard(false)"
+          :disabled="saving"
+          class="text-sm text-gray-500 hover:text-gray-700 underline disabled:opacity-50"
+        >
+          {{ $t('Skip for now') }}
+        </button>
+        <button
+          @click="finishWizard(true)"
+          :disabled="!fallbackImageId || saving"
+          class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ saving ? $t('Saving...') : $t('Enable & Finish') }}
+        </button>
+      </div>
+    </div>
+
+    <div v-if="currentStep === 5" class="success-step text-center">
       <div class="text-6xl mb-4">🎉</div>
       <h2 class="text-2xl font-bold mb-4">{{ $t('Setup Complete!') }}</h2>
       <p class="text-gray-600 mb-8">{{ $t("You're all set to start generating alt text for your images.") }}</p>
@@ -340,8 +379,10 @@ import { ref, computed, onMounted } from 'vue'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
+import ImagePick from '../components/Settings/ImagePick.vue'
 
 const currentStep = ref(1)
+const fallbackImageId = ref(0)
 const selectedProvider = ref('anthropic')
 const apiKey = ref('')
 const testing = ref(false)
@@ -436,11 +477,8 @@ const saveConfigAndComplete = async () => {
     await Api.post('/settings', { settings: settingsPayload })
 
     await Api.post('/settings/wizard/complete')
-    notification.success($t('Setup complete!'))
-    setTimeout(() => {
-      window.location.hash = '#/'
-      window.location.reload()
-    }, 1000)
+    // Wizard is complete (safe to abandon) — offer the optional Fallbacks step.
+    currentStep.value = 4
   } catch {
     notification.error($t('Failed to complete setup'))
   } finally {
@@ -458,13 +496,37 @@ const saveWP7AndComplete = async () => {
     await Api.post('/settings', { settings: { icais_use_wp7_ai: '1' } })
 
     await Api.post('/settings/wizard/complete')
-    notification.success($t('Setup complete!'))
-    setTimeout(() => {
-      window.location.hash = '#/'
-      window.location.reload()
-    }, 1000)
+    // Wizard is complete (safe to abandon) — offer the optional Fallbacks step.
+    currentStep.value = 4
   } catch {
     notification.error($t('Failed to complete setup'))
+  } finally {
+    saving.value = false
+  }
+}
+
+// Final wizard step: optionally enable Image Fallbacks with ONE image used for
+// both broken images and missing featured images (fine-tunable later in
+// Settings → Image Fallbacks). The wizard is already marked complete by this
+// point, so skipping or abandoning here loses nothing.
+const finishWizard = async (enableFallbacks) => {
+  saving.value = true
+  try {
+    if (enableFallbacks && fallbackImageId.value > 0) {
+      await Api.post('/settings', {
+        settings: {
+          icais_fallback_enabled: '1',
+          icais_fallback_broken_enabled: '1',
+          icais_fallback_broken_image_id: fallbackImageId.value,
+          icais_fallback_featured_enabled: '1',
+          icais_fallback_featured_image_id: fallbackImageId.value,
+        },
+      })
+      notification.success($t('Image fallbacks enabled!'))
+    }
+    currentStep.value = 5
+  } catch {
+    notification.error($t('Failed to save fallback settings'))
   } finally {
     saving.value = false
   }
@@ -510,13 +572,12 @@ const saveApiKey = async () => {
       })
     }
 
-    // Mark wizard as completed before reload so router guard allows dashboard
+    // Mark wizard as completed before moving on so the router guard allows
+    // the dashboard even if the user abandons the optional Fallbacks step.
     await Api.post('/settings/wizard/complete')
     notification.success($t('API key saved successfully!'))
-    setTimeout(() => {
-      window.location.hash = '#/'
-      window.location.reload()
-    }, 1000)
+    // Offer the optional Fallbacks step before finishing.
+    currentStep.value = 4
   } catch {
     notification.error($t('Failed to save API key'))
   } finally {

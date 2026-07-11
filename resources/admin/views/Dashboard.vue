@@ -66,6 +66,44 @@
       </div>
     </div>
 
+    <!-- Image Fallbacks discovery card — admins only, while the module is OFF, until dismissed -->
+    <div
+      v-if="showFallbackPromo"
+      class="bg-white border border-blue-200 rounded-lg p-4 mb-6 flex items-start justify-between gap-4"
+    >
+      <div class="flex items-start gap-3 min-w-0">
+        <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <div class="text-sm font-semibold text-gray-800">
+            <span class="inline-block text-[10px] font-bold uppercase tracking-wide text-blue-600 bg-blue-50 rounded px-1.5 py-0.5 mr-1.5 align-middle">{{ $t('New') }}</span>
+            {{ $t('Image Fallbacks — never show a broken image') }}
+          </div>
+          <p class="text-sm text-gray-500 mt-0.5">
+            {{ $t('Pick one fallback image: it replaces broken images for visitors and acts as the featured image for posts without one. Non-destructive, off by default.') }}
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <router-link
+          to="/settings/fallback"
+          class="fallback-promo-btn bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition no-underline"
+        >
+          {{ $t('Set up') }} →
+        </router-link>
+        <button
+          @click="dismissFallbackPromo"
+          :aria-label="$t('Dismiss')"
+          class="text-gray-400 hover:text-gray-600 text-lg leading-none"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
     <!-- Two flagship feature panels: Image SEO (wide) + Compression (compact widget) -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
       <!-- ============ Image SEO (spans 2 columns) ============ -->
@@ -291,6 +329,27 @@ const audit = ref(null)
 const auditLoading = ref(false)
 const compressionStats = ref({})
 const recentActivity = ref([])
+const brokenCount = ref(0)
+
+// Image Fallbacks discovery card: shown to admins while the module is off and
+// not yet dismissed (dismissal remembered per browser via localStorage).
+const FALLBACK_PROMO_KEY = 'icais_fallback_promo_dismissed'
+const fallbackEnabled = ref(true) // assume on until settings load (never flash the promo)
+const fallbackPromoDismissed = ref(true)
+try {
+  fallbackPromoDismissed.value = window.localStorage?.getItem(FALLBACK_PROMO_KEY) === '1'
+} catch {
+  // localStorage unavailable (privacy mode) — keep the promo hidden
+}
+const showFallbackPromo = computed(() => isAdmin && !fallbackEnabled.value && !fallbackPromoDismissed.value)
+const dismissFallbackPromo = () => {
+  fallbackPromoDismissed.value = true
+  try {
+    window.localStorage?.setItem(FALLBACK_PROMO_KEY, '1')
+  } catch {
+    // Non-fatal — the card just reappears next visit
+  }
+}
 
 // Actionable to-do tiles — only surface items that actually need fixing.
 const toneClasses = {
@@ -305,6 +364,7 @@ const needsAttention = computed(() => {
   const a = audit.value
   if (!a) return []
   return [
+    { key: 'broken', count: brokenCount.value, label: $t('Broken images'), to: '/settings/fallback', tone: 'red' },
     { key: 'missing', count: a.missing || 0, label: $t('Missing alt text'), to: '/scanner?filter=missing', tone: 'red' },
     { key: 'title', count: a.title_missing || 0, label: $t('Missing title'), to: '/scanner?filter=missing_title', tone: 'indigo' },
     { key: 'uncompressed', count: uncompressedCount.value, label: $t('Not compressed'), to: '/compression', tone: 'green' },
@@ -370,7 +430,10 @@ const overallScore = computed(() => {
   const a = audit.value
   if (!a) return 0
   const parts = [a.score || 0, a.title_score || 0, a.caption_score || 0, compressionScore.value]
-  return Math.round(parts.reduce((sum, n) => sum + n, 0) / parts.length)
+  const base = Math.round(parts.reduce((sum, n) => sum + n, 0) / parts.length)
+  // Broken images are a visible SEO/UX defect — apply a light penalty (max 10).
+  const penalty = brokenCount.value > 0 ? Math.min(10, brokenCount.value) : 0
+  return Math.max(0, base - penalty)
 })
 const overallColor = computed(() => ringColor(overallScore.value))
 const overallLabel = computed(() => {
@@ -406,6 +469,21 @@ const loadCompression = async () => {
   }
 }
 
+const loadBrokenScan = async () => {
+  try {
+    // The scan runs under a server-side time budget; keep calling while it
+    // reports partial progress (bounded so a stuck server can't loop forever).
+    for (let i = 0; i < 20; i++) {
+      const result = await Api.get('/fallback/scan-broken')
+      if (!result.success) return
+      brokenCount.value = result.broken_count || 0
+      if (!result.partial) return
+    }
+  } catch (error) {
+    console.error('Failed to scan for broken images:', error)
+  }
+}
+
 const loadDashboard = async () => {
   try {
     // Admins verify setup via the admin-only /settings endpoint; non-admins skip
@@ -422,6 +500,9 @@ const loadDashboard = async () => {
 
       // Read WooCommerce status from settings (no extra API call)
       woocommerceInstalled.value = settingsData.woo_active || false
+
+      // Image Fallbacks promo: only surface while the module is off.
+      fallbackEnabled.value = settingsData.settings?.icais_fallback_enabled === '1'
     }
 
     // Parallelize dashboard stats, audit, and compression stats
@@ -429,6 +510,7 @@ const loadDashboard = async () => {
       Api.get('/stats/dashboard'),
       runAudit(),
       loadCompression(),
+      loadBrokenScan(),
     ])
 
     if (statsData.success) {
@@ -450,7 +532,11 @@ onMounted(() => {
 .get-pro-btn,
 .get-pro-btn:hover,
 .get-pro-btn:focus,
-.get-pro-btn:active {
+.get-pro-btn:active,
+.fallback-promo-btn,
+.fallback-promo-btn:hover,
+.fallback-promo-btn:focus,
+.fallback-promo-btn:active {
     color: #ffffff;
 }
 </style>

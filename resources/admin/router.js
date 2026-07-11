@@ -18,6 +18,7 @@ const RenameSettings = () => import('./components/Settings/RenameSettings.vue');
 const WooCommerceSettings = () => import('./components/Settings/WooCommerceSettings.vue');
 const SeoSettings = () => import('./components/Settings/SeoSettings.vue');
 const CompressionSettings = () => import('./components/Settings/CompressionSettings.vue');
+const FallbackSettings = () => import('./components/Settings/FallbackSettings.vue');
 const IntegrationSettings = () => import('./components/Settings/IntegrationSettings.vue');
 const LicenseSettings = () => import('./components/Settings/LicenseSettings.vue');
 const PermissionsSettings = () => import('./components/Settings/PermissionsSettings.vue');
@@ -60,6 +61,7 @@ const routes = [
             { path: 'meta', name: 'settings-meta', component: MetaSettings },
             { path: 'rename', name: 'settings-rename', component: RenameSettings },
             { path: 'compression', name: 'settings-compression', component: CompressionSettings },
+            { path: 'fallback', name: 'settings-fallback', component: FallbackSettings },
             { path: 'permissions', name: 'settings-permissions', component: PermissionsSettings },
             { path: 'integrations', name: 'settings-integrations', component: IntegrationSettings },
             { path: 'integrations/woocommerce', name: 'settings-integration-woocommerce', component: WooCommerceSettings },

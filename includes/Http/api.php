@@ -5,6 +5,7 @@ namespace Softminal\ImageCraft\Http;
 use Softminal\ImageCraft\AdminNotice;
 use Softminal\ImageCraft\Http\Controllers\BatchController;
 use Softminal\ImageCraft\Http\Controllers\CompressorController;
+use Softminal\ImageCraft\Http\Controllers\FallbackController;
 use Softminal\ImageCraft\Http\Controllers\FeedbackController;
 use Softminal\ImageCraft\Http\Controllers\FileBirdController;
 use Softminal\ImageCraft\Http\Controllers\FileRenamerController;
@@ -78,6 +79,11 @@ Route::prefix('compressor')->capability('upload_files')->middleware([\Softminal\
     Route::post('/restore', [CompressorController::class, 'restore']);
     Route::get('/preview', [CompressorController::class, 'preview']);
     Route::get('/stats', [CompressorController::class, 'stats']);
+});
+
+// Image Fallbacks routes (admin-side broken-image scan; no public endpoint)
+Route::prefix('fallback')->capability('upload_files')->group(function () {
+    Route::get('/scan-broken', [FallbackController::class, 'scanBroken']);
 });
 
 // Notice routes

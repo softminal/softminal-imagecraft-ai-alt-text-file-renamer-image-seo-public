@@ -161,6 +161,7 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 - `Menu.php` - WordPress admin menu registration. Shows the ImageCraft menu to admins (`manage_options`) always, and to permitted non-admin roles (`Permission::isAllowed()`) with the `upload_files` capability. Non-permitted roles get no menu.
 - `Install.php` - Database table creation and version-gated migrations
 - `AutoGenerate.php` - Legacy auto-generate-on-upload (alt/title/Woo). **No longer initialized** — `App::run()` does NOT call `AutoGenerate::init()`. Auto-generate-on-upload is now a **Pro-only** feature owned by the Pro add-on (`Features\Meta`), which calls the free `GeneratorController::generateMetaForImage` core. File kept for backwards-compat references only.
+- `Fallback.php` - Image Fallbacks frontend surface (the plugin's ONLY public-frontend code). Opt-in, default off, non-destructive: (1) broken-`<img>` onerror swap via a raw JS asset (`resources/public/js/fallback.js`); (2) missing-featured-image fallback via a `get_post_metadata` (`_thumbnail_id`) filter (primary — makes `has_post_thumbnail()` true) + `post_thumbnail_html` (secondary). Bails on `is_admin()`; hot-path meta filter does cheap key/flag bails first with static-cached settings and a recursion guard. Pro unlock point: `apply_filters('icais_fallback_featured_image_id', $globalId, $postId, $postType)`.
 - `AdminNotice.php` - Admin dashboard notices with dismiss functionality
 - `DeactivationSurvey.php` - Deactivation feedback modal on the Plugins screen (renders survey, forwards feedback via FeedbackController)
 
@@ -169,7 +170,7 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 - `Http/Routes/Route.php` - Route registry with middleware support
 - `Http/Routes/Router.php` - WordPress REST API integration
 - `Http/Middleware/RoleGate.php` - Middleware attached to the `generator`, `compressor`, and `renamer` route groups; allows the request only when `Support\Permission::isAllowed()` is true (single role-based permission gate for all action features). Loaded via the `includes/Http/Middleware` entry in `App::$loadOrder`.
-- `Http/Controllers/` - GeneratorController, ScannerController, BatchController, SettingsController, StatsController, FileRenamerController, CompressorController, WooCommerceController, FileBirdController, FeedbackController
+- `Http/Controllers/` - GeneratorController, ScannerController, BatchController, SettingsController, StatsController, FileRenamerController, CompressorController, WooCommerceController, FileBirdController, FeedbackController, FallbackController (broken-image scan: time-budgeted, resumable via transient cursor; `scanBrokenCore()` is the public reusable core the Pro scheduled-scan cron calls)
 
 **Models (`Models/`):** Eloquent-like ORM with query builder, casting, and WP object cache integration.
 - `ApiSetting` - Encrypted API keys per user/provider
@@ -210,7 +211,7 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 
 **Key Views:** Dashboard.vue, Scanner.vue, Compression.vue, Batch.vue, Settings.vue, SetupWizard.vue, WooCommerce.vue, Help.vue
 
-**Settings Sub-routes:** GeneralSettings, ApiSettings, AltTextSettings, TitleSettings, MetaSettings (route `/settings/meta` — combined "Generate All"), RenameSettings, CompressionSettings, WooCommerceSettings, SeoSettings, IntegrationSettings, PermissionsSettings (route `/settings/permissions` — single role allow-list for all features)
+**Settings Sub-routes:** GeneralSettings, ApiSettings, AltTextSettings, TitleSettings, MetaSettings (route `/settings/meta` — combined "Generate All"), RenameSettings, CompressionSettings, FallbackSettings (route `/settings/fallback` — Image Fallbacks; uses shared `ImagePick.vue` wp.media picker), WooCommerceSettings, SeoSettings, IntegrationSettings, PermissionsSettings (route `/settings/permissions` — single role allow-list for all features)
 
 **Shared UI (`@ui/`):** Notification.vue (global notification plugin), Pagination.vue
 
@@ -320,6 +321,53 @@ Free vs Pro:
   (imagecraft-...-pro) owns the value-unlocks (via the filters above) and auto-compress, and
   registers them ONLY when the license is valid. So the premium *behavior* is not in WP.org source.
   The 20/day cap bypass still rides the ICAIS_PRO constant (consistent with alt-text gating).
+```
+
+### Image Fallbacks (broken images + missing featured images) — first public-frontend surface
+```
+PHP:
+  includes/Fallback.php → Settings; hooks wp_enqueue_scripts, get_post_metadata (_thumbnail_id,
+    PRIMARY — makes has_post_thumbnail() true; is_admin() bail + recursion guard),
+    post_thumbnail_html (secondary). Frontend-only (init() bails in admin). Non-destructive.
+  Http/Controllers/FallbackController.php → broken-image scan. scanBrokenCore() = public
+    reusable core (Pro cron calls it); REST scanBroken() wraps it. Time-budgeted (~10s/request),
+    resumes via cursor in transient icais_broken_scan (partial:true response → caller re-calls).
+  resources/public/js/fallback.js → raw (non-Vite) frontend JS: capture-phase error listener
+    (img error doesn't bubble) + initial naturalWidth===0 sweep; data-icais-fallback loop guard.
+    Enqueued with ICAIS_URL + wp_localize_script('icaisFallback'). build.sh copies resources/public.
+  App.php → 'Fallback.php' in includes load order; guarded instantiation + $this->fallback->init().
+  Enqueue.php → wp_enqueue_media() on toplevel_page_icais (for the settings image pickers).
+
+Pro unlock points (free exposes hooks; the Pro add-on overrides ONLY with a valid license —
+identical split to Compression):
+  apply_filters('icais_fallback_featured_image_id', $globalId, $postId, $postType)
+    → Pro returns a per-post-type image from icais_fallback_featured_map
+  FallbackController::scanBrokenCore()          → called by the Pro icais_fallback_scan cron
+  icais_fallback_scan cron + email alert        → registered by the PRO plugin only
+    (Features/Fallbacks.php in imagecraft-...-pro; free registers NO cron)
+
+Frontend:
+  components/Settings/FallbackSettings.vue → /settings/fallback (master + broken + featured
+    toggles, ImagePick pickers, post-type allow-list; Pro-locked per-type map + schedule/email)
+  components/Settings/ImagePick.vue → shared wp.media image picker (preview + choose/remove)
+  views/Dashboard.vue → loadBrokenScan() loops GET /fallback/scan-broken while partial;
+    "Broken images" Needs-attention tile (links /settings/fallback); ≤10-point overallScore penalty
+  Discovery UX: (1) Dashboard promo card (admins, only while icais_fallback_enabled is off,
+    dismissible via localStorage key icais_fallback_promo_dismissed) → /settings/fallback;
+    (2) SetupWizard.vue step 4 "Image Fallbacks" (optional, one ImagePick used for BOTH broken +
+    featured; wizard/complete fires BEFORE step 4 so abandoning loses nothing; step 5 = success
+    screen, previously dead code); (3) the Broken-images tile itself (scan runs even when the
+    module is off — problem-driven discovery)
+
+Settings (all opt-in, default off): icais_fallback_enabled, icais_fallback_broken_enabled,
+  icais_fallback_broken_image_id, icais_fallback_featured_enabled, icais_fallback_featured_image_id,
+  icais_fallback_featured_post_types ('[]' = all public). Pro-effect (inert in free):
+  icais_fallback_featured_map ('{}'), icais_fallback_scan_schedule ('0'|'daily'|'weekly'),
+  icais_fallback_scan_email ('1')
+
+Free vs Pro:
+  Free → one global fallback image (broken + featured), post-type allow-list, manual scan + tile
+  Pro  → per-post-type featured fallbacks, scheduled scan (daily/weekly) + email on NEW broken images
 ```
 
 ### SEO Integration
@@ -454,6 +502,8 @@ Frontend:
 | `POST /compressor/restore` | CompressorController::restore | upload_files |
 | `GET /compressor/preview` | CompressorController::preview | upload_files |
 | `GET /compressor/stats` | CompressorController::stats | upload_files |
+| `GET /fallback/scan-broken` | FallbackController::scanBroken | upload_files |
+| (`?refresh=1` busts the `icais_broken_scan` transient; response may be `partial: true` — re-call to resume the time-budgeted scan) | | |
 | `POST /notice/dismiss` | AdminNotice::dismiss | edit_posts |
 | `POST /feedback/deactivation` | FeedbackController::deactivation | activate_plugins |
 | `GET /woocommerce/products` | WooCommerceController::getProducts | manage_woocommerce |

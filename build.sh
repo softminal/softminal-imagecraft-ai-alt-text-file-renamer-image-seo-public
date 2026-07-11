@@ -95,13 +95,18 @@ fi
 if [ -d "$PLUGIN_DIR/resources/images" ]; then
     cp -r "$PLUGIN_DIR/resources/images" "$RESOURCES_DEST/"
 fi
+# resources/public/ — raw frontend assets enqueued directly (NOT Vite-built),
+# e.g. the Image Fallbacks broken-image script.
+if [ -d "$PLUGIN_DIR/resources/public" ]; then
+    cp -r "$PLUGIN_DIR/resources/public" "$RESOURCES_DEST/"
+fi
 # Add index.php for directory browsing protection
 for dir in "$RESOURCES_DEST" "$RESOURCES_DEST/admin"; do
     if [ -f "$PLUGIN_DIR/index.php" ]; then
         cp "$PLUGIN_DIR/index.php" "$dir/"
     fi
 done
-echo "  ✓ resources/ (CSS and images only)"
+echo "  ✓ resources/ (CSS, images, public JS)"
 
 # Copy files
 if [ -f "$PLUGIN_DIR/composer.json" ]; then

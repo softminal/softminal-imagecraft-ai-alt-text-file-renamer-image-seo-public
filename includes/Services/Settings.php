@@ -82,6 +82,19 @@ class Settings
         'icais_caption_max_length' => 150,      // caption max characters
         'icais_caption_default_tone' => 'professional', // caption tone
         'icais_caption_skip_existing' => '0',   // skip caption when one already exists
+
+        // Image Fallbacks (all opt-in, default off; first public-frontend surface).
+        // Broken <img> onerror swap + missing-featured-image fallback. Non-destructive.
+        'icais_fallback_enabled' => '0',              // module master toggle
+        'icais_fallback_broken_enabled' => '0',       // JS onerror swap for broken <img>
+        'icais_fallback_broken_image_id' => 0,        // attachment shown for broken images
+        'icais_fallback_featured_enabled' => '0',     // missing-featured-image fallback
+        'icais_fallback_featured_image_id' => 0,      // attachment used as default featured image
+        'icais_fallback_featured_post_types' => '[]', // post types allow-list (empty = all public)
+        // Pro-effect keys (inert in free — the Pro add-on reads them; mirrors icais_compression_quality)
+        'icais_fallback_featured_map' => '{}',        // {post_type: attachment_id} per-type overrides (Pro)
+        'icais_fallback_scan_schedule' => '0',        // '0' | 'daily' | 'weekly' scheduled broken scan (Pro)
+        'icais_fallback_scan_email' => '1',           // email admin when scheduled scan finds NEW broken images (Pro)
     ];
 
     /**
