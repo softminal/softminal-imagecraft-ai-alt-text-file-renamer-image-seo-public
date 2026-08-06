@@ -344,7 +344,15 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Changelog ==
 
-= 1.6.0 (6 August, 2026) =
+= 1.6.0 (7 August, 2026) =
+* New: **ImageCraft speaks your language** — complete built-in translations for Spanish, French, German, Italian, Portuguese (Brazil), Arabic, Japanese and Dutch, covering every screen of the plugin
+* New: Redesigned setup wizard — clearer steps with a progress indicator, per-image cost comparison for the AI providers, full keyboard accessibility, and a "start without AI" path that takes you straight to the features that need no API key
+* New: A one-time notice introduces the new WebP and Image Fallback features after updating — dismiss it once and it never returns
+* Improvement: Plugin renamed to "ImageCraft - AI Alt Text, Image Compression & WebP" to better reflect what it does (nothing else changes — same plugin, same settings)
+* Improvement: The "add API key" prompts on the Dashboard and Image SEO screens are now polished cards; the Dashboard one can be dismissed
+* Privacy: Tutorial videos now load from YouTube's privacy-enhanced domain, and only after you click play — nothing is loaded from YouTube automatically
+* Fix: Bundled translations are now actually loaded (previously the shipped language files were never read)
+* Fix: The setup wizard no longer allows saving an API key that was not successfully tested
 * New: **Next-gen formats (WebP, AVIF)** — generate WebP copies of your images and serve them to browsers that support them, with the original as an automatic fallback. Your original files, URLs and media library entries are never touched, and the whole thing is reversible in one click. Off by default; enable it under Performance → Next-gen Formats
 * New: Bulk convert — convert your whole media library to WebP from the Compress screen, with a scan that shows how much is left to do
 * New: Redesigned interface built around two areas — **Image SEO** (alt text, titles, descriptions, file names) and **Performance** (compression, next-gen formats, image fallbacks) — so related tools live together instead of being scattered through Settings
