@@ -4,6 +4,7 @@ namespace Softminal\ImageCraft\Http\Controllers;
 
 use Softminal\ImageCraft\Models\Compression;
 use Softminal\ImageCraft\Services\ImageCompressor;
+use Softminal\ImageCraft\Services\NextGenConverter;
 use Softminal\ImageCraft\Services\UsageLimiter;
 
 if (!defined('ABSPATH')) {
@@ -155,6 +156,132 @@ class CompressorController extends Controller
         $result['image'] = $this->imageRow($attachmentId);
         $result['usage'] = $this->usageBlock($userId);
         return $this->response($result);
+    }
+
+    /**
+     * Generate next-gen (WebP/AVIF) sidecars for a single attachment.
+     * Shares the daily compress counter — no separate limit.
+     */
+    public function convert($request)
+    {
+        $params       = $request->get_json_params();
+        $attachmentId = (int) ($params['attachment_id'] ?? 0);
+
+        if (!$attachmentId) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Attachment ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 400);
+        }
+
+        $authError = $this->authorize($attachmentId);
+        if ($authError) {
+            return $authError;
+        }
+
+        $formats = NextGenConverter::enabledFormats();
+        if ($formats === []) {
+            return $this->response([
+                'success' => false,
+                'message' => __('This server cannot create WebP or AVIF images', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 400);
+        }
+
+        $userId = get_current_user_id();
+        if (!UsageLimiter::canCompress($userId, $attachmentId)) {
+            return $this->response(UsageLimiter::compressLimitReachedError(), 429);
+        }
+
+        $converter = new NextGenConverter();
+        $result = $converter->convert($attachmentId, $formats);
+
+        if (empty($result['success'])) {
+            return $this->response([
+                'success' => false,
+                'skipped' => !empty($result['skipped']),
+                'reason'  => $result['reason'] ?? '',
+                'message' => $result['error'] ?? __('Nothing to convert for this image', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], empty($result['skipped']) ? 400 : 200);
+        }
+
+        // Only count usage for real work (idempotent re-runs are free).
+        if (!empty($result['generated'])) {
+            UsageLimiter::recordCompressUsage($userId, $attachmentId);
+        }
+
+        $result['usage'] = $this->usageBlock($userId);
+        return $this->response($result);
+    }
+
+    /**
+     * Scan for images that could get next-gen sidecars + server capabilities.
+     */
+    public function convertScan($request)
+    {
+        $params  = $request->get_params();
+        $page    = max(1, (int) ($params['page'] ?? 1));
+        $perPage = min(100, max(1, (int) ($params['per_page'] ?? 24)));
+
+        $query = new \WP_Query([
+            'post_type'      => 'attachment',
+            'post_status'    => 'inherit',
+            'post_mime_type' => ['image/jpeg', 'image/png', 'image/webp'],
+            'posts_per_page' => $perPage,
+            'paged'          => $page,
+            'fields'         => 'ids',
+            'no_found_rows'  => false,
+        ]);
+
+        $images = [];
+        foreach ($query->posts as $id) {
+            $manifest = get_post_meta($id, NextGenConverter::META_MANIFEST, true);
+            $images[] = [
+                'id'          => (int) $id,
+                'title'       => get_the_title($id),
+                'thumb'       => wp_get_attachment_image_url($id, 'thumbnail') ?: '',
+                'mime'        => get_post_mime_type($id),
+                'converted'   => is_array($manifest) && !empty($manifest['files']),
+                'files'       => is_array($manifest) && !empty($manifest['files']) ? count($manifest['files']) : 0,
+                'saved_human' => is_array($manifest) && !empty($manifest['saved']) ? size_format((int) $manifest['saved']) : '',
+            ];
+        }
+
+        return $this->response([
+            'success'      => true,
+            'images'       => $images,
+            'capabilities' => NextGenConverter::capabilities(),
+            'formats'      => NextGenConverter::enabledFormats(),
+            'pagination'   => [
+                'page'        => $page,
+                'per_page'    => $perPage,
+                'total'       => (int) $query->found_posts,
+                'total_pages' => (int) $query->max_num_pages,
+            ],
+        ]);
+    }
+
+    /**
+     * Remove an attachment's next-gen sidecars (fully reversible feature).
+     */
+    public function convertClean($request)
+    {
+        $params       = $request->get_json_params();
+        $attachmentId = (int) ($params['attachment_id'] ?? 0);
+
+        if (!$attachmentId) {
+            return $this->response([
+                'success' => false,
+                'message' => __('Attachment ID is required', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            ], 400);
+        }
+
+        $authError = $this->authorize($attachmentId);
+        if ($authError) {
+            return $authError;
+        }
+
+        $converter = new NextGenConverter();
+        return $this->response($converter->clean($attachmentId));
     }
 
     /**

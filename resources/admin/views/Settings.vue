@@ -3,29 +3,53 @@
     <h1 class="text-2xl font-bold mb-6 mt-0!">{{ $t('Settings') }}</h1>
 
     <div class="flex gap-6">
-      <!-- Sidebar -->
-      <div class="w-48 shrink-0">
-        <nav class="bg-white rounded-lg shadow border overflow-hidden sticky top-6">
-          <template v-for="item in navItems" :key="item.to">
+      <!-- Sidebar — driven by config/navigation.js (single source of truth) -->
+      <div class="w-60 shrink-0">
+        <nav class="bg-ic-card rounded-card shadow-card border border-ic-border overflow-hidden sticky top-6">
+          <template v-for="section in settingsSections" :key="section.section">
             <div
-              v-if="item.section"
-              class="px-4 py-2 bg-gray-100 text-xs font-bold uppercase tracking-wider text-gray-700 border-y border-gray-200"
+              class="px-4 pt-3 pb-1.5 text-xs font-semibold uppercase tracking-wider"
+              :class="section.pillar === 'perf' ? 'text-pillar-perf' : section.pillar === 'seo' ? 'text-brand-soft-text' : 'text-ic-faint'"
             >
-              {{ $t(item.section) }}
+              {{ $t(section.section) }}
             </div>
-            <router-link
-              :to="item.to"
-              :class="[
-                'flex items-center gap-2.5 w-full text-left px-4 py-3 text-sm border-b last:border-b-0 transition shadow-none! focus:outline-hidden focus:shadow-none',
-                isActive(item.to)
-                  ? 'bg-blue-50 text-blue-700 border-l-2 border-l-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50 border-l-2 border-l-transparent'
-              ]"
-            >
-              <!-- eslint-disable-next-line vue/no-v-html -->
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="item.icon"></svg>
-              {{ item.label }}
-            </router-link>
+            <template v-for="item in section.items" :key="item.path">
+              <router-link
+                :to="item.path"
+                class="flex items-start gap-2.5 w-full text-left px-4 py-2.5 transition shadow-none! focus:outline-hidden focus:shadow-none border-l-2"
+                :class="isActive(item.path)
+                  ? 'bg-brand-soft border-l-brand'
+                  : 'border-l-transparent hover:bg-ic-muted'"
+              >
+                <component
+                  :is="item.icon"
+                  :size="16"
+                  :stroke-width="2"
+                  class="shrink-0 mt-0.5"
+                  :class="isActive(item.path) ? 'text-brand' : 'text-ic-faint'"
+                  aria-hidden="true"
+                />
+                <span class="min-w-0">
+                  <span class="block text-sm font-medium" :class="isActive(item.path) ? 'text-brand-soft-text' : 'text-ic-text'">
+                    {{ $t(item.name) }}
+                  </span>
+                  <span class="block text-xs text-ic-soft truncate">{{ $t(item.description) }}</span>
+                </span>
+              </router-link>
+              <!-- Visible sub-items (e.g. Integrations → WooCommerce / SEO) -->
+              <router-link
+                v-for="child in item.children || []"
+                :key="child.path"
+                :to="child.path"
+                class="flex items-center gap-2 w-full text-left pl-11 pr-4 py-1.5 text-[0.8125rem] transition shadow-none! focus:outline-hidden focus:shadow-none border-l-2"
+                :class="isActive(child.path)
+                  ? 'bg-brand-soft border-l-brand text-brand-soft-text font-medium'
+                  : 'border-l-transparent text-ic-soft hover:bg-ic-muted hover:text-ic-text'"
+              >
+                <component :is="child.icon" :size="13" :stroke-width="2" class="shrink-0" aria-hidden="true" />
+                {{ $t(child.name) }}
+              </router-link>
+            </template>
           </template>
         </nav>
       </div>
@@ -38,7 +62,7 @@
           <button
             @click="saveSettings"
             :disabled="saving"
-            class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="bg-brand text-white px-6 py-3 rounded-ic font-semibold hover:bg-brand-strong disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ $t('Save Settings') }}
           </button>
@@ -54,27 +78,13 @@ import { useRoute } from 'vue-router'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { clearSettingsCache } from '../router'
+import { settingsSections } from '../config/navigation'
 import { $t } from '../utils/i18n'
 
 const route = useRoute()
 
-const navItems = [
-  { to: '/settings/general', section: 'General', label: 'General', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>' },
-  { to: '/settings/api', label: 'API', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>' },
-  { to: '/settings/permissions', label: 'Permissions', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>' },
-  { to: '/settings/alt-text', section: 'Image SEO', label: 'Alt Text', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>' },
-  { to: '/settings/title', label: 'Image Title', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>' },
-  { to: '/settings/meta', label: 'Generate All', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>' },
-  { to: '/settings/rename', label: 'File Renaming', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>' },
-  { to: '/settings/integrations', label: 'Integrations', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"/>' },
-  { to: '/settings/fallback', section: 'Fallbacks', label: 'Image Fallbacks', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m1 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"/>' },
-  { to: '/settings/compression', section: 'Compression', label: 'Compression', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>' },
-  { to: '/settings/license', section: 'Account', label: 'License', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>' },
-]
-
 const isActive = (path) => {
   if (path === '/settings/general' && route.path === '/settings') return true
-  if (path === '/settings/integrations' && route.path.startsWith('/settings/integrations')) return true
   return route.path === path
 }
 

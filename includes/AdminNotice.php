@@ -17,7 +17,11 @@ class AdminNotice
     public static function init(): void
     {
         add_action('admin_notices', [self::class, 'displayReviewNotice']);
-        add_action('admin_notices', [self::class, 'displayFallbackFeatureNotice']);
+        // The Image Fallbacks "What's New" notice is retired (UX redesign:
+        // discovery is consolidated into the SPA — quick action, needs-attention
+        // tile, and the settings sidebar). displayFallbackFeatureNotice() and the
+        // notice/dismiss REST param are kept for backwards compatibility, but the
+        // notice is no longer rendered.
     }
 
     /**

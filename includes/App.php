@@ -27,6 +27,8 @@ class App
     private Router $router;
     /** @var Fallback|null Image Fallbacks frontend surface (null if file missing) */
     private $fallback = null;
+    /** @var NextGen|null Next-gen format (WebP/AVIF) delivery surface (null if file missing) */
+    private $nextGen = null;
 
     /**
      * Get the singleton instance
@@ -90,7 +92,7 @@ class App
 
             // 7. Core files (specific order)
             ['dir' => 'includes/Http', 'files' => ['api.php']],
-            ['dir' => 'includes', 'files' => ['EnqueueAsset.php', 'Enqueue.php', 'Menu.php', 'Fallback.php']],
+            ['dir' => 'includes', 'files' => ['EnqueueAsset.php', 'Enqueue.php', 'Menu.php', 'Fallback.php', 'NextGen.php']],
 
             // 8. AutoGenerate, AdminNotice and DeactivationSurvey (load last as they depend on everything)
             // NOTE: auto-compress-on-upload is a Pro feature and lives in the Pro add-on, not here.
@@ -204,6 +206,11 @@ class App
         if (class_exists('\Softminal\ImageCraft\Fallback')) {
             $this->fallback = new Fallback();
         }
+        // Guarded: NextGen is a public-frontend surface too — a missing file
+        // must never fatal the site.
+        if (class_exists('\Softminal\ImageCraft\NextGen')) {
+            $this->nextGen = new NextGen();
+        }
     }
 
     /**
@@ -246,6 +253,9 @@ class App
             $this->router->init();
             if ($this->fallback !== null) {
                 $this->fallback->init();
+            }
+            if ($this->nextGen !== null) {
+                $this->nextGen->init();
             }
 
             // Auto-generate-on-upload is a Pro feature: the Pro add-on owns the

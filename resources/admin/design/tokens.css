@@ -1,0 +1,79 @@
+/**
+ * ImageCraft Design Tokens
+ * ------------------------------------------------------------------
+ * The single source of truth for the plugin's visual identity.
+ * Every color, radius, and shadow used by the admin SPA derives from
+ * these variables — components must not hardcode palette values.
+ *
+ * Identity notes:
+ * - Grown from ImageCraft's pre-existing blue accent (blue-500/600)
+ *   and its warm-white page background (#FFFFFB) so the redesign
+ *   reads as "ImageCraft matured", not a different product.
+ * - Two pillar accents distinguish the product's two jobs:
+ *     Image SEO     → brand blue family
+ *     Performance   → teal family
+ * - Font stays the WP-admin system stack (no external font loads).
+ *
+ * Bridged into Tailwind v4 via the `@theme inline` block in
+ * resources/scss/index.css — edit values HERE, utilities update
+ * everywhere automatically.
+ */
+
+:root {
+    /* ---- Brand ---- */
+    --ic-brand:            #2563eb; /* blue-600 — primary actions, active nav */
+    --ic-brand-strong:     #1d4ed8; /* blue-700 — hover/pressed */
+    --ic-brand-soft:       #eff6ff; /* blue-50  — selected/active backgrounds */
+    --ic-brand-soft-text:  #1e40af; /* blue-800 — text on brand-soft */
+    --ic-brand-foreground: #ffffff;
+
+    /* ---- Pillar accents ---- */
+    --ic-pillar-seo:        #2563eb; /* = brand: SEO is the flagship job */
+    --ic-pillar-seo-soft:   #eff6ff;
+    --ic-pillar-perf:       #0d9488; /* teal-600 */
+    --ic-pillar-perf-soft:  #f0fdfa; /* teal-50 */
+
+    /* ---- Surfaces ---- */
+    --ic-page:        #fffffb; /* warm white — ImageCraft's existing page bg */
+    --ic-card:        #ffffff;
+    --ic-muted:       #f9fafb; /* gray-50 — wells, table headers, hovers */
+    --ic-border:      #e5e7eb; /* gray-200 */
+    --ic-border-soft: #f3f4f6; /* gray-100 — inner dividers */
+
+    /* ---- Text ---- */
+    --ic-text:        #111827; /* gray-900 */
+    --ic-text-soft:   #6b7280; /* gray-500 — descriptions, help text */
+    --ic-text-faint:  #9ca3af; /* gray-400 — placeholders, disabled */
+
+    /* ---- Semantic (bg + text pairs) ---- */
+    --ic-success:       #059669; /* emerald-600 */
+    --ic-success-soft:  #ecfdf5; /* emerald-50 */
+    --ic-warning:       #d97706; /* amber-600 */
+    --ic-warning-soft:  #fffbeb; /* amber-50 */
+    --ic-danger:        #dc2626; /* red-600 */
+    --ic-danger-soft:   #fef2f2; /* red-50 */
+    --ic-info:          #0284c7; /* sky-600 */
+    --ic-info-soft:     #f0f9ff; /* sky-50 */
+
+    /* ---- Pro accent (single, quiet — used sparingly) ---- */
+    --ic-pro:       #b45309; /* amber-700 — calmer than the old amber-500 CTA */
+    --ic-pro-soft:  #fffbeb;
+
+    /* ---- Shape ---- */
+    --ic-radius:      0.5rem;  /* 8px — inputs, buttons (existing rhythm) */
+    --ic-radius-lg:   0.75rem; /* 12px — cards, panels */
+    --ic-radius-pill: 999px;   /* badges, filter pills */
+
+    /* ---- Elevation ---- */
+    --ic-shadow-card:  0 1px 2px rgb(17 24 39 / 0.05);
+    --ic-shadow-hover: 0 4px 12px rgb(17 24 39 / 0.08);
+
+    /* ---- Type scale ---- */
+    --ic-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    --ic-text-title:  1.375rem; /* 22px — page titles */
+    --ic-text-h2:     1rem;     /* 16px — card/section titles */
+    --ic-text-body:   0.875rem; /* 14px */
+    --ic-text-small:  0.8125rem;/* 13px — help/descriptions */
+    --ic-text-tiny:   0.75rem;  /* 12px — badges, meta */
+}

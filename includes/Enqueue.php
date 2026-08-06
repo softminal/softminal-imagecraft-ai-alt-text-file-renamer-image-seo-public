@@ -87,6 +87,10 @@ class Enqueue {
                 'metaIncludeAlt' => Settings::get('icais_meta_include_alt', '1'),
                 'metaIncludeTitle' => Settings::get('icais_meta_include_title', '1'),
                 'metaIncludeCaption' => Settings::get('icais_meta_include_caption', '1'),
+                // Next-gen format server capabilities (guarded — a probe failure
+                // must never break the admin page).
+                'canWebp' => ($ngCaps = self::nextGenCapabilities())['webp'],
+                'canAvif' => $ngCaps['avif'],
                 'i18n' => TranslationStrings::get(),
             ]);
         }
@@ -216,6 +220,22 @@ class Enqueue {
             [],
             ICAIS_VERSION
         );
+    }
+
+    /**
+     * Next-gen (WebP/AVIF) server capabilities for the SPA, fully guarded:
+     * a missing class or probe failure yields ['webp' => false, 'avif' => false]
+     * instead of ever fataling the admin page.
+     */
+    private static function nextGenCapabilities(): array {
+        try {
+            if (class_exists('\Softminal\ImageCraft\Services\NextGenConverter')) {
+                return \Softminal\ImageCraft\Services\NextGenConverter::capabilities();
+            }
+        } catch (\Throwable $e) {
+            // Fall through to the safe default.
+        }
+        return ['webp' => false, 'avif' => false];
     }
 
     private static function isKadenceActive(): bool {

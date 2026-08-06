@@ -210,7 +210,46 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ---
 
+## 9b. Next-Release Targets (decided 2026-08-06 — NOT in the current ship)
+
+- **GIF conversion/compression** — extend the Next-gen/compression engines to GIF.
+  Caution noted: static GIF→WebP is straightforward (GD/Imagick); **animated** GIF
+  needs Imagick with frame coalescing and is often unavailable on shared hosts —
+  ship static-GIF-only first, clearly labeled, with capability detection like AVIF.
+- **PDF optimization** — evaluate scope carefully (different engine domain than
+  images); explicitly deferred from the current release.
+
+The current release ships WITHOUT GIF and PDF handling — feature parity with
+Kraken.io on everything else (compress/convert/resize/bulk/auto; JPEG/PNG/WebP/AVIF),
+plus local-only processing and the Image-SEO pillar Kraken lacks.
+
 ## 10. Recent Changes (newest first)
+
+- **2026-08-06** — **Premium UX redesign (two-pillar IA + design system) + Next-gen
+  formats (WebP/AVIF).** One release, five build phases. (1) Design system:
+  `resources/admin/design/tokens.css` (`--ic-*` vars — brand blue, pillar accents
+  SEO=blue/Performance=teal) bridged into Tailwind v4 via `@theme inline` in
+  `resources/scss/index.css`; new `@ui` primitives (UiCard/UiButton/UiBadge/UiField/
+  UiPageHead/UiSectionHeader/UiEmptyState/UiSkeleton); Lucide icons replace emoji.
+  (2) Single navigation model `config/navigation.js` (topNav, settingsSections,
+  pillarScreens, quickActions) drives Navbar, Settings sidebar, new `SectionBar.vue`
+  contextual sub-bar, and Dashboard quick actions; canonical `/performance` route
+  (`/compression` redirects). (3) Settings sidebar regrouped General / Image SEO /
+  Performance with per-item descriptions; Integrations children visible. (4) Dashboard
+  reflowed to two pillar health cards + calm secondary row; Fallbacks promo card and
+  wp-admin "What's New" notice RETIRED (dismiss endpoint/meta kept); Get Pro reduced
+  to one quiet Navbar entry. (5) NEW Next-gen formats: `Services/NextGenConverter.php`
+  sidecar engine (photo.jpg.webp/.avif beside originals, `_icais_nextgen` manifest,
+  capability probe, never-bigger guard), `includes/NextGen.php` `<picture>` delivery
+  (opt-in, default off, `wp_content_img_tag` + `post_thumbnail_html`, delete_attachment
+  cleanup always on), REST `POST /compressor/convert` + `GET /compressor/convert-scan`
+  + `POST /compressor/convert-clean`, batch `type='convert'`, shared 20/day compress
+  counter. New settings (additive, default off): `icais_compression_convert_avif`,
+  `icais_nextgen_delivery_enabled`, `icais_nextgen_auto` (+ dormant
+  `icais_compression_convert_webp` now live). `window.icais.canWebp/canAvif`.
+  New `/settings/nextgen` page. Pro add-on gained `Features/NextGen.php`
+  (auto-convert-on-upload; AVIF unlocked via `ICAIS_PRO` in the free engine).
+  Free = manual WebP + delivery; Pro = AVIF + auto + no cap. No DB migration.
 
 - **2026-07-11** — **Update-discovery + Quick Actions.** (1) One-time wp-admin "What's New:
   Image Fallbacks" notice (`AdminNotice::displayFallbackFeatureNotice`) — admins only, per-user

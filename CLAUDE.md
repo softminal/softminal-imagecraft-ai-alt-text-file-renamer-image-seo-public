@@ -162,7 +162,8 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 - `Install.php` - Database table creation and version-gated migrations
 - `AutoGenerate.php` - Legacy auto-generate-on-upload (alt/title/Woo). **No longer initialized** — `App::run()` does NOT call `AutoGenerate::init()`. Auto-generate-on-upload is now a **Pro-only** feature owned by the Pro add-on (`Features\Meta`), which calls the free `GeneratorController::generateMetaForImage` core. File kept for backwards-compat references only.
 - `Fallback.php` - Image Fallbacks frontend surface (the plugin's ONLY public-frontend code). Opt-in, default off, non-destructive: (1) broken-`<img>` onerror swap via a raw JS asset (`resources/public/js/fallback.js`); (2) missing-featured-image fallback via a `get_post_metadata` (`_thumbnail_id`) filter (primary — makes `has_post_thumbnail()` true) + `post_thumbnail_html` (secondary). Bails on `is_admin()`; hot-path meta filter does cheap key/flag bails first with static-cached settings and a recursion guard. Pro unlock point: `apply_filters('icais_fallback_featured_image_id', $globalId, $postId, $postType)`.
-- `AdminNotice.php` - Admin dashboard notices with dismiss functionality. Two notices: the review ask and a one-time "What's New: Image Fallbacks" announcement (admins only, hidden once dismissed / module enabled / mid-wizard; the wizard's Fallbacks step auto-dismisses it for fresh installs). `POST /notice/dismiss` takes an optional additive `notice` param (`review` default | `fallback_feature`) selecting the per-user meta key.
+- `AdminNotice.php` - Admin dashboard notices with dismiss functionality. Only the review ask still renders; the one-time "What's New: Image Fallbacks" notice was RETIRED in the UX redesign (discovery consolidated into the SPA) — `displayFallbackFeatureNotice()` and the `notice=fallback_feature` dismiss param are kept for backwards compat but the notice is no longer hooked. `POST /notice/dismiss` takes an optional additive `notice` param (`review` default | `fallback_feature`) selecting the per-user meta key.
+- `NextGen.php` - Next-gen format (WebP/AVIF) delivery — the plugin's SECOND public-frontend surface (modeled on `Fallback.php`). Opt-in (`icais_nextgen_delivery_enabled`, default off), non-destructive: wraps content/thumbnail `<img>` in `<picture>` with avif/webp `<source>` entries whose srcset mirrors the img's, keeping the original as fallback. Hooks: `wp_content_img_tag` (WP 6.0+, per-img) + `post_thumbnail_html`, both `is_admin()`-gated and `\Throwable`-contained. Also registers `delete_attachment` cleanup (ALWAYS, even in admin) so sidecars never orphan on disk.
 - `DeactivationSurvey.php` - Deactivation feedback modal on the Plugins screen (renders survey, forwards feedback via FeedbackController)
 
 **HTTP Layer:**
@@ -195,6 +196,7 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 - `Settings.php` - Plugin settings management
 - `FileRenamer.php` - SEO-friendly image file renaming
 - `ImageCompressor.php` - Local, **quality-preserving** image compression. Direct **Imagick** pass (strip EXIF/profiles + progressive JPEG, **no chroma subsampling**, visually-lossless quality) with a `wp_get_image_editor` (GD) fallback; optional **longest-edge downscale**; writes to a temp file and only commits if smaller (**never-enlarge / already-optimal guard**); same path/format → URL unchanged; backs up originals to `uploads/icais-originals/` and supports restore. Defaults: quality **85** (`DEFAULT_QUALITY`), downscale to **2048px** longest edge (`FREE_MAX_DIM`). The engine is Pro-agnostic — it reads quality/resize via `apply_filters('icais_compression_quality'|'icais_compression_max_dim', …)` which the Pro add-on overrides when licensed. Re-compress preserves the true-original backup.
+- `NextGenConverter.php` - WebP/AVIF sidecar engine. Generates `photo.jpg.webp` / `photo.jpg.avif` BESIDE originals (full size + all intermediate sizes) — originals, URLs, `_wp_attached_file` never touched; fully reversible via `clean()`. Manifest in `_icais_nextgen` post meta (uploads-relative paths + saved bytes). `capabilities()` probes Imagick `queryFormats` + GD `imagewebp`/`imageavif` (AVIF needs PHP 8.1+ GD or an Imagick AVIF delegate — often unavailable; UI must show "server can't", not a Pro lock). `enabledFormats()` = settings opt-ins (`convert_webp` free; `convert_avif` Pro via `ICAIS_PRO`) → `icais_compression_formats` filter → intersect capabilities. Never-bigger guard discards sidecars ≥ source. Does NOT write to the compressions table (sidecars add files; savings materialize at delivery).
 - `StatsTracker.php` - Centralised generation history and stats recording
 - `SeoIntegration.php` - Yoast/Rank Math focus keyphrase integration
 - `UsageLimiter.php` - Daily limits (used by Generator, Batch, WooCommerce, AutoGenerate). Two separate counters: generation (50/day free, key `icais_daily_usage_<id>`) and compression (20/day free, key `icais_daily_compress_<id>`). Pro bypasses both via `ICAIS_PRO`.
@@ -205,13 +207,35 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 
 **Entry:** `main.js` → Vue 3 app mounted to `#imagecraft-app`
 
+**Design system (UX redesign):** `design/tokens.css` holds ALL visual identity as
+`--ic-*` CSS vars (brand blue grown from the legacy blue-600; pillar accents:
+SEO=blue, Performance=teal; surfaces/text/semantic pairs/radius/type). Bridged
+into Tailwind v4 via the `@theme inline` block in `resources/scss/index.css`
+(NO tailwind.config.js — v4 is CSS-first) generating utilities like `bg-brand`,
+`text-pillar-perf`, `rounded-card`, `shadow-card`. Shared primitives in `@ui/`:
+`UiCard, UiButton, UiBadge, UiField, UiPageHead, UiSectionHeader, UiEmptyState,
+UiSkeleton` (+ legacy `Checkbox, Switch, Pagination, Notification`). Icons:
+`lucide-vue-next` (already a dep) — no emoji in chrome.
+
+**Navigation model (single source of truth):** `config/navigation.js` defines
+`topNav`, `settingsSections` (grouped General / Image SEO / Performance, each
+item with icon + one-line description; Integrations' children visible),
+`pillarScreens` (drives `components/SectionBar.vue`, the contextual sub-bar
+mounted in `App.vue`), `quickActions` (Dashboard), plus helpers `visibleItems()`
+/ `pillarForPath()`. Navbar, Settings sidebar, and Dashboard quick actions ALL
+derive from it — never hardcode nav items elsewhere. Two-pillar IA: **Image
+SEO** (`/scanner`, WooCommerce) and **Performance** (`/performance` — canonical;
+`/compression` redirects to it; feature pages `/performance/nextgen` +
+`/performance/fallbacks` host the shared settings components in-pillar via
+`views/PerformanceFeature.vue`).
+
 **Router (`router.js`):** Hash history mode with routes for Dashboard, Scanner, WooCommerce, Batch, Settings, Help, and SetupWizard. The `beforeEach` guard redirects to `/wizard` only when `wizard_completed` is false — an API key is **no longer required** to enter the SPA (the plugin can be used purely for compression). The wizard can be **skipped without a key** (`skipWizard()` → `/settings/wizard/complete`); AI features then show an inline "Add API key" prompt at point of use (`window.icais.hasAiKey`).
 
 **API Client (`services/Api.js`):** REST client using `window.imageCraft` config for baseURL and nonce.
 
 **Key Views:** Dashboard.vue, Scanner.vue, Compression.vue, Batch.vue, Settings.vue, SetupWizard.vue, WooCommerce.vue, Help.vue
 
-**Settings Sub-routes:** GeneralSettings, ApiSettings, AltTextSettings, TitleSettings, MetaSettings (route `/settings/meta` — combined "Generate All"), RenameSettings, CompressionSettings, FallbackSettings (route `/settings/fallback` — Image Fallbacks; uses shared `ImagePick.vue` wp.media picker), WooCommerceSettings, SeoSettings, IntegrationSettings, PermissionsSettings (route `/settings/permissions` — single role allow-list for all features)
+**Settings Sub-routes:** GeneralSettings, ApiSettings, AltTextSettings, TitleSettings, MetaSettings (route `/settings/meta` — combined "Generate All"), RenameSettings, CompressionSettings, NextGenSettings (route `/settings/nextgen` — WebP/AVIF toggles + capability states), FallbackSettings (route `/settings/fallback` — Image Fallbacks; uses shared `ImagePick.vue` wp.media picker), WooCommerceSettings, SeoSettings, IntegrationSettings, PermissionsSettings (route `/settings/permissions` — single role allow-list for all features). Sidebar is driven by `config/navigation.js` `settingsSections`.
 
 **Shared UI (`@ui/`):** Notification.vue (global notification plugin), Pagination.vue
 
@@ -321,6 +345,63 @@ Free vs Pro:
   (imagecraft-...-pro) owns the value-unlocks (via the filters above) and auto-compress, and
   registers them ONLY when the license is valid. So the premium *behavior* is not in WP.org source.
   The 20/day cap bypass still rides the ICAIS_PRO constant (consistent with alt-text gating).
+```
+
+### Next-gen Formats (WebP/AVIF sidecars) — second public-frontend surface
+```
+PHP:
+  Services/NextGenConverter.php → sidecar engine (photo.jpg → photo.jpg.webp/.avif
+    beside it; _icais_nextgen manifest meta; capabilities() probe; enabledFormats()
+    = settings + ICAIS_PRO gate + icais_compression_formats filter + capability
+    intersect; never-bigger guard; clean() removes sidecars, confined to uploads)
+  includes/NextGen.php → delivery: wp_content_img_tag (WP 6.0+) + post_thumbnail_html
+    wrap <img> in <picture> (avif/webp <source> mirroring srcset, original fallback);
+    opt-in icais_nextgen_delivery_enabled default off; delete_attachment cleanup hook
+    registered ALWAYS. Guarded load/init in App.php (mirrors Fallback).
+  Http/Controllers/CompressorController.php → convert / convertScan / convertClean
+    (compressor route group → RoleGate; shares the 20/day compress counter via
+    UsageLimiter::canCompress/recordCompressUsage; idempotent re-runs don't count)
+  Http/Controllers/BatchController.php → type='convert' branch (bulk; skips count
+    as processed, not failed)
+  Enqueue.php → window.icais.canWebp/canAvif (guarded capability probe)
+
+Pro unlock points (identical split to Compression):
+  ICAIS_PRO constant → unlocks AVIF inside enabledFormats() + removes 20/day cap
+  apply_filters('icais_compression_formats', $formats) → Pro may adjust format list
+  Pro add-on Features/NextGen.php → auto-convert-on-upload (add_attachment →
+    icais_auto_convert cron → free NextGenConverter). Free registers NO hook.
+
+Frontend:
+  components/Settings/NextGenSettings.vue → /settings/nextgen (WebP free toggle,
+    AVIF Pro toggle w/ distinct "Not supported by server" state, auto-convert Pro
+    toggle, delivery toggle)
+  views/Compression.vue → "Convert Selected" bulk button (admin + capability +
+    format enabled) → batch/start type:'convert'
+
+Feature pages live IN the Performance pillar (not Settings):
+  views/PerformanceFeature.vue → standalone host for /performance/nextgen and
+  /performance/fallbacks (route meta.feature). Fetches /settings itself,
+  provides a compatible settingsContext ({settings, availablePostTypes}), and
+  renders the SHARED components (NextGenSettings.vue / FallbackSettings.vue —
+  no duplication) + its own Save. Admin-only (router beforeEach blocklist).
+  Legacy /settings/nextgen and /settings/fallback child routes still resolve.
+
+Discovery (structural, no promo spam): (1) Dashboard Performance pillar card
+  feature-status rows — "Next-gen formats / Image fallbacks: On | Set up →"
+  (admins) → /performance/nextgen|fallbacks; (2) contextual in-flow card on the
+  Performance page when the server CAN encode but no format is enabled
+  (dismissible, localStorage key icais_nextgen_hint_dismissed); (3) Performance
+  SectionBar pills (Compress · Next-gen Formats · Image Fallbacks); (4) Needs
+  Attention "Broken images" tile → /performance/fallbacks
+
+Settings (all additive, opt-in, default off): icais_compression_convert_webp
+  (pre-existing dormant key, now live), icais_compression_convert_avif (Pro),
+  icais_nextgen_delivery_enabled, icais_nextgen_auto (Pro-effect, inert free)
+
+Free vs Pro: Free = manual WebP (single via REST + bulk via batch) + <picture>
+  delivery, 20/day shared cap. Pro = AVIF (when server supports it) +
+  auto-convert-on-upload + no cap. No DB migration — manifest lives in post meta;
+  conversions do NOT write to the compressions table.
 ```
 
 ### Image Fallbacks (broken images + missing featured images) — first public-frontend surface
@@ -496,7 +577,7 @@ Frontend:
 | `POST /batch/retry-failed` | BatchController::retryFailed | manage_options |
 | `POST /batch/process` | BatchController::process | manage_options |
 | `POST /batch/cancel` | BatchController::cancel | manage_options |
-| (batch `type`) | `alt` (default) · `title` · `compress` · `meta` (alt+title+caption combined) — set on `/batch/start`, branched in `process()` | |
+| (batch `type`) | `alt` (default) · `title` · `compress` · `meta` (alt+title+caption combined) · `convert` (WebP/AVIF sidecars) — set on `/batch/start`, branched in `process()` | |
 | `GET /stats/dashboard` | StatsController::dashboard | upload_files |
 | `GET /stats/audit` | StatsController::audit | upload_files |
 | `POST /renamer/rename` | FileRenamerController::rename | upload_files |
@@ -507,6 +588,9 @@ Frontend:
 | `POST /compressor/restore` | CompressorController::restore | upload_files |
 | `GET /compressor/preview` | CompressorController::preview | upload_files |
 | `GET /compressor/stats` | CompressorController::stats | upload_files |
+| `POST /compressor/convert` | CompressorController::convert | upload_files |
+| `GET /compressor/convert-scan` | CompressorController::convertScan | upload_files |
+| `POST /compressor/convert-clean` | CompressorController::convertClean | upload_files |
 | `GET /fallback/scan-broken` | FallbackController::scanBroken | upload_files |
 | (`?refresh=1` busts the `icais_broken_scan` transient; response may be `partial: true` — re-call to resume the time-budgeted scan) | | |
 | `POST /notice/dismiss` | AdminNotice::dismiss | edit_posts |

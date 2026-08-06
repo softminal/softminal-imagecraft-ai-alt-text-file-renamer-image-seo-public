@@ -26,7 +26,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'change'])
 
 const trackStyle = computed(() => ({
-  backgroundColor: props.modelValue ? '#2563eb' : '#d1d5db',
+  backgroundColor: props.modelValue ? 'var(--ic-brand, #2563eb)' : '#d1d5db',
   transition: 'background-color 150ms ease',
 }))
 

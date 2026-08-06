@@ -79,6 +79,10 @@ Route::prefix('compressor')->capability('upload_files')->middleware([\Softminal\
     Route::post('/restore', [CompressorController::class, 'restore']);
     Route::get('/preview', [CompressorController::class, 'preview']);
     Route::get('/stats', [CompressorController::class, 'stats']);
+    // Next-gen formats (WebP/AVIF sidecars) — additive endpoints
+    Route::post('/convert', [CompressorController::class, 'convert']);
+    Route::get('/convert-scan', [CompressorController::class, 'convertScan']);
+    Route::post('/convert-clean', [CompressorController::class, 'convertClean']);
 });
 
 // Image Fallbacks routes (admin-side broken-image scan; no public endpoint)
