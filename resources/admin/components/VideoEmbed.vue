@@ -32,7 +32,9 @@ import { Play } from 'lucide-vue-next'
 import { $t } from '../utils/i18n'
 
 defineProps({
-  videoId: { type: String, required: true },
+  // Strict 11-char YouTube ID — defense in depth so no future caller can
+  // smuggle path/query segments into the embed URL.
+  videoId: { type: String, required: true, validator: (v) => /^[\w-]{11}$/.test(v) },
   title: { type: String, default: '' },
 })
 
