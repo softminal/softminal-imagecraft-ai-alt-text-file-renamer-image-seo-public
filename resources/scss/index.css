@@ -61,14 +61,23 @@
     background-color: #FFFFFB;
 }
 #icais-app{
-    /* Navbar logo — explicit UNLAYERED rule. Tailwind v4 utilities live in
-       @layer utilities, which any unlayered admin CSS (WP core or another
-       plugin's global `img` rules) overrides regardless of specificity. The
-       logo must never render at natural size, so pin it here. */
-    .icais-logo{
-        height: 3rem !important;
-        width: auto !important;
+    /* Navbar logo lockup — explicit UNLAYERED rules. Tailwind v4 utilities live
+       in @layer utilities, which any unlayered admin CSS (WP core or another
+       plugin's global rules) overrides regardless of specificity, so the logo
+       is pinned here instead. */
+    .icais-logo-mark{
+        height: 2.25rem !important;
+        width: 2.25rem !important;
         max-width: none !important;
+        flex: none;
+        display: block;
+    }
+    .icais-logo-text{
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        color: var(--ic-text, #111827);
+        line-height: 1;
     }
     input[type="checkbox"]{
         margin: unset;
@@ -165,4 +174,15 @@
 }
 a:focus{
     @apply outline-hidden
+}
+/* WP core paints a blue glow on a:focus/:active — kill it inside our SPA only.
+   :focus-visible keeps a real ring for keyboard users. */
+#icais-app a:active,
+#icais-app a:focus{
+    box-shadow: none !important;
+    outline: none !important;
+}
+#icais-app a:focus-visible{
+    outline: 2px solid var(--ic-brand, #2563eb) !important;
+    outline-offset: 2px;
 }

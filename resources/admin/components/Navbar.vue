@@ -1,9 +1,14 @@
 <template>
     <nav class="main_nav_soft_carousel bg-white border-b border-ic-border px-4 py-2.5 left-0 right-0 top-0 z-50">
         <div class="flex flex-wrap justify-between items-center">
-            <!-- Logo -->
-            <router-link to="/" class="flex items-center bg-inherit outline-hidden focus:outline-hidden focus:shadow-none">
-                <img :src="asset('imagecraft-logo.png')" alt="ImageCraft" class="icais-logo h-12" />
+            <!-- Logo: inline so it stays crisp at any density and needs no asset -->
+            <router-link
+                to="/"
+                aria-label="ImageCraft"
+                class="flex items-center gap-2.5 bg-inherit select-none outline-hidden focus:outline-hidden focus:shadow-none"
+            >
+                <img :src="asset('imagecraft-logo.svg')" alt="" class="icais-logo-mark" />
+                <span class="icais-logo-text">ImageCraft</span>
             </router-link>
 
             <!-- Navigation (driven by config/navigation.js — single source of truth) -->

@@ -1,0 +1,522 @@
+<title>ImageCraft — Logo Concepts</title>
+<style>
+  :root {
+    --paper:   #FAFAFB;
+    --surface: #FFFFFF;
+    --ink:     #13171E;
+    --muted:   #666E7A;
+    --line:    #E3E6EB;
+    --accent:  #2563EB;
+    --sunk:    #F2F4F7;
+    /* WP admin sidebar — a factual reproduction, identical in both themes */
+    --wpbar:   #1D2327;
+    --wpicon:  #A7AAAD;
+    --wptext:  #F0F0F1;
+
+    --serif: ui-serif, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:   #0E1116;
+      --surface: #161A21;
+      --ink:     #E7EAEF;
+      --muted:   #939BA6;
+      --line:    #262C35;
+      --accent:  #6E9BF5;
+      --sunk:    #1D222A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#0E1116; --surface:#161A21; --ink:#E7EAEF;
+    --muted:#939BA6; --line:#262C35; --accent:#6E9BF5; --sunk:#1D222A;
+  }
+  :root[data-theme="light"] {
+    --paper:#FAFAFB; --surface:#FFFFFF; --ink:#13171E;
+    --muted:#666E7A; --line:#E3E6EB; --accent:#2563EB; --sunk:#F2F4F7;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: clamp(28px, 6vw, 64px) clamp(18px, 4vw, 32px) 80px; }
+
+  /* ---- header ---- */
+  .eyebrow {
+    font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin: 0 0 12px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.9rem, 4.4vw, 2.7rem);
+    line-height: 1.15; font-weight: 600; margin: 0 0 14px;
+    text-wrap: balance; letter-spacing: -.01em;
+  }
+  .lede { max-width: 62ch; color: var(--muted); margin: 0 0 28px; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  .brief {
+    display: grid; gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    margin-bottom: 52px;
+  }
+  .brief div { background: var(--surface); padding: 16px 18px; }
+  .brief dt {
+    font-size: .68rem; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 5px;
+  }
+  .brief dd { margin: 0; font-size: .92rem; }
+  .brief code { font-family: var(--mono); font-size: .84em; }
+
+  /* ---- concept card ---- */
+  .concept {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: clamp(20px, 3.4vw, 30px);
+    margin-bottom: 22px;
+  }
+  .chead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+  .cnum {
+    font-family: var(--mono); font-size: .78rem; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .cname { font-family: var(--serif); font-size: 1.32rem; font-weight: 600; margin: 0; letter-spacing: -.005em; }
+  .pick {
+    font-size: .64rem; letter-spacing: .09em; text-transform: uppercase; font-weight: 700;
+    color: var(--accent); border: 1px solid currentColor;
+    padding: 2px 7px; border-radius: 20px;
+  }
+  .rationale { color: var(--muted); font-size: .93rem; margin: 0 0 22px; max-width: 64ch; }
+  .rationale b { color: var(--ink); font-weight: 600; }
+
+  .body { display: grid; grid-template-columns: 148px 1fr; gap: clamp(18px, 3vw, 32px); align-items: start; }
+  @media (max-width: 620px) { .body { grid-template-columns: 1fr; } }
+
+  .hero-slot { display: flex; justify-content: center; }
+  .hero-slot svg { width: 116px; height: 116px; display: block; }
+
+  /* size ladder — the three contexts the mark must survive */
+  .ladder { display: flex; gap: 26px; flex-wrap: wrap; align-items: flex-end; }
+  .rung { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .rung-box {
+    background: var(--sunk); border-radius: 8px;
+    min-width: 64px; min-height: 64px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rung-box.mono { color: var(--ink); }
+  .rung-box svg { display: block; }
+  .rung-label {
+    font-size: .66rem; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+  .rung-label span { display: block; text-transform: none; letter-spacing: 0; font-weight: 400; opacity: .8; }
+
+  /* WP admin sidebar in situ */
+  .wpstrip {
+    margin-top: 22px; background: var(--wpbar); border-radius: 8px;
+    padding: 8px 0; overflow: hidden;
+  }
+  .wprow { display: flex; align-items: center; gap: 9px; padding: 8px 12px; }
+  .wprow svg { width: 20px; height: 20px; flex: none; }
+  .wprow span { font-size: 13px; font-family: var(--sans); }
+  .wprow.dim { color: var(--wpicon); }
+  .wprow.dim span { color: var(--wpicon); }
+  .wprow.cur { background: #2271B1; color: #fff; }
+  .wprow.cur span { color: #fff; }
+  .wpcap {
+    font-size: .66rem; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin: 18px 0 7px;
+  }
+
+  details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
+  summary {
+    cursor: pointer; font-size: .82rem; color: var(--muted); font-weight: 600;
+    list-style: none; display: inline-flex; align-items: center; gap: 6px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "＋"; font-family: var(--mono); }
+  details[open] summary::before { content: "－"; }
+  summary:hover { color: var(--accent); }
+  summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+  pre {
+    background: var(--sunk); border-radius: 8px; padding: 14px;
+    overflow-x: auto; font-family: var(--mono); font-size: .76rem;
+    line-height: 1.55; margin: 12px 0 0;
+  }
+  .files { font-family: var(--mono); font-size: .74rem; color: var(--muted); margin-top: 10px; }
+
+  .closing {
+    margin-top: 46px; padding: clamp(20px, 3.4vw, 30px);
+    border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 12px; background: var(--surface);
+  }
+  .closing h2 { font-family: var(--serif); font-size: 1.25rem; margin: 0 0 12px; font-weight: 600; }
+  .closing p { margin: 0 0 12px; font-size: .94rem; }
+  .closing p:last-child { margin-bottom: 0; }
+  .closing code { font-family: var(--mono); font-size: .85em; background: var(--sunk); padding: 1px 5px; border-radius: 4px; }
+  .closing ul { margin: 0 0 12px; padding-left: 20px; font-size: .94rem; }
+  .closing li { margin-bottom: 5px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<!-- shared gradient defs: one definition, referenced by every rendered instance -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#0D9488"/>
+  </linearGradient>
+</defs></svg>
+
+<div class="wrap">
+
+  <p class="eyebrow">ImageCraft · identity</p>
+  <h1>Six marks, judged where they actually live</h1>
+  <p class="lede">
+    A logo for this plugin has to survive <strong>20 pixels of monochrome</strong> in the WordPress
+    admin sidebar long before anyone sees it at full size. Every concept below is shown at all three
+    real sizes — and dropped into a live-accurate admin menu — so the choice is made on evidence,
+    not on how it looks blown up.
+  </p>
+
+  <dl class="brief">
+    <div><dt>Where it appears</dt><dd>Admin menu icon, plugin navbar, WordPress.org listing</dd></div>
+    <div><dt>Hard constraint</dt><dd>Menu icon renders <code>monochrome</code> via <code>currentColor</code></dd></div>
+    <div><dt>Palette</dt><dd>Brand blue → teal, matching the SEO and Performance pillars</dd></div>
+  </dl>
+
+  <!-- ============ 1 ============ -->
+  <article class="concept">
+    <div class="chead">
+      <span class="cnum">01</span>
+      <h2 class="cname">Ascend</h2>
+      <span class="pick">Recommended</span>
+    </div>
+    <p class="rationale">
+      One line that reads as <b>a mountain range and a rising chart at the same time</b> — the plugin's
+      two jobs in a single stroke. It is the only concept here that says <i>image</i> and <i>ranking</i>
+      together, and a stroked path with round joins stays crisp at 16px where filled detail turns to mush.
+    </p>
+    <div class="body">
+      <div class="hero-slot js-color">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Ascend mark">
+          <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+          <path d="M13 45 L23 33 L29.5 40 L39 25 L45.5 32 L52 20" fill="none" stroke="#fff"
+                stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="52" cy="20" r="4" fill="#fff"/>
+        </svg>
+      </div>
+      <div>
+        <div class="ladder js-ladder"></div>
+        <p class="wpcap">In the admin sidebar</p>
+        <div class="wpstrip js-wp"></div>
+      </div>
+    </div>
+    <template class="mono-src">
+      <svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Ascend, monochrome">
+        <path d="M3.6 17.4 L8.3 11.8 L11.3 15.1 L15.7 8.2 L18.7 11.5 L21 7.4" fill="none"
+              stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="21" cy="7.4" r="2.1"/>
+      </svg>
+    </template>
+    <details>
+      <summary>Source</summary>
+      <pre><code>&lt;path d="M13 45 L23 33 L29.5 40 L39 25 L45.5 32 L52 20"
+      fill="none" stroke="#fff" stroke-width="5.5"
+      stroke-linecap="round" stroke-linejoin="round"/&gt;
+&lt;circle cx="52" cy="20" r="4" fill="#fff"/&gt;</code></pre>
+      <p class="files">01-ascend.svg · mono-01-ascend.svg</p>
+    </details>
+  </article>
+
+  <!-- ============ 2 ============ -->
+  <article class="concept">
+    <div class="chead"><span class="cnum">02</span><h2 class="cname">Peak</h2></div>
+    <p class="rationale">
+      The safe evolution: your current idea with the camera brackets and the sun removed, the peaks
+      sharpened, and one sparkle left to carry the AI story. <b>Lowest risk, lowest distinctiveness</b> —
+      the filled-mountain-in-a-square is the most common shape in this category.
+    </p>
+    <div class="body">
+      <div class="hero-slot js-color">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Peak mark">
+          <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+          <path d="M12 47 L24 30 L32 39.5 L41 27 L52 47 Z" fill="#fff" fill-opacity=".96"/>
+          <path d="M45 9 L46.9 14.1 L52 16 L46.9 17.9 L45 23 L43.1 17.9 L38 16 L43.1 14.1 Z" fill="#fff"/>
+        </svg>
+      </div>
+      <div>
+        <div class="ladder js-ladder"></div>
+        <p class="wpcap">In the admin sidebar</p>
+        <div class="wpstrip js-wp"></div>
+      </div>
+    </div>
+    <template class="mono-src">
+      <svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Peak, monochrome">
+        <path d="M2.2 19 L7.5 11.5 L11 15.7 L15 10.2 L19.8 19 Z"/>
+        <path d="M19 2.6 L19.9 5.1 L22.4 6 L19.9 6.9 L19 9.4 L18.1 6.9 L15.6 6 L18.1 5.1 Z"/>
+      </svg>
+    </template>
+    <details>
+      <summary>Source</summary>
+      <pre><code>&lt;path d="M12 47 L24 30 L32 39.5 L41 27 L52 47 Z" fill="#fff"/&gt;
+&lt;path d="M45 9 L46.9 14.1 L52 16 L46.9 17.9 L45 23
+         L43.1 17.9 L38 16 L43.1 14.1 Z" fill="#fff"/&gt;</code></pre>
+      <p class="files">02-peak.svg · mono-02-peak.svg</p>
+    </details>
+  </article>
+
+  <!-- ============ 3 ============ -->
+  <article class="concept">
+    <div class="chead"><span class="cnum">03</span><h2 class="cname">Aperture</h2></div>
+    <p class="rationale">
+      A three-blade iris — photographic, precise, and the most <b>premium-feeling</b> mark of the six.
+      The trade-off is meaning: an aperture says <i>camera</i>, and this plugin never takes a photo.
+      It also holds the least detail at 16px, where the blades start to close up.
+    </p>
+    <div class="body">
+      <div class="hero-slot js-color">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Aperture mark">
+          <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+          <circle cx="32" cy="32" r="17" fill="none" stroke="#fff" stroke-width="5"/>
+          <g stroke="#fff" stroke-width="5" stroke-linecap="round">
+            <path d="M32 38 L32 49"/><path d="M26.8 29 L17.3 23.5"/><path d="M37.2 29 L46.7 23.5"/>
+          </g>
+        </svg>
+      </div>
+      <div>
+        <div class="ladder js-ladder"></div>
+        <p class="wpcap">In the admin sidebar</p>
+        <div class="wpstrip js-wp"></div>
+      </div>
+    </div>
+    <template class="mono-src">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+           stroke-linecap="round" role="img" aria-label="Aperture, monochrome">
+        <circle cx="12" cy="12" r="8.6"/>
+        <path d="M12 15 L12 20.6"/><path d="M9.4 10.5 L4.6 7.7"/><path d="M14.6 10.5 L19.4 7.7"/>
+      </svg>
+    </template>
+    <details>
+      <summary>Source</summary>
+      <pre><code>&lt;circle cx="32" cy="32" r="17" fill="none" stroke="#fff" stroke-width="5"/&gt;
+&lt;g stroke="#fff" stroke-width="5" stroke-linecap="round"&gt;
+  &lt;path d="M32 38 L32 49"/&gt;
+  &lt;path d="M26.8 29 L17.3 23.5"/&gt;
+  &lt;path d="M37.2 29 L46.7 23.5"/&gt;
+&lt;/g&gt;</code></pre>
+      <p class="files">03-aperture.svg · mono-03-aperture.svg</p>
+    </details>
+  </article>
+
+  <!-- ============ 4 ============ -->
+  <article class="concept">
+    <div class="chead"><span class="cnum">04</span><h2 class="cname">Stack</h2></div>
+    <p class="rationale">
+      Three cascading tiles — literally what the plugin now produces: <b>the original, plus its WebP
+      and AVIF copies</b>. Technical, modern, and unlike anything else in the image-optimizer category.
+      The risk is legibility of meaning: without context it could be any "layers" icon.
+    </p>
+    <div class="body">
+      <div class="hero-slot js-color">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Stack mark">
+          <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+          <rect x="26" y="12" width="26" height="26" rx="7" fill="#fff" fill-opacity=".38"/>
+          <rect x="19" y="19" width="26" height="26" rx="7" fill="#fff" fill-opacity=".62"/>
+          <rect x="12" y="26" width="26" height="26" rx="7" fill="#fff"/>
+        </svg>
+      </div>
+      <div>
+        <div class="ladder js-ladder"></div>
+        <p class="wpcap">In the admin sidebar</p>
+        <div class="wpstrip js-wp"></div>
+      </div>
+    </div>
+    <template class="mono-src">
+      <svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Stack, monochrome">
+        <rect x="10.5" y="2.4" width="11.2" height="11.2" rx="3" opacity=".4"/>
+        <rect x="7.4" y="5.6" width="11.2" height="11.2" rx="3" opacity=".68"/>
+        <rect x="2.4" y="9.6" width="12" height="12" rx="3.2"/>
+      </svg>
+    </template>
+    <details>
+      <summary>Source</summary>
+      <pre><code>&lt;rect x="26" y="12" width="26" height="26" rx="7" fill="#fff" fill-opacity=".38"/&gt;
+&lt;rect x="19" y="19" width="26" height="26" rx="7" fill="#fff" fill-opacity=".62"/&gt;
+&lt;rect x="12" y="26" width="26" height="26" rx="7" fill="#fff"/&gt;</code></pre>
+      <p class="files">04-stack.svg · mono-04-stack.svg</p>
+    </details>
+  </article>
+
+  <!-- ============ 5 ============ -->
+  <article class="concept">
+    <div class="chead"><span class="cnum">05</span><h2 class="cname">Bolt</h2></div>
+    <p class="rationale">
+      Maximum legibility at every size and instantly readable as <b>speed</b>. But it commits the whole
+      identity to the Performance half and says nothing about alt text, titles, or SEO — half your
+      product, invisible.
+    </p>
+    <div class="body">
+      <div class="hero-slot js-color">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Bolt mark">
+          <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+          <path d="M36 10 L18 35 L29 35 L27 54 L46 28 L34.5 28 Z" fill="#fff"/>
+        </svg>
+      </div>
+      <div>
+        <div class="ladder js-ladder"></div>
+        <p class="wpcap">In the admin sidebar</p>
+        <div class="wpstrip js-wp"></div>
+      </div>
+    </div>
+    <template class="mono-src">
+      <svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Bolt, monochrome">
+        <path d="M13.8 1.8 L5 14 L11 14 L10 22.2 L19.4 9.6 L13.1 9.6 Z"/>
+      </svg>
+    </template>
+    <details>
+      <summary>Source</summary>
+      <pre><code>&lt;path d="M36 10 L18 35 L29 35 L27 54 L46 28 L34.5 28 Z" fill="#fff"/&gt;</code></pre>
+      <p class="files">05-bolt.svg · mono-05-bolt.svg</p>
+    </details>
+  </article>
+
+  <!-- ============ 6 ============ -->
+  <article class="concept">
+    <div class="chead"><span class="cnum">06</span><h2 class="cname">Monogram</h2></div>
+    <p class="rationale">
+      An <b>I</b> and a <b>C</b>, set as pure geometry. The most brand-forward option and the only one
+      that couldn't belong to any other plugin — it behaves like a company mark rather than an icon.
+      It also carries no meaning on its own, so it needs the wordmark beside it to do any work.
+    </p>
+    <div class="body">
+      <div class="hero-slot js-color">
+        <svg viewBox="0 0 64 64" role="img" aria-label="Monogram mark">
+          <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+          <rect x="15" y="19" width="7" height="26" rx="3.5" fill="#fff"/>
+          <path d="M47 24 a11 11 0 1 0 0 16" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="ladder js-ladder"></div>
+        <p class="wpcap">In the admin sidebar</p>
+        <div class="wpstrip js-wp"></div>
+      </div>
+    </div>
+    <template class="mono-src">
+      <svg viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="Monogram, monochrome">
+        <rect x="3.2" y="5.6" width="3.4" height="12.8" rx="1.7"/>
+        <path d="M19.4 8.4 a5.4 5.4 0 1 0 0 7.2" fill="none" stroke="currentColor"
+              stroke-width="3.4" stroke-linecap="round"/>
+      </svg>
+    </template>
+    <details>
+      <summary>Source</summary>
+      <pre><code>&lt;rect x="15" y="19" width="7" height="26" rx="3.5" fill="#fff"/&gt;
+&lt;path d="M47 24 a11 11 0 1 0 0 16" fill="none"
+      stroke="#fff" stroke-width="7" stroke-linecap="round"/&gt;</code></pre>
+      <p class="files">06-monogram.svg · mono-06-monogram.svg</p>
+    </details>
+  </article>
+
+  <section class="closing">
+    <h2>Where I'd land</h2>
+    <p>
+      <strong>Ascend (01)</strong> — it is the only mark that carries both halves of the product in one
+      stroke, it is the most legible of the six at 16px, and it reads as a deliberate mark rather than a
+      stock image glyph. <strong>Stack (04)</strong> is the interesting runner-up if you want to lean
+      into the technical, format-conversion story.
+    </p>
+    <p>Once you pick one, the swap touches three places:</p>
+    <ul>
+      <li><code>includes/Menu.php</code> — the inline base64 SVG menu icon (use the mono file)</li>
+      <li><code>resources/images/imagecraft-logo.png</code> — the navbar lockup, regenerated as mark + wordmark</li>
+      <li>WordPress.org assets — <code>icon-256x256.png</code>, <code>icon-128x128.png</code>, and the banner</li>
+    </ul>
+    <p>
+      All twelve files are already in <code>docs/wporg-assets/logo-concepts/</code> — six colour marks
+      and six monochrome menu icons, as editable SVG.
+    </p>
+  </section>
+</div>
+
+<script>
+  // Build each concept's size ladder and admin-sidebar preview from the markup
+  // that is already on the page, so the marks can never drift out of sync.
+  document.querySelectorAll('.concept').forEach(function (card) {
+    var colorSrc = card.querySelector('.js-color svg');
+    var monoSrc  = card.querySelector('.mono-src').content.querySelector('svg');
+    var name     = card.querySelector('.cname').textContent;
+
+    var rungs = [
+      { svg: colorSrc, px: 48, label: 'Navbar',  note: '48px colour' },
+      { svg: monoSrc,  px: 24, label: 'Menu',    note: '24px mono' },
+      { svg: monoSrc,  px: 16, label: 'Favicon', note: '16px mono' }
+    ];
+
+    var ladder = card.querySelector('.js-ladder');
+    rungs.forEach(function (r) {
+      var node = r.svg.cloneNode(true);
+      node.setAttribute('width', r.px);
+      node.setAttribute('height', r.px);
+      node.removeAttribute('role');
+      node.setAttribute('aria-hidden', 'true');
+
+      var box = document.createElement('div');
+      box.className = 'rung-box' + (r.px === 48 ? '' : ' mono');
+      box.appendChild(node);
+
+      var lab = document.createElement('div');
+      lab.className = 'rung-label';
+      lab.innerHTML = r.label + '<span>' + r.note + '</span>';
+
+      var rung = document.createElement('div');
+      rung.className = 'rung';
+      rung.appendChild(box);
+      rung.appendChild(lab);
+      ladder.appendChild(rung);
+    });
+
+    // Admin sidebar: the concept sits between two real WordPress menu items.
+    var strip = card.querySelector('.js-wp');
+    [
+      { label: 'Media',       cur: false, mark: null },
+      { label: 'ImageCraft',  cur: true,  mark: monoSrc },
+      { label: 'Plugins',     cur: false, mark: null }
+    ].forEach(function (item) {
+      var row = document.createElement('div');
+      row.className = 'wprow ' + (item.cur ? 'cur' : 'dim');
+      if (item.mark) {
+        var m = item.mark.cloneNode(true);
+        m.setAttribute('aria-hidden', 'true');
+        m.removeAttribute('role');
+        row.appendChild(m);
+      } else {
+        // Stock WordPress dashicon silhouettes, for honest scale comparison.
+        var d = item.label === 'Media'
+          ? 'M4 5h16v14H4V5zm2 2v10h12V7H6zm3 2.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM7 16l3.2-4 2.3 2.8L15 12l2 4H7z'
+          : 'M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4zm0 2.2 6 3V12c0 3.9-2.5 6.8-6 8-3.5-1.2-6-4.1-6-8V7.2l6-3z';
+        var ns = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        ns.setAttribute('viewBox', '0 0 24 24');
+        ns.setAttribute('fill', 'currentColor');
+        ns.setAttribute('aria-hidden', 'true');
+        var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', d);
+        ns.appendChild(p);
+        row.appendChild(ns);
+      }
+      var s = document.createElement('span');
+      s.textContent = item.cur ? name === 'Ascend' ? 'ImageCraft' : 'ImageCraft' : item.label;
+      row.appendChild(s);
+      strip.appendChild(row);
+    });
+  });
+</script>

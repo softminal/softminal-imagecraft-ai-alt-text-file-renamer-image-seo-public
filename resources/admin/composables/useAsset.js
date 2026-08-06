@@ -4,7 +4,7 @@
  * Usage:
  *   import { useAsset } from '../composables/useAsset'
  *   const { asset } = useAsset()
- *   asset('imagecraft-logo.png') // → full URL to the image
+ *   asset('imagecraft-logo.svg') // → full URL to the image
  */
 export function useAsset() {
   const pluginUrl = window.icais?.pluginUrl || ''
