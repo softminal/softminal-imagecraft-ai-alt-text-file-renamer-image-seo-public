@@ -182,8 +182,10 @@ Schema changes go in `Install.php` with a version-gated migration. `Install::DB_
   (Pro, future), `icais_compression_keep_backup` (forced on), `icais_compression_skip_compressed`,
   `icais_compression_min_size_kb` (50), `icais_compression_auto` (Pro). Engine: direct Imagick
   (strip metadata + progressive JPEG, no chroma subsampling) with GD/`wp_get_image_editor`
-  fallback; writes to temp + **never-enlarge guard** (commits only if smaller). Free cap 20/day
-  via `UsageLimiter` separate counter `icais_daily_compress_<id>`; `ICAIS_PRO` removes the cap.
+  fallback; writes to temp + **never-enlarge guard** (commits only if smaller). Free cap: the
+  **shared 50-action / rolling-24h pool** in `UsageLimiter` (`icais_daily_usage_<userId>`,
+  `compress_count` field) — the SAME pool as generation, not a separate counter;
+  `ICAIS_PRO` removes the cap.
   Pro/free split: the engine reads quality/resize via `apply_filters('icais_compression_quality',85)`
   and `apply_filters('icais_compression_max_dim',2048)`; the **Pro add-on**
   (`imagecraft-...-pro/includes/Features/Compression.php`) overrides them + registers
@@ -224,6 +226,19 @@ Kraken.io on everything else (compress/convert/resize/bulk/auto; JPEG/PNG/WebP/A
 plus local-only processing and the Image-SEO pillar Kraken lacks.
 
 ## 10. Recent Changes (newest first)
+
+- **2026-08-07** — **Docs correction: usage limit is ONE shared pool, not two counters.**
+  `CLAUDE.md` and this file described the free tier as two separate counters (50/day
+  generation + 20/day compression, key `icais_daily_compress_<id>`). The code has never
+  matched that since the pool was consolidated: `UsageLimiter` uses a single
+  `DAILY_LIMIT = 50` over a **rolling 24h window** (`WINDOW_SECONDS`), stored in one option
+  `icais_daily_usage_<userId>` as `['started_at','ids','compress_count']`, with
+  `totalCount() = count(ids) + compress_count` spanning generation AND compression. The
+  `icais_daily_compress_<id>` key does not exist. Generation is deduped per attachment
+  (re-generating a counted image is free); every compression increments. No code change —
+  documentation only. Older dated entries below are left as-is as a historical record.
+  **Also:** plugin display name changed to *ImageCraft - AI Alt Text, Image Compression &
+  WebP* (`readme.txt` + `Plugin Name` header; slug, text domain, and version unchanged).
 
 - **2026-08-06** — **Premium UX redesign (two-pillar IA + design system) + Next-gen
   formats (WebP/AVIF).** One release, five build phases. (1) Design system:

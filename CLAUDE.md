@@ -150,7 +150,7 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 ## Architecture
 
 ### Entry Point Flow
-`imagecraft.php` → loads `config/constants.php` → initializes `App.php` singleton on `plugins_loaded`
+`imagecraft-ai-alt-text-file-renamer-image-seo.php` (main plugin file) → loads `config/constants.php` → initializes `App.php` singleton on `plugins_loaded`
 
 ### PHP Structure (includes/)
 
@@ -199,7 +199,7 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 - `NextGenConverter.php` - WebP/AVIF sidecar engine. Generates `photo.jpg.webp` / `photo.jpg.avif` BESIDE originals (full size + all intermediate sizes) — originals, URLs, `_wp_attached_file` never touched; fully reversible via `clean()`. Manifest in `_icais_nextgen` post meta (uploads-relative paths + saved bytes). `capabilities()` probes Imagick `queryFormats` + GD `imagewebp`/`imageavif` (AVIF needs PHP 8.1+ GD or an Imagick AVIF delegate — often unavailable; UI must show "server can't", not a Pro lock). `enabledFormats()` = settings opt-ins (`convert_webp` free; `convert_avif` Pro via `ICAIS_PRO`) → `icais_compression_formats` filter → intersect capabilities. Never-bigger guard discards sidecars ≥ source. Does NOT write to the compressions table (sidecars add files; savings materialize at delivery).
 - `StatsTracker.php` - Centralised generation history and stats recording
 - `SeoIntegration.php` - Yoast/Rank Math focus keyphrase integration
-- `UsageLimiter.php` - Daily limits (used by Generator, Batch, WooCommerce, AutoGenerate). Two separate counters: generation (50/day free, key `icais_daily_usage_<id>`) and compression (20/day free, key `icais_daily_compress_<id>`). Pro bypasses both via `ICAIS_PRO`.
+- `UsageLimiter.php` - Free-tier rate limit (used by Generator, Batch, WooCommerce, Compressor, NextGen). **ONE shared pool of 50 actions** (`DAILY_LIMIT`) per **rolling 24-hour window** (`WINDOW_SECONDS`), counting generation + compression together — NOT two separate counters. Single storage key `wp_options['icais_daily_usage_<userId>']` holding `['started_at' => int, 'ids' => int[], 'compress_count' => int]`; `totalCount()` = `count(ids) + compress_count`. Asymmetry to know: generation is deduped per attachment (re-generating an image already counted in the window is free, via the `ids` set), while **every** compression increments `compress_count` — including re-compressing the same image. Pro bypasses the pool via `ICAIS_PRO`.
 - `TranslationStrings.php` - i18n strings passed to frontend via wp_localize_script
 - `WooCommerce.php` - WooCommerce product/gallery integration service
 
@@ -249,7 +249,7 @@ Use this map to understand what a change will impact. **Always check downstream 
 
 ### Core (changes here affect EVERYTHING)
 ```
-imagecraft.php → config/constants.php → includes/App.php
+imagecraft-ai-alt-text-file-renamer-image-seo.php → config/constants.php → includes/App.php
 includes/Models/Model.php → ALL models
 includes/Http/Routes/Route.php → ALL routes
 includes/Http/Controllers/Controller.php → ALL controllers
@@ -320,14 +320,15 @@ PHP:
   Services/ImageCompressor.php → wp_get_image_editor, WP_Filesystem (backup/restore), Compression model
   Http/Controllers/CompressorController.php → ImageCompressor, UsageLimiter (canCompress), Compression model
   Models/Compression.php → icais_compressions table
-  Services/UsageLimiter.php → canCompress/recordCompressUsage (separate 20/day counter; ICAIS_PRO bypass)
+  Services/UsageLimiter.php → canCompress/recordCompressUsage (shared 50-action/24h pool, same
+    counter as generation; ICAIS_PRO bypass)
   Http/Controllers/BatchController.php → type='compress' branch calls ImageCompressor (bulk)
   Install.php → icais_compressions table (db_version 1.1.0 migration)
 
 Pro unlock points (free exposes hooks; the Pro add-on overrides them ONLY with a valid license):
   apply_filters('icais_compression_quality', 85)   → Pro returns the user's quality setting
   apply_filters('icais_compression_max_dim', 2048)  → Pro returns the user's resize cap (0 = off)
-  ICAIS_PRO constant                                → UsageLimiter::isPro() removes the 20/day cap
+  ICAIS_PRO constant                                → UsageLimiter::isPro() removes the shared 50/24h cap
   add_action('add_attachment')/'icais_auto_compress' → registered by the PRO plugin (auto-compress
     lives in imagecraft-...-pro/includes/Features/Compression.php, NOT in the free plugin)
 
@@ -339,12 +340,12 @@ Frontend:
   Pro gating: window.icais.isPro hides upsell / unlocks quality, max_width, WebP(future), auto-compress
 
 Free vs Pro:
-  Free  → manual single + bulk compress, fixed quality 85 (visually lossless) + fixed 2048px longest-edge downscale, 20/day cap, backup+restore
+  Free  → manual single + bulk compress, fixed quality 85 (visually lossless) + fixed 2048px longest-edge downscale, shared 50-action/24h cap, backup+restore
   Pro   → unlimited, adjustable quality, adjustable/disable downscale, auto-compress on upload
   Split: the engine + manual UI + free caps live in the FREE plugin. The Pro add-on
   (imagecraft-...-pro) owns the value-unlocks (via the filters above) and auto-compress, and
   registers them ONLY when the license is valid. So the premium *behavior* is not in WP.org source.
-  The 20/day cap bypass still rides the ICAIS_PRO constant (consistent with alt-text gating).
+  The shared 50-action/24h cap bypass still rides the ICAIS_PRO constant (consistent with alt-text gating).
 ```
 
 ### Next-gen Formats (WebP/AVIF sidecars) — second public-frontend surface
@@ -359,14 +360,14 @@ PHP:
     opt-in icais_nextgen_delivery_enabled default off; delete_attachment cleanup hook
     registered ALWAYS. Guarded load/init in App.php (mirrors Fallback).
   Http/Controllers/CompressorController.php → convert / convertScan / convertClean
-    (compressor route group → RoleGate; shares the 20/day compress counter via
+    (compressor route group → RoleGate; shares the 50-action/24h pool with generation via
     UsageLimiter::canCompress/recordCompressUsage; idempotent re-runs don't count)
   Http/Controllers/BatchController.php → type='convert' branch (bulk; skips count
     as processed, not failed)
   Enqueue.php → window.icais.canWebp/canAvif (guarded capability probe)
 
 Pro unlock points (identical split to Compression):
-  ICAIS_PRO constant → unlocks AVIF inside enabledFormats() + removes 20/day cap
+  ICAIS_PRO constant → unlocks AVIF inside enabledFormats() + removes the shared 50/24h cap
   apply_filters('icais_compression_formats', $formats) → Pro may adjust format list
   Pro add-on Features/NextGen.php → auto-convert-on-upload (add_attachment →
     icais_auto_convert cron → free NextGenConverter). Free registers NO hook.
@@ -399,7 +400,7 @@ Settings (all additive, opt-in, default off): icais_compression_convert_webp
   icais_nextgen_delivery_enabled, icais_nextgen_auto (Pro-effect, inert free)
 
 Free vs Pro: Free = manual WebP (single via REST + bulk via batch) + <picture>
-  delivery, 20/day shared cap. Pro = AVIF (when server supports it) +
+  delivery, shared 50-action/24h cap. Pro = AVIF (when server supports it) +
   auto-convert-on-upload + no cap. No DB migration — manifest lives in post meta;
   conversions do NOT write to the compressions table.
 ```

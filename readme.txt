@@ -1,4 +1,4 @@
-=== ImageCraft - AI Image SEO & Compression ===
+=== ImageCraft - AI Alt Text, Image Compression & WebP ===
 Contributors: softminal, diptosoftminal
 Tags: alt text, image compression, webp, image seo, image converter, accessibility
 Requires at least: 5.8
@@ -65,6 +65,11 @@ Most plugins do one thing — either alt text **or** compression — and many ch
 * Compress button in the WordPress media modal — optimize without leaving the library
 * Automatic original backup and one-click restore for every compression
 * Longest-edge downscaling for oversized images
+* Fallback image for broken images — visitors never see a broken image icon
+* Default featured image for posts and pages that don't have one
+* Post type control for the featured image fallback
+* Broken-image scan on the dashboard — find media files that are missing from disk
+* Non-destructive fallbacks — nothing is written to your content, turn it off and everything reverts
 * 3 AI providers with 17+ model options
 * Generate from **Gutenberg** editor, **Kadence** blocks, **Spectra** blocks, and WordPress media modal
 * **Kadence** image block integration — alt text, title attribute, and link title generation
@@ -147,9 +152,10 @@ ImageCraft covers every image SEO factor in one place: AI alt text helps search 
 
 = How It Works =
 
-1. **Connect** — Add your API key in your WordPress site from Anthropic, OpenAI, or Google Gemini (3-minute setup wizard). Compression needs no key — it works right away.
-2. **Generate & optimize** — Click "Generate with AI" on any image, compress it, or batch process your whole library at once
-3. **Review** — Preview generated alt text, edit if needed, then accept. Or enable auto-accept for hands-free processing. Restore any compressed original with one click.
+1. **Install & open** — Compression, WebP conversion, image fallbacks, and the SEO audit work immediately, with no key and no account. Skip the wizard if that is all you need.
+2. **Connect AI (optional)** — For alt text, titles, and file renaming, use your site's built-in WordPress AI or paste your own Anthropic, OpenAI, or Google Gemini key in the 3-minute setup wizard. You pay your provider directly, at their rate.
+3. **Generate & optimize** — Work image by image from the media modal or block editor, or batch process your whole library: alt text, titles, and descriptions in one pass, plus compression, WebP conversion, and SEO file renaming.
+4. **Review & keep control** — Preview generated text, edit it, then accept — or turn on auto-accept for hands-free runs. Every compressed original is backed up for one-click restore, and generated WebP files can be removed just as easily.
 
 = Typical API Costs =
 
