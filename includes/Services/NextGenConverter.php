@@ -361,6 +361,7 @@ class NextGenConverter
     private function log(string $action, int $attachmentId, \Throwable $e): void
     {
         if (defined('WP_DEBUG') && WP_DEBUG) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
             error_log(sprintf('ImageCraft nextgen %s #%d: %s', $action, $attachmentId, $e->getMessage()));
         }
     }

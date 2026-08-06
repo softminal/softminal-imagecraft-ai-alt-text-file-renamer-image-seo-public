@@ -71,6 +71,7 @@ class NextGen
             $this->converter->clean((int) $postId);
         } catch (\Throwable $e) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
                 error_log('ImageCraft nextgen cleanup on delete #' . (int) $postId . ': ' . $e->getMessage());
             }
         }
