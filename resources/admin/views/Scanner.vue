@@ -19,7 +19,7 @@
         </p>
         <a
           href="#/settings/api"
-          class="shrink-0 inline-flex items-center justify-center gap-1.5 font-medium rounded-ic px-4 py-2 text-sm bg-brand text-white hover:bg-brand-strong transition-colors no-underline"
+          class="shrink-0 inline-flex items-center justify-center gap-1.5 font-medium rounded-ic px-4 py-2 text-sm bg-brand text-white! hover:bg-brand-strong hover:text-white! focus:text-white! transition-colors no-underline"
         >
           {{ $t('Add API key') }}
         </a>
