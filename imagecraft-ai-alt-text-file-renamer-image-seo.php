@@ -20,10 +20,13 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'config/constants.php';
 
 // Load shipped translations from /languages. Without this call the bundled
-// .mo files are never read — WP only auto-loads wp.org language packs from
-// WP_LANG_DIR (which still take priority when present). Hooked on init per
-// the WP 6.7+ "textdomain loaded too early" requirement.
+// .mo files are never read — WP auto-loading covers ONLY wp.org language
+// packs, which are generated per-locale once community translation passes
+// ~90% on translate.wordpress.org. We bundle complete catalogs for 8 locales
+// that have no language pack (yet); packs still take priority when present.
+// Hooked on init per the WP 6.7+ "textdomain loaded too early" requirement.
 add_action('init', static function () {
+    // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Required: translations are BUNDLED in /languages; auto-loading only covers wp.org language packs, which do not exist for these locales.
     load_plugin_textdomain(
         'imagecraft-ai-alt-text-file-renamer-image-seo',
         false,
