@@ -3,17 +3,24 @@
     <div class="mb-6">
       <h1 class="text-2xl font-bold mb-4 mt-0!">{{ $t('Image SEO') }}</h1>
 
-      <!-- No API key configured: AI generation needs a key. -->
-      <div v-if="!hasAiKey" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start justify-between gap-4">
-        <div class="flex items-start gap-3">
-          <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p class="text-sm text-blue-800">
-            {{ $t('Add your API key to generate alt text, titles and captions.') }}
-          </p>
-        </div>
-        <a href="#/settings/api" class="shrink-0 text-sm font-semibold text-blue-700 underline hover:text-blue-900">
+      <!-- No API key configured: AI generation needs a key. Contextual and NOT
+           dismissible — this is where AI features actually live, so the prompt
+           must survive a dismissed Dashboard card. Matches the Dashboard card
+           style (compact variant). -->
+      <div
+        v-if="!hasAiKey"
+        class="bg-ic-card border border-ic-border border-l-4 border-l-brand rounded-card shadow-card p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-3"
+      >
+        <span class="inline-flex items-center justify-center w-9 h-9 rounded-ic bg-brand-soft text-brand shrink-0">
+          <KeyRound :size="17" :stroke-width="2" aria-hidden="true" />
+        </span>
+        <p class="flex-1 min-w-0 text-sm text-ic-text m-0! leading-relaxed">
+          {{ $t('Add your API key to generate alt text, titles and captions.') }}
+        </p>
+        <a
+          href="#/settings/api"
+          class="shrink-0 inline-flex items-center justify-center gap-1.5 font-medium rounded-ic px-4 py-2 text-sm bg-brand text-white hover:bg-brand-strong transition-colors no-underline"
+        >
           {{ $t('Add API key') }}
         </a>
       </div>
@@ -424,6 +431,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { KeyRound } from 'lucide-vue-next'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
