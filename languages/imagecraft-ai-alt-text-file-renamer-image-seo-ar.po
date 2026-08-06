@@ -6,16 +6,16 @@ msgstr ""
 "1.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagecraft-ai-alt-"
 "text-file-renamer-image-seo\n"
+"POT-Creation-Date: 2026-08-06T20:09:08+00:00\n"
+"PO-Revision-Date: 2026-08-06T19:19:56+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
+"Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-06T19:19:56+00:00\n"
-"PO-Revision-Date: 2026-08-06T19:19:56+00:00\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: imagecraft-ai-alt-text-file-renamer-image-seo\n"
-"Language: ar\n"
 
 #. Plugin Name of the plugin
 #: imagecraft-ai-alt-text-file-renamer-image-seo.php
@@ -27,15 +27,18 @@ msgstr "ImageCraft - نص بديل بالذكاء الاصطناعي وضغط ا
 msgid ""
 "https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-"
 "seo"
-msgstr "https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo"
+msgstr ""
+"https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-"
+"seo"
 
 #. Description of the plugin
 #: imagecraft-ai-alt-text-file-renamer-image-seo.php
 msgid ""
-"All-in-one image toolkit: AI-powered alt text & titles, smart image "
-"compression, SEO file renaming, and image SEO audit. Supports WordPress 7.0 "
-"native AI Client, Anthropic, OpenAI and Gemini."
-msgstr "مجموعة أدوات صور شاملة: نصوص بديلة وعناوين بالذكاء الاصطناعي، وضغط ذكي للصور، وإعادة تسمية الملفات لتحسين السيو، وتدقيق سيو الصور. يدعم عميل الذكاء الاصطناعي الأصلي في ووردبريس 7.0 وAnthropic وOpenAI وGemini."
+"All-in-one image toolkit: AI alt text, titles & descriptions, local image "
+"compression, WebP conversion, image fallbacks, SEO file renaming, and an "
+"image SEO audit. Works with the WordPress 7.0 native AI Client, Anthropic, "
+"OpenAI and Gemini — compression and WebP need no API key."
+msgstr "مجموعة أدوات صور شاملة: نصوص بديلة وعناوين وأوصاف بالذكاء الاصطناعي، وضغط محلي للصور، وتحويل WebP، وصور احتياطية، وإعادة تسمية الملفات للسيو، وتدقيق سيو الصور. يعمل مع عميل الذكاء الاصطناعي الأصلي في ووردبريس 7.0 وAnthropic وOpenAI وGemini — الضغط وWebP لا يحتاجان مفتاح API."
 
 #. Author of the plugin
 #: imagecraft-ai-alt-text-file-renamer-image-seo.php
@@ -56,7 +59,9 @@ msgid ""
 "Pick one fallback image: it replaces broken images for your visitors and "
 "acts as the featured image for posts without one. Non-destructive and off by "
 "default."
-msgstr "اختر صورة احتياطية واحدة: تحل محل الصور المكسورة لزوارك وتعمل كصورة بارزة للمقالات التي لا تملك واحدة. غير مدمرة ومعطلة افتراضيًا."
+msgstr ""
+"اختر صورة احتياطية واحدة: تحل محل الصور المكسورة لزوارك وتعمل كصورة بارزة "
+"للمقالات التي لا تملك واحدة. غير مدمرة ومعطلة افتراضيًا."
 
 #: includes/AdminNotice.php:68
 msgid "Set up Image Fallbacks"
@@ -74,7 +79,9 @@ msgstr "لقد أنشأت أكثر من 8 نصوص بديلة باستخدام I
 msgid ""
 "If you find the plugin helpful, we'd love a quick review on WordPress.org. "
 "It helps us grow and keep improving!"
-msgstr "إذا كانت الإضافة مفيدة لك، يسعدنا تقييم سريع على WordPress.org. فهو يساعدنا على النمو والتحسن!"
+msgstr ""
+"إذا كانت الإضافة مفيدة لك، يسعدنا تقييم سريع على WordPress.org. فهو يساعدنا "
+"على النمو والتحسن!"
 
 #: includes/AdminNotice.php:121 includes/Services/TranslationStrings.php:973
 msgid "Leave a Review"
@@ -137,7 +144,8 @@ msgstr "سؤال سريع قبل أن تغادر"
 msgid ""
 "If you have a moment, please let us know why you are deactivating "
 "ImageCraft. It helps us improve."
-msgstr "إذا كان لديك لحظة، أخبرنا لماذا تعطل ImageCraft. هذا يساعدنا على التحسن."
+msgstr ""
+"إذا كان لديك لحظة، أخبرنا لماذا تعطل ImageCraft. هذا يساعدنا على التحسن."
 
 #: includes/DeactivationSurvey.php:135
 msgid "Skip & Deactivate"
@@ -246,7 +254,11 @@ msgid ""
 "broken images.\n"
 "\n"
 "Are you sure you want to rename this file?"
-msgstr "سيؤدي هذا إلى تغيير رابط الصورة. قد تعرض الروابط الخارجية والصفحات المخزنة مؤقتًا صورًا مكسورة.\n\nهل أنت متأكد من رغبتك في إعادة تسمية هذا الملف؟"
+msgstr ""
+"سيؤدي هذا إلى تغيير رابط الصورة. قد تعرض الروابط الخارجية والصفحات المخزنة "
+"مؤقتًا صورًا مكسورة.\n"
+"\n"
+"هل أنت متأكد من رغبتك في إعادة تسمية هذا الملف؟"
 
 #: includes/Enqueue.php:191 includes/Services/TranslationStrings.php:580
 msgid "Generate with AI"
@@ -536,20 +548,26 @@ msgstr "فشل الحصول على رابط الصورة"
 msgid ""
 "Image file not found or inaccessible. Please verify the image exists in your "
 "media library."
-msgstr "ملف الصورة غير موجود أو يتعذر الوصول إليه. تحقق من وجود الصورة في مكتبة الوسائط."
+msgstr ""
+"ملف الصورة غير موجود أو يتعذر الوصول إليه. تحقق من وجود الصورة في مكتبة "
+"الوسائط."
 
 #: includes/Http/Controllers/GeneratorController.php:421
 msgid ""
 "Failed to generate metadata — the AI cut its response short, possibly due to "
 "rate limiting or high demand on your provider account. Please try again in a "
 "moment."
-msgstr "فشل إنشاء البيانات الوصفية — قطع الذكاء الاصطناعي رده، ربما بسبب تقييد المعدل أو ارتفاع الطلب على حسابك. الرجاء المحاولة بعد قليل."
+msgstr ""
+"فشل إنشاء البيانات الوصفية — قطع الذكاء الاصطناعي رده، ربما بسبب تقييد "
+"المعدل أو ارتفاع الطلب على حسابك. الرجاء المحاولة بعد قليل."
 
 #: includes/Http/Controllers/GeneratorController.php:422
 msgid ""
 "Failed to generate metadata — the AI response was incomplete. Please try "
 "again."
-msgstr "فشل إنشاء البيانات الوصفية — كان رد الذكاء الاصطناعي غير مكتمل. الرجاء المحاولة مرة أخرى."
+msgstr ""
+"فشل إنشاء البيانات الوصفية — كان رد الذكاء الاصطناعي غير مكتمل. الرجاء "
+"المحاولة مرة أخرى."
 
 #: includes/Http/Controllers/GeneratorController.php:487
 #: includes/Http/Controllers/GeneratorController.php:825
@@ -584,13 +602,17 @@ msgid ""
 "The request timed out before the AI could respond. This often happens on "
 "slower hosts or with larger images — please try again, ideally one image at "
 "a time."
-msgstr "انتهت مهلة الطلب قبل أن يرد الذكاء الاصطناعي. يحدث هذا غالبًا على الاستضافات البطيئة أو مع الصور الكبيرة — حاول مجددًا، ويفضل صورة واحدة في كل مرة."
+msgstr ""
+"انتهت مهلة الطلب قبل أن يرد الذكاء الاصطناعي. يحدث هذا غالبًا على الاستضافات "
+"البطيئة أو مع الصور الكبيرة — حاول مجددًا، ويفضل صورة واحدة في كل مرة."
 
 #: includes/Http/Controllers/GeneratorController.php:577
 msgid ""
 "Your AI provider is rate limiting or over capacity right now. Please wait a "
 "moment and try again."
-msgstr "مزود الذكاء الاصطناعي لديك يقيد الطلبات أو محمّل فوق طاقته حاليًا. انتظر لحظة وحاول مجددًا."
+msgstr ""
+"مزود الذكاء الاصطناعي لديك يقيد الطلبات أو محمّل فوق طاقته حاليًا. انتظر لحظة "
+"وحاول مجددًا."
 
 #: includes/Http/Controllers/GeneratorController.php:589
 msgid ""
@@ -818,13 +840,16 @@ msgstr "هذه الميزة تتطلب ووردبريس 7.0"
 
 #: includes/Services/AI/WP7Provider.php:210
 msgid "Could not verify the WordPress AI Client. Please try again."
-msgstr "تعذر التحقق من عميل الذكاء الاصطناعي في ووردبريس. الرجاء المحاولة مرة أخرى."
+msgstr ""
+"تعذر التحقق من عميل الذكاء الاصطناعي في ووردبريس. الرجاء المحاولة مرة أخرى."
 
 #: includes/Services/AI/WP7Provider.php:217
 msgid ""
 "No AI provider configured. Go to WordPress Settings → Connectors to set one "
 "up."
-msgstr "لا يوجد مزود ذكاء اصطناعي مهيأ. انتقل إلى إعدادات ووردبريس ← الموصلات لإعداد واحد."
+msgstr ""
+"لا يوجد مزود ذكاء اصطناعي مهيأ. انتقل إلى إعدادات ووردبريس ← الموصلات لإعداد "
+"واحد."
 
 #: includes/Services/AI/WP7Provider.php:223
 msgid "WordPress AI Client is ready"
@@ -883,7 +908,9 @@ msgstr "إنشاء الكل (النص البديل + العنوان + الشرح
 msgid ""
 "Generate alt text, title and caption together in a single AI call — one "
 "click per image."
-msgstr "أنشئ النص البديل والعنوان والشرح معًا في استدعاء واحد للذكاء الاصطناعي — نقرة واحدة لكل صورة."
+msgstr ""
+"أنشئ النص البديل والعنوان والشرح معًا في استدعاء واحد للذكاء الاصطناعي — نقرة "
+"واحدة لكل صورة."
 
 #: includes/Services/TranslationStrings.php:35
 msgid "Enable the Generate All button"
@@ -987,7 +1014,9 @@ msgstr "أضف مفتاح API لإنشاء النصوص البديلة والع�
 msgid ""
 "Add your API key to generate alt text, titles and captions. Image "
 "compression works without a key."
-msgstr "أضف مفتاح API لإنشاء النصوص البديلة والعناوين والشروح. يعمل ضغط الصور بدون مفتاح."
+msgstr ""
+"أضف مفتاح API لإنشاء النصوص البديلة والعناوين والشروح. يعمل ضغط الصور بدون "
+"مفتاح."
 
 #. translators: placeholders are dynamic values (counts, names, sizes)
 #: includes/Services/TranslationStrings.php:83
@@ -1023,13 +1052,16 @@ msgstr "، فشل %s"
 msgid ""
 "85 is visually lossless (recommended). Lower for smaller files. We never re-"
 "encode larger than the original."
-msgstr "85 خيار بلا فقد بصري (موصى به). قيمة أقل لملفات أصغر. لا نعيد الترميز أبدًا بحجم أكبر من الأصل."
+msgstr ""
+"85 خيار بلا فقد بصري (موصى به). قيمة أقل لملفات أصغر. لا نعيد الترميز أبدًا "
+"بحجم أكبر من الأصل."
 
 #: includes/Services/TranslationStrings.php:93
 msgid ""
 "A key is currently defined in wp-config.php and takes priority over the "
 "database key."
-msgstr "يوجد مفتاح معرف حاليًا في wp-config.php وله الأولوية على مفتاح قاعدة البيانات."
+msgstr ""
+"يوجد مفتاح معرف حاليًا في wp-config.php وله الأولوية على مفتاح قاعدة البيانات."
 
 #: includes/Services/TranslationStrings.php:94
 msgid "AI-powered file renaming for SEO-friendly image URLs."
@@ -1051,7 +1083,9 @@ msgstr "ربما تم تجاوز حد معدل واجهة API — انتظر و�
 msgid ""
 "AVIF is often ~50% smaller than JPEG — the smallest format modern browsers "
 "support."
-msgstr "غالبًا ما يكون AVIF أصغر بنحو 50٪ من JPEG — أصغر صيغة تدعمها المتصفحات الحديثة."
+msgstr ""
+"غالبًا ما يكون AVIF أصغر بنحو 50٪ من JPEG — أصغر صيغة تدعمها المتصفحات "
+"الحديثة."
 
 #: includes/Services/TranslationStrings.php:99
 msgid "Active — WordPress AI Client"
@@ -1069,7 +1103,9 @@ msgstr "أضف هذا السطر إلى ملف wp-config.php (قبل «That's al
 msgid ""
 "Adds the Compress tab and per-image compress buttons. Free plan includes %d "
 "compressions per day."
-msgstr "يضيف تبويب الضغط وأزرار الضغط لكل صورة. تتضمن الخطة المجانية %d عملية ضغط يوميًا."
+msgstr ""
+"يضيف تبويب الضغط وأزرار الضغط لكل صورة. تتضمن الخطة المجانية %d عملية ضغط "
+"يوميًا."
 
 #: includes/Services/TranslationStrings.php:103
 msgid "Administrator"
@@ -1097,7 +1133,9 @@ msgstr "تم تحديد الكل (%s)."
 
 #: includes/Services/TranslationStrings.php:110
 msgid "All AI-generated content (alt text, titles) will use this language."
-msgstr "سيستخدم كل المحتوى المُنشأ بالذكاء الاصطناعي (النصوص البديلة، العناوين) هذه اللغة."
+msgstr ""
+"سيستخدم كل المحتوى المُنشأ بالذكاء الاصطناعي (النصوص البديلة، العناوين) هذه "
+"اللغة."
 
 #: includes/Services/TranslationStrings.php:111
 msgid "All Categories"
@@ -1123,7 +1161,9 @@ msgstr "إنشاء النص البديل"
 msgid ""
 "Alt text and title use their own tone/length settings (Alt Text and Image "
 "Title pages). Caption settings are below."
-msgstr "يستخدم النص البديل والعنوان إعدادات النبرة/الطول الخاصة بهما (صفحتا «النص البديل» و«عنوان الصورة»). إعدادات الشرح أدناه."
+msgstr ""
+"يستخدم النص البديل والعنوان إعدادات النبرة/الطول الخاصة بهما (صفحتا «النص "
+"البديل» و«عنوان الصورة»). إعدادات الشرح أدناه."
 
 #: includes/Services/TranslationStrings.php:117
 msgid "Alt text too long"
@@ -1199,7 +1239,9 @@ msgid ""
 "Backups are off. Newly compressed images cannot be restored to their "
 "originals (images already backed up can still be restored). This saves disk "
 "space — use with care."
-msgstr "النسخ الاحتياطي معطل. لا يمكن استعادة الصور المضغوطة حديثًا إلى أصولها (الصور المنسوخة احتياطيًا سابقًا يمكن استعادتها). هذا يوفر مساحة القرص — استخدمه بحذر."
+msgstr ""
+"النسخ الاحتياطي معطل. لا يمكن استعادة الصور المضغوطة حديثًا إلى أصولها (الصور "
+"المنسوخة احتياطيًا سابقًا يمكن استعادتها). هذا يوفر مساحة القرص — استخدمه بحذر."
 
 #: includes/Services/TranslationStrings.php:135
 msgid "Batch Complete"
@@ -1246,7 +1288,10 @@ msgid ""
 "Choose which user roles are allowed to use ImageCraft. This applies to all "
 "features — alt text generation, image titles, file renaming, and image "
 "compression. Administrators always have access."
-msgstr "اختر أدوار المستخدمين المسموح لها باستخدام ImageCraft. ينطبق هذا على جميع الميزات — إنشاء النصوص البديلة والعناوين وإعادة تسمية الملفات وضغط الصور. المديرون لديهم وصول دائم."
+msgstr ""
+"اختر أدوار المستخدمين المسموح لها باستخدام ImageCraft. ينطبق هذا على جميع "
+"الميزات — إنشاء النصوص البديلة والعناوين وإعادة تسمية الملفات وضغط الصور. "
+"المديرون لديهم وصول دائم."
 
 #: includes/Services/TranslationStrings.php:146
 msgid "Clear"
@@ -1316,7 +1361,9 @@ msgstr "تحويل المحدد"
 msgid ""
 "Convert images from the Performance page — select images and use \"Convert "
 "Selected\", or convert your whole library in bulk."
-msgstr "حوّل الصور من صفحة الأداء — حدد الصور واستخدم «تحويل المحدد»، أو حوّل مكتبتك بالكامل دفعة واحدة."
+msgstr ""
+"حوّل الصور من صفحة الأداء — حدد الصور واستخدم «تحويل المحدد»، أو حوّل مكتبتك "
+"بالكامل دفعة واحدة."
 
 #: includes/Services/TranslationStrings.php:169
 msgid "Created From"
@@ -1372,7 +1419,8 @@ msgstr "الوصف..."
 
 #: includes/Services/TranslationStrings.php:183
 msgid "Downscale images whose longest edge exceeds this. 0 disables resizing."
-msgstr "يصغّر الصور التي يتجاوز أطول أضلاعها هذه القيمة. القيمة 0 تعطّل تغيير الحجم."
+msgstr ""
+"يصغّر الصور التي يتجاوز أطول أضلاعها هذه القيمة. القيمة 0 تعطّل تغيير الحجم."
 
 #: includes/Services/TranslationStrings.php:184
 msgid "Email me when new broken images are found"
@@ -1446,12 +1494,15 @@ msgstr "إصلاح"
 msgid ""
 "Free plan downscales images to 2048px (longest edge) — invisible on the web "
 "and the biggest space saver. Upgrade to Pro to change or disable it."
-msgstr "تصغّر الخطة المجانية الصور إلى 2048 بكسل (أطول ضلع) — غير ملحوظ على الويب وأكبر توفير للمساحة. قم بالترقية إلى Pro للتغيير أو التعطيل."
+msgstr ""
+"تصغّر الخطة المجانية الصور إلى 2048 بكسل (أطول ضلع) — غير ملحوظ على الويب "
+"وأكبر توفير للمساحة. قم بالترقية إلى Pro للتغيير أو التعطيل."
 
 #: includes/Services/TranslationStrings.php:202
 msgid ""
 "Free plan uses a visually-lossless quality of 85. Upgrade to Pro to adjust."
-msgstr "تستخدم الخطة المجانية جودة 85 بلا فقد بصري. قم بالترقية إلى Pro للتعديل."
+msgstr ""
+"تستخدم الخطة المجانية جودة 85 بلا فقد بصري. قم بالترقية إلى Pro للتعديل."
 
 #: includes/Services/TranslationStrings.php:203
 msgid "Generate AVIF copies"
@@ -1482,13 +1533,18 @@ msgid ""
 "Generate alt text, title and caption together in a single AI call. Used by "
 "the Media Library bulk picker, the per-image media-modal picker, and auto-on-"
 "upload."
-msgstr "أنشئ النص البديل والعنوان والشرح معًا في استدعاء واحد للذكاء الاصطناعي. يُستخدم في المحدد الجماعي لمكتبة الوسائط، ومحدد كل صورة في نافذة الوسائط، والتشغيل التلقائي عند الرفع."
+msgstr ""
+"أنشئ النص البديل والعنوان والشرح معًا في استدعاء واحد للذكاء الاصطناعي. "
+"يُستخدم في المحدد الجماعي لمكتبة الوسائط، ومحدد كل صورة في نافذة الوسائط، "
+"والتشغيل التلقائي عند الرفع."
 
 #: includes/Services/TranslationStrings.php:210
 msgid ""
 "Generate metadata automatically when an image is uploaded. Alt text and "
 "title have their own toggles on their settings pages."
-msgstr "أنشئ البيانات الوصفية تلقائيًا عند رفع صورة. للنص البديل والعنوان مفاتيح تبديل خاصة في صفحات إعداداتهما."
+msgstr ""
+"أنشئ البيانات الوصفية تلقائيًا عند رفع صورة. للنص البديل والعنوان مفاتيح "
+"تبديل خاصة في صفحات إعداداتهما."
 
 #: includes/Services/TranslationStrings.php:211
 msgid "Generate title purely from image content."
@@ -1496,7 +1552,8 @@ msgstr "إنشاء العنوان من محتوى الصورة فقط."
 
 #: includes/Services/TranslationStrings.php:212
 msgid "Generate title using post title, product info, and SEO keyphrase."
-msgstr "إنشاء العنوان باستخدام عنوان المقالة ومعلومات المنتج وعبارة السيو المفتاحية."
+msgstr ""
+"إنشاء العنوان باستخدام عنوان المقالة ومعلومات المنتج وعبارة السيو المفتاحية."
 
 #. translators: placeholders are dynamic values (counts, names, sizes)
 #: includes/Services/TranslationStrings.php:214
@@ -1524,7 +1581,9 @@ msgstr "تم إنشاء النص البديل لجميع الصور"
 msgid ""
 "Generates every selected field in one call. Takes priority — when on, it "
 "overrides the individual alt / title / description auto-generate options."
-msgstr "ينشئ كل حقل محدد في استدعاء واحد. له الأولوية — عند تفعيله يتجاوز خيارات الإنشاء التلقائي الفردية للنص البديل / العنوان / الوصف."
+msgstr ""
+"ينشئ كل حقل محدد في استدعاء واحد. له الأولوية — عند تفعيله يتجاوز خيارات "
+"الإنشاء التلقائي الفردية للنص البديل / العنوان / الوصف."
 
 #. translators: placeholders are dynamic values (counts, names, sizes)
 #: includes/Services/TranslationStrings.php:222
@@ -1551,7 +1610,8 @@ msgstr "احصل على مفتاح API من"
 #: includes/Services/TranslationStrings.php:227
 msgid ""
 "Give this image good alt text — it is used when the broken image had none."
-msgstr "امنح هذه الصورة نصًا بديلًا جيدًا — يُستخدم عندما لا تملك الصورة المكسورة نصًا."
+msgstr ""
+"امنح هذه الصورة نصًا بديلًا جيدًا — يُستخدم عندما لا تملك الصورة المكسورة نصًا."
 
 #: includes/Services/TranslationStrings.php:228
 msgid "Global settings shared across all generation features."
@@ -1623,7 +1683,10 @@ msgid ""
 "image. Browsers that support next-gen formats get the smaller copy; everyone "
 "else gets the original. Nothing is rewritten, and removing the copies "
 "restores everything exactly as it was."
-msgstr "ينشئ ImageCraft نسخة WebP (ومع Pro، نسخة AVIF) بجانب كل صورة أصلية. تحصل المتصفحات الداعمة لصيغ الجيل الجديد على النسخة الأصغر؛ ويحصل الباقون على الأصل. لا يُعاد كتابة أي شيء، وإزالة النسخ تعيد كل شيء كما كان تمامًا."
+msgstr ""
+"ينشئ ImageCraft نسخة WebP (ومع Pro، نسخة AVIF) بجانب كل صورة أصلية. تحصل "
+"المتصفحات الداعمة لصيغ الجيل الجديد على النسخة الأصغر؛ ويحصل الباقون على "
+"الأصل. لا يُعاد كتابة أي شيء، وإزالة النسخ تعيد كل شيء كما كان تمامًا."
 
 #: includes/Services/TranslationStrings.php:245
 msgid "Images must be accessible (not behind authentication)"
@@ -1673,7 +1736,9 @@ msgstr "اجعل موقعك سريعًا"
 msgid ""
 "Master switch for both fallback features below. Fully non-destructive — turn "
 "it off and everything reverts."
-msgstr "المفتاح الرئيسي لميزتي الاحتياط أدناه. غير مدمر بالكامل — عطّله ويعود كل شيء كما كان."
+msgstr ""
+"المفتاح الرئيسي لميزتي الاحتياط أدناه. غير مدمر بالكامل — عطّله ويعود كل شيء "
+"كما كان."
 
 #: includes/Services/TranslationStrings.php:257
 msgid "Max Price"
@@ -1712,7 +1777,9 @@ msgid ""
 "Never show a broken or missing image. Swap broken images for a fallback and "
 "give posts without a featured image a default one — nothing is written to "
 "your content."
-msgstr "لا تعرض صورة مكسورة أو مفقودة بعد الآن. استبدل الصور المكسورة بصورة احتياطية وامنح المقالات بدون صورة بارزة صورة افتراضية — لا يُكتب شيء في محتواك."
+msgstr ""
+"لا تعرض صورة مكسورة أو مفقودة بعد الآن. استبدل الصور المكسورة بصورة احتياطية "
+"وامنح المقالات بدون صورة بارزة صورة افتراضية — لا يُكتب شيء في محتواك."
 
 #: includes/Services/TranslationStrings.php:266
 msgid "Next 5 pages"
@@ -1742,7 +1809,9 @@ msgstr "لا توجد أدوار أخرى متاحة"
 msgid ""
 "No roles selected — every user who can upload media may use ImageCraft "
 "(current behavior). Select one or more roles to restrict access."
-msgstr "لم يتم تحديد أدوار — يمكن لأي مستخدم يستطيع رفع الوسائط استخدام ImageCraft (السلوك الحالي). حدد دورًا واحدًا أو أكثر لتقييد الوصول."
+msgstr ""
+"لم يتم تحديد أدوار — يمكن لأي مستخدم يستطيع رفع الوسائط استخدام ImageCraft "
+"(السلوك الحالي). حدد دورًا واحدًا أو أكثر لتقييد الوصول."
 
 #: includes/Services/TranslationStrings.php:273
 msgid "Not compressed"
@@ -1784,7 +1853,9 @@ msgstr "تمت استعادة الأصل"
 msgid ""
 "Originals are backed up to /uploads/icais-originals/. You can restore any "
 "image from the Compress tab."
-msgstr "تُحفظ الأصول احتياطيًا في ‎/uploads/icais-originals/‎. يمكنك استعادة أي صورة من تبويب الضغط."
+msgstr ""
+"تُحفظ الأصول احتياطيًا في ‎/uploads/icais-originals/‎. يمكنك استعادة أي صورة من "
+"تبويب الضغط."
 
 #: includes/Services/TranslationStrings.php:283
 msgid "Other plugins we build, with the same focus on doing one job properly."
@@ -1794,7 +1865,9 @@ msgstr "إضافات أخرى نطورها، بالتركيز نفسه: إتقا
 msgid ""
 "Override the default featured image for specific post types (e.g. a product "
 "placeholder for WooCommerce)."
-msgstr "استبدل الصورة البارزة الافتراضية لأنواع محتوى محددة (مثلًا صورة بديلة للمنتجات في WooCommerce)."
+msgstr ""
+"استبدل الصورة البارزة الافتراضية لأنواع محتوى محددة (مثلًا صورة بديلة "
+"للمنتجات في WooCommerce)."
 
 #: includes/Services/TranslationStrings.php:285
 msgid "Page selected."
@@ -1828,7 +1901,9 @@ msgstr "الإضافة غير نشطة"
 msgid ""
 "Posts without a featured image use your fallback in archives, social "
 "previews and anywhere the theme shows one. The post itself is never modified."
-msgstr "تستخدم المقالات بدون صورة بارزة صورتك الاحتياطية في الأرشيفات ومعاينات الشبكات الاجتماعية وأينما يعرضها القالب. لا تُعدّل المقالة نفسها أبدًا."
+msgstr ""
+"تستخدم المقالات بدون صورة بارزة صورتك الاحتياطية في الأرشيفات ومعاينات "
+"الشبكات الاجتماعية وأينما يعرضها القالب. لا تُعدّل المقالة نفسها أبدًا."
 
 #: includes/Services/TranslationStrings.php:293
 msgid "Previous 5 pages"
@@ -1870,7 +1945,9 @@ msgstr "إزالة"
 msgid ""
 "Renaming files changes image URLs. External links and cached pages may show "
 "broken images."
-msgstr "إعادة تسمية الملفات تغيّر روابط الصور. قد تعرض الروابط الخارجية والصفحات المخزنة مؤقتًا صورًا مكسورة."
+msgstr ""
+"إعادة تسمية الملفات تغيّر روابط الصور. قد تعرض الروابط الخارجية والصفحات "
+"المخزنة مؤقتًا صورًا مكسورة."
 
 #: includes/Services/TranslationStrings.php:304
 msgid "Replace broken images on the front end"
@@ -1992,7 +2069,9 @@ msgstr "تم حفظ الإعدادات"
 msgid ""
 "Shared across AI generation and compression. Generating and compressing the "
 "same image counts as two."
-msgstr "مشترك بين إنشاء الذكاء الاصطناعي والضغط. إنشاء وضغط الصورة نفسها يُحتسبان كإجراءين."
+msgstr ""
+"مشترك بين إنشاء الذكاء الاصطناعي والضغط. إنشاء وضغط الصورة نفسها يُحتسبان "
+"كإجراءين."
 
 #: includes/Services/TranslationStrings.php:338
 msgid "Show the biggest files first"
@@ -2006,7 +2085,9 @@ msgstr "عرض الصور من"
 msgid ""
 "Shows \"Rename File\" buttons to generate SEO-friendly filenames using AI. "
 "This changes image URLs."
-msgstr "يعرض أزرار «إعادة تسمية الملف» لإنشاء أسماء ملفات صديقة للسيو بالذكاء الاصطناعي. هذا يغيّر روابط الصور."
+msgstr ""
+"يعرض أزرار «إعادة تسمية الملف» لإنشاء أسماء ملفات صديقة للسيو بالذكاء "
+"الاصطناعي. هذا يغيّر روابط الصور."
 
 #: includes/Services/TranslationStrings.php:341
 msgid ""
@@ -2018,7 +2099,9 @@ msgstr "قلّص أحجام ملفات الصور لتسريع موقعك. تُ�
 msgid ""
 "Shrink image file sizes to speed up your site. Originals are backed up by "
 "default so you can restore them."
-msgstr "قلّص أحجام ملفات الصور لتسريع موقعك. تُنسخ الأصول احتياطيًا افتراضيًا حتى تتمكن من استعادتها."
+msgstr ""
+"قلّص أحجام ملفات الصور لتسريع موقعك. تُنسخ الأصول احتياطيًا افتراضيًا حتى تتمكن "
+"من استعادتها."
 
 #: includes/Services/TranslationStrings.php:343
 msgid "Skip images smaller than (KB)"
@@ -2054,25 +2137,33 @@ msgstr "التخزين في wp-config.php"
 msgid ""
 "The Dashboard scans your media library for images whose files are missing "
 "and shows them under \"Needs attention\"."
-msgstr "تفحص لوحة التحكم مكتبة الوسائط بحثًا عن صور ملفاتها مفقودة وتعرضها ضمن «يحتاج إلى انتباه»."
+msgstr ""
+"تفحص لوحة التحكم مكتبة الوسائط بحثًا عن صور ملفاتها مفقودة وتعرضها ضمن «يحتاج "
+"إلى انتباه»."
 
 #: includes/Services/TranslationStrings.php:352
 msgid ""
 "The key stays in your server files — never stored in the database. Ideal for "
 "version-controlled deployments and security-conscious setups."
-msgstr "يبقى المفتاح في ملفات خادمك — لا يُخزن في قاعدة البيانات أبدًا. مثالي للنشر المُدار بالإصدارات والإعدادات المهتمة بالأمان."
+msgstr ""
+"يبقى المفتاح في ملفات خادمك — لا يُخزن في قاعدة البيانات أبدًا. مثالي للنشر "
+"المُدار بالإصدارات والإعدادات المهتمة بالأمان."
 
 #: includes/Services/TranslationStrings.php:353
 msgid ""
 "The max character length setting above will be applied automatically. "
 "Product context is added automatically for WooCommerce images."
-msgstr "يُطبق إعداد الحد الأقصى لعدد الأحرف أعلاه تلقائيًا. يُضاف سياق المنتج تلقائيًا لصور WooCommerce."
+msgstr ""
+"يُطبق إعداد الحد الأقصى لعدد الأحرف أعلاه تلقائيًا. يُضاف سياق المنتج تلقائيًا "
+"لصور WooCommerce."
 
 #: includes/Services/TranslationStrings.php:354
 msgid ""
 "The max character length setting will be applied automatically. Product "
 "name, category, and SKU are automatically included as context."
-msgstr "يُطبق إعداد الحد الأقصى لعدد الأحرف تلقائيًا. يُضمَّن اسم المنتج والتصنيف ورمز SKU تلقائيًا كسياق."
+msgstr ""
+"يُطبق إعداد الحد الأقصى لعدد الأحرف تلقائيًا. يُضمَّن اسم المنتج والتصنيف ورمز "
+"SKU تلقائيًا كسياق."
 
 #: includes/Services/TranslationStrings.php:355
 msgid "Tiny images barely benefit from compression. Default: 50 KB."
@@ -2124,7 +2215,9 @@ msgstr "قم بالترقية إلى Pro لإنشاء العناوين تلقا�
 msgid ""
 "Upgrade to Pro to set a different fallback per post type (e.g. a product "
 "placeholder for WooCommerce)."
-msgstr "قم بالترقية إلى Pro لتعيين صورة احتياطية مختلفة لكل نوع محتوى (مثلًا صورة بديلة للمنتجات في WooCommerce)."
+msgstr ""
+"قم بالترقية إلى Pro لتعيين صورة احتياطية مختلفة لكل نوع محتوى (مثلًا صورة "
+"بديلة للمنتجات في WooCommerce)."
 
 #: includes/Services/TranslationStrings.php:369
 msgid "Use WordPress AI Client"
@@ -2172,25 +2265,33 @@ msgstr "أسبوعيًا"
 msgid ""
 "When an image on your site fails to load (deleted file, dead external link), "
 "visitors see your fallback image instead of a broken icon."
-msgstr "عندما تفشل صورة في موقعك في التحميل (ملف محذوف، رابط خارجي ميت)، يرى الزوار صورتك الاحتياطية بدلًا من أيقونة مكسورة."
+msgstr ""
+"عندما تفشل صورة في موقعك في التحميل (ملف محذوف، رابط خارجي ميت)، يرى الزوار "
+"صورتك الاحتياطية بدلًا من أيقونة مكسورة."
 
 #: includes/Services/TranslationStrings.php:381
 msgid ""
 "When enabled, generated alt text is shown for review with accept/reject "
 "buttons before applying. Works in the Gutenberg editor and Kadence blocks."
-msgstr "عند التفعيل، يُعرض النص البديل المُنشأ للمراجعة مع زرّي قبول/رفض قبل التطبيق. يعمل في محرر غوتنبرغ ومكوّنات Kadence."
+msgstr ""
+"عند التفعيل، يُعرض النص البديل المُنشأ للمراجعة مع زرّي قبول/رفض قبل التطبيق. "
+"يعمل في محرر غوتنبرغ ومكوّنات Kadence."
 
 #: includes/Services/TranslationStrings.php:382
 msgid ""
 "When enabled, generated titles are shown for review with accept/reject "
 "buttons before applying. Works in the Gutenberg editor and Kadence blocks."
-msgstr "عند التفعيل، تُعرض العناوين المُنشأة للمراجعة مع زرّي قبول/رفض قبل التطبيق. يعمل في محرر غوتنبرغ ومكوّنات Kadence."
+msgstr ""
+"عند التفعيل، تُعرض العناوين المُنشأة للمراجعة مع زرّي قبول/رفض قبل التطبيق. "
+"يعمل في محرر غوتنبرغ ومكوّنات Kadence."
 
 #: includes/Services/TranslationStrings.php:383
 msgid ""
 "Which fields are pre-selected in the Media Library bulk picker (you can "
 "still change them per action)."
-msgstr "الحقول المحددة مسبقًا في المحدد الجماعي لمكتبة الوسائط (يمكنك تغييرها مع كل إجراء)."
+msgstr ""
+"الحقول المحددة مسبقًا في المحدد الجماعي لمكتبة الوسائط (يمكنك تغييرها مع كل "
+"إجراء)."
 
 #: includes/Services/TranslationStrings.php:384
 msgid "WordPress AI Client is not available"
@@ -2209,7 +2310,9 @@ msgid ""
 "Wraps images in a <picture> tag so supporting browsers load the WebP/AVIF "
 "copy, with the original as automatic fallback. Off by default — enable after "
 "converting your images."
-msgstr "يغلّف الصور بوسم <picture> ليحمّل المتصفح الداعم نسخة WebP/AVIF، مع الأصل كاحتياط تلقائي. معطل افتراضيًا — فعّله بعد تحويل صورك."
+msgstr ""
+"يغلّف الصور بوسم <picture> ليحمّل المتصفح الداعم نسخة WebP/AVIF، مع الأصل "
+"كاحتياط تلقائي. معطل افتراضيًا — فعّله بعد تحويل صورك."
 
 #: includes/Services/TranslationStrings.php:388
 msgid "Write a title for this image. Max {max_length} characters..."
@@ -2221,26 +2324,34 @@ msgstr "اكتب عنوانًا لهذه الصورة. بحد أقصى {max_leng
 msgid ""
 "Your saved %1$s key (%2$s) is kept as a fallback — used if you turn off the "
 "WordPress AI Client."
-msgstr "يُحتفظ بمفتاح %1$s المحفوظ (%2$s) كاحتياط — يُستخدم إذا عطّلت عميل الذكاء الاصطناعي في ووردبريس."
+msgstr ""
+"يُحتفظ بمفتاح %1$s المحفوظ (%2$s) كاحتياط — يُستخدم إذا عطّلت عميل الذكاء "
+"الاصطناعي في ووردبريس."
 
 #: includes/Services/TranslationStrings.php:391
 msgid ""
 "Your server cannot create AVIF images. AVIF needs PHP 8.1+ (GD) or an "
 "Imagick build with AVIF support — ask your host."
-msgstr "لا يمكن لخادمك إنشاء صور AVIF. يتطلب AVIF إصدار PHP 8.1+‎ (GD) أو نسخة Imagick تدعم AVIF — اسأل مزود الاستضافة."
+msgstr ""
+"لا يمكن لخادمك إنشاء صور AVIF. يتطلب AVIF إصدار PHP 8.1+‎ (GD) أو نسخة "
+"Imagick تدعم AVIF — اسأل مزود الاستضافة."
 
 #: includes/Services/TranslationStrings.php:392
 msgid ""
 "Your server cannot create WebP images (neither Imagick nor GD supports it). "
 "Ask your host to enable WebP support."
-msgstr "لا يمكن لخادمك إنشاء صور WebP (لا يدعمها Imagick ولا GD). اطلب من مزود الاستضافة تفعيل دعم WebP."
+msgstr ""
+"لا يمكن لخادمك إنشاء صور WebP (لا يدعمها Imagick ولا GD). اطلب من مزود "
+"الاستضافة تفعيل دعم WebP."
 
 #: includes/Services/TranslationStrings.php:393
 msgid ""
 "Your server supports next-gen image formats. ImageCraft can create WebP "
 "copies beside your originals and serve them automatically — nothing is "
 "overwritten, fully reversible."
-msgstr "خادمك يدعم صيغ صور الجيل الجديد. يمكن لـ ImageCraft إنشاء نسخ WebP بجانب الأصول وتقديمها تلقائيًا — لا يُستبدل شيء، وقابل للتراجع بالكامل."
+msgstr ""
+"خادمك يدعم صيغ صور الجيل الجديد. يمكن لـ ImageCraft إنشاء نسخ WebP بجانب "
+"الأصول وتقديمها تلقائيًا — لا يُستبدل شيء، وقابل للتراجع بالكامل."
 
 #: includes/Services/TranslationStrings.php:394
 msgid "always allowed"
@@ -2266,13 +2377,17 @@ msgstr "مثال: 60"
 msgid ""
 "e.g. Generate alt text describing the subject, colors, and setting. Do not "
 "start with 'Image of'. Return only the alt text."
-msgstr "مثال: أنشئ نصًا بديلًا يصف الموضوع والألوان والمكان. لا تبدأ بعبارة «صورة لـ». أعد النص البديل فقط."
+msgstr ""
+"مثال: أنشئ نصًا بديلًا يصف الموضوع والألوان والمكان. لا تبدأ بعبارة «صورة لـ». "
+"أعد النص البديل فقط."
 
 #: includes/Services/TranslationStrings.php:400
 msgid ""
 "e.g. Generate product alt text with the product name, visible features, and "
 "use case. Do not start with 'Image of'. Return only the alt text."
-msgstr "مثال: أنشئ نصًا بديلًا للمنتج يتضمن اسم المنتج والميزات الظاهرة وحالة الاستخدام. لا تبدأ بعبارة «صورة لـ». أعد النص البديل فقط."
+msgstr ""
+"مثال: أنشئ نصًا بديلًا للمنتج يتضمن اسم المنتج والميزات الظاهرة وحالة "
+"الاستخدام. لا تبدأ بعبارة «صورة لـ». أعد النص البديل فقط."
 
 #: includes/Services/TranslationStrings.php:401
 msgid "images in your media library"
@@ -2438,7 +2553,9 @@ msgstr "لـ WooCommerce"
 msgid ""
 "Turn a standard WooCommerce store into a proper trade store — one pricing "
 "pipeline, no surprise prices at checkout."
-msgstr "حوّل متجر WooCommerce عادي إلى متجر جملة حقيقي — مسار أسعار واحد، بلا مفاجآت عند الدفع."
+msgstr ""
+"حوّل متجر WooCommerce عادي إلى متجر جملة حقيقي — مسار أسعار واحد، بلا مفاجآت "
+"عند الدفع."
 
 #: includes/Services/TranslationStrings.php:455
 msgid "Customer group pricing (percentage, amount off or fixed)"
@@ -2976,13 +3093,17 @@ msgstr "موجّه مخصص"
 msgid ""
 "e.g. Generate alt text (max {max_length} characters) describing the subject, "
 "colors, and setting. Do not start with 'Image of'. Return only the alt text."
-msgstr "مثال: أنشئ نصًا بديلًا (بحد أقصى {max_length} حرفًا) يصف الموضوع والألوان والمكان. لا تبدأ بعبارة «صورة لـ». أعد النص البديل فقط."
+msgstr ""
+"مثال: أنشئ نصًا بديلًا (بحد أقصى {max_length} حرفًا) يصف الموضوع والألوان "
+"والمكان. لا تبدأ بعبارة «صورة لـ». أعد النص البديل فقط."
 
 #: includes/Services/TranslationStrings.php:642
 msgid ""
 "Use {max_length} as a placeholder for your max character setting. Product "
 "context is added automatically for WooCommerce images."
-msgstr "استخدم {max_length} كعنصر نائب لحدك الأقصى من الأحرف. يُضاف سياق المنتج تلقائيًا لصور WooCommerce."
+msgstr ""
+"استخدم {max_length} كعنصر نائب لحدك الأقصى من الأحرف. يُضاف سياق المنتج "
+"تلقائيًا لصور WooCommerce."
 
 #: includes/Services/TranslationStrings.php:643
 msgid "Max Character Length"
@@ -3306,7 +3427,8 @@ msgstr "إعادة تسمية الملفات تلقائيًا عند الرفع"
 
 #: includes/Services/TranslationStrings.php:725
 msgid "Rename uploaded files to SEO-friendly names based on generated alt text"
-msgstr "أعد تسمية الملفات المرفوعة بأسماء صديقة للسيو بناءً على النص البديل المُنشأ"
+msgstr ""
+"أعد تسمية الملفات المرفوعة بأسماء صديقة للسيو بناءً على النص البديل المُنشأ"
 
 #: includes/Services/TranslationStrings.php:726
 msgid "Max Filename Length"
@@ -3389,19 +3511,25 @@ msgid ""
 "e.g. Generate product alt text (max {max_length} characters) with the "
 "product name, visible features, and use case. Do not start with 'Image of'. "
 "Return only the alt text."
-msgstr "مثال: أنشئ نصًا بديلًا للمنتج (بحد أقصى {max_length} حرفًا) يتضمن اسم المنتج والميزات الظاهرة وحالة الاستخدام. لا تبدأ بعبارة «صورة لـ». أعد النص البديل فقط."
+msgstr ""
+"مثال: أنشئ نصًا بديلًا للمنتج (بحد أقصى {max_length} حرفًا) يتضمن اسم المنتج "
+"والميزات الظاهرة وحالة الاستخدام. لا تبدأ بعبارة «صورة لـ». أعد النص البديل "
+"فقط."
 
 #: includes/Services/TranslationStrings.php:750
 msgid ""
 "Use {max_length} as a placeholder. Product name, category, and SKU are "
 "automatically included as context."
-msgstr "استخدم {max_length} كعنصر نائب. يُضمَّن اسم المنتج والتصنيف ورمز SKU تلقائيًا كسياق."
+msgstr ""
+"استخدم {max_length} كعنصر نائب. يُضمَّن اسم المنتج والتصنيف ورمز SKU تلقائيًا "
+"كسياق."
 
 #: includes/Services/TranslationStrings.php:751
 msgid ""
 "WooCommerce is not installed. Install WooCommerce to access product image "
 "optimization features."
-msgstr "WooCommerce غير مثبت. ثبّت WooCommerce للوصول إلى ميزات تحسين صور المنتجات."
+msgstr ""
+"WooCommerce غير مثبت. ثبّت WooCommerce للوصول إلى ميزات تحسين صور المنتجات."
 
 #: includes/Services/TranslationStrings.php:752
 msgid "Save Settings"
@@ -3471,7 +3599,9 @@ msgstr "مرحبًا بك في ImageCraft"
 msgid ""
 "The all-in-one image toolkit — AI alt text, titles & descriptions, local "
 "image compression, WebP conversion, and image fallbacks."
-msgstr "مجموعة أدوات الصور الشاملة — نصوص بديلة وعناوين وأوصاف بالذكاء الاصطناعي، وضغط محلي للصور، وتحويل WebP، وصور احتياطية."
+msgstr ""
+"مجموعة أدوات الصور الشاملة — نصوص بديلة وعناوين وأوصاف بالذكاء الاصطناعي، "
+"وضغط محلي للصور، وتحويل WebP، وصور احتياطية."
 
 #: includes/Services/TranslationStrings.php:780
 msgid "AI Image SEO"
@@ -3481,7 +3611,9 @@ msgstr "سيو الصور بالذكاء الاصطناعي"
 msgid ""
 "Alt text, titles & descriptions with your own AI key — pay your provider "
 "directly, no markup"
-msgstr "نصوص بديلة وعناوين وأوصاف بمفتاح الذكاء الاصطناعي الخاص بك — تدفع لمزودك مباشرة، بلا زيادات"
+msgstr ""
+"نصوص بديلة وعناوين وأوصاف بمفتاح الذكاء الاصطناعي الخاص بك — تدفع لمزودك "
+"مباشرة، بلا زيادات"
 
 #: includes/Services/TranslationStrings.php:782
 msgid "Works without AI"
@@ -3490,7 +3622,8 @@ msgstr "يعمل بدون ذكاء اصطناعي"
 #: includes/Services/TranslationStrings.php:783
 msgid ""
 "Compression, WebP conversion & fallbacks run locally — no API key, no account"
-msgstr "الضغط وتحويل WebP والصور الاحتياطية تعمل محليًا — بلا مفتاح API، بلا حساب"
+msgstr ""
+"الضغط وتحويل WebP والصور الاحتياطية تعمل محليًا — بلا مفتاح API، بلا حساب"
 
 #: includes/Services/TranslationStrings.php:784
 msgid "Free to start"
@@ -3500,7 +3633,8 @@ msgstr "ابدأ مجانًا"
 msgid ""
 "50 free actions per day across AI generation and compression — Pro removes "
 "the limit"
-msgstr "50 إجراءً مجانيًا يوميًا بين إنشاء الذكاء الاصطناعي والضغط — يزيل Pro هذا الحد"
+msgstr ""
+"50 إجراءً مجانيًا يوميًا بين إنشاء الذكاء الاصطناعي والضغط — يزيل Pro هذا الحد"
 
 #: includes/Services/TranslationStrings.php:786
 msgid "Set up AI generation"
@@ -3587,7 +3721,9 @@ msgstr "تم اكتشاف عميل الذكاء الاصطناعي في وورد
 msgid ""
 "Your site has a WordPress AI connector configured. You can use it instead of "
 "entering your own API key — no key storage needed."
-msgstr "موقعك لديه موصل ذكاء اصطناعي مهيأ في ووردبريس. يمكنك استخدامه بدلًا من إدخال مفتاح API خاص بك — لا حاجة لتخزين مفتاح."
+msgstr ""
+"موقعك لديه موصل ذكاء اصطناعي مهيأ في ووردبريس. يمكنك استخدامه بدلًا من إدخال "
+"مفتاح API خاص بك — لا حاجة لتخزين مفتاح."
 
 #: includes/Services/TranslationStrings.php:811
 msgid "API Key Detected in wp-config.php"
@@ -3670,7 +3806,10 @@ msgid ""
 "Pick one image and ImageCraft will show it whenever an image on your site is "
 "broken, and as the featured image for posts that have none. Nothing is "
 "written to your content — turn it off anytime."
-msgstr "اختر صورة واحدة وسيعرضها ImageCraft كلما كانت صورة في موقعك مكسورة، وكصورة بارزة للمقالات التي لا تملك واحدة. لا يُكتب شيء في محتواك — يمكن تعطيلها في أي وقت."
+msgstr ""
+"اختر صورة واحدة وسيعرضها ImageCraft كلما كانت صورة في موقعك مكسورة، وكصورة "
+"بارزة للمقالات التي لا تملك واحدة. لا يُكتب شيء في محتواك — يمكن تعطيلها في "
+"أي وقت."
 
 #: includes/Services/TranslationStrings.php:833
 msgid "Your fallback image"
@@ -3680,7 +3819,9 @@ msgstr "صورتك الاحتياطية"
 msgid ""
 "Tip: use your logo or a simple branded placeholder. You can fine-tune "
 "everything later in Settings → Image Fallbacks."
-msgstr "نصيحة: استخدم شعارك أو صورة نائبة بسيطة بعلامتك. يمكنك ضبط كل شيء لاحقًا في الإعدادات ← الصور الاحتياطية."
+msgstr ""
+"نصيحة: استخدم شعارك أو صورة نائبة بسيطة بعلامتك. يمكنك ضبط كل شيء لاحقًا في "
+"الإعدادات ← الصور الاحتياطية."
 
 #: includes/Services/TranslationStrings.php:835
 msgid "Enable & Finish"
@@ -3706,7 +3847,9 @@ msgstr "اكتمل الإعداد!"
 msgid ""
 "Generate alt text, compress images, convert to WebP, and audit your media "
 "library — all from your dashboard."
-msgstr "أنشئ النصوص البديلة، واضغط الصور، وحوّل إلى WebP، ودقق مكتبة الوسائط — كل ذلك من لوحة التحكم."
+msgstr ""
+"أنشئ النصوص البديلة، واضغط الصور، وحوّل إلى WebP، ودقق مكتبة الوسائط — كل ذلك "
+"من لوحة التحكم."
 
 #: includes/Services/TranslationStrings.php:843
 msgid "Go to Dashboard"
@@ -4046,7 +4189,9 @@ msgstr "تفعيل تكامل السيو"
 msgid ""
 "When enabled, the plugin will read SEO data from your SEO plugin to enhance "
 "alt text generation."
-msgstr "عند التفعيل، ستقرأ الإضافة بيانات السيو من إضافة السيو لديك لتحسين إنشاء النصوص البديلة."
+msgstr ""
+"عند التفعيل، ستقرأ الإضافة بيانات السيو من إضافة السيو لديك لتحسين إنشاء "
+"النصوص البديلة."
 
 #: includes/Services/TranslationStrings.php:956
 msgid "Include focus keyphrase in alt text"
@@ -4057,13 +4202,17 @@ msgid ""
 "The AI will naturally incorporate the focus keyphrase from the parent post/"
 "page into the generated alt text. The image must be attached to a post that "
 "has a focus keyphrase set."
-msgstr "سيدمج الذكاء الاصطناعي العبارة المفتاحية للمقالة/الصفحة الأم بشكل طبيعي في النص البديل المُنشأ. يجب أن تكون الصورة مرفقة بمقالة لها عبارة مفتاحية محددة."
+msgstr ""
+"سيدمج الذكاء الاصطناعي العبارة المفتاحية للمقالة/الصفحة الأم بشكل طبيعي في "
+"النص البديل المُنشأ. يجب أن تكون الصورة مرفقة بمقالة لها عبارة مفتاحية محددة."
 
 #: includes/Services/TranslationStrings.php:958
 msgid ""
 "No supported SEO plugin detected. Install Yoast SEO, Rank Math, All in One "
 "SEO, or SEOPress to enable focus keyphrase integration."
-msgstr "لم يتم اكتشاف إضافة سيو مدعومة. ثبّت Yoast SEO أو Rank Math أو All in One SEO أو SEOPress لتفعيل تكامل العبارات المفتاحية."
+msgstr ""
+"لم يتم اكتشاف إضافة سيو مدعومة. ثبّت Yoast SEO أو Rank Math أو All in One SEO "
+"أو SEOPress لتفعيل تكامل العبارات المفتاحية."
 
 #: includes/Services/TranslationStrings.php:964
 msgid "Help"
@@ -4087,7 +4236,9 @@ msgstr "فريق الدعم لدينا جاهز لمساعدتك في أي أس�
 msgid ""
 "Whether you need help setting up your API key, configuring WooCommerce, or "
 "troubleshooting batch processing — we've got you covered."
-msgstr "سواء احتجت مساعدة في إعداد مفتاح API أو تهيئة WooCommerce أو استكشاف أخطاء المعالجة الدفعية — نحن هنا لأجلك."
+msgstr ""
+"سواء احتجت مساعدة في إعداد مفتاح API أو تهيئة WooCommerce أو استكشاف أخطاء "
+"المعالجة الدفعية — نحن هنا لأجلك."
 
 #: includes/Services/TranslationStrings.php:969
 msgid "Contact Support"
@@ -4101,13 +4252,15 @@ msgstr "شاركنا حبك"
 msgid ""
 "Your love is our motivation! A quick review helps us grow and keep improving "
 "ImageCraft for everyone."
-msgstr "حبكم هو دافعنا! تقييم سريع يساعدنا على النمو ومواصلة تحسين ImageCraft للجميع."
+msgstr ""
+"حبكم هو دافعنا! تقييم سريع يساعدنا على النمو ومواصلة تحسين ImageCraft للجميع."
 
 #: includes/Services/TranslationStrings.php:972
 msgid ""
 "If ImageCraft has helped your workflow, please take a moment to share your "
 "experience on WordPress.org."
-msgstr "إذا ساعدك ImageCraft في عملك، خذ لحظة لمشاركة تجربتك على WordPress.org."
+msgstr ""
+"إذا ساعدك ImageCraft في عملك، خذ لحظة لمشاركة تجربتك على WordPress.org."
 
 #: includes/Services/TranslationStrings.php:974
 msgid "Quick Links"
@@ -4169,4 +4322,14 @@ msgstr "شاهد كيفية إعداد ImageCraft واستخدامه في دقا
 #: includes/Services/UsageLimiter.php:200
 #, php-format
 msgid "Daily free limit of %d reached. Upgrade to Pro for unlimited usage."
-msgstr "تم بلوغ الحد المجاني اليومي (%d). قم بالترقية إلى Pro للاستخدام غير المحدود."
+msgstr ""
+"تم بلوغ الحد المجاني اليومي (%d). قم بالترقية إلى Pro للاستخدام غير المحدود."
+
+#~ msgid ""
+#~ "All-in-one image toolkit: AI-powered alt text & titles, smart image "
+#~ "compression, SEO file renaming, and image SEO audit. Supports WordPress "
+#~ "7.0 native AI Client, Anthropic, OpenAI and Gemini."
+#~ msgstr ""
+#~ "مجموعة أدوات صور شاملة: نصوص بديلة وعناوين بالذكاء الاصطناعي، وضغط ذكي "
+#~ "للصور، وإعادة تسمية الملفات لتحسين السيو، وتدقيق سيو الصور. يدعم عميل "
+#~ "الذكاء الاصطناعي الأصلي في ووردبريس 7.0 وAnthropic وOpenAI وGemini."

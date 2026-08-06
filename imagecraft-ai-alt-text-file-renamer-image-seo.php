@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       ImageCraft - AI Alt Text, Image Compression & WebP
  * Plugin URI:        https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo
- * Description:       All-in-one image toolkit: AI-powered alt text & titles, smart image compression, SEO file renaming, and image SEO audit. Supports WordPress 7.0 native AI Client, Anthropic, OpenAI and Gemini.
+ * Description:       All-in-one image toolkit: AI alt text, titles & descriptions, local image compression, WebP conversion, image fallbacks, SEO file renaming, and an image SEO audit. Works with the WordPress 7.0 native AI Client, Anthropic, OpenAI and Gemini — compression and WebP need no API key.
  * Version:           1.6.0
  * Author:            Softminal
  * Author URI:        https://softminal.com

@@ -6,16 +6,16 @@ msgstr ""
 "1.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagecraft-ai-alt-"
 "text-file-renamer-image-seo\n"
+"POT-Creation-Date: 2026-08-06T20:09:08+00:00\n"
+"PO-Revision-Date: 2026-08-06T19:19:56+00:00\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
+"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-06T19:19:56+00:00\n"
-"PO-Revision-Date: 2026-08-06T19:19:56+00:00\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: imagecraft-ai-alt-text-file-renamer-image-seo\n"
-"Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #. Plugin Name of the plugin
@@ -28,15 +28,18 @@ msgstr "ImageCraft - AI代替テキスト・画像圧縮・WebP"
 msgid ""
 "https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-"
 "seo"
-msgstr "https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo"
+msgstr ""
+"https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-"
+"seo"
 
 #. Description of the plugin
 #: imagecraft-ai-alt-text-file-renamer-image-seo.php
 msgid ""
-"All-in-one image toolkit: AI-powered alt text & titles, smart image "
-"compression, SEO file renaming, and image SEO audit. Supports WordPress 7.0 "
-"native AI Client, Anthropic, OpenAI and Gemini."
-msgstr "オールインワン画像ツールキット:AIによる代替テキストとタイトル生成、スマートな画像圧縮、SEO向けファイル名変更、画像SEO監査。WordPress 7.0ネイティブAIクライアント、Anthropic、OpenAI、Geminiに対応。"
+"All-in-one image toolkit: AI alt text, titles & descriptions, local image "
+"compression, WebP conversion, image fallbacks, SEO file renaming, and an "
+"image SEO audit. Works with the WordPress 7.0 native AI Client, Anthropic, "
+"OpenAI and Gemini — compression and WebP need no API key."
+msgstr "オールインワン画像ツールキット:AIによる代替テキスト・タイトル・説明、ローカル画像圧縮、WebP変換、フォールバック画像、SEO向けファイル名変更、画像SEO監査。WordPress 7.0ネイティブAIクライアント、Anthropic、OpenAI、Geminiに対応 — 圧縮とWebPにはAPIキー不要。"
 
 #. Author of the plugin
 #: imagecraft-ai-alt-text-file-renamer-image-seo.php
@@ -50,14 +53,18 @@ msgstr "https://softminal.com"
 
 #: includes/AdminNotice.php:63
 msgid "New in ImageCraft: Image Fallbacks — never show a broken image again."
-msgstr "ImageCraftの新機能:フォールバック画像 — リンク切れ画像を二度と表示しません。"
+msgstr ""
+"ImageCraftの新機能:フォールバック画像 — リンク切れ画像を二度と表示しません。"
 
 #: includes/AdminNotice.php:64
 msgid ""
 "Pick one fallback image: it replaces broken images for your visitors and "
 "acts as the featured image for posts without one. Non-destructive and off by "
 "default."
-msgstr "フォールバック画像を1枚選ぶだけ。訪問者に表示されるリンク切れ画像を置き換え、アイキャッチ画像のない投稿ではアイキャッチとして機能します。非破壊的で、初期状態では無効です。"
+msgstr ""
+"フォールバック画像を1枚選ぶだけ。訪問者に表示されるリンク切れ画像を置き換え、"
+"アイキャッチ画像のない投稿ではアイキャッチとして機能します。非破壊的で、初期"
+"状態では無効です。"
 
 #: includes/AdminNotice.php:68
 msgid "Set up Image Fallbacks"
@@ -75,7 +82,9 @@ msgstr "ImageCraftで8件以上の代替テキストを生成しました — �
 msgid ""
 "If you find the plugin helpful, we'd love a quick review on WordPress.org. "
 "It helps us grow and keep improving!"
-msgstr "このプラグインが役立っているなら、WordPress.orgでのレビューをぜひお願いします。成長と改善の励みになります!"
+msgstr ""
+"このプラグインが役立っているなら、WordPress.orgでのレビューをぜひお願いしま"
+"す。成長と改善の励みになります!"
 
 #: includes/AdminNotice.php:121 includes/Services/TranslationStrings.php:973
 msgid "Leave a Review"
@@ -138,7 +147,9 @@ msgstr "その前にひとつだけ質問させてください"
 msgid ""
 "If you have a moment, please let us know why you are deactivating "
 "ImageCraft. It helps us improve."
-msgstr "お時間があれば、ImageCraftを無効化する理由をお聞かせください。改善の参考になります。"
+msgstr ""
+"お時間があれば、ImageCraftを無効化する理由をお聞かせください。改善の参考にな"
+"ります。"
 
 #: includes/DeactivationSurvey.php:135
 msgid "Skip & Deactivate"
@@ -247,7 +258,11 @@ msgid ""
 "broken images.\n"
 "\n"
 "Are you sure you want to rename this file?"
-msgstr "この操作で画像のURLが変わります。外部リンクやキャッシュ済みページでリンク切れ画像が表示される可能性があります。\n\n本当にこのファイルの名前を変更しますか?"
+msgstr ""
+"この操作で画像のURLが変わります。外部リンクやキャッシュ済みページでリンク切れ"
+"画像が表示される可能性があります。\n"
+"\n"
+"本当にこのファイルの名前を変更しますか?"
 
 #: includes/Enqueue.php:191 includes/Services/TranslationStrings.php:580
 msgid "Generate with AI"
@@ -321,7 +336,8 @@ msgstr "このジョブの画像IDが見つかりません"
 #: includes/Http/Controllers/BatchController.php:356
 msgid ""
 "Daily compression limit reached. Upgrade to Pro for unlimited compression."
-msgstr "本日の圧縮上限に達しました。Proにアップグレードすると無制限に圧縮できます。"
+msgstr ""
+"本日の圧縮上限に達しました。Proにアップグレードすると無制限に圧縮できます。"
 
 #: includes/Http/Controllers/BatchController.php:371
 #: includes/Http/Controllers/CompressorController.php:147
@@ -338,7 +354,8 @@ msgstr "圧縮に失敗しました。詳細はエラーログをご確認くだ
 #: includes/Http/Controllers/BatchController.php:391
 msgid ""
 "Daily compression limit reached. Upgrade to Pro for unlimited conversions."
-msgstr "本日の圧縮上限に達しました。Proにアップグレードすると無制限に変換できます。"
+msgstr ""
+"本日の圧縮上限に達しました。Proにアップグレードすると無制限に変換できます。"
 
 #: includes/Http/Controllers/BatchController.php:410
 msgid "Conversion failed"
@@ -390,7 +407,8 @@ msgstr "このジョブは再開できません"
 
 #: includes/Http/Controllers/BatchController.php:772
 msgid "Image data for this job has expired. Please start a new batch."
-msgstr "このジョブの画像データは期限切れです。新しい一括処理を開始してください。"
+msgstr ""
+"このジョブの画像データは期限切れです。新しい一括処理を開始してください。"
 
 #: includes/Http/Controllers/BatchController.php:881
 msgid "Job is not completed yet"
@@ -537,20 +555,27 @@ msgstr "画像URLを取得できませんでした"
 msgid ""
 "Image file not found or inaccessible. Please verify the image exists in your "
 "media library."
-msgstr "画像ファイルが見つからないかアクセスできません。メディアライブラリに画像が存在するか確認してください。"
+msgstr ""
+"画像ファイルが見つからないかアクセスできません。メディアライブラリに画像が存"
+"在するか確認してください。"
 
 #: includes/Http/Controllers/GeneratorController.php:421
 msgid ""
 "Failed to generate metadata — the AI cut its response short, possibly due to "
 "rate limiting or high demand on your provider account. Please try again in a "
 "moment."
-msgstr "メタデータを生成できませんでした — レート制限またはプロバイダーアカウントへの高負荷により、AIが応答を途中で打ち切った可能性があります。少し待ってからもう一度お試しください。"
+msgstr ""
+"メタデータを生成できませんでした — レート制限またはプロバイダーアカウントへの"
+"高負荷により、AIが応答を途中で打ち切った可能性があります。少し待ってからもう"
+"一度お試しください。"
 
 #: includes/Http/Controllers/GeneratorController.php:422
 msgid ""
 "Failed to generate metadata — the AI response was incomplete. Please try "
 "again."
-msgstr "メタデータを生成できませんでした — AIの応答が不完全でした。もう一度お試しください。"
+msgstr ""
+"メタデータを生成できませんでした — AIの応答が不完全でした。もう一度お試しくだ"
+"さい。"
 
 #: includes/Http/Controllers/GeneratorController.php:487
 #: includes/Http/Controllers/GeneratorController.php:825
@@ -585,13 +610,17 @@ msgid ""
 "The request timed out before the AI could respond. This often happens on "
 "slower hosts or with larger images — please try again, ideally one image at "
 "a time."
-msgstr "AIが応答する前にリクエストがタイムアウトしました。低速なホストや大きな画像でよく起こります — もう一度、できれば1枚ずつお試しください。"
+msgstr ""
+"AIが応答する前にリクエストがタイムアウトしました。低速なホストや大きな画像で"
+"よく起こります — もう一度、できれば1枚ずつお試しください。"
 
 #: includes/Http/Controllers/GeneratorController.php:577
 msgid ""
 "Your AI provider is rate limiting or over capacity right now. Please wait a "
 "moment and try again."
-msgstr "AIプロバイダーがレート制限中か過負荷の状態です。少し待ってからもう一度お試しください。"
+msgstr ""
+"AIプロバイダーがレート制限中か過負荷の状態です。少し待ってからもう一度お試し"
+"ください。"
 
 #: includes/Http/Controllers/GeneratorController.php:589
 msgid ""
@@ -601,7 +630,9 @@ msgstr "認証に失敗しました。設定でAPIキーを確認して、もう
 #: includes/Http/Controllers/GeneratorController.php:774
 #: includes/Http/Controllers/WooCommerceController.php:227
 msgid "Failed to generate alt text. Please check your API key and try again."
-msgstr "代替テキストを生成できませんでした。APIキーを確認して、もう一度お試しください。"
+msgstr ""
+"代替テキストを生成できませんでした。APIキーを確認して、もう一度お試しくださ"
+"い。"
 
 #: includes/Http/Controllers/GeneratorController.php:878
 #: includes/Http/Controllers/GeneratorController.php:1243
@@ -642,15 +673,19 @@ msgstr "タイトルはすでに存在します"
 
 #: includes/Http/Controllers/GeneratorController.php:1023
 msgid "Failed to generate title. Please check your API key and try again."
-msgstr "タイトルを生成できませんでした。APIキーを確認して、もう一度お試しください。"
+msgstr ""
+"タイトルを生成できませんでした。APIキーを確認して、もう一度お試しください。"
 
 #: includes/Http/Controllers/GeneratorController.php:1088
 msgid "Failed to generate link title. Please check your API key and try again."
-msgstr "リンクタイトルを生成できませんでした。APIキーを確認して、もう一度お試しください。"
+msgstr ""
+"リンクタイトルを生成できませんでした。APIキーを確認して、もう一度お試しくださ"
+"い。"
 
 #: includes/Http/Controllers/GeneratorController.php:1140
 msgid "Failed to generate filename. Please check your API key and try again."
-msgstr "ファイル名を生成できませんでした。APIキーを確認して、もう一度お試しください。"
+msgstr ""
+"ファイル名を生成できませんでした。APIキーを確認して、もう一度お試しください。"
 
 #: includes/Http/Controllers/GeneratorController.php:1173
 #: includes/Services/TranslationStrings.php:604
@@ -802,7 +837,9 @@ msgstr "内部サーバーエラー"
 
 #: includes/Install.php:42
 msgid "Could not install ImageCraft plugin. Please check error logs."
-msgstr "ImageCraftプラグインをインストールできませんでした。エラーログをご確認ください。"
+msgstr ""
+"ImageCraftプラグインをインストールできませんでした。エラーログをご確認くださ"
+"い。"
 
 #: includes/Services/AI/WP7Provider.php:109
 #: includes/Services/AI/WP7Provider.php:116
@@ -819,13 +856,16 @@ msgstr "この機能にはWordPress 7.0が必要です"
 
 #: includes/Services/AI/WP7Provider.php:210
 msgid "Could not verify the WordPress AI Client. Please try again."
-msgstr "WordPress AIクライアントを確認できませんでした。もう一度お試しください。"
+msgstr ""
+"WordPress AIクライアントを確認できませんでした。もう一度お試しください。"
 
 #: includes/Services/AI/WP7Provider.php:217
 msgid ""
 "No AI provider configured. Go to WordPress Settings → Connectors to set one "
 "up."
-msgstr "AIプロバイダーが設定されていません。WordPress設定→コネクターで設定してください。"
+msgstr ""
+"AIプロバイダーが設定されていません。WordPress設定→コネクターで設定してくださ"
+"い。"
 
 #: includes/Services/AI/WP7Provider.php:223
 msgid "WordPress AI Client is ready"
@@ -884,7 +924,9 @@ msgstr "すべて生成(代替テキスト + タイトル + キャプション)"
 msgid ""
 "Generate alt text, title and caption together in a single AI call — one "
 "click per image."
-msgstr "代替テキスト、タイトル、キャプションを1回のAI呼び出しでまとめて生成 — 画像ごとにワンクリックです。"
+msgstr ""
+"代替テキスト、タイトル、キャプションを1回のAI呼び出しでまとめて生成 — 画像ご"
+"とにワンクリックです。"
 
 #: includes/Services/TranslationStrings.php:35
 msgid "Enable the Generate All button"
@@ -982,13 +1024,16 @@ msgstr "APIキーを追加"
 
 #: includes/Services/TranslationStrings.php:67
 msgid "Add your API key to generate alt text, titles and captions."
-msgstr "代替テキスト、タイトル、キャプションを生成するにはAPIキーを追加してください。"
+msgstr ""
+"代替テキスト、タイトル、キャプションを生成するにはAPIキーを追加してください。"
 
 #: includes/Services/TranslationStrings.php:68
 msgid ""
 "Add your API key to generate alt text, titles and captions. Image "
 "compression works without a key."
-msgstr "代替テキスト、タイトル、キャプションを生成するにはAPIキーを追加してください。画像圧縮はキーなしで動作します。"
+msgstr ""
+"代替テキスト、タイトル、キャプションを生成するにはAPIキーを追加してください。"
+"画像圧縮はキーなしで動作します。"
 
 #. translators: placeholders are dynamic values (counts, names, sizes)
 #: includes/Services/TranslationStrings.php:83
@@ -1024,13 +1069,16 @@ msgstr "、%s件失敗"
 msgid ""
 "85 is visually lossless (recommended). Lower for smaller files. We never re-"
 "encode larger than the original."
-msgstr "85は視覚的に劣化のない品質です(推奨)。小さいファイルにするには下げてください。元より大きく再エンコードすることはありません。"
+msgstr ""
+"85は視覚的に劣化のない品質です(推奨)。小さいファイルにするには下げてくださ"
+"い。元より大きく再エンコードすることはありません。"
 
 #: includes/Services/TranslationStrings.php:93
 msgid ""
 "A key is currently defined in wp-config.php and takes priority over the "
 "database key."
-msgstr "現在wp-config.phpでキーが定義されており、データベースのキーより優先されます。"
+msgstr ""
+"現在wp-config.phpでキーが定義されており、データベースのキーより優先されます。"
 
 #: includes/Services/TranslationStrings.php:94
 msgid "AI-powered file renaming for SEO-friendly image URLs."
@@ -1052,7 +1100,9 @@ msgstr "APIレート制限を超えた可能性があります — 待ってか�
 msgid ""
 "AVIF is often ~50% smaller than JPEG — the smallest format modern browsers "
 "support."
-msgstr "AVIFはJPEGより約50%小さいことが多く、モダンブラウザーが対応する最小のフォーマットです。"
+msgstr ""
+"AVIFはJPEGより約50%小さいことが多く、モダンブラウザーが対応する最小のフォー"
+"マットです。"
 
 #: includes/Services/TranslationStrings.php:99
 msgid "Active — WordPress AI Client"
@@ -1062,7 +1112,8 @@ msgstr "有効 — WordPress AIクライアント"
 msgid ""
 "Add this line to your wp-config.php file (before \"That's all, stop editing!"
 "\"):"
-msgstr "この行をwp-config.phpに追加してください(「That's all, stop editing!」の前):"
+msgstr ""
+"この行をwp-config.phpに追加してください(「That's all, stop editing!」の前):"
 
 #. translators: placeholders are dynamic values (counts, names, sizes)
 #: includes/Services/TranslationStrings.php:102
@@ -1070,7 +1121,9 @@ msgstr "この行をwp-config.phpに追加してください(「That's all, stop
 msgid ""
 "Adds the Compress tab and per-image compress buttons. Free plan includes %d "
 "compressions per day."
-msgstr "「圧縮」タブと画像ごとの圧縮ボタンを追加します。無料プランには1日%d回の圧縮が含まれます。"
+msgstr ""
+"「圧縮」タブと画像ごとの圧縮ボタンを追加します。無料プランには1日%d回の圧縮が"
+"含まれます。"
 
 #: includes/Services/TranslationStrings.php:103
 msgid "Administrator"
@@ -1098,7 +1151,9 @@ msgstr "%s件をすべて選択しました。"
 
 #: includes/Services/TranslationStrings.php:110
 msgid "All AI-generated content (alt text, titles) will use this language."
-msgstr "AIが生成するすべてのコンテンツ(代替テキスト、タイトル)にこの言語が使われます。"
+msgstr ""
+"AIが生成するすべてのコンテンツ(代替テキスト、タイトル)にこの言語が使われま"
+"す。"
 
 #: includes/Services/TranslationStrings.php:111
 msgid "All Categories"
@@ -1124,7 +1179,9 @@ msgstr "代替テキスト生成"
 msgid ""
 "Alt text and title use their own tone/length settings (Alt Text and Image "
 "Title pages). Caption settings are below."
-msgstr "代替テキストとタイトルは、それぞれのトーン/文字数設定(「代替テキスト」と「画像タイトル」のページ)を使います。キャプションの設定は下にあります。"
+msgstr ""
+"代替テキストとタイトルは、それぞれのトーン/文字数設定(「代替テキスト」と「画"
+"像タイトル」のページ)を使います。キャプションの設定は下にあります。"
 
 #: includes/Services/TranslationStrings.php:117
 msgid "Alt text too long"
@@ -1181,11 +1238,14 @@ msgstr "画像のアップロード時に代替テキストを自動生成しま
 
 #: includes/Services/TranslationStrings.php:130
 msgid "Automatically generate next-gen copies for every new image you upload."
-msgstr "新しくアップロードされたすべての画像の次世代フォーマットのコピーを自動作成します。"
+msgstr ""
+"新しくアップロードされたすべての画像の次世代フォーマットのコピーを自動作成し"
+"ます。"
 
 #: includes/Services/TranslationStrings.php:131
 msgid "Automatically re-scan in the background and catch broken images early."
-msgstr "バックグラウンドで自動的に再スキャンし、リンク切れ画像を早期に検出します。"
+msgstr ""
+"バックグラウンドで自動的に再スキャンし、リンク切れ画像を早期に検出します。"
 
 #: includes/Services/TranslationStrings.php:132
 msgid "Back to Integrations"
@@ -1200,7 +1260,9 @@ msgid ""
 "Backups are off. Newly compressed images cannot be restored to their "
 "originals (images already backed up can still be restored). This saves disk "
 "space — use with care."
-msgstr "バックアップは無効です。新たに圧縮した画像は元に戻せません(バックアップ済みの画像は復元可能)。ディスク容量を節約できますが、慎重にお使いください。"
+msgstr ""
+"バックアップは無効です。新たに圧縮した画像は元に戻せません(バックアップ済みの"
+"画像は復元可能)。ディスク容量を節約できますが、慎重にお使いください。"
 
 #: includes/Services/TranslationStrings.php:135
 msgid "Batch Complete"
@@ -1232,11 +1294,13 @@ msgstr "設定でAPIキーが有効か確認してください"
 
 #: includes/Services/TranslationStrings.php:142
 msgid "Choose a default featured image — nothing happens until one is set."
-msgstr "デフォルトのアイキャッチ画像を選んでください — 設定するまで何も起こりません。"
+msgstr ""
+"デフォルトのアイキャッチ画像を選んでください — 設定するまで何も起こりません。"
 
 #: includes/Services/TranslationStrings.php:143
 msgid "Choose a fallback image above — nothing happens until one is set."
-msgstr "上でフォールバック画像を選んでください — 設定するまで何も起こりません。"
+msgstr ""
+"上でフォールバック画像を選んでください — 設定するまで何も起こりません。"
 
 #: includes/Services/TranslationStrings.php:144
 msgid "Choose image"
@@ -1247,7 +1311,10 @@ msgid ""
 "Choose which user roles are allowed to use ImageCraft. This applies to all "
 "features — alt text generation, image titles, file renaming, and image "
 "compression. Administrators always have access."
-msgstr "ImageCraftを使用できるユーザー権限グループを選択します。代替テキスト生成、画像タイトル、ファイル名変更、画像圧縮のすべての機能に適用されます。管理者は常に利用できます。"
+msgstr ""
+"ImageCraftを使用できるユーザー権限グループを選択します。代替テキスト生成、画"
+"像タイトル、ファイル名変更、画像圧縮のすべての機能に適用されます。管理者は常"
+"に利用できます。"
 
 #: includes/Services/TranslationStrings.php:146
 msgid "Clear"
@@ -1317,7 +1384,9 @@ msgstr "選択した画像を変換"
 msgid ""
 "Convert images from the Performance page — select images and use \"Convert "
 "Selected\", or convert your whole library in bulk."
-msgstr "パフォーマンスページから画像を変換できます — 画像を選択して「選択した画像を変換」を使うか、ライブラリ全体を一括変換してください。"
+msgstr ""
+"パフォーマンスページから画像を変換できます — 画像を選択して「選択した画像を変"
+"換」を使うか、ライブラリ全体を一括変換してください。"
 
 #: includes/Services/TranslationStrings.php:169
 msgid "Created From"
@@ -1447,12 +1516,16 @@ msgstr "修正"
 msgid ""
 "Free plan downscales images to 2048px (longest edge) — invisible on the web "
 "and the biggest space saver. Upgrade to Pro to change or disable it."
-msgstr "無料プランでは画像を2048px(長辺)に縮小します — ウェブ上では見分けがつかず、最も容量を節約できます。変更や無効化はProへのアップグレードで可能です。"
+msgstr ""
+"無料プランでは画像を2048px(長辺)に縮小します — ウェブ上では見分けがつかず、最"
+"も容量を節約できます。変更や無効化はProへのアップグレードで可能です。"
 
 #: includes/Services/TranslationStrings.php:202
 msgid ""
 "Free plan uses a visually-lossless quality of 85. Upgrade to Pro to adjust."
-msgstr "無料プランでは視覚的に劣化のない品質85を使用します。調整はProへのアップグレードで可能です。"
+msgstr ""
+"無料プランでは視覚的に劣化のない品質85を使用します。調整はProへのアップグレー"
+"ドで可能です。"
 
 #: includes/Services/TranslationStrings.php:203
 msgid "Generate AVIF copies"
@@ -1483,13 +1556,18 @@ msgid ""
 "Generate alt text, title and caption together in a single AI call. Used by "
 "the Media Library bulk picker, the per-image media-modal picker, and auto-on-"
 "upload."
-msgstr "代替テキスト、タイトル、キャプションを1回のAI呼び出しでまとめて生成します。メディアライブラリの一括セレクター、メディアモーダルの画像ごとのセレクター、アップロード時の自動生成で使われます。"
+msgstr ""
+"代替テキスト、タイトル、キャプションを1回のAI呼び出しでまとめて生成します。メ"
+"ディアライブラリの一括セレクター、メディアモーダルの画像ごとのセレクター、"
+"アップロード時の自動生成で使われます。"
 
 #: includes/Services/TranslationStrings.php:210
 msgid ""
 "Generate metadata automatically when an image is uploaded. Alt text and "
 "title have their own toggles on their settings pages."
-msgstr "画像のアップロード時にメタデータを自動生成します。代替テキストとタイトルには各設定ページに個別のスイッチがあります。"
+msgstr ""
+"画像のアップロード時にメタデータを自動生成します。代替テキストとタイトルには"
+"各設定ページに個別のスイッチがあります。"
 
 #: includes/Services/TranslationStrings.php:211
 msgid "Generate title purely from image content."
@@ -1525,7 +1603,9 @@ msgstr "すべての画像の代替テキストを生成しました"
 msgid ""
 "Generates every selected field in one call. Takes priority — when on, it "
 "overrides the individual alt / title / description auto-generate options."
-msgstr "選択したすべてのフィールドを1回の呼び出しで生成します。優先されます — 有効にすると、代替テキスト/タイトル/説明の個別の自動生成オプションを上書きします。"
+msgstr ""
+"選択したすべてのフィールドを1回の呼び出しで生成します。優先されます — 有効に"
+"すると、代替テキスト/タイトル/説明の個別の自動生成オプションを上書きします。"
 
 #. translators: placeholders are dynamic values (counts, names, sizes)
 #: includes/Services/TranslationStrings.php:222
@@ -1552,7 +1632,9 @@ msgstr "APIキーの取得先:"
 #: includes/Services/TranslationStrings.php:227
 msgid ""
 "Give this image good alt text — it is used when the broken image had none."
-msgstr "この画像には良い代替テキストを付けてください — リンク切れ画像に代替テキストがなかったときに使われます。"
+msgstr ""
+"この画像には良い代替テキストを付けてください — リンク切れ画像に代替テキストが"
+"なかったときに使われます。"
 
 #: includes/Services/TranslationStrings.php:228
 msgid "Global settings shared across all generation features."
@@ -1624,7 +1706,10 @@ msgid ""
 "image. Browsers that support next-gen formats get the smaller copy; everyone "
 "else gets the original. Nothing is rewritten, and removing the copies "
 "restores everything exactly as it was."
-msgstr "ImageCraftは各元画像の隣にWebPコピー(ProではAVIFも)を作成します。次世代フォーマット対応のブラウザーには小さいコピーが、それ以外には元画像が配信されます。何も書き換えられず、コピーを削除すればすべて元通りになります。"
+msgstr ""
+"ImageCraftは各元画像の隣にWebPコピー(ProではAVIFも)を作成します。次世代フォー"
+"マット対応のブラウザーには小さいコピーが、それ以外には元画像が配信されます。"
+"何も書き換えられず、コピーを削除すればすべて元通りになります。"
 
 #: includes/Services/TranslationStrings.php:245
 msgid "Images must be accessible (not behind authentication)"
@@ -1674,7 +1759,9 @@ msgstr "サイトを高速化しましょう"
 msgid ""
 "Master switch for both fallback features below. Fully non-destructive — turn "
 "it off and everything reverts."
-msgstr "下の2つのフォールバック機能のメインスイッチです。完全に非破壊的 — オフにすればすべて元通りになります。"
+msgstr ""
+"下の2つのフォールバック機能のメインスイッチです。完全に非破壊的 — オフにすれ"
+"ばすべて元通りになります。"
 
 #: includes/Services/TranslationStrings.php:257
 msgid "Max Price"
@@ -1713,7 +1800,10 @@ msgid ""
 "Never show a broken or missing image. Swap broken images for a fallback and "
 "give posts without a featured image a default one — nothing is written to "
 "your content."
-msgstr "リンク切れ画像や欠けた画像を二度と表示しません。リンク切れ画像をフォールバックに置き換え、アイキャッチのない投稿にデフォルト画像を設定します — コンテンツには何も書き込まれません。"
+msgstr ""
+"リンク切れ画像や欠けた画像を二度と表示しません。リンク切れ画像をフォールバッ"
+"クに置き換え、アイキャッチのない投稿にデフォルト画像を設定します — コンテンツ"
+"には何も書き込まれません。"
 
 #: includes/Services/TranslationStrings.php:266
 msgid "Next 5 pages"
@@ -1743,7 +1833,10 @@ msgstr "他に利用可能な権限グループはありません"
 msgid ""
 "No roles selected — every user who can upload media may use ImageCraft "
 "(current behavior). Select one or more roles to restrict access."
-msgstr "権限グループが未選択です — メディアをアップロードできるすべてのユーザーがImageCraftを使用できます(現在の動作)。アクセスを制限するには1つ以上の権限グループを選択してください。"
+msgstr ""
+"権限グループが未選択です — メディアをアップロードできるすべてのユーザーが"
+"ImageCraftを使用できます(現在の動作)。アクセスを制限するには1つ以上の権限グ"
+"ループを選択してください。"
 
 #: includes/Services/TranslationStrings.php:273
 msgid "Not compressed"
@@ -1785,17 +1878,23 @@ msgstr "元画像を復元しました"
 msgid ""
 "Originals are backed up to /uploads/icais-originals/. You can restore any "
 "image from the Compress tab."
-msgstr "元画像は/uploads/icais-originals/にバックアップされます。「圧縮」タブからいつでも復元できます。"
+msgstr ""
+"元画像は/uploads/icais-originals/にバックアップされます。「圧縮」タブからいつ"
+"でも復元できます。"
 
 #: includes/Services/TranslationStrings.php:283
 msgid "Other plugins we build, with the same focus on doing one job properly."
-msgstr "私たちが開発している他のプラグインです。ひとつの仕事を丁寧に、という同じ姿勢で作っています。"
+msgstr ""
+"私たちが開発している他のプラグインです。ひとつの仕事を丁寧に、という同じ姿勢"
+"で作っています。"
 
 #: includes/Services/TranslationStrings.php:284
 msgid ""
 "Override the default featured image for specific post types (e.g. a product "
 "placeholder for WooCommerce)."
-msgstr "特定の投稿タイプでデフォルトのアイキャッチ画像を上書きします(例: WooCommerce用の商品プレースホルダー)。"
+msgstr ""
+"特定の投稿タイプでデフォルトのアイキャッチ画像を上書きします(例: WooCommerce"
+"用の商品プレースホルダー)。"
 
 #: includes/Services/TranslationStrings.php:285
 msgid "Page selected."
@@ -1829,7 +1928,9 @@ msgstr "プラグインが有効ではありません"
 msgid ""
 "Posts without a featured image use your fallback in archives, social "
 "previews and anywhere the theme shows one. The post itself is never modified."
-msgstr "アイキャッチ画像のない投稿では、アーカイブ、SNSプレビュー、テーマが表示するあらゆる場所でフォールバックが使われます。投稿自体は一切変更されません。"
+msgstr ""
+"アイキャッチ画像のない投稿では、アーカイブ、SNSプレビュー、テーマが表示するあ"
+"らゆる場所でフォールバックが使われます。投稿自体は一切変更されません。"
 
 #: includes/Services/TranslationStrings.php:293
 msgid "Previous 5 pages"
@@ -1871,7 +1972,9 @@ msgstr "削除"
 msgid ""
 "Renaming files changes image URLs. External links and cached pages may show "
 "broken images."
-msgstr "ファイル名の変更は画像URLを変更します。外部リンクやキャッシュ済みページでリンク切れ画像が表示される可能性があります。"
+msgstr ""
+"ファイル名の変更は画像URLを変更します。外部リンクやキャッシュ済みページでリン"
+"ク切れ画像が表示される可能性があります。"
 
 #: includes/Services/TranslationStrings.php:304
 msgid "Replace broken images on the front end"
@@ -1993,7 +2096,9 @@ msgstr "設定を保存しました"
 msgid ""
 "Shared across AI generation and compression. Generating and compressing the "
 "same image counts as two."
-msgstr "AI生成と圧縮で共有されます。同じ画像の生成と圧縮は2回分としてカウントされます。"
+msgstr ""
+"AI生成と圧縮で共有されます。同じ画像の生成と圧縮は2回分としてカウントされま"
+"す。"
 
 #: includes/Services/TranslationStrings.php:338
 msgid "Show the biggest files first"
@@ -2007,19 +2112,25 @@ msgstr "表示中の画像:"
 msgid ""
 "Shows \"Rename File\" buttons to generate SEO-friendly filenames using AI. "
 "This changes image URLs."
-msgstr "AIでSEOに適したファイル名を生成する「ファイル名を変更」ボタンを表示します。画像URLが変更されます。"
+msgstr ""
+"AIでSEOに適したファイル名を生成する「ファイル名を変更」ボタンを表示します。画"
+"像URLが変更されます。"
 
 #: includes/Services/TranslationStrings.php:341
 msgid ""
 "Shrink image file sizes to speed up your site. Originals are always backed "
 "up."
-msgstr "画像ファイルを軽量化してサイトを高速化します。元画像は必ずバックアップされます。"
+msgstr ""
+"画像ファイルを軽量化してサイトを高速化します。元画像は必ずバックアップされま"
+"す。"
 
 #: includes/Services/TranslationStrings.php:342
 msgid ""
 "Shrink image file sizes to speed up your site. Originals are backed up by "
 "default so you can restore them."
-msgstr "画像ファイルを軽量化してサイトを高速化します。元画像は初期設定でバックアップされるため復元できます。"
+msgstr ""
+"画像ファイルを軽量化してサイトを高速化します。元画像は初期設定でバックアップ"
+"されるため復元できます。"
 
 #: includes/Services/TranslationStrings.php:343
 msgid "Skip images smaller than (KB)"
@@ -2055,25 +2166,33 @@ msgstr "wp-config.phpに保存"
 msgid ""
 "The Dashboard scans your media library for images whose files are missing "
 "and shows them under \"Needs attention\"."
-msgstr "ダッシュボードはメディアライブラリをスキャンしてファイルが欠けている画像を検出し、「要対応」に表示します。"
+msgstr ""
+"ダッシュボードはメディアライブラリをスキャンしてファイルが欠けている画像を検"
+"出し、「要対応」に表示します。"
 
 #: includes/Services/TranslationStrings.php:352
 msgid ""
 "The key stays in your server files — never stored in the database. Ideal for "
 "version-controlled deployments and security-conscious setups."
-msgstr "キーはサーバーのファイル内に留まり、データベースには保存されません。バージョン管理されたデプロイやセキュリティ重視の構成に最適です。"
+msgstr ""
+"キーはサーバーのファイル内に留まり、データベースには保存されません。バージョ"
+"ン管理されたデプロイやセキュリティ重視の構成に最適です。"
 
 #: includes/Services/TranslationStrings.php:353
 msgid ""
 "The max character length setting above will be applied automatically. "
 "Product context is added automatically for WooCommerce images."
-msgstr "上の最大文字数設定が自動的に適用されます。WooCommerce画像には商品コンテキストが自動的に追加されます。"
+msgstr ""
+"上の最大文字数設定が自動的に適用されます。WooCommerce画像には商品コンテキスト"
+"が自動的に追加されます。"
 
 #: includes/Services/TranslationStrings.php:354
 msgid ""
 "The max character length setting will be applied automatically. Product "
 "name, category, and SKU are automatically included as context."
-msgstr "最大文字数設定が自動的に適用されます。商品名、カテゴリー、SKUが自動的にコンテキストとして含まれます。"
+msgstr ""
+"最大文字数設定が自動的に適用されます。商品名、カテゴリー、SKUが自動的にコンテ"
+"キストとして含まれます。"
 
 #: includes/Services/TranslationStrings.php:355
 msgid "Tiny images barely benefit from compression. Default: 50 KB."
@@ -2125,7 +2244,9 @@ msgstr "アップロード時のタイトル自動生成はProで利用できま
 msgid ""
 "Upgrade to Pro to set a different fallback per post type (e.g. a product "
 "placeholder for WooCommerce)."
-msgstr "投稿タイプごとに異なるフォールバックの設定はProで利用できます(例: WooCommerce用の商品プレースホルダー)。"
+msgstr ""
+"投稿タイプごとに異なるフォールバックの設定はProで利用できます(例: WooCommerce"
+"用の商品プレースホルダー)。"
 
 #: includes/Services/TranslationStrings.php:369
 msgid "Use WordPress AI Client"
@@ -2137,7 +2258,8 @@ msgstr "デフォルトのアイキャッチ画像を使用"
 
 #: includes/Services/TranslationStrings.php:371
 msgid "Use focus keyphrases from your SEO plugin to improve generated content."
-msgstr "SEOプラグインのフォーカスキーフレーズを使って生成コンテンツを改善します。"
+msgstr ""
+"SEOプラグインのフォーカスキーフレーズを使って生成コンテンツを改善します。"
 
 #: includes/Services/TranslationStrings.php:372
 msgid "Use the same image as the broken-image fallback"
@@ -2173,25 +2295,33 @@ msgstr "毎週"
 msgid ""
 "When an image on your site fails to load (deleted file, dead external link), "
 "visitors see your fallback image instead of a broken icon."
-msgstr "サイトの画像が読み込めないとき(ファイル削除、外部リンク切れ)、訪問者には壊れたアイコンの代わりにフォールバック画像が表示されます。"
+msgstr ""
+"サイトの画像が読み込めないとき(ファイル削除、外部リンク切れ)、訪問者には壊れ"
+"たアイコンの代わりにフォールバック画像が表示されます。"
 
 #: includes/Services/TranslationStrings.php:381
 msgid ""
 "When enabled, generated alt text is shown for review with accept/reject "
 "buttons before applying. Works in the Gutenberg editor and Kadence blocks."
-msgstr "有効にすると、生成された代替テキストは適用前に承認/却下ボタン付きで確認できます。Gutenbergエディターと Kadenceブロックで動作します。"
+msgstr ""
+"有効にすると、生成された代替テキストは適用前に承認/却下ボタン付きで確認できま"
+"す。Gutenbergエディターと Kadenceブロックで動作します。"
 
 #: includes/Services/TranslationStrings.php:382
 msgid ""
 "When enabled, generated titles are shown for review with accept/reject "
 "buttons before applying. Works in the Gutenberg editor and Kadence blocks."
-msgstr "有効にすると、生成されたタイトルは適用前に承認/却下ボタン付きで確認できます。GutenbergエディターとKadenceブロックで動作します。"
+msgstr ""
+"有効にすると、生成されたタイトルは適用前に承認/却下ボタン付きで確認できます。"
+"GutenbergエディターとKadenceブロックで動作します。"
 
 #: includes/Services/TranslationStrings.php:383
 msgid ""
 "Which fields are pre-selected in the Media Library bulk picker (you can "
 "still change them per action)."
-msgstr "メディアライブラリの一括セレクターで事前に選択されるフィールドです(操作ごとに変更できます)。"
+msgstr ""
+"メディアライブラリの一括セレクターで事前に選択されるフィールドです(操作ごとに"
+"変更できます)。"
 
 #: includes/Services/TranslationStrings.php:384
 msgid "WordPress AI Client is not available"
@@ -2210,7 +2340,10 @@ msgid ""
 "Wraps images in a <picture> tag so supporting browsers load the WebP/AVIF "
 "copy, with the original as automatic fallback. Off by default — enable after "
 "converting your images."
-msgstr "画像を<picture>タグで包み、対応ブラウザーにはWebP/AVIFコピーを、それ以外には元画像を自動的に配信します。初期状態ではオフです — 画像の変換後に有効化してください。"
+msgstr ""
+"画像を<picture>タグで包み、対応ブラウザーにはWebP/AVIFコピーを、それ以外には"
+"元画像を自動的に配信します。初期状態ではオフです — 画像の変換後に有効化してく"
+"ださい。"
 
 #: includes/Services/TranslationStrings.php:388
 msgid "Write a title for this image. Max {max_length} characters..."
@@ -2222,26 +2355,35 @@ msgstr "この画像のタイトルを書いてください。最大{max_length}
 msgid ""
 "Your saved %1$s key (%2$s) is kept as a fallback — used if you turn off the "
 "WordPress AI Client."
-msgstr "保存済みの%1$sキー(%2$s)はフォールバックとして保持され、WordPress AIクライアントをオフにしたときに使われます。"
+msgstr ""
+"保存済みの%1$sキー(%2$s)はフォールバックとして保持され、WordPress AIクライア"
+"ントをオフにしたときに使われます。"
 
 #: includes/Services/TranslationStrings.php:391
 msgid ""
 "Your server cannot create AVIF images. AVIF needs PHP 8.1+ (GD) or an "
 "Imagick build with AVIF support — ask your host."
-msgstr "このサーバーではAVIF画像を作成できません。AVIFにはPHP 8.1以降(GD)またはAVIF対応のImagickが必要です — ホスティング会社にお問い合わせください。"
+msgstr ""
+"このサーバーではAVIF画像を作成できません。AVIFにはPHP 8.1以降(GD)またはAVIF対"
+"応のImagickが必要です — ホスティング会社にお問い合わせください。"
 
 #: includes/Services/TranslationStrings.php:392
 msgid ""
 "Your server cannot create WebP images (neither Imagick nor GD supports it). "
 "Ask your host to enable WebP support."
-msgstr "このサーバーではWebP画像を作成できません(ImagickもGDも未対応)。ホスティング会社にWebP対応の有効化を依頼してください。"
+msgstr ""
+"このサーバーではWebP画像を作成できません(ImagickもGDも未対応)。ホスティング会"
+"社にWebP対応の有効化を依頼してください。"
 
 #: includes/Services/TranslationStrings.php:393
 msgid ""
 "Your server supports next-gen image formats. ImageCraft can create WebP "
 "copies beside your originals and serve them automatically — nothing is "
 "overwritten, fully reversible."
-msgstr "このサーバーは次世代画像フォーマットに対応しています。ImageCraftは元画像の隣にWebPコピーを作成して自動配信できます — 何も上書きされず、完全に元に戻せます。"
+msgstr ""
+"このサーバーは次世代画像フォーマットに対応しています。ImageCraftは元画像の隣"
+"にWebPコピーを作成して自動配信できます — 何も上書きされず、完全に元に戻せま"
+"す。"
 
 #: includes/Services/TranslationStrings.php:394
 msgid "always allowed"
@@ -2267,13 +2409,17 @@ msgstr "例: 60"
 msgid ""
 "e.g. Generate alt text describing the subject, colors, and setting. Do not "
 "start with 'Image of'. Return only the alt text."
-msgstr "例: 被写体、色、背景を説明する代替テキストを生成してください。「〜の画像」で始めないでください。代替テキストのみを返してください。"
+msgstr ""
+"例: 被写体、色、背景を説明する代替テキストを生成してください。「〜の画像」で"
+"始めないでください。代替テキストのみを返してください。"
 
 #: includes/Services/TranslationStrings.php:400
 msgid ""
 "e.g. Generate product alt text with the product name, visible features, and "
 "use case. Do not start with 'Image of'. Return only the alt text."
-msgstr "例: 商品名、見た目の特徴、使用シーンを含む商品の代替テキストを生成してください。「〜の画像」で始めないでください。代替テキストのみを返してください。"
+msgstr ""
+"例: 商品名、見た目の特徴、使用シーンを含む商品の代替テキストを生成してくださ"
+"い。「〜の画像」で始めないでください。代替テキストのみを返してください。"
 
 #: includes/Services/TranslationStrings.php:401
 msgid "images in your media library"
@@ -2439,7 +2585,9 @@ msgstr "WooCommerce向け"
 msgid ""
 "Turn a standard WooCommerce store into a proper trade store — one pricing "
 "pipeline, no surprise prices at checkout."
-msgstr "標準のWooCommerceストアを本格的な卸売ストアに — 価格パイプラインは1つ、チェックアウトでの価格サプライズはありません。"
+msgstr ""
+"標準のWooCommerceストアを本格的な卸売ストアに — 価格パイプラインは1つ、チェッ"
+"クアウトでの価格サプライズはありません。"
 
 #: includes/Services/TranslationStrings.php:455
 msgid "Customer group pricing (percentage, amount off or fixed)"
@@ -2793,7 +2941,8 @@ msgstr "アクセシビリティのために画像を説明してください...
 
 #: includes/Services/TranslationStrings.php:582
 msgid "Alternative text helps describe the image for screen readers and SEO."
-msgstr "代替テキストはスクリーンリーダーとSEOのために画像を説明するのに役立ちます。"
+msgstr ""
+"代替テキストはスクリーンリーダーとSEOのために画像を説明するのに役立ちます。"
 
 #: includes/Services/TranslationStrings.php:583
 msgid "Open in WordPress Media Library"
@@ -2845,7 +2994,8 @@ msgstr "一括ジョブを開始できませんでした"
 
 #: includes/Services/TranslationStrings.php:598
 msgid "Alt text generated. Review and click Update to save."
-msgstr "代替テキストを生成しました。確認して「更新」をクリックすると保存されます。"
+msgstr ""
+"代替テキストを生成しました。確認して「更新」をクリックすると保存されます。"
 
 #: includes/Services/TranslationStrings.php:599
 msgid "Failed to generate alt text"
@@ -2977,13 +3127,17 @@ msgstr "カスタムプロンプト"
 msgid ""
 "e.g. Generate alt text (max {max_length} characters) describing the subject, "
 "colors, and setting. Do not start with 'Image of'. Return only the alt text."
-msgstr "例: 被写体、色、背景を説明する代替テキスト(最大{max_length}文字)を生成してください。「〜の画像」で始めないでください。代替テキストのみを返してください。"
+msgstr ""
+"例: 被写体、色、背景を説明する代替テキスト(最大{max_length}文字)を生成してく"
+"ださい。「〜の画像」で始めないでください。代替テキストのみを返してください。"
 
 #: includes/Services/TranslationStrings.php:642
 msgid ""
 "Use {max_length} as a placeholder for your max character setting. Product "
 "context is added automatically for WooCommerce images."
-msgstr "最大文字数のプレースホルダーとして{max_length}を使えます。WooCommerce画像には商品コンテキストが自動的に追加されます。"
+msgstr ""
+"最大文字数のプレースホルダーとして{max_length}を使えます。WooCommerce画像には"
+"商品コンテキストが自動的に追加されます。"
 
 #: includes/Services/TranslationStrings.php:643
 msgid "Max Character Length"
@@ -3307,7 +3461,9 @@ msgstr "アップロード時にファイル名を自動変更"
 
 #: includes/Services/TranslationStrings.php:725
 msgid "Rename uploaded files to SEO-friendly names based on generated alt text"
-msgstr "生成された代替テキストに基づき、アップロードファイルをSEOに適した名前に変更します"
+msgstr ""
+"生成された代替テキストに基づき、アップロードファイルをSEOに適した名前に変更し"
+"ます"
 
 #: includes/Services/TranslationStrings.php:726
 msgid "Max Filename Length"
@@ -3390,19 +3546,26 @@ msgid ""
 "e.g. Generate product alt text (max {max_length} characters) with the "
 "product name, visible features, and use case. Do not start with 'Image of'. "
 "Return only the alt text."
-msgstr "例: 商品名、見た目の特徴、使用シーンを含む商品の代替テキスト(最大{max_length}文字)を生成してください。「〜の画像」で始めないでください。代替テキストのみを返してください。"
+msgstr ""
+"例: 商品名、見た目の特徴、使用シーンを含む商品の代替テキスト(最大{max_length}"
+"文字)を生成してください。「〜の画像」で始めないでください。代替テキストのみを"
+"返してください。"
 
 #: includes/Services/TranslationStrings.php:750
 msgid ""
 "Use {max_length} as a placeholder. Product name, category, and SKU are "
 "automatically included as context."
-msgstr "プレースホルダーとして{max_length}を使えます。商品名、カテゴリー、SKUが自動的にコンテキストとして含まれます。"
+msgstr ""
+"プレースホルダーとして{max_length}を使えます。商品名、カテゴリー、SKUが自動的"
+"にコンテキストとして含まれます。"
 
 #: includes/Services/TranslationStrings.php:751
 msgid ""
 "WooCommerce is not installed. Install WooCommerce to access product image "
 "optimization features."
-msgstr "WooCommerceがインストールされていません。商品画像の最適化機能を使うにはWooCommerceをインストールしてください。"
+msgstr ""
+"WooCommerceがインストールされていません。商品画像の最適化機能を使うには"
+"WooCommerceをインストールしてください。"
 
 #: includes/Services/TranslationStrings.php:752
 msgid "Save Settings"
@@ -3472,7 +3635,9 @@ msgstr "ImageCraftへようこそ"
 msgid ""
 "The all-in-one image toolkit — AI alt text, titles & descriptions, local "
 "image compression, WebP conversion, and image fallbacks."
-msgstr "オールインワン画像ツールキット — AIによる代替テキスト・タイトル・説明、ローカル画像圧縮、WebP変換、フォールバック画像。"
+msgstr ""
+"オールインワン画像ツールキット — AIによる代替テキスト・タイトル・説明、ローカ"
+"ル画像圧縮、WebP変換、フォールバック画像。"
 
 #: includes/Services/TranslationStrings.php:780
 msgid "AI Image SEO"
@@ -3482,7 +3647,9 @@ msgstr "AI画像SEO"
 msgid ""
 "Alt text, titles & descriptions with your own AI key — pay your provider "
 "directly, no markup"
-msgstr "自分のAIキーで代替テキスト・タイトル・説明を生成 — プロバイダーに直接支払い、上乗せなし"
+msgstr ""
+"自分のAIキーで代替テキスト・タイトル・説明を生成 — プロバイダーに直接支払い、"
+"上乗せなし"
 
 #: includes/Services/TranslationStrings.php:782
 msgid "Works without AI"
@@ -3491,7 +3658,8 @@ msgstr "AIなしでも使えます"
 #: includes/Services/TranslationStrings.php:783
 msgid ""
 "Compression, WebP conversion & fallbacks run locally — no API key, no account"
-msgstr "圧縮・WebP変換・フォールバックはローカルで動作 — APIキー不要、アカウント不要"
+msgstr ""
+"圧縮・WebP変換・フォールバックはローカルで動作 — APIキー不要、アカウント不要"
 
 #: includes/Services/TranslationStrings.php:784
 msgid "Free to start"
@@ -3518,7 +3686,8 @@ msgstr "AIプロバイダーを選択"
 #: includes/Services/TranslationStrings.php:791
 msgid ""
 "Approximate cost per image, billed by the provider at their standard rates."
-msgstr "画像1枚あたりのおおよその費用です。プロバイダーの標準料金で請求されます。"
+msgstr ""
+"画像1枚あたりのおおよその費用です。プロバイダーの標準料金で請求されます。"
 
 #: includes/Services/TranslationStrings.php:792
 msgid "Recommended"
@@ -3588,7 +3757,9 @@ msgstr "WordPress AIクライアントを検出しました"
 msgid ""
 "Your site has a WordPress AI connector configured. You can use it instead of "
 "entering your own API key — no key storage needed."
-msgstr "サイトにWordPress AIコネクターが設定されています。自分のAPIキーを入力する代わりに利用できます — キーの保存は不要です。"
+msgstr ""
+"サイトにWordPress AIコネクターが設定されています。自分のAPIキーを入力する代わ"
+"りに利用できます — キーの保存は不要です。"
 
 #: includes/Services/TranslationStrings.php:811
 msgid "API Key Detected in wp-config.php"
@@ -3671,7 +3842,10 @@ msgid ""
 "Pick one image and ImageCraft will show it whenever an image on your site is "
 "broken, and as the featured image for posts that have none. Nothing is "
 "written to your content — turn it off anytime."
-msgstr "画像を1枚選ぶと、サイトの画像がリンク切れのときにImageCraftがその画像を表示し、アイキャッチのない投稿ではアイキャッチとして使います。コンテンツには何も書き込まれません — いつでもオフにできます。"
+msgstr ""
+"画像を1枚選ぶと、サイトの画像がリンク切れのときにImageCraftがその画像を表示"
+"し、アイキャッチのない投稿ではアイキャッチとして使います。コンテンツには何も"
+"書き込まれません — いつでもオフにできます。"
 
 #: includes/Services/TranslationStrings.php:833
 msgid "Your fallback image"
@@ -3681,7 +3855,9 @@ msgstr "フォールバック画像"
 msgid ""
 "Tip: use your logo or a simple branded placeholder. You can fine-tune "
 "everything later in Settings → Image Fallbacks."
-msgstr "ヒント: ロゴやシンプルなブランドプレースホルダーがおすすめです。後から設定→フォールバック画像で細かく調整できます。"
+msgstr ""
+"ヒント: ロゴやシンプルなブランドプレースホルダーがおすすめです。後から設定→"
+"フォールバック画像で細かく調整できます。"
 
 #: includes/Services/TranslationStrings.php:835
 msgid "Enable & Finish"
@@ -3707,7 +3883,9 @@ msgstr "セットアップ完了!"
 msgid ""
 "Generate alt text, compress images, convert to WebP, and audit your media "
 "library — all from your dashboard."
-msgstr "代替テキストの生成、画像の圧縮、WebP変換、メディアライブラリの監査 — すべてダッシュボードから行えます。"
+msgstr ""
+"代替テキストの生成、画像の圧縮、WebP変換、メディアライブラリの監査 — すべて"
+"ダッシュボードから行えます。"
 
 #: includes/Services/TranslationStrings.php:843
 msgid "Go to Dashboard"
@@ -4047,7 +4225,9 @@ msgstr "SEO連携を有効化"
 msgid ""
 "When enabled, the plugin will read SEO data from your SEO plugin to enhance "
 "alt text generation."
-msgstr "有効にすると、SEOプラグインのSEOデータを読み取って代替テキスト生成を強化します。"
+msgstr ""
+"有効にすると、SEOプラグインのSEOデータを読み取って代替テキスト生成を強化しま"
+"す。"
 
 #: includes/Services/TranslationStrings.php:956
 msgid "Include focus keyphrase in alt text"
@@ -4058,13 +4238,18 @@ msgid ""
 "The AI will naturally incorporate the focus keyphrase from the parent post/"
 "page into the generated alt text. The image must be attached to a post that "
 "has a focus keyphrase set."
-msgstr "AIは親投稿/ページのフォーカスキーフレーズを自然に代替テキストへ組み込みます。画像はフォーカスキーフレーズが設定された投稿に添付されている必要があります。"
+msgstr ""
+"AIは親投稿/ページのフォーカスキーフレーズを自然に代替テキストへ組み込みます。"
+"画像はフォーカスキーフレーズが設定された投稿に添付されている必要があります。"
 
 #: includes/Services/TranslationStrings.php:958
 msgid ""
 "No supported SEO plugin detected. Install Yoast SEO, Rank Math, All in One "
 "SEO, or SEOPress to enable focus keyphrase integration."
-msgstr "対応するSEOプラグインが見つかりません。フォーカスキーフレーズ連携を有効にするには、Yoast SEO、Rank Math、All in One SEO、SEOPressのいずれかをインストールしてください。"
+msgstr ""
+"対応するSEOプラグインが見つかりません。フォーカスキーフレーズ連携を有効にする"
+"には、Yoast SEO、Rank Math、All in One SEO、SEOPressのいずれかをインストール"
+"してください。"
 
 #: includes/Services/TranslationStrings.php:964
 msgid "Help"
@@ -4088,7 +4273,9 @@ msgstr "ご質問、問題、機能のご要望など、サポートチームが
 msgid ""
 "Whether you need help setting up your API key, configuring WooCommerce, or "
 "troubleshooting batch processing — we've got you covered."
-msgstr "APIキーの設定、WooCommerceの設定、一括処理のトラブルシューティング — 何でもお任せください。"
+msgstr ""
+"APIキーの設定、WooCommerceの設定、一括処理のトラブルシューティング — 何でもお"
+"任せください。"
 
 #: includes/Services/TranslationStrings.php:969
 msgid "Contact Support"
@@ -4102,13 +4289,16 @@ msgstr "応援をお願いします"
 msgid ""
 "Your love is our motivation! A quick review helps us grow and keep improving "
 "ImageCraft for everyone."
-msgstr "皆さまの応援が私たちの原動力です!短いレビューが、ImageCraftをみんなのために改善し続ける助けになります。"
+msgstr ""
+"皆さまの応援が私たちの原動力です!短いレビューが、ImageCraftをみんなのために改"
+"善し続ける助けになります。"
 
 #: includes/Services/TranslationStrings.php:972
 msgid ""
 "If ImageCraft has helped your workflow, please take a moment to share your "
 "experience on WordPress.org."
-msgstr "ImageCraftがお役に立ちましたら、WordPress.orgでぜひ体験を共有してください。"
+msgstr ""
+"ImageCraftがお役に立ちましたら、WordPress.orgでぜひ体験を共有してください。"
 
 #: includes/Services/TranslationStrings.php:974
 msgid "Quick Links"
@@ -4170,4 +4360,14 @@ msgstr "ImageCraftのセットアップと使い方を数分の動画でご覧�
 #: includes/Services/UsageLimiter.php:200
 #, php-format
 msgid "Daily free limit of %d reached. Upgrade to Pro for unlimited usage."
-msgstr "1日の無料上限(%d回)に達しました。Proにアップグレードすると無制限に使えます。"
+msgstr ""
+"1日の無料上限(%d回)に達しました。Proにアップグレードすると無制限に使えます。"
+
+#~ msgid ""
+#~ "All-in-one image toolkit: AI-powered alt text & titles, smart image "
+#~ "compression, SEO file renaming, and image SEO audit. Supports WordPress "
+#~ "7.0 native AI Client, Anthropic, OpenAI and Gemini."
+#~ msgstr ""
+#~ "オールインワン画像ツールキット:AIによる代替テキストとタイトル生成、スマー"
+#~ "トな画像圧縮、SEO向けファイル名変更、画像SEO監査。WordPress 7.0ネイティブ"
+#~ "AIクライアント、Anthropic、OpenAI、Geminiに対応。"
