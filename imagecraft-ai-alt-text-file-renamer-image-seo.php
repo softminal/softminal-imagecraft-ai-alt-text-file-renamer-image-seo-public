@@ -18,6 +18,18 @@ if (!defined('ABSPATH')) {
 }
 
 require_once plugin_dir_path(__FILE__) . 'config/constants.php';
+
+// Load shipped translations from /languages. Without this call the bundled
+// .mo files are never read — WP only auto-loads wp.org language packs from
+// WP_LANG_DIR (which still take priority when present). Hooked on init per
+// the WP 6.7+ "textdomain loaded too early" requirement.
+add_action('init', static function () {
+    load_plugin_textdomain(
+        'imagecraft-ai-alt-text-file-renamer-image-seo',
+        false,
+        dirname(plugin_basename(__FILE__)) . '/languages'
+    );
+});
 require_once ICAIS_DIR . 'includes/Install.php';
 require_once ICAIS_DIR . 'includes/App.php';
 require_once ICAIS_DIR . 'includes/Services/Database.php';

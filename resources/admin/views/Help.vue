@@ -168,16 +168,7 @@
     <div class="bg-white rounded-lg shadow border p-6 mt-6">
       <h2 class="text-lg font-semibold mb-4">{{ $t('Video Tutorial') }}</h2>
       <p class="text-gray-600 text-sm mb-4">{{ $t('Watch how to set up and use ImageCraft in just a few minutes.') }}</p>
-      <div class="relative w-full" style="padding-bottom: 56.25%;">
-        <iframe
-          class="absolute inset-0 w-full h-full rounded-lg"
-          src="https://www.youtube.com/embed/VVhnzSmrjLE"
-          title="How to Use ImageCraft"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
-      </div>
+      <VideoEmbed video-id="VVhnzSmrjLE" :title="$t('How to Use ImageCraft')" />
     </div>
   </div>
 </template>
@@ -186,6 +177,7 @@
 import { Check, ExternalLink } from 'lucide-vue-next'
 import { useAsset } from '../composables/useAsset'
 import { $t } from '../utils/i18n'
+import VideoEmbed from '../components/VideoEmbed.vue'
 
 const { asset } = useAsset()
 

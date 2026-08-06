@@ -151,7 +151,6 @@ router.beforeEach(async (to, from, next) => {
             isComplete ? next() : next('/wizard');
         }
     } catch {
-        // If API fails, allow navigation (might be first load)
         next();
     }
 });

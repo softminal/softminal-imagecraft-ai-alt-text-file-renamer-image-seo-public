@@ -1,262 +1,227 @@
 <template>
   <div class="setup-wizard max-w-4xl mx-auto p-6">
+    <!-- Step indicator (steps 2+3 are one "AI setup" stage; skip path bypasses it) -->
+    <nav class="flex items-center justify-center gap-2 mb-10" :aria-label="$t('Setup progress')">
+      <template v-for="(stage, i) in stages" :key="stage">
+        <div class="flex items-center gap-2">
+          <span
+            :class="[
+              'w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors',
+              currentStage > i + 1 ? 'bg-ic-success text-white'
+                : currentStage === i + 1 ? 'bg-brand text-white'
+                : 'bg-ic-card text-ic-soft border border-ic-border',
+            ]"
+            aria-hidden="true"
+          >
+            <Check v-if="currentStage > i + 1" class="w-3.5 h-3.5" />
+            <template v-else>{{ i + 1 }}</template>
+          </span>
+          <span
+            :class="[
+              'text-xs font-medium hidden sm:inline',
+              currentStage === i + 1 ? 'text-ic-text' : 'text-ic-soft',
+            ]"
+          >{{ stage }}</span>
+        </div>
+        <span v-if="i < stages.length - 1" class="w-8 h-px bg-ic-border" aria-hidden="true"></span>
+      </template>
+    </nav>
+
+    <!-- ============ Step 1: Welcome ============ -->
     <div v-if="currentStep === 1" class="welcome-step">
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ $t('Welcome to AI Alt Text Generator') }}</h1>
-        <p class="text-lg text-gray-600 mb-8">
-          {{ $t('Generate accessible alt text for your images using AI. You provide your own API key with no middleman fees.') }}
+        <h1 class="text-3xl font-bold text-ic-text mb-3">{{ $t('Welcome to ImageCraft') }}</h1>
+        <p class="text-lg text-ic-soft max-w-2xl mx-auto!">
+          {{ $t('The all-in-one image toolkit — AI alt text, titles & descriptions, local image compression, WebP conversion, and image fallbacks.') }}
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <div class="text-4xl mb-4">🚀</div>
-          <h3 class="font-semibold mb-2">{{ $t('Easy Setup') }}</h3>
-          <p class="text-sm text-gray-600">{{ $t('Get started in 3 minutes') }}</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-ic-card p-5 rounded-card shadow-card border border-ic-border">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-ic bg-pillar-seo-soft text-pillar-seo mb-3">
+            <Sparkles class="w-4.5 h-4.5" aria-hidden="true" />
+          </span>
+          <h3 class="font-semibold text-ic-text mb-1">{{ $t('AI Image SEO') }}</h3>
+          <p class="text-sm text-ic-soft">{{ $t('Alt text, titles & descriptions with your own AI key — pay your provider directly, no markup') }}</p>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <div class="text-4xl mb-4">💰</div>
-          <h3 class="font-semibold mb-2">{{ $t('BYOK Model') }}</h3>
-          <p class="text-sm text-gray-600">{{ $t('Use your own API key') }}</p>
+        <div class="bg-ic-card p-5 rounded-card shadow-card border border-ic-border">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-ic bg-pillar-perf-soft text-pillar-perf mb-3">
+            <Gauge class="w-4.5 h-4.5" aria-hidden="true" />
+          </span>
+          <h3 class="font-semibold text-ic-text mb-1">{{ $t('Works without AI') }}</h3>
+          <p class="text-sm text-ic-soft">{{ $t('Compression, WebP conversion & fallbacks run locally — no API key, no account') }}</p>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow border">
-          <div class="text-4xl mb-4">♾️</div>
-          <h3 class="font-semibold mb-2">{{ $t('Unlimited') }}</h3>
-          <p class="text-sm text-gray-600">{{ $t('Process as many images as you want') }}</p>
+        <div class="bg-ic-card p-5 rounded-card shadow-card border border-ic-border">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-ic bg-brand-soft text-brand mb-3">
+            <Zap class="w-4.5 h-4.5" aria-hidden="true" />
+          </span>
+          <h3 class="font-semibold text-ic-text mb-1">{{ $t('Free to start') }}</h3>
+          <p class="text-sm text-ic-soft">{{ $t('50 free actions per day across AI generation and compression — Pro removes the limit') }}</p>
         </div>
       </div>
 
       <div class="text-center mb-8">
-        <button
-          @click="currentStep = 2"
-          class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-        >
-          {{ $t('Get Started') }}
-        </button>
+        <UiButton size="md" @click="currentStep = 2">
+          {{ $t('Set up AI generation') }}
+        </UiButton>
         <div class="mt-4">
           <button
-            @click="skipWizard"
+            @click="skipToFallbacks"
             :disabled="saving"
-            class="text-sm text-gray-500 hover:text-gray-700 underline disabled:opacity-50"
+            class="text-sm text-ic-soft hover:text-ic-text underline disabled:opacity-50 cursor-pointer"
           >
-            {{ $t('Skip — I only want image compression (no API key needed)') }}
+            {{ $t('Start without AI — compression, WebP & fallbacks need no key') }}
           </button>
         </div>
       </div>
 
-      <!-- Video Tutorial -->
-      <div class="bg-white rounded-lg shadow border p-6">
-        <h3 class="font-semibold mb-3 text-center">{{ $t('Watch How It Works') }}</h3>
-        <div class="relative w-full" style="padding-bottom: 56.25%;">
-          <iframe
-            class="absolute inset-0 w-full h-full rounded-lg"
-            src="https://www.youtube.com/embed/VVhnzSmrjLE"
-            title="How to Use ImageCraft"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
-        </div>
+      <!-- Video tutorial: click-to-load, nothing external until the user asks -->
+      <div class="bg-ic-card rounded-card shadow-card border border-ic-border p-5">
+        <h3 class="font-semibold text-ic-text mb-3 text-center">{{ $t('Watch How It Works') }}</h3>
+        <VideoEmbed video-id="VVhnzSmrjLE" :title="$t('How to Use ImageCraft')" />
       </div>
     </div>
 
+    <!-- ============ Step 2: Provider ============ -->
     <div v-if="currentStep === 2" class="provider-step">
-      <h2 class="text-2xl font-bold mb-6">{{ $t('Choose Your AI Provider') }}</h2>
+      <h2 class="text-2xl font-bold text-ic-text mb-2">{{ $t('Choose Your AI Provider') }}</h2>
+      <p class="text-sm text-ic-soft mb-6">{{ $t('Approximate cost per image, billed by the provider at their standard rates.') }}</p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div
-          @click="selectedProvider = 'anthropic'"
-          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'anthropic' ? 'border-blue-600 bg-blue-50' : 'bg-white shadow border-gray-200']"
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8" role="radiogroup" :aria-label="$t('Choose Your AI Provider')">
+        <button
+          v-for="p in providerCards"
+          :key="p.id"
+          type="button"
+          role="radio"
+          :aria-checked="selectedProvider === p.id"
+          @click="selectedProvider = p.id"
+          :class="['p-5 rounded-card border-2 text-left transition-colors cursor-pointer outline-hidden focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-1',
+                   selectedProvider === p.id ? 'border-brand bg-brand-soft' : 'bg-ic-card shadow-card border-ic-border hover:border-brand']"
         >
-          <h3 class="font-bold text-lg mb-2">{{ $t('Anthropic Claude') }}</h3>
-          <p class="text-sm text-gray-600 mb-4">{{ $t('Low cost with quality results') }}</p>
-          <div class="text-xs text-gray-500">
-            <div>{{ $t('Best balance of quality and cost') }}</div>
+          <div class="flex items-center justify-between mb-1.5">
+            <h3 class="font-bold text-ic-text">{{ $t(p.name) }}</h3>
+            <UiBadge v-if="p.badge" tone="info">{{ $t(p.badge) }}</UiBadge>
           </div>
-        </div>
-
-        <div
-          @click="selectedProvider = 'openai'"
-          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'openai' ? 'border-blue-600 bg-blue-50' : 'bg-white shadow border-gray-200']"
-        >
-          <h3 class="font-bold text-lg mb-2">{{ $t('OpenAI GPT-4') }}</h3>
-          <p class="text-sm text-gray-600 mb-4">{{ $t('Great quality, widely used') }}</p>
-          <div class="text-xs text-gray-500">
-            <div>{{ $t('Excellent results, higher cost') }}</div>
-          </div>
-        </div>
-
-        <div
-          @click="selectedProvider = 'gemini'"
-          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'gemini' ? 'border-blue-600 bg-blue-50' : 'bg-white shadow border-gray-200']"
-        >
-          <h3 class="font-bold text-lg mb-2">{{ $t('Google Gemini') }}</h3>
-          <p class="text-sm text-gray-600 mb-4">{{ $t("Google's AI vision model") }}</p>
-          <div class="text-xs text-gray-500">
-            <div>{{ $t('Most affordable option') }}</div>
-          </div>
-        </div>
-
-        <!-- WordPress Native AI Connector — only when a configured connector is detected -->
-        <div
-          v-if="wp7Available"
-          @click="selectedProvider = 'wp7'"
-          :class="['provider-card p-6 rounded-lg border-2 cursor-pointer transition',
-                   selectedProvider === 'wp7' ? 'border-blue-600 bg-blue-50' : 'bg-white shadow border-gray-200']"
-        >
-          <h3 class="font-bold text-lg mb-2">{{ $t('WordPress Native AI Connector') }}</h3>
-          <p class="text-sm text-gray-600 mb-4">{{ $t("Use your site's built-in AI — no API key needed") }}</p>
-          <div class="text-xs text-gray-500">
-            <div>{{ $t('Managed by WordPress, nothing to configure') }}</div>
-          </div>
-        </div>
-
+          <p class="text-sm text-ic-soft mb-2">{{ $t(p.tagline) }}</p>
+          <p class="text-xs text-ic-soft">{{ $t(p.cost) }}</p>
+        </button>
       </div>
 
       <div class="flex justify-between items-center">
-        <button @click="currentStep = 1" class="text-gray-600 hover:text-gray-800">
+        <button @click="currentStep = 1" class="text-ic-soft hover:text-ic-text cursor-pointer">
           ← {{ $t('Back') }}
         </button>
         <div class="flex items-center gap-4">
           <button
-            @click="skipWizard"
+            @click="skipToFallbacks"
             :disabled="saving"
-            class="text-sm text-gray-500 hover:text-gray-700 underline disabled:opacity-50"
+            class="text-sm text-ic-soft hover:text-ic-text underline disabled:opacity-50 cursor-pointer"
           >
             {{ $t('Skip for now') }}
           </button>
-          <button
-            @click="currentStep = 3"
-            :disabled="!selectedProvider"
-            class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
+          <UiButton :disabled="!selectedProvider" @click="currentStep = 3">
             {{ $t('Continue') }}
-          </button>
+          </UiButton>
         </div>
       </div>
     </div>
 
+    <!-- ============ Step 3: API key ============ -->
     <div v-if="currentStep === 3" class="api-key-step">
-      <h2 class="text-2xl font-bold mb-6">{{ $t('Add Your API Key') }}</h2>
+      <h2 class="text-2xl font-bold text-ic-text mb-6">{{ $t('Add Your API Key') }}</h2>
 
       <!-- WordPress Native AI Connector selected — no key needed -->
       <div v-if="selectedProvider === 'wp7'" class="mb-6">
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <div class="bg-ic-success-soft border border-ic-border rounded-ic p-4 mb-4">
           <div class="flex items-center gap-2 mb-2">
-            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <span class="font-semibold text-green-800">{{ $t('WordPress AI Client detected') }}</span>
+            <ShieldCheck class="w-5 h-5 text-ic-success" aria-hidden="true" />
+            <span class="font-semibold text-ic-text">{{ $t('WordPress AI Client detected') }}</span>
           </div>
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-ic-soft">
             {{ $t('Your site has a WordPress AI connector configured. You can use it instead of entering your own API key — no key storage needed.') }}
           </p>
         </div>
 
         <div v-if="testResult" class="mb-4">
-          <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded">
+          <div v-if="testResult.success" class="bg-ic-success-soft text-ic-success border border-ic-border p-3 rounded-ic">
             {{ $t('Connection successful!') }}
           </div>
-          <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded">
+          <div v-else class="bg-ic-danger-soft text-ic-danger border border-ic-border p-3 rounded-ic">
             {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
           </div>
         </div>
 
         <div class="flex justify-between">
-          <button @click="currentStep = 2" class="text-gray-600 hover:text-gray-800">
+          <button @click="currentStep = 2" class="text-ic-soft hover:text-ic-text cursor-pointer">
             ← {{ $t('Back') }}
           </button>
           <div class="space-x-3">
-            <button
-              @click="testConnection"
-              :disabled="testing"
-              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50"
-            >
+            <UiButton variant="secondary" :disabled="testing" :loading="testing" @click="testConnection">
               {{ testing ? $t('Testing...') : $t('Test Connection') }}
-            </button>
-            <button
-              @click="saveWP7AndComplete"
-              :disabled="!testResult?.success || saving"
-              class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
-            >
+            </UiButton>
+            <UiButton :disabled="!testResult?.success || saving" :loading="saving" @click="saveWP7AndComplete">
               {{ saving ? $t('Saving...') : $t('Save & Continue') }}
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
 
       <!-- Config key detected -->
       <div v-else-if="configApiKey" class="mb-6">
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+        <div class="bg-ic-success-soft border border-ic-border rounded-ic p-4 mb-4">
           <div class="flex items-center gap-2 mb-2">
-            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <span class="font-semibold text-green-800">{{ $t('API Key Detected in wp-config.php') }}</span>
+            <ShieldCheck class="w-5 h-5 text-ic-success" aria-hidden="true" />
+            <span class="font-semibold text-ic-text">{{ $t('API Key Detected in wp-config.php') }}</span>
           </div>
-          <p class="text-sm text-gray-600">
-            {{ $t('Your API key is defined via the') }} <code class="bg-white px-1 rounded">ICAIS_API_KEY</code> {{ $t('constant. No need to enter it manually.') }}
+          <p class="text-sm text-ic-soft">
+            {{ $t('Your API key is defined via the') }} <code class="bg-ic-muted px-1 rounded">ICAIS_API_KEY</code> {{ $t('constant. No need to enter it manually.') }}
           </p>
         </div>
 
         <div v-if="showModelSelector" class="mb-6">
-          <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
-          <select
-            v-model="currentSelectedModel"
-            class="icais-select w-full"
-          >
+          <label class="block text-sm font-medium text-ic-text mb-2">{{ $t('Model') }}</label>
+          <select v-model="currentSelectedModel" class="icais-select w-full">
             <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
           </select>
         </div>
 
         <div v-if="testResult" class="mb-4">
-          <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded">
+          <div v-if="testResult.success" class="bg-ic-success-soft text-ic-success border border-ic-border p-3 rounded-ic">
             {{ $t('Connection successful!') }}
           </div>
-          <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded">
+          <div v-else class="bg-ic-danger-soft text-ic-danger border border-ic-border p-3 rounded-ic">
             {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
           </div>
         </div>
 
         <div class="flex justify-between">
-          <button @click="currentStep = 2" class="text-gray-600 hover:text-gray-800">
+          <button @click="currentStep = 2" class="text-ic-soft hover:text-ic-text cursor-pointer">
             ← {{ $t('Back') }}
           </button>
           <div class="space-x-3">
-            <button
-              @click="testConnection"
-              :disabled="testing"
-              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50"
-            >
+            <UiButton variant="secondary" :disabled="testing" :loading="testing" @click="testConnection">
               {{ testing ? $t('Testing...') : $t('Test Connection') }}
-            </button>
-            <button
-              @click="saveConfigAndComplete"
-              :disabled="!testResult?.success || saving"
-              class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
-            >
+            </UiButton>
+            <UiButton :disabled="!testResult?.success || saving" :loading="saving" @click="saveConfigAndComplete">
               {{ saving ? $t('Saving...') : $t('Save & Continue') }}
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
 
       <!-- Manual key input -->
       <div v-else>
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <h3 class="font-semibold mb-2">{{ $t('How to get your API key:') }}</h3>
-          <ul class="list-disc list-inside text-sm space-y-1">
+        <div class="bg-brand-soft border border-ic-border rounded-ic p-4 mb-6">
+          <h3 class="font-semibold text-ic-text mb-2">{{ $t('How to get your API key:') }}</h3>
+          <ul class="list-disc list-inside text-sm text-ic-soft space-y-1">
             <li v-if="selectedProvider === 'anthropic'">
-              {{ $t('Visit') }} <a href="https://console.anthropic.com" target="_blank" class="text-blue-600 underline">console.anthropic.com</a>
+              {{ $t('Visit') }} <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" class="text-brand underline">console.anthropic.com</a>
             </li>
             <li v-if="selectedProvider === 'openai'">
-              {{ $t('Visit') }} <a href="https://platform.openai.com" target="_blank" class="text-blue-600 underline">platform.openai.com</a>
+              {{ $t('Visit') }} <a href="https://platform.openai.com" target="_blank" rel="noopener noreferrer" class="text-brand underline">platform.openai.com</a>
             </li>
             <li v-if="selectedProvider === 'gemini'">
-              {{ $t('Visit') }} <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-blue-600 underline">Google AI Studio</a>
+              {{ $t('Visit') }} <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-brand underline">Google AI Studio</a>
             </li>
             <li>{{ $t('Create an account and add credits') }}</li>
             <li>{{ $t('Generate an API key') }}</li>
@@ -265,79 +230,71 @@
         </div>
 
         <div v-if="showModelSelector" class="mb-6">
-          <label class="block text-sm font-medium mb-2">{{ $t('Model') }}</label>
-          <select
-            v-model="currentSelectedModel"
-            class="icais-select w-full"
-          >
+          <label class="block text-sm font-medium text-ic-text mb-2">{{ $t('Model') }}</label>
+          <select v-model="currentSelectedModel" class="icais-select w-full">
             <option v-for="model in currentModels" :key="model" :value="model">{{ model }}</option>
           </select>
         </div>
 
         <div class="mb-6">
-          <label class="block text-sm font-medium mb-2">{{ $t('API Key') }}</label>
+          <label for="icais-wizard-api-key" class="block text-sm font-medium text-ic-text mb-2">{{ $t('API Key') }}</label>
           <input
+            id="icais-wizard-api-key"
             v-model="apiKey"
             type="password"
             class="icais-input w-full"
             :placeholder="$t('Enter your API key')"
           />
-          <p class="text-xs text-gray-500 mt-1">
+          <p class="text-xs text-ic-soft mt-1">
             {{ $t('You can also define your key in wp-config.php:') }}
-            <code class="bg-gray-100 px-1 rounded">define('ICAIS_API_KEY', 'your-key');</code>
+            <code class="bg-ic-muted px-1 rounded">define('ICAIS_API_KEY', 'your-key');</code>
           </p>
         </div>
 
         <div v-if="testResult" class="mb-4">
-          <div v-if="testResult.success" class="bg-green-50 border border-green-200 text-green-800 p-3 rounded">
+          <div v-if="testResult.success" class="bg-ic-success-soft text-ic-success border border-ic-border p-3 rounded-ic">
             {{ $t('Connection successful!') }}
           </div>
-          <div v-else class="bg-red-50 border border-red-200 text-red-800 p-3 rounded">
+          <div v-else class="bg-ic-danger-soft text-ic-danger border border-ic-border p-3 rounded-ic">
             {{ $t('Connection failed:') }} {{ testResult.error || testResult.message }}
           </div>
         </div>
 
         <div class="flex justify-between">
-          <button @click="currentStep = 2" class="text-gray-600 hover:text-gray-800">
+          <button @click="currentStep = 2" class="text-ic-soft hover:text-ic-text cursor-pointer">
             ← {{ $t('Back') }}
           </button>
           <div class="space-x-3">
-            <button
-              @click="testConnection"
-              :disabled="!apiKey || testing"
-              class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50"
-            >
+            <UiButton variant="secondary" :disabled="!apiKey || testing" :loading="testing" @click="testConnection">
               {{ testing ? $t('Testing...') : $t('Test Connection') }}
-            </button>
-            <button
-              @click="saveApiKey"
-              :disabled="!apiKey || !testResult?.success || saving"
-              class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
-            >
+            </UiButton>
+            <UiButton :disabled="!apiKey || !testResult?.success || saving" :loading="saving" @click="saveApiKey">
               {{ saving ? $t('Saving...') : $t('Save & Continue') }}
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Optional extra: Image Fallbacks (no API key needed — one picker, one click) -->
+    <!-- ============ Step 4: Image Fallbacks (optional, no key needed) ============ -->
     <div v-if="currentStep === 4" class="fallback-step">
       <div class="text-center mb-8">
-        <div class="text-5xl mb-4">🖼️</div>
-        <h2 class="text-2xl font-bold mb-2">{{ $t('One more thing — never show a broken image') }}</h2>
-        <p class="text-gray-600 max-w-xl mx-auto">
+        <span class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-pillar-perf-soft text-pillar-perf mb-4">
+          <ImageOff class="w-7 h-7" aria-hidden="true" />
+        </span>
+        <h2 class="text-2xl font-bold text-ic-text mb-2">{{ $t('One more thing — never show a broken image') }}</h2>
+        <p class="text-ic-soft max-w-xl mx-auto!">
           {{ $t('Pick one image and ImageCraft will show it whenever an image on your site is broken, and as the featured image for posts that have none. Nothing is written to your content — turn it off anytime.') }}
         </p>
       </div>
 
-      <div class="bg-white rounded-lg shadow border p-6 max-w-md mx-auto mb-8">
-        <label class="block text-sm font-medium mb-3">{{ $t('Your fallback image') }}</label>
+      <div class="bg-ic-card rounded-card shadow-card border border-ic-border p-5 max-w-md mx-auto mb-8">
+        <label class="block text-sm font-medium text-ic-text mb-3">{{ $t('Your fallback image') }}</label>
         <ImagePick
           :attachment-id="fallbackImageId"
           @pick="(id) => (fallbackImageId = id)"
         />
-        <p class="text-xs text-gray-500 mt-3">
+        <p class="text-xs text-ic-soft mt-3">
           {{ $t('Tip: use your logo or a simple branded placeholder. You can fine-tune everything later in Settings → Image Fallbacks.') }}
         </p>
       </div>
@@ -346,40 +303,41 @@
         <button
           @click="finishWizard(false)"
           :disabled="saving"
-          class="text-sm text-gray-500 hover:text-gray-700 underline disabled:opacity-50"
+          class="text-sm text-ic-soft hover:text-ic-text underline disabled:opacity-50 cursor-pointer"
         >
           {{ $t('Skip for now') }}
         </button>
-        <button
-          @click="finishWizard(true)"
-          :disabled="!fallbackImageId || saving"
-          class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <UiButton :disabled="!fallbackImageId || saving" :loading="saving" @click="finishWizard(true)">
           {{ saving ? $t('Saving...') : $t('Enable & Finish') }}
-        </button>
+        </UiButton>
       </div>
     </div>
 
+    <!-- ============ Step 5: Done ============ -->
     <div v-if="currentStep === 5" class="success-step text-center">
-      <div class="text-6xl mb-4">🎉</div>
-      <h2 class="text-2xl font-bold mb-4">{{ $t('Setup Complete!') }}</h2>
-      <p class="text-gray-600 mb-8">{{ $t("You're all set to start generating alt text for your images.") }}</p>
-      <button
-        @click="goToDashboard"
-        class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700"
-      >
+      <span class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-ic-success-soft text-ic-success mb-4">
+        <CheckCircle2 class="w-8 h-8" aria-hidden="true" />
+      </span>
+      <h2 class="text-2xl font-bold text-ic-text mb-4">{{ $t('Setup Complete!') }}</h2>
+      <p class="text-ic-soft mb-8 max-w-md mx-auto!">
+        {{ $t('Generate alt text, compress images, convert to WebP, and audit your media library — all from your dashboard.') }}
+      </p>
+      <UiButton size="md" @click="goToDashboard">
         {{ $t('Go to Dashboard') }}
-      </button>
+      </UiButton>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { Check, CheckCircle2, Gauge, ImageOff, ShieldCheck, Sparkles, Zap } from 'lucide-vue-next'
 import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
+import { UiBadge, UiButton } from '../@ui'
 import ImagePick from '../components/Settings/ImagePick.vue'
+import VideoEmbed from '../components/VideoEmbed.vue'
 
 const currentStep = ref(1)
 const fallbackImageId = ref(0)
@@ -392,6 +350,55 @@ const availableModels = ref({})
 const selectedModels = ref({})
 const configApiKey = ref(false)
 const wp7Available = ref(false)
+
+// Step indicator: steps 2+3 collapse into one "AI setup" stage.
+const stages = [$t('Welcome'), $t('AI setup'), $t('Fallbacks'), $t('Finish')]
+const currentStage = computed(() => {
+  if (currentStep.value === 1) return 1
+  if (currentStep.value <= 3) return 2
+  if (currentStep.value === 4) return 3
+  return 4
+})
+
+// Costs mirror the provider defaults (Haiku / GPT-4o mini / Gemini 2.5 Flash);
+// keep in sync with AIFactory defaults and the marketing-site FAQ.
+const baseProviders = [
+  {
+    id: 'anthropic',
+    name: 'Anthropic Claude',
+    badge: 'Recommended',
+    tagline: 'Best quality at the lowest cost',
+    cost: '~$0.0008 per image (Claude Haiku)',
+  },
+  {
+    id: 'openai',
+    name: 'OpenAI GPT-4o',
+    badge: '',
+    tagline: 'Great quality, widely used',
+    cost: '~$0.003 per image (GPT-4o mini)',
+  },
+  {
+    id: 'gemini',
+    name: 'Google Gemini',
+    badge: '',
+    tagline: 'Fast and affordable',
+    cost: '~$0.001 per image (Gemini 2.5 Flash)',
+  },
+]
+
+const providerCards = computed(() => {
+  if (!wp7Available.value) return baseProviders
+  return [
+    ...baseProviders,
+    {
+      id: 'wp7',
+      name: 'WordPress Native AI Connector',
+      badge: 'No key needed',
+      tagline: "Use your site's built-in AI — no API key needed",
+      cost: 'Managed by WordPress, nothing to configure',
+    },
+  ]
+})
 
 const currentModels = computed(() => {
   return availableModels.value[selectedProvider.value] || []
@@ -411,6 +418,14 @@ const currentSelectedModel = computed({
   set(val) {
     selectedModels.value[selectedProvider.value] = val
   }
+})
+
+// A test result only vouches for the provider+key it was run against. Changing
+// either invalidates it — otherwise an untested key can be saved (e.g. test
+// Anthropic, go back, pick Gemini, paste an untested Gemini key: Save would
+// already be enabled).
+watch([selectedProvider, apiKey], () => {
+  testResult.value = null
 })
 
 onMounted(async () => {
@@ -541,15 +556,16 @@ const goToDashboard = () => {
   window.location.reload()
 }
 
-// Skip setup without configuring an API key. Marks the wizard complete so the
-// user can use the plugin (e.g. image compression, which needs no key); AI
-// features prompt for a key at point of use.
-const skipWizard = async () => {
+// Skip AI setup without configuring a key. Marks the wizard complete first (so
+// abandoning costs nothing), then routes to the key-free Fallbacks step instead
+// of straight to the dashboard — the user skipping AI is exactly the
+// compression/WebP/fallbacks audience. AI features prompt for a key at point of
+// use later.
+const skipToFallbacks = async () => {
   saving.value = true
   try {
     await Api.post('/settings/wizard/complete')
-    window.location.hash = '#/'
-    window.location.reload()
+    currentStep.value = 4
   } catch {
     notification.error($t('Failed to skip setup'))
   } finally {

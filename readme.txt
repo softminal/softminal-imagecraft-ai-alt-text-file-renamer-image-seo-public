@@ -1,6 +1,6 @@
 === ImageCraft - AI Alt Text, Image Compression & WebP ===
 Contributors: softminal, diptosoftminal
-Tags: alt text, image compression, webp, image seo, image converter, accessibility
+Tags: alt text, image compression, webp, image seo, accessibility
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
@@ -209,6 +209,23 @@ Used to generate alt text via the Google Gemini API.
 * Endpoint: `https://generativelanguage.googleapis.com/v1beta/models/`
 * [Terms of Service](https://ai.google.dev/gemini-api/terms)
 * [Privacy Policy](https://policies.google.com/privacy)
+
+= YouTube (video tutorial) =
+
+The setup wizard and Help page offer an optional video tutorial hosted on YouTube. Nothing is loaded from YouTube automatically — the embed (privacy-enhanced `youtube-nocookie.com`) is only requested after you click the play placeholder. No site data is sent; standard YouTube embed requests apply once you choose to play the video.
+
+* Endpoint: `https://www.youtube-nocookie.com/embed/`
+* [Terms of Service](https://www.youtube.com/t/terms)
+* [Privacy Policy](https://policies.google.com/privacy)
+
+= Softminal (optional deactivation feedback) =
+
+If you deactivate the plugin and explicitly choose "Submit & Deactivate" in the feedback dialog, your feedback is sent to Softminal (the plugin author). Choosing "Skip" sends nothing, and nothing is ever sent automatically.
+
+**Data sent:** the reason you selected, your optional message, site URL, plugin version, WordPress version, and PHP version. No personal data beyond what you type into the message.
+
+* Endpoint: `https://admin.softminal.com/wp-json/softminal/v1/feedback`
+* [Privacy Policy](https://www.softminal.com/privacy-policy)
 
 == How to Use ImageCraft ==
 

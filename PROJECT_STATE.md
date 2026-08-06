@@ -227,6 +227,52 @@ plus local-only processing and the Image-SEO pillar Kraken lacks.
 
 ## 10. Recent Changes (newest first)
 
+- **2026-08-07** — **Shipped translations for 8 locales + textdomain loader.** Discovery:
+  the plugin never called `load_plugin_textdomain`, so the bundled es_ES/fr_FR .mo files
+  were NEVER loaded (any working translations came from the wp.org language pack, which
+  only covers old strings). Fix: `init`-hooked `load_plugin_textdomain` in the main plugin
+  file (WP_LANG_DIR packs still take priority). Regenerated the POT (942 strings,
+  `wp i18n make-pot`, `--skip-js`, excludes build/node_modules/docs/assets/resources) and
+  shipped COMPLETE 942/942 catalogs for **es_ES, fr_FR (274 community strings preserved
+  via msgmerge), de_DE, it_IT, pt_BR, ar, ja, nl_NL** — matching the B2B Suite locale set.
+  All machine-authored (informal register where that's the WP-core convention: du/tú/tu/je),
+  validated with `msgfmt -c` + placeholder-integrity checks; native review welcome, and
+  translate.wordpress.org strings will override once approved. Pipeline (msgids.json +
+  index-keyed chunk files + apply_po.py) lives in the session scratchpad; regenerate any
+  locale by re-running make-pot → msgmerge → fill → msgfmt.
+
+- **2026-08-07** — **i18n catch-up + Plugin Check pass.** 297 `$t()` strings used in the
+  SPA were never registered in `TranslationStrings.php` (everything since the UX redesign:
+  dashboard pillar cards, Compression, Next-gen, Fallbacks, Permissions, Meta, Batch
+  details, WooCommerce modal, Help) — unregistered strings can NEVER be translated because
+  `window.icais.i18n` is built from that file. All added in new `viewStrings()` method
+  (auto-collected; translator comments on placeholder strings). Rule of thumb: any new
+  `$t()` string MUST also be added to `TranslationStrings.php`. Also fixed from PCP:
+  `unlink()` → `wp_delete_file()` in `NextGenConverter.php` (removal now verified via
+  `!is_file()` since `wp_delete_file()` has no return on older WP), readme tags 6 → 5
+  (dropped `image converter`), `'Saved %s (%s%)'` → numbered `%1$s/%2$s` placeholders.
+  Remaining PCP output is dev-only files excluded by `.distignore`/`build.sh` + two
+  accepted WP_DEBUG-gated `error_log` warnings.
+
+- **2026-08-07** — **Onboarding overhaul (audit fixes).** `SetupWizard.vue` rewritten on the
+  design system (`--ic-*` tokens, `@ui` UiButton/UiBadge, Lucide icons, no emoji) with a
+  4-stage step indicator. Fixes from the onboarding audit: (1) **compliance** — tutorial
+  videos (wizard + Help.vue) now use new `components/VideoEmbed.vue`: click-to-load
+  `youtube-nocookie.com`, zero external requests until the user clicks; readme
+  `== External services ==` now discloses YouTube AND the Softminal deactivation-feedback
+  endpoint. (2) **honesty** — the false "Unlimited" welcome card replaced with the real free
+  tier (50 actions/day shared pool); provider cards show approximate per-image costs
+  (Haiku ~$0.0008 / GPT-4o mini ~$0.003 / Gemini Flash ~$0.001) instead of contradictory
+  adjectives. (3) **bug** — a `watch` on provider+key clears `testResult`, closing the
+  save-an-untested-key hole. (4) **a11y** — provider cards are `<button role="radio">` with
+  focus rings (were click-only divs). (5) **i18n** — every wizard string now in
+  `TranslationStrings.php` (fallback step, WP7/config-key variants, video strings); stale
+  keys for removed copy dropped, duplicate keys removed. (6) **UX** — skip path
+  (`skipToFallbacks`) marks the wizard complete then routes to the key-free Fallbacks step
+  instead of dead-ending at the dashboard; welcome pitch covers both pillars; stale
+  "GPT-4" / "AI Alt Text Generator" copy gone; Gemini key URL updated to
+  aistudio.google.com. No PHP behavior change (TranslationStrings only); REST/API untouched.
+
 - **2026-08-07** — **Docs correction: usage limit is ONE shared pool, not two counters.**
   `CLAUDE.md` and this file described the free tier as two separate counters (50/day
   generation + 20/day compression, key `icais_daily_compress_<id>`). The code has never

@@ -134,7 +134,10 @@ class NextGenConverter
                     // Confine deletions to the uploads directory (manifest could
                     // be stale/corrupted; never follow it outside uploads).
                     if ($path !== '' && strpos(realpath($path) ?: $path, $base) === 0 && @is_file($path)) {
-                        if (@unlink($path)) {
+                        // wp_delete_file() has no return value on older WP —
+                        // confirm removal by re-checking the file.
+                        wp_delete_file($path);
+                        if (!@is_file($path)) {
                             $removed++;
                         }
                     }
@@ -209,7 +212,7 @@ class NextGenConverter
                 // Never-bigger guard: a sidecar larger than its source would
                 // slow the site down — discard it.
                 if ($destBytes <= 0 || $destBytes >= $sourceBytes) {
-                    @unlink($dest);
+                    wp_delete_file($dest);
                     continue;
                 }
 

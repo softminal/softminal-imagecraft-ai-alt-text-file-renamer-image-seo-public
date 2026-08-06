@@ -150,7 +150,10 @@ Run the `/fatal-safety` skill (or its checks) on the diff. **If it finds any BLO
 ## Architecture
 
 ### Entry Point Flow
-`imagecraft-ai-alt-text-file-renamer-image-seo.php` (main plugin file) → loads `config/constants.php` → initializes `App.php` singleton on `plugins_loaded`
+`imagecraft-ai-alt-text-file-renamer-image-seo.php` (main plugin file) → loads `config/constants.php` → initializes `App.php` singleton on `plugins_loaded`. The main file also hooks `load_plugin_textdomain` on `init` — required for the SHIPPED `languages/*.mo` files to load at all (WP only auto-loads wp.org packs from WP_LANG_DIR, which take priority when present; do NOT remove this call).
+
+### Translations (`languages/`)
+POT (942 strings) + complete .po/.mo for **es_ES, fr_FR, de_DE, it_IT, pt_BR, ar, ja, nl_NL** (same locale set as B2B Suite). Regenerate POT with `wp i18n make-pot . languages/<slug>.pot --skip-js --exclude=build,node_modules,docs,assets,resources` (SPA strings enter via TranslationStrings.php, so JS scanning is unnecessary). After adding strings: make-pot → `msgmerge --update --backup=off` each .po → translate the new empties → `msgfmt -c`. Informal register per WP-core convention (du/tú/tu/je); ja polite です/ます; ar MSA.
 
 ### PHP Structure (includes/)
 
@@ -229,7 +232,7 @@ SEO** (`/scanner`, WooCommerce) and **Performance** (`/performance` — canonica
 `/performance/fallbacks` host the shared settings components in-pillar via
 `views/PerformanceFeature.vue`).
 
-**Router (`router.js`):** Hash history mode with routes for Dashboard, Scanner, WooCommerce, Batch, Settings, Help, and SetupWizard. The `beforeEach` guard redirects to `/wizard` only when `wizard_completed` is false — an API key is **no longer required** to enter the SPA (the plugin can be used purely for compression). The wizard can be **skipped without a key** (`skipWizard()` → `/settings/wizard/complete`); AI features then show an inline "Add API key" prompt at point of use (`window.icais.hasAiKey`).
+**Router (`router.js`):** Hash history mode with routes for Dashboard, Scanner, WooCommerce, Batch, Settings, Help, and SetupWizard. The `beforeEach` guard redirects to `/wizard` only when `wizard_completed` is false — an API key is **no longer required** to enter the SPA (the plugin can be used purely for compression). The wizard can be **skipped without a key** (`skipToFallbacks()` → `/settings/wizard/complete`, then routes to the key-free Fallbacks step rather than straight out); AI features then show an inline "Add API key" prompt at point of use (`window.icais.hasAiKey`). The wizard uses the design system (`--ic-*` tokens, `@ui`, Lucide) and a 4-stage step indicator; provider cards are real `<button role="radio">`s (keyboard/SR accessible) with approximate per-image costs; a `watch` clears `testResult` when provider/key change so an untested key can never be saved. Tutorial videos (wizard + Help) go through `components/VideoEmbed.vue` — click-to-load `youtube-nocookie.com`, NO external request until the user clicks (WP.org external-service disclosure in readme `== External services ==`, which also discloses the Softminal deactivation-feedback endpoint).
 
 **API Client (`services/Api.js`):** REST client using `window.imageCraft` config for baseURL and nonce.
 
