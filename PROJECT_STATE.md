@@ -227,6 +227,21 @@ plus local-only processing and the Image-SEO pillar Kraken lacks.
 
 ## 10. Recent Changes (newest first)
 
+- **2026-08-07** — **Dashboard AI-setup card redesign + "What's New" notice revived for
+  WebP/Fallbacks.** (1) The Dashboard no-key banner is now a design-system card (KeyRound
+  icon tile, heading + body, brand CTA button) and **dismissible** (X, localStorage
+  `icais_ai_prompt_dismissed`, same pattern as the next-gen hint); the Scanner keeps its
+  own contextual prompt so AI setup is never hidden where needed. New copy also mentions
+  the WordPress AI Client and no-markup billing. (2) The retired wp-admin "What's New"
+  notice returns as `AdminNotice::displayNextGenFeatureNotice` announcing **Next-gen WebP
+  + Image Fallbacks** together: admins only, own per-user meta
+  `icais_nextgen_notice_dismissed` (so users who dismissed the old Fallbacks-only notice
+  still hear about WebP), hidden mid-wizard and once BOTH features are enabled, CTA →
+  `#/performance`. Dismiss endpoint gains additive `notice=nextgen_feature`; the setup
+  wizard auto-dismisses it for fresh installs. Legacy `displayFallbackFeatureNotice`
+  stays unhooked (BC only). All new UI strings registered + translated in all 8 locales
+  (catalogs at 947/947, msgfmt -c clean).
+
 - **2026-08-07** — **Shipped translations for 8 locales + textdomain loader.** Discovery:
   the plugin never called `load_plugin_textdomain`, so the bundled es_ES/fr_FR .mo files
   were NEVER loaded (any working translations came from the wp.org language pack, which

@@ -527,9 +527,11 @@ const saveWP7AndComplete = async () => {
 const finishWizard = async (enableFallbacks) => {
   saving.value = true
   try {
-    // New users meet Image Fallbacks right here — suppress the wp-admin
-    // "What's New" notice meant for existing users updating. Fire-and-forget.
+    // New users meet Image Fallbacks (and the Performance pillar) right here —
+    // suppress the wp-admin "What's New" notices meant for existing users
+    // updating. Fire-and-forget.
     Api.post('/notice/dismiss', { notice: 'fallback_feature' }).catch(() => {})
+    Api.post('/notice/dismiss', { notice: 'nextgen_feature' }).catch(() => {})
 
     if (enableFallbacks && fallbackImageId.value > 0) {
       await Api.post('/settings', {

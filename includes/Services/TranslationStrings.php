@@ -64,6 +64,8 @@ class TranslationStrings {
             'Skip for now' => __('Skip for now', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Failed to skip setup' => __('Failed to skip setup', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Add API key' => __('Add API key', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            'Unlock AI alt text, titles & descriptions' => __('Unlock AI alt text, titles & descriptions', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+            "Use your own API key or your site's WordPress AI Client — you pay your provider directly, with no markup. Compression, WebP conversion and fallbacks work without a key." => __("Use your own API key or your site's WordPress AI Client — you pay your provider directly, with no markup. Compression, WebP conversion and fallbacks work without a key.", 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Add your API key to generate alt text, titles and captions.' => __('Add your API key to generate alt text, titles and captions.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
             'Add your API key to generate alt text, titles and captions. Image compression works without a key.' => __('Add your API key to generate alt text, titles and captions. Image compression works without a key.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
         ];

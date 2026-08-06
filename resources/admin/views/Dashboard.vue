@@ -20,17 +20,39 @@
       </div>
     </div>
 
-    <!-- No API key configured — the single canonical prompt for AI setup. -->
-    <div v-if="!hasAiKey" class="bg-ic-info-soft border border-ic-info/20 rounded-card p-4 mb-6 flex items-start justify-between gap-4">
-      <div class="flex items-start gap-3">
-        <Info :size="18" :stroke-width="2" class="text-ic-info shrink-0 mt-0.5" aria-hidden="true" />
-        <p class="text-sm text-ic-text m-0">
-          {{ $t('Add your API key to generate alt text, titles and captions. Image compression works without a key.') }}
-        </p>
+    <!-- No API key configured — the single canonical prompt for AI setup.
+         Dismissible (localStorage); the Scanner keeps its own contextual prompt. -->
+    <div
+      v-if="!hasAiKey && !aiPromptDismissed"
+      class="relative bg-ic-card border border-ic-border border-l-4 border-l-brand rounded-card shadow-card p-5 mb-6"
+    >
+      <button
+        type="button"
+        :aria-label="$t('Dismiss')"
+        class="absolute top-3 right-3 p-1 rounded-ic text-ic-faint hover:text-ic-text hover:bg-ic-muted cursor-pointer outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+        @click="dismissAiPrompt"
+      >
+        <X :size="16" :stroke-width="2" aria-hidden="true" />
+      </button>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4 pr-8">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-ic bg-brand-soft text-brand shrink-0">
+          <KeyRound :size="19" :stroke-width="2" aria-hidden="true" />
+        </span>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-sm font-semibold text-ic-text m-0! mb-1!">
+            {{ $t('Unlock AI alt text, titles & descriptions') }}
+          </h3>
+          <p class="text-[0.8125rem] text-ic-soft m-0! leading-relaxed">
+            {{ $t("Use your own API key or your site's WordPress AI Client — you pay your provider directly, with no markup. Compression, WebP conversion and fallbacks work without a key.") }}
+          </p>
+        </div>
+        <a
+          href="#/settings/api"
+          class="shrink-0 inline-flex items-center justify-center gap-1.5 font-medium rounded-ic px-4 py-2 text-sm bg-brand text-white hover:bg-brand-strong transition-colors no-underline"
+        >
+          {{ $t('Add API key') }}
+        </a>
       </div>
-      <a href="#/settings/api" class="shrink-0 text-sm font-semibold text-ic-info underline hover:opacity-80">
-        {{ $t('Add API key') }}
-      </a>
     </div>
 
     <!-- Shared daily free quota (free only) — informational, no CTA (Get Pro lives in the navbar) -->
@@ -262,7 +284,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Info, ScanSearch, Zap, Image } from 'lucide-vue-next'
+import { KeyRound, ScanSearch, X, Zap, Image } from 'lucide-vue-next'
 import Api from '../services/Api'
 import { getSettings } from '../router'
 import { quickActions, visibleItems } from '../config/navigation'
@@ -287,6 +309,25 @@ const fallbackOn = ref(false)
 // Show the "add API key" prompt only when we know there is no usable AI provider
 // (undefined → assume configured, so existing setups never see a spurious nag).
 const hasAiKey = window.icais?.hasAiKey ?? true
+
+// Dismissible per-browser (same pattern as the next-gen hint in Compression.vue).
+// The Scanner keeps its own contextual prompt, so a dismissed card here never
+// hides AI setup where it is actually needed.
+const AI_PROMPT_KEY = 'icais_ai_prompt_dismissed'
+const aiPromptDismissed = ref(false)
+try {
+  aiPromptDismissed.value = window.localStorage?.getItem(AI_PROMPT_KEY) === '1'
+} catch {
+  // localStorage unavailable — keep showing the card
+}
+const dismissAiPrompt = () => {
+  aiPromptDismissed.value = true
+  try {
+    window.localStorage?.setItem(AI_PROMPT_KEY, '1')
+  } catch {
+    // non-fatal — the card just reappears next load
+  }
+}
 
 // Quick actions derive from the shared navigation model.
 const actions = computed(() =>

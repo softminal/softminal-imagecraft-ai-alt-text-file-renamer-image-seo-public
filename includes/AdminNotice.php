@@ -13,15 +13,70 @@ class AdminNotice
     private static $generationThreshold = 8;
     private static $metaKey = 'icais_review_notice_dismissed';
     private static $fallbackMetaKey = 'icais_fallback_notice_dismissed';
+    private static $nextgenMetaKey = 'icais_nextgen_notice_dismissed';
 
     public static function init(): void
     {
         add_action('admin_notices', [self::class, 'displayReviewNotice']);
-        // The Image Fallbacks "What's New" notice is retired (UX redesign:
-        // discovery is consolidated into the SPA — quick action, needs-attention
-        // tile, and the settings sidebar). displayFallbackFeatureNotice() and the
-        // notice/dismiss REST param are kept for backwards compatibility, but the
-        // notice is no longer rendered.
+        // One-time "What's New" for the current release: Next-gen WebP + Image
+        // Fallbacks. Uses its OWN dismissal meta so users who dismissed the old
+        // Fallbacks-only notice still hear about WebP. The legacy Fallbacks
+        // notice (displayFallbackFeatureNotice) stays unhooked for backwards
+        // compatibility only.
+        add_action('admin_notices', [self::class, 'displayNextGenFeatureNotice']);
+    }
+
+    /**
+     * One-time "What's New" notice for Next-gen WebP + Image Fallbacks.
+     *
+     * Reaches existing users who updated but don't visit the ImageCraft page.
+     * Self-limiting: admins only, per-user dismissal, hidden mid-wizard (fresh
+     * installs meet both features in the SPA; the wizard marks it dismissed),
+     * and hidden once BOTH features are already in use.
+     */
+    public static function displayNextGenFeatureNotice(): void
+    {
+        $userId = get_current_user_id();
+
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        if (get_user_meta($userId, self::$nextgenMetaKey, true)) {
+            return;
+        }
+
+        // Mid-wizard installs are excluded; the SPA introduces the features.
+        if (!Settings::isWizardCompleted($userId)) {
+            return;
+        }
+
+        // Already using both — nothing to announce.
+        if (Settings::get('icais_fallback_enabled', '0') === '1'
+            && Settings::get('icais_compression_convert_webp', '0') === '1') {
+            return;
+        }
+
+        $setupUrl = admin_url('admin.php?page=icais#/performance');
+        $dismissUrl = esc_url(rest_url(ICAIS_API_NAMESPACE . '/notice/dismiss'));
+        $nonce = wp_create_nonce('wp_rest');
+        ?>
+        <div class="notice notice-info is-dismissible icais-nextgen-notice">
+            <p>
+                <strong><?php echo esc_html__('New in ImageCraft: Next-gen WebP & Image Fallbacks.', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?></strong><br>
+                <?php echo esc_html__('Serve smaller WebP copies of your images without touching the originals, and show a fallback image instead of broken or missing ones. Both run locally, need no API key, and are off by default.', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
+            </p>
+            <p>
+                <a href="<?php echo esc_url($setupUrl); ?>" class="button button-primary">
+                    <?php echo esc_html__('Explore the new features', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
+                </a>
+                <a href="#" class="icais-dismiss-nextgen" style="margin-left: 12px; color: #646970; text-decoration: none; box-shadow: none; outline: none;">
+                    <?php echo esc_html__('Dismiss', 'imagecraft-ai-alt-text-file-renamer-image-seo'); ?>
+                </a>
+            </p>
+        </div>
+        <?php
+        self::printDismissScript('.icais-nextgen-notice', '.icais-dismiss-nextgen', $dismissUrl . '?notice=nextgen_feature', $nonce);
     }
 
     /**
@@ -210,7 +265,12 @@ class AdminNotice
             $notice = sanitize_key((string) ($request->get_param('notice') ?: 'review'));
         }
 
-        $metaKey = $notice === 'fallback_feature' ? self::$fallbackMetaKey : self::$metaKey;
+        $metaKey = self::$metaKey; // 'review' (legacy default)
+        if ($notice === 'fallback_feature') {
+            $metaKey = self::$fallbackMetaKey;
+        } elseif ($notice === 'nextgen_feature') {
+            $metaKey = self::$nextgenMetaKey;
+        }
         update_user_meta($userId, $metaKey, '1');
 
         return new \WP_REST_Response(['success' => true]);
