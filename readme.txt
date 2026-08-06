@@ -1,10 +1,10 @@
 === ImageCraft - AI Image SEO & Compression ===
 Contributors: softminal, diptosoftminal
-Tags: ai alt text, image compression, image optimization, image seo, alt text generator
+Tags: alt text, image compression, webp, image seo, image converter, accessibility
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -60,6 +60,7 @@ Most plugins do one thing — either alt text **or** compression — and many ch
 = All Features =
 
 * Smart local image compression (JPG, PNG, GIF, WebP) — quality-preserving
+* Next-gen formats — generate WebP copies and serve them via `<picture>`, originals untouched
 * Bulk compress your entire media library with batch processing
 * Compress button in the WordPress media modal — optimize without leaving the library
 * Automatic original backup and one-click restore for every compression
@@ -111,6 +112,18 @@ ImageCraft includes a built-in image compressor that reduces file size while pre
 * **Safe by default** — every original is backed up, so you can restore any image with one click
 * **Never enlarges** — only keeps the result when it is actually smaller than the original
 * **Faster pages, better SEO** — smaller images improve load time and Core Web Vitals, which Google rewards in search rankings
+
+= Next-Gen Formats (WebP) =
+
+Modern browsers load WebP significantly faster than JPEG or PNG. ImageCraft generates WebP copies *beside* your originals and serves them through a standard `<picture>` element, so supporting browsers get the smaller file and everything else falls back to the original automatically.
+
+* **Nothing is overwritten** — your original files, URLs, and media library entries are untouched; the WebP copies sit alongside them
+* **Fully reversible** — remove every generated file in one click and your site is exactly as it was
+* **Covers every size** — full size plus all the thumbnail sizes WordPress generates
+* **Never bigger** — if a converted copy would be larger than the source, it is discarded
+* **Bulk convert** — process your whole media library, with a scan showing what is left
+* **Off by default** — enable it under Performance → Next-gen Formats when you are ready
+* **Pro:** AVIF (where your server supports it) and automatic conversion on upload
 
 = Boost Google Image Rankings =
 
@@ -190,16 +203,6 @@ Used to generate alt text via the Google Gemini API.
 * Endpoint: `https://generativelanguage.googleapis.com/v1beta/models/`
 * [Terms of Service](https://ai.google.dev/gemini-api/terms)
 * [Privacy Policy](https://policies.google.com/privacy)
-
-= Softminal (deactivation feedback) =
-
-Used only for the optional deactivation survey. When you deactivate the plugin, a short feedback form is shown. Data is sent **only if you click "Submit & Deactivate"** — clicking "Skip & Deactivate" sends nothing, and no data is ever sent automatically. The form is submitted to your own site first, which then forwards it to Softminal server-side.
-
-**Data sent (on explicit submit only):** the reason you selected, your optional comment, the action (deactivate), the plugin version, WordPress version, PHP version, and your site URL. No personal user data and no API keys are sent.
-
-* Endpoint: `https://admin.softminal.com/wp-json/softminal/v1/feedback`
-* [Terms of Service](https://softminal.com/terms)
-* [Privacy Policy](https://softminal.com/privacy)
 
 == How to Use ImageCraft ==
 
@@ -304,17 +307,31 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 
 == Screenshots ==
 
-1. Dashboard - At-a-glance stat cards (total images, alt text coverage, compression savings), Quick Actions, a Needs Attention list with one-click fixes, and Image SEO + Compression panels
-2. Image SEO Audit - Scan your entire media library and filter images by missing, generic, or too-long alt text and titles, browse by FileBird folder, and fix issues in bulk
-3. Media Library - Generate alt text, rename files, and compress images directly from the WordPress media modal with one click
-4. WooCommerce Products - Browse products with alt text status, filter by category, and generate alt text per product
+1. Dashboard - Your image health at a glance across both areas, Image SEO and Performance, with stat cards (total images, alt text coverage, compressed count, space saved), quick actions, and a Needs Attention list with one-click fixes
+2. Image SEO - Scan your media library and filter by missing, generic, or too-long alt text and titles, browse by FileBird folder, then pick which fields to write (alt text, title, description) and generate them in bulk
+3. Media Library - Choose which fields to generate for a single image - alt text, title, description - and compress or rename it, without leaving the WordPress media modal
+4. WooCommerce Products - Browse products with alt text status, filter by category, and generate alt text for product and gallery images
 5. Settings - Connect your AI provider (Anthropic, OpenAI, or Google Gemini), or use your site's built-in WordPress AI Client with no API key needed, plus secure key storage and connection testing
 6. SEO Integrations - Use focus keyphrases from Yoast, Rank Math, All in One SEO, or SEOPress to make alt text more relevant
 7. Gutenberg Editor - Generate alt text with AI directly from the block editor image settings panel
 8. Page Builder Blocks - Generate alt text and titles for Spectra and Kadence image blocks from the inspector sidebar
-9. Image Compression - Scan and compress images with before/after size savings, bulk compression, and one-click restore
+9. Performance - Compress images with before/after size savings, bulk compression, and one-click restore of any original
+10. Next-gen Formats - Convert your library to WebP (AVIF with Pro) and serve it through a picture element, with the original as an automatic fallback. Originals are never touched and every generated file can be removed in one click
+11. Image Fallbacks - One image covers anything that fails to load for your visitors, and stands in as the featured image for posts that do not have one
 
 == Changelog ==
+
+= 1.6.0 (6 August, 2026) =
+* New: **Next-gen formats (WebP, AVIF)** — generate WebP copies of your images and serve them to browsers that support them, with the original as an automatic fallback. Your original files, URLs and media library entries are never touched, and the whole thing is reversible in one click. Off by default; enable it under Performance → Next-gen Formats
+* New: Bulk convert — convert your whole media library to WebP from the Compress screen, with a scan that shows how much is left to do
+* New: Redesigned interface built around two areas — **Image SEO** (alt text, titles, descriptions, file names) and **Performance** (compression, next-gen formats, image fallbacks) — so related tools live together instead of being scattered through Settings
+* New: Contextual sub-navigation and a rebuilt dashboard with per-area health cards, feature status at a glance, and quick actions
+* Improvement: Fallbacks and Next-gen Formats now have their own pages inside Performance, with settings that save as you change them
+* Improvement: New ImageCraft logo and admin menu icon
+* Improvement: The AI provider dropdown now shows "Select Provider" when no provider is connected, instead of implying Anthropic is already set up
+* Improvement: Added a Help page section listing our other plugins
+* Fix: Removed the blue focus outline that WordPress painted around links inside the ImageCraft screens (keyboard focus is still clearly visible)
+
 
 = 1.5.0 (11 July, 2026) =
 * New: **Image Fallbacks** — never show a broken image again. Pick one fallback image: it replaces broken images for your visitors (with proper alt text) and acts as the default featured image for posts that have none. Fully non-destructive (nothing is written to your content) and off by default — enable it under Settings → Image Fallbacks or from the new setup wizard step
@@ -500,6 +517,10 @@ Yes. Alt text is stored on the standard WordPress `_wp_attachment_image_alt` met
 * 3-minute guided setup wizard
 
 == Upgrade Notice ==
+
+= 1.6.0 =
+NEW: Next-gen formats — serve WebP to browsers that support it, with the original as an automatic fallback. Non-destructive, reversible, and off by default. Plus a redesigned interface organised around Image SEO and Performance.
+
 
 = 1.5.0 =
 NEW: Image Fallbacks — never show a broken image. One fallback image replaces broken images for visitors and acts as the default featured image for posts without one. Non-destructive and off by default. Plus a redesigned dashboard with stat cards and quick actions.
