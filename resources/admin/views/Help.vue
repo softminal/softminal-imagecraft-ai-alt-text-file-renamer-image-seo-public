@@ -108,6 +108,62 @@
       </div>
     </div>
 
+    <!-- More from Softminal — cross-promotion of our other products -->
+    <div class="bg-white rounded-lg shadow border p-6 mt-6">
+      <h2 class="text-lg font-semibold mb-1">{{ $t('More from Softminal') }}</h2>
+      <p class="text-gray-600 text-sm mb-4">
+        {{ $t('Other plugins we build, with the same focus on doing one job properly.') }}
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          v-for="product in products"
+          :key="product.slug"
+          class="p-4 rounded-lg border border-gray-200"
+        >
+          <!-- Logo sits on the title's own line, vertically centred against it -->
+          <div class="flex items-center gap-3">
+            <img
+              :src="asset(product.logo)"
+              alt=""
+              aria-hidden="true"
+              class="w-10 h-10 rounded-lg shrink-0"
+            />
+            <div class="min-w-0 flex items-center gap-2 flex-wrap">
+              <h3 class="font-semibold text-sm text-gray-900">{{ product.name }}</h3>
+              <span
+                v-if="product.badge"
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-[0.6875rem] font-medium bg-indigo-50 text-indigo-700"
+              >
+                {{ $t(product.badge) }}
+              </span>
+            </div>
+          </div>
+
+          <p class="text-xs text-gray-600 mt-3">{{ $t(product.description) }}</p>
+          <ul class="mt-2 space-y-1">
+            <li
+              v-for="feature in product.features"
+              :key="feature"
+              class="flex items-start gap-1.5 text-xs text-gray-500"
+            >
+              <Check :size="13" :stroke-width="2.5" class="mt-0.5 shrink-0 text-green-600" aria-hidden="true" />
+              <span>{{ $t(feature) }}</span>
+            </li>
+          </ul>
+          <a
+            :href="product.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 focus:text-indigo-600 no-underline focus:outline-hidden focus:shadow-none transition"
+          >
+            {{ $t('Learn more') }}
+            <ExternalLink :size="13" :stroke-width="2" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+    </div>
+
     <!-- Video Tutorial -->
     <div class="bg-white rounded-lg shadow border p-6 mt-6">
       <h2 class="text-lg font-semibold mb-4">{{ $t('Video Tutorial') }}</h2>
@@ -125,3 +181,30 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import { Check, ExternalLink } from 'lucide-vue-next'
+import { useAsset } from '../composables/useAsset'
+import { $t } from '../utils/i18n'
+
+const { asset } = useAsset()
+
+// Cross-promotion. Keep this list short — one card per product we actually ship.
+const products = [
+  {
+    slug: 'softminal-b2b-wholesale-for-woocommerce',
+    name: 'Softminal B2B Suite for WooCommerce',
+    logo: 'softminal-b2b-logo.svg',
+    badge: 'For WooCommerce',
+    description:
+      'Turn a standard WooCommerce store into a proper trade store — one pricing pipeline, no surprise prices at checkout.',
+    features: [
+      'Customer group pricing (percentage, amount off or fixed)',
+      'Hide prices until a trade account is approved',
+      'Trade registration with your own business fields',
+      'Quantity rules and a bulk order form',
+    ],
+    url: 'https://wordpress.org/plugins/softminal-b2b-wholesale-for-woocommerce/',
+  },
+]
+</script>
