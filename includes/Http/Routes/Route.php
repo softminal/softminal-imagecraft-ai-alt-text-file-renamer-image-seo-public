@@ -17,9 +17,16 @@ class Route
     private static $namespace = '';
     private static $lastRoute = null;
 
+    // Pre-chain snapshots: capture the state BEFORE fluent methods mutate it
+    // so group() can restore to the true previous state.
+    private static $_chainPrefix = null;
+    private static $_chainMiddleware = null;
+    private static $_chainCapability = null;
+
     public static function prefix($prefix)
     {
         $instance = new static();
+        self::snapshotChainState();
         self::$prefix = '/' . trim($prefix, '/');
         return $instance;
     }
@@ -27,6 +34,7 @@ class Route
     public static function middleware($middleware)
     {
         $instance = new static();
+        self::snapshotChainState();
         self::$middleware = array_merge(
             self::$middleware,
             is_array($middleware) ? $middleware : [$middleware]
@@ -36,21 +44,36 @@ class Route
 
     public function capability(string $capability)
     {
+        self::snapshotChainState();
         self::$capability = $capability;
         return $this;
     }
 
+    private static function snapshotChainState()
+    {
+        if (self::$_chainPrefix === null) {
+            self::$_chainPrefix     = self::$prefix;
+            self::$_chainMiddleware = self::$middleware;
+            self::$_chainCapability = self::$capability;
+        }
+    }
+
     public function group(callable $callback)
     {
-        $previousPrefix = self::$prefix;
-        $previousMiddleware = self::$middleware;
-        $previousCapability = self::$capability;
+        $previousPrefix     = self::$_chainPrefix     ?? self::$prefix;
+        $previousMiddleware = self::$_chainMiddleware  ?? self::$middleware;
+        $previousCapability = self::$_chainCapability  ?? self::$capability;
+
+        // Clear the snapshots so they don't carry into nested groups.
+        self::$_chainPrefix     = null;
+        self::$_chainMiddleware = null;
+        self::$_chainCapability = null;
 
         $callback();
 
-        self::$prefix = $previousPrefix;
-        self::$middleware = $previousMiddleware;
-        self::$capability = $previousCapability;
+        self::$prefix     = $previousPrefix;
+        self::$middleware  = $previousMiddleware;
+        self::$capability  = $previousCapability;
 
         return $this;
     }
