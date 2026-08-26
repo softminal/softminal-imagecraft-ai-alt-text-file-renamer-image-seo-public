@@ -65,7 +65,7 @@ class Settings
         'icais_compression_quality' => 85,      // visually-lossless JPEG/WebP quality 1-100 (Pro: adjustable)
         'icais_compression_max_width' => 2048,  // downscale cap on longest edge in px, 0 = no resize (Pro-adjustable; free fixed at 2048)
         'icais_compression_convert_webp' => '0',// generate WebP sidecars (free; manual + bulk)
-        'icais_compression_convert_avif' => '0',// generate AVIF sidecars too (Pro; needs server support)
+        'icais_compression_convert_avif' => '0',// generate AVIF sidecars (free; needs server support)
         'icais_nextgen_delivery_enabled' => '0',// serve WebP/AVIF sidecars on the frontend via <picture> (opt-in)
         'icais_nextgen_auto' => '0',            // auto-convert on upload (Pro-effect; inert in free)
         'icais_compression_keep_backup' => '1', // back up original before compressing (default on; user can disable)

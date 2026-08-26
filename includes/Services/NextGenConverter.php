@@ -71,9 +71,9 @@ class NextGenConverter
 
     /**
      * The formats conversion should produce, resolved from the user's opt-in
-     * settings: WebP is free; AVIF additionally requires Pro (ICAIS_PRO). The
-     * result runs through the icais_compression_formats filter (Pro unlock
-     * point) and is always intersected with real server capability, so it is
+     * settings: both WebP and AVIF are free (gated only by server capability).
+     * The result runs through the icais_compression_formats filter and is
+     * always intersected with real server capability, so it is
      * exactly what will work on this host.
      *
      * @return string[] Subset of ['webp', 'avif'].
@@ -84,7 +84,7 @@ class NextGenConverter
         if (Settings::get('icais_compression_convert_webp', '0') === '1') {
             $formats[] = 'webp';
         }
-        if (Settings::get('icais_compression_convert_avif', '0') === '1' && defined('ICAIS_PRO') && \ICAIS_PRO) {
+        if (Settings::get('icais_compression_convert_avif', '0') === '1') {
             $formats[] = 'avif';
         }
 

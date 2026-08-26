@@ -250,7 +250,7 @@ const canConvert = computed(() => {
   if (!isAdmin) return false
   const canWebp = window.icais?.canWebp ?? false
   const canAvif = window.icais?.canAvif ?? false
-  return (convertWebpOn.value && canWebp) || (convertAvifOn.value && isPro && canAvif)
+  return (convertWebpOn.value && canWebp) || (convertAvifOn.value && canAvif)
 })
 const loading = ref(false)
 const images = ref([])
