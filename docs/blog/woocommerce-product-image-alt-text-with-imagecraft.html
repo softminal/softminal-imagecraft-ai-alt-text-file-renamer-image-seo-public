@@ -1,0 +1,187 @@
+<!-- wp:paragraph -->
+<p><strong>Most WooCommerce stores have hundreds of product photos with no alt text.</strong> That hurts you twice. Shoppers who use a screen reader can't tell what each photo shows, and Google can't read the image either, so you miss free traffic from image search. ImageCraft fixes both, in bulk, straight from your dashboard.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Why product alt text beats plain AI alt text</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Most AI tools only look at the image. They describe a hoodie photo as "a black hoodie on a white background." That is correct, but it does not help you sell. It has no product name and none of the words a buyer would search. ImageCraft is different. Before it writes anything, it reads the product in WooCommerce and passes the details to the AI.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><!-- wp:paragraph -->
+<p>ImageCraft sends the product name, SKU, categories, and price to the AI, and tells it to include the product name. So "a black hoodie on a white background" becomes "Teton black cotton pullover hoodie, Men's Hoodies & Sweatshirts."</p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p>ImageCraft saves the alt text to the Media Library, on the image itself. So it shows up everywhere the image is used: the shop page, the product page, related products, and any block or theme that reads the image. You do the work once, and every spot that uses the image gets the benefit.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Setup: two minutes</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Install ImageCraft</strong> from the WordPress plugin directory and activate it. It detects WooCommerce on its own.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Add your AI key.</strong> Go to <em>ImageCraft → Settings → API</em>, pick a provider (Anthropic Claude, OpenAI, or Google Gemini), and paste your key. On WordPress 7.0 and up you can use the built-in AI instead.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Turn on product context.</strong> In <em>ImageCraft → Settings → Integrations → WooCommerce</em>, check <em>Include product information</em>. This is what makes the alt text product-specific, so don't skip it.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Pick a default tone</strong> on the same screen. Start with <em>Product SEO (Recommended)</em>.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Method 1: Do the whole catalog at once (recommended)</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>This is the fastest way to fix a whole store. If you only try one thing, try this.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"large"} -->
+<figure class="wp-block-image size-large"><img src="beauty-woocommerce-products.png" alt="ImageCraft WooCommerce Products screen with products filtered by missing alt text; each product card shows an alt-text coverage badge like 0/1 or 3/3, plus View Details and Generate All buttons"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:list {"ordered":true} -->
+<ol class="wp-block-list"><!-- wp:list-item -->
+<li>Go to <em>ImageCraft → WooCommerce</em>. Your products show up as cards with a filter bar on top. Each card has an alt-text coverage badge, like <em>0/1 alt</em> or <em>3/3 alt</em>, so you can see which products still need work.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Under <strong>Alt Text</strong>, click <strong>Missing</strong> to show only products with no alt text. You can also filter by <em>Generic</em> or <em>Long &gt;100</em>, and do the same for <em>Title</em> and <em>Description</em>.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Optional: narrow by category, or open <strong>Advanced</strong> to filter by date or price. On a big store, working one group at a time is easier to check.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Click <strong>Select All</strong>. If your filter spans more than one page, ImageCraft offers to select all of them, not just the ones you can see.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Tick <strong>Alt text</strong>, <strong>Title</strong>, and <strong>Description</strong> in any mix. One AI call per image fills in whatever you ticked.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Click <strong>Generate</strong>. ImageCraft gathers every image, featured and gallery, removes duplicates, and runs a background job. Close the tab if you like; it keeps running and resumes if interrupted.</li>
+<!-- /wp:list-item --></ol>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>One job handles up to 500 images. For a big catalog, filter by category or price and run a few jobs in a row. Each new job starts where the last one ended.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Method 2: One product at a time</h2>
+<!-- /wp:heading -->
+
+<!-- wp:image {"sizeSlug":"large"} -->
+<figure class="wp-block-image size-large"><img src="beauty-woocommerce-product-modal.png" alt="ImageCraft product details window for a hoodie, showing the featured image and gallery images, each with alt text, title, and description fields and a Generate link, plus a Save All Changes button"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Method 1 is great for volume. Sometimes you want a closer look. On any product card, click <strong>Generate All</strong> to write alt text for the featured image and every gallery image in one click. Or click <strong>View Details</strong> to open the product window — the featured image (marked with a <em>Featured</em> badge) and every gallery image sit side by side, each with its own alt text, title, and description fields. Use the <strong>Generate</strong> link on any field to fill just that one, edit anything by hand, then click <strong>Save All Changes</strong>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Gallery images are the ones most often left blank. The featured image sometimes gets attention; the other gallery shots almost never do. Generate All covers the whole set at once.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Method 3: Turn on auto-generate</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The two methods above clean up what you already have. This one keeps you clean going forward. Turn on <strong>auto-generate on upload</strong> in the settings, and every image you add to a product gets alt text as it uploads. New products go live ready for search, and you never build a backlog again. You can skip certain post types and skip images that already have alt text, so ImageCraft only fills the gaps.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Pick the right product tone</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li><strong>Product SEO</strong> (recommended) — keyword-rich text for Google Images. Example: <em>Teton black cotton pullover hoodie, Men's Hoodies &amp; Sweatshirts.</em></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Product Descriptive</strong> — clear, plain text for screen readers. Example: <em>Black pullover hoodie with a drawstring hood and front kangaroo pocket.</em></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><strong>Product Lifestyle</strong> — for in-use or on-model photos. Example: <em>Person wearing the black Teton pullover hoodie with the hood up.</em></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Not sure? Start with Product SEO. Set your default under <em>Settings → Integrations → WooCommerce → Default Tone for Products</em>. Want your own wording? Choose <em>Custom Prompt</em>. Even then, the product name, category, and SKU are still added as context, and your max-length limit still applies.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Frequently asked questions</h2>
+<!-- /wp:heading -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Does it cover gallery images, or just the featured image?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Both. Bulk Generate and per-card Generate All collect the featured image and every gallery image, with duplicates removed. Nothing gets missed.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Will it overwrite alt text I wrote myself?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Only if you want it to. Filter to Missing to touch empty images only, and turn on "skip images with existing alt text" to fill gaps without changing your work.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Can it write titles and descriptions too?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Yes. When you bulk-generate, tick Alt text, Title, and Description. One AI call per image handles the fields you pick, so there is no extra cost to adding them.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Do I need ImageCraft Pro for this?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>No. The WooCommerce screen, product alt text, gallery generation, and the three tones are all in the free plugin. The free plan gives you 50 actions per day. Pro removes the daily limit and adds features like auto-compress on upload.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Which AI provider should I use?</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Use your own key from Anthropic Claude, OpenAI, or Google Gemini. Any of them works well. You pay the provider directly, with no markup. If you are not sure, pick the one you already have an account with.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Get started</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Install ImageCraft, add your AI key in <em>Settings → API</em>, turn on <em>Include product information</em> under <em>Settings → Integrations → WooCommerce</em>, then open the <strong>WooCommerce</strong> screen, filter to Missing, and click Generate. Your product images will be ready for search before your next coffee.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Ready to make every product image count?</strong> <a href="https://softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo">Get ImageCraft →</a></p>
+<!-- /wp:paragraph -->

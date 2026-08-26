@@ -1,0 +1,4457 @@
+# Copyright (C) 2026 Softminal
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: ImageCraft - AI Alt Text, Image Compression & WebP "
+"1.6.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagecraft-ai-alt-"
+"text-file-renamer-image-seo\n"
+"POT-Creation-Date: 2026-08-06T20:18:14+00:00\n"
+"PO-Revision-Date: 2026-08-06T19:19:56+00:00\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: imagecraft-ai-alt-text-file-renamer-image-seo\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. Plugin Name of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid "ImageCraft - AI Alt Text, Image Compression & WebP"
+msgstr "ImageCraft - Texto alternativo com IA, compressão de imagens e WebP"
+
+#. Plugin URI of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid ""
+"https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-"
+"seo"
+msgstr ""
+"https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-"
+"seo"
+
+#. Description of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid ""
+"All-in-one image toolkit: AI alt text, titles & descriptions, local image "
+"compression, WebP conversion, image fallbacks, SEO file renaming, and an "
+"image SEO audit. Works with the WordPress 7.0 native AI Client, Anthropic, "
+"OpenAI and Gemini — compression and WebP need no API key."
+msgstr ""
+"Kit de imagens tudo-em-um: texto alternativo, títulos e descrições com IA, "
+"compressão local de imagens, conversão WebP, imagens reserva, renomeação SEO "
+"de arquivos e auditoria de SEO de imagens. Funciona com o AI Client nativo "
+"do WordPress 7.0, Anthropic, OpenAI e Gemini — compressão e WebP não "
+"precisam de chave de API."
+
+#. Author of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid "Softminal"
+msgstr "Softminal"
+
+#. Author URI of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid "https://softminal.com"
+msgstr "https://softminal.com"
+
+#: includes/AdminNotice.php:66
+msgid "New in ImageCraft: Next-gen WebP & Image Fallbacks."
+msgstr "Novidade no ImageCraft: WebP next-gen e imagens reserva."
+
+#: includes/AdminNotice.php:67
+msgid ""
+"Serve smaller WebP copies of your images without touching the originals, and "
+"show a fallback image instead of broken or missing ones. Both run locally, "
+"need no API key, and are off by default."
+msgstr "Sirva cópias WebP menores das suas imagens sem tocar nos originais e mostre uma imagem reserva no lugar de imagens quebradas ou ausentes. Ambos rodam localmente, não precisam de chave de API e vêm desativados por padrão."
+
+#: includes/AdminNotice.php:71
+msgid "Explore the new features"
+msgstr "Explorar as novidades"
+
+#: includes/AdminNotice.php:74 includes/AdminNotice.php:126
+#: includes/Services/TranslationStrings.php:184
+msgid "Dismiss"
+msgstr "Dispensar"
+
+#: includes/AdminNotice.php:118
+msgid "New in ImageCraft: Image Fallbacks — never show a broken image again."
+msgstr ""
+"Novidade no ImageCraft: imagens reserva — nunca mais mostre uma imagem "
+"quebrada."
+
+#: includes/AdminNotice.php:119
+msgid ""
+"Pick one fallback image: it replaces broken images for your visitors and "
+"acts as the featured image for posts without one. Non-destructive and off by "
+"default."
+msgstr ""
+"Escolha uma imagem reserva: ela substitui imagens quebradas para seus "
+"visitantes e serve como imagem destacada em posts que não têm uma. Não "
+"destrutiva e desativada por padrão."
+
+#: includes/AdminNotice.php:123
+msgid "Set up Image Fallbacks"
+msgstr "Configurar imagens reserva"
+
+#: includes/AdminNotice.php:171
+msgid "You've generated over 8 alt texts with ImageCraft — that's awesome!"
+msgstr ""
+"Você já gerou mais de 8 textos alternativos com o ImageCraft — incrível!"
+
+#: includes/AdminNotice.php:172
+msgid ""
+"If you find the plugin helpful, we'd love a quick review on WordPress.org. "
+"It helps us grow and keep improving!"
+msgstr ""
+"Se o plugin está sendo útil, adoraríamos uma avaliação rápida no "
+"WordPress.org. Ela nos ajuda a crescer e a melhorar!"
+
+#: includes/AdminNotice.php:176 includes/Services/TranslationStrings.php:975
+msgid "Leave a Review"
+msgstr "Deixar uma avaliação"
+
+#: includes/AdminNotice.php:179
+msgid "Maybe Later"
+msgstr "Talvez mais tarde"
+
+#: includes/DeactivationSurvey.php:54
+msgid "I no longer need the plugin"
+msgstr "Não preciso mais do plugin"
+
+#: includes/DeactivationSurvey.php:58
+msgid "I found a better plugin"
+msgstr "Encontrei um plugin melhor"
+
+#: includes/DeactivationSurvey.php:59
+msgid "Which plugin? (optional)"
+msgstr "Qual plugin? (opcional)"
+
+#: includes/DeactivationSurvey.php:63
+msgid "I couldn't get the plugin to work"
+msgstr "Não consegui fazer o plugin funcionar"
+
+#: includes/DeactivationSurvey.php:64
+msgid "What went wrong? We'd love to help. (optional)"
+msgstr "O que deu errado? Adoraríamos ajudar. (opcional)"
+
+#: includes/DeactivationSurvey.php:68
+msgid "It's a temporary deactivation"
+msgstr "É uma desativação temporária"
+
+#: includes/DeactivationSurvey.php:72
+msgid "I don't know how to use it"
+msgstr "Não sei como usá-lo"
+
+#: includes/DeactivationSurvey.php:73
+msgid "What were you trying to do? (optional)"
+msgstr "O que você estava tentando fazer? (opcional)"
+
+#: includes/DeactivationSurvey.php:77
+msgid "Other"
+msgstr "Outro"
+
+#: includes/DeactivationSurvey.php:78
+msgid "Please tell us more (optional)"
+msgstr "Conte-nos mais (opcional)"
+
+#: includes/DeactivationSurvey.php:102
+#: includes/Services/TranslationStrings.php:577
+msgid "Close"
+msgstr "Fechar"
+
+#: includes/DeactivationSurvey.php:105
+msgid "Quick question before you go"
+msgstr "Uma pergunta rápida antes de você ir"
+
+#: includes/DeactivationSurvey.php:108
+msgid ""
+"If you have a moment, please let us know why you are deactivating "
+"ImageCraft. It helps us improve."
+msgstr ""
+"Se tiver um momento, conte por que está desativando o ImageCraft. Isso nos "
+"ajuda a melhorar."
+
+#: includes/DeactivationSurvey.php:135
+msgid "Skip & Deactivate"
+msgstr "Pular e desativar"
+
+#: includes/DeactivationSurvey.php:138
+msgid "Submit & Deactivate"
+msgstr "Enviar e desativar"
+
+#: includes/Enqueue.php:131 includes/Services/TranslationStrings.php:929
+msgid "Generate"
+msgstr "Gerar"
+
+#: includes/Enqueue.php:132 includes/Enqueue.php:192
+#: includes/Services/TranslationStrings.php:581
+msgid "Generating..."
+msgstr "Gerando..."
+
+#: includes/Enqueue.php:133
+msgid "Generated!"
+msgstr "Gerado!"
+
+#: includes/Enqueue.php:134
+msgid "Failed to generate metadata."
+msgstr "Falha ao gerar os metadados."
+
+#: includes/Enqueue.php:135 includes/Services/TranslationStrings.php:37
+#: includes/Services/TranslationStrings.php:580
+msgid "Alt text"
+msgstr "Texto alternativo"
+
+#: includes/Enqueue.php:136 includes/Services/TranslationStrings.php:358
+msgid "Title"
+msgstr "Título"
+
+#: includes/Enqueue.php:137 includes/Services/TranslationStrings.php:51
+msgid "Description"
+msgstr "Descrição"
+
+#: includes/Enqueue.php:138 includes/Services/TranslationStrings.php:151
+msgid "Compress"
+msgstr "Comprimir"
+
+#: includes/Enqueue.php:139 includes/Services/TranslationStrings.php:156
+msgid "Compressing..."
+msgstr "Comprimindo..."
+
+#. translators: %s: human-readable size saved, e.g. "120 KB"
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Enqueue.php:141 includes/Services/TranslationStrings.php:155
+#, php-format
+msgid "Compressed — saved %s"
+msgstr "Comprimido — %s economizado"
+
+#: includes/Enqueue.php:142
+msgid "Already optimized."
+msgstr "Já otimizada."
+
+#: includes/Enqueue.php:143
+msgid "Failed to compress image."
+msgstr "Falha ao comprimir a imagem."
+
+#: includes/Enqueue.php:144
+msgid "Could not detect image. Please select an image first."
+msgstr "Não foi possível detectar a imagem. Selecione uma imagem primeiro."
+
+#: includes/Enqueue.php:145 includes/Services/TranslationStrings.php:304
+msgid "Rename File"
+msgstr "Renomear arquivo"
+
+#: includes/Enqueue.php:146 includes/Services/TranslationStrings.php:569
+msgid "Renaming..."
+msgstr "Renomeando..."
+
+#. translators: %s: new filename
+#: includes/Enqueue.php:148
+#, php-format
+msgid "File renamed to: %s"
+msgstr "Arquivo renomeado para: %s"
+
+#: includes/Enqueue.php:149
+msgid "Failed to rename file."
+msgstr "Falha ao renomear o arquivo."
+
+#: includes/Enqueue.php:150
+msgid "Generate Title"
+msgstr "Gerar título"
+
+#: includes/Enqueue.php:151
+msgid "Generating title..."
+msgstr "Gerando título..."
+
+#. translators: %s: new title
+#: includes/Enqueue.php:153
+#, php-format
+msgid "Title updated to: %s"
+msgstr "Título atualizado para: %s"
+
+#: includes/Enqueue.php:154
+msgid "Failed to generate title."
+msgstr "Falha ao gerar o título."
+
+#: includes/Enqueue.php:155
+msgid ""
+"This will change the image URL. External links and cached pages may show "
+"broken images.\n"
+"\n"
+"Are you sure you want to rename this file?"
+msgstr ""
+"Isso vai mudar a URL da imagem. Links externos e páginas em cache podem "
+"mostrar imagens quebradas.\n"
+"\n"
+"Tem certeza de que deseja renomear este arquivo?"
+
+#: includes/Enqueue.php:191 includes/Services/TranslationStrings.php:582
+msgid "Generate with AI"
+msgstr "Gerar com IA"
+
+#: includes/Enqueue.php:193
+msgid "Accept"
+msgstr "Aceitar"
+
+#: includes/Enqueue.php:194
+msgid "Reject"
+msgstr "Rejeitar"
+
+#: includes/Enqueue.php:195
+msgid "Alt text generated!"
+msgstr "Texto alternativo gerado!"
+
+#: includes/Enqueue.php:196
+msgid "Failed to generate alt text."
+msgstr "Falha ao gerar o texto alternativo."
+
+#: includes/Http/Controllers/BatchController.php:104
+msgid "Image IDs are required"
+msgstr "Os IDs das imagens são obrigatórios"
+
+#: includes/Http/Controllers/BatchController.php:111
+msgid "Maximum 500 images per batch job"
+msgstr "Máximo de 500 imagens por trabalho em lote"
+
+#: includes/Http/Controllers/BatchController.php:122
+#: includes/Http/Controllers/BatchController.php:1078
+msgid "A batch job is already in progress"
+msgstr "Já existe um trabalho em lote em andamento"
+
+#: includes/Http/Controllers/BatchController.php:178
+#: includes/Http/Controllers/BatchController.php:233
+#: includes/Http/Controllers/BatchController.php:593
+#: includes/Http/Controllers/BatchController.php:734
+#: includes/Http/Controllers/BatchController.php:866
+#: includes/Http/Controllers/BatchController.php:957
+#: includes/Http/Controllers/BatchController.php:1039
+msgid "Job ID is required"
+msgstr "O ID do trabalho é obrigatório"
+
+#: includes/Http/Controllers/BatchController.php:186
+#: includes/Http/Controllers/BatchController.php:241
+#: includes/Http/Controllers/BatchController.php:601
+#: includes/Http/Controllers/BatchController.php:742
+#: includes/Http/Controllers/BatchController.php:874
+#: includes/Http/Controllers/BatchController.php:965
+#: includes/Http/Controllers/BatchController.php:1047
+msgid "Job not found"
+msgstr "Trabalho não encontrado"
+
+#: includes/Http/Controllers/BatchController.php:249
+msgid "This job is no longer active"
+msgstr "Este trabalho não está mais ativo"
+
+#: includes/Http/Controllers/BatchController.php:261
+msgid "Client ID is required"
+msgstr "O ID do cliente é obrigatório"
+
+#: includes/Http/Controllers/BatchController.php:270
+msgid "This job is being processed by another window"
+msgstr "Este trabalho está sendo processado em outra janela"
+
+#: includes/Http/Controllers/BatchController.php:282
+msgid "Image IDs not found for this job"
+msgstr "IDs das imagens não encontrados para este trabalho"
+
+#: includes/Http/Controllers/BatchController.php:356
+msgid ""
+"Daily compression limit reached. Upgrade to Pro for unlimited compression."
+msgstr ""
+"Limite diário de compressão atingido. Faça upgrade para o Pro e tenha "
+"compressão ilimitada."
+
+#: includes/Http/Controllers/BatchController.php:371
+#: includes/Http/Controllers/CompressorController.php:147
+#: includes/Services/ImageCompressor.php:182
+#: includes/Services/TranslationStrings.php:157
+msgid "Compression failed"
+msgstr "Falha na compressão"
+
+#: includes/Http/Controllers/BatchController.php:380
+#: includes/Services/ImageCompressor.php:55
+msgid "Compression failed. Check error log for details."
+msgstr "Falha na compressão. Verifique o log de erros para detalhes."
+
+#: includes/Http/Controllers/BatchController.php:391
+msgid ""
+"Daily compression limit reached. Upgrade to Pro for unlimited conversions."
+msgstr ""
+"Limite diário de compressão atingido. Faça upgrade para o Pro e tenha "
+"conversões ilimitadas."
+
+#: includes/Http/Controllers/BatchController.php:410
+msgid "Conversion failed"
+msgstr "Falha na conversão"
+
+#: includes/Http/Controllers/BatchController.php:419
+#: includes/Services/NextGenConverter.php:114
+msgid "Conversion failed. Check error log for details."
+msgstr "Falha na conversão. Verifique o log de erros para detalhes."
+
+#: includes/Http/Controllers/BatchController.php:432
+msgid "Title generation failed"
+msgstr "Falha na geração do título"
+
+#: includes/Http/Controllers/BatchController.php:441
+msgid "Title generation failed. Check error log for details."
+msgstr "Falha na geração do título. Verifique o log de erros para detalhes."
+
+#: includes/Http/Controllers/BatchController.php:462
+msgid "Metadata generation failed"
+msgstr "Falha na geração dos metadados"
+
+#: includes/Http/Controllers/BatchController.php:471
+msgid "Metadata generation failed. Check error log for details."
+msgstr ""
+"Falha na geração dos metadados. Verifique o log de erros para detalhes."
+
+#: includes/Http/Controllers/BatchController.php:501
+msgid "Alt text generation failed"
+msgstr "Falha na geração do texto alternativo"
+
+#: includes/Http/Controllers/BatchController.php:510
+msgid "Generation failed. Check error log for details."
+msgstr "Falha na geração. Verifique o log de erros para detalhes."
+
+#: includes/Http/Controllers/BatchController.php:612
+#: includes/Http/Controllers/BatchController.php:758
+#: includes/Services/TranslationStrings.php:913
+msgid "This job is currently being processed in another window."
+msgstr "Este trabalho está sendo processado em outra janela."
+
+#: includes/Http/Controllers/BatchController.php:631
+#: includes/Services/TranslationStrings.php:895
+msgid "Batch job cancelled"
+msgstr "Trabalho em lote cancelado"
+
+#: includes/Http/Controllers/BatchController.php:750
+msgid "This job cannot be resumed"
+msgstr "Este trabalho não pode ser retomado"
+
+#: includes/Http/Controllers/BatchController.php:772
+msgid "Image data for this job has expired. Please start a new batch."
+msgstr "Os dados das imagens deste trabalho expiraram. Inicie um novo lote."
+
+#: includes/Http/Controllers/BatchController.php:881
+msgid "Job is not completed yet"
+msgstr "O trabalho ainda não foi concluído"
+
+#: includes/Http/Controllers/BatchController.php:1011
+msgid "(deleted)"
+msgstr "(excluído)"
+
+#: includes/Http/Controllers/BatchController.php:1012
+msgid "Unknown error"
+msgstr "Erro desconhecido"
+
+#: includes/Http/Controllers/BatchController.php:1055
+msgid "No failure details available to retry"
+msgstr "Não há detalhes de falhas disponíveis para tentar novamente"
+
+#: includes/Http/Controllers/BatchController.php:1067
+msgid "No valid images to retry"
+msgstr "Nenhuma imagem válida para tentar novamente"
+
+#: includes/Http/Controllers/CompressorController.php:128
+#: includes/Http/Controllers/CompressorController.php:173
+#: includes/Http/Controllers/CompressorController.php:274
+#: includes/Http/Controllers/CompressorController.php:298
+#: includes/Http/Controllers/CompressorController.php:331
+#: includes/Http/Controllers/FileRenamerController.php:29
+#: includes/Http/Controllers/FileRenamerController.php:209
+#: includes/Http/Controllers/GeneratorController.php:164
+#: includes/Http/Controllers/GeneratorController.php:278
+#: includes/Http/Controllers/GeneratorController.php:713
+#: includes/Http/Controllers/GeneratorController.php:1197
+msgid "Attachment ID is required"
+msgstr "O ID do anexo é obrigatório"
+
+#: includes/Http/Controllers/CompressorController.php:186
+msgid "This server cannot create WebP or AVIF images"
+msgstr "Este servidor não pode criar imagens WebP ou AVIF"
+
+#: includes/Http/Controllers/CompressorController.php:203
+msgid "Nothing to convert for this image"
+msgstr "Nada para converter nesta imagem"
+
+#: includes/Http/Controllers/CompressorController.php:312
+#: includes/Services/TranslationStrings.php:312
+msgid "Restore failed"
+msgstr "Falha na restauração"
+
+#: includes/Http/Controllers/CompressorController.php:364
+msgid "Not authorized to modify this attachment"
+msgstr "Sem autorização para modificar este anexo"
+
+#: includes/Http/Controllers/FallbackController.php:55
+msgid "Something went wrong"
+msgstr "Algo deu errado"
+
+#: includes/Http/Controllers/FeedbackController.php:49
+msgid "Invalid feedback reason"
+msgstr "Motivo de feedback inválido"
+
+#: includes/Http/Controllers/FeedbackController.php:83
+msgid "Thanks for your feedback"
+msgstr "Obrigado pelo seu feedback"
+
+#: includes/Http/Controllers/FileBirdController.php:30
+msgid "Folder ID is required"
+msgstr "O ID da pasta é obrigatório"
+
+#: includes/Http/Controllers/FileBirdController.php:42
+msgid "Folder not found"
+msgstr "Pasta não encontrada"
+
+#: includes/Http/Controllers/FileBirdController.php:48
+msgid "Not authorized to access this folder"
+msgstr "Sem autorização para acessar esta pasta"
+
+#: includes/Http/Controllers/FileRenamerController.php:38
+msgid "Not authorized to rename this attachment"
+msgstr "Sem autorização para renomear este anexo"
+
+#: includes/Http/Controllers/FileRenamerController.php:52
+msgid "File already has the correct name"
+msgstr "O arquivo já tem o nome correto"
+
+#: includes/Http/Controllers/FileRenamerController.php:60
+msgid "File renamed successfully"
+msgstr "Arquivo renomeado com sucesso"
+
+#: includes/Http/Controllers/FileRenamerController.php:81
+msgid "No attachments provided"
+msgstr "Nenhum anexo fornecido"
+
+#: includes/Http/Controllers/FileRenamerController.php:88
+msgid "Maximum 25 images per request"
+msgstr "Máximo de 25 imagens por solicitação"
+
+#. translators: %1$d: number of updated titles, %2$d: total number of images
+#: includes/Http/Controllers/FileRenamerController.php:137
+#, php-format
+msgid "Updated %1$d/%2$d titles"
+msgstr "%1$d/%2$d títulos atualizados"
+
+#: includes/Http/Controllers/GeneratorController.php:41
+#: includes/Http/Controllers/GeneratorController.php:187
+msgid "This integration is disabled."
+msgstr "Esta integração está desativada."
+
+#: includes/Http/Controllers/GeneratorController.php:173
+#: includes/Http/Controllers/GeneratorController.php:1213
+msgid "Not authorized to edit this attachment"
+msgstr "Sem autorização para editar este anexo"
+
+#: includes/Http/Controllers/GeneratorController.php:241
+#: includes/Http/Controllers/GeneratorController.php:593
+msgid "Failed to generate metadata. Please try again."
+msgstr "Falha ao gerar os metadados. Tente novamente."
+
+#: includes/Http/Controllers/GeneratorController.php:285
+#: includes/Http/Controllers/GeneratorController.php:720
+#: includes/Http/Controllers/GeneratorController.php:1204
+msgid "Invalid image attachment"
+msgstr "Anexo de imagem inválido"
+
+#: includes/Http/Controllers/GeneratorController.php:328
+msgid "Metadata already exists — skipped"
+msgstr "Os metadados já existem — ignorado"
+
+#: includes/Http/Controllers/GeneratorController.php:341
+#: includes/Http/Controllers/GeneratorController.php:738
+msgid "No API key configured. Please set up your API key in settings."
+msgstr ""
+"Nenhuma chave de API configurada. Configure sua chave de API nas "
+"configurações."
+
+#: includes/Http/Controllers/GeneratorController.php:349
+#: includes/Http/Controllers/GeneratorController.php:746
+#: includes/Http/Controllers/GeneratorController.php:994
+#: includes/Http/Controllers/GeneratorController.php:1074
+#: includes/Http/Controllers/GeneratorController.php:1125
+#: includes/Http/Controllers/WooCommerceController.php:179
+msgid "Failed to get image URL"
+msgstr "Falha ao obter a URL da imagem"
+
+#: includes/Http/Controllers/GeneratorController.php:376
+#: includes/Http/Controllers/GeneratorController.php:761
+msgid ""
+"Image file not found or inaccessible. Please verify the image exists in your "
+"media library."
+msgstr ""
+"Arquivo de imagem não encontrado ou inacessível. Verifique se a imagem "
+"existe na sua biblioteca de mídia."
+
+#: includes/Http/Controllers/GeneratorController.php:421
+msgid ""
+"Failed to generate metadata — the AI cut its response short, possibly due to "
+"rate limiting or high demand on your provider account. Please try again in a "
+"moment."
+msgstr ""
+"Falha ao gerar os metadados — a IA interrompeu a resposta, possivelmente por "
+"limitação de requisições ou alta demanda na sua conta. Tente novamente em "
+"instantes."
+
+#: includes/Http/Controllers/GeneratorController.php:422
+msgid ""
+"Failed to generate metadata — the AI response was incomplete. Please try "
+"again."
+msgstr ""
+"Falha ao gerar os metadados — a resposta da IA estava incompleta. Tente "
+"novamente."
+
+#: includes/Http/Controllers/GeneratorController.php:487
+#: includes/Http/Controllers/GeneratorController.php:825
+#: includes/Http/Controllers/GeneratorController.php:1258
+msgid "History ID is required"
+msgstr "O ID do histórico é obrigatório"
+
+#: includes/Http/Controllers/GeneratorController.php:495
+#: includes/Http/Controllers/GeneratorController.php:833
+#: includes/Http/Controllers/GeneratorController.php:1266
+msgid "History not found"
+msgstr "Histórico não encontrado"
+
+#: includes/Http/Controllers/GeneratorController.php:503
+#: includes/Http/Controllers/GeneratorController.php:841
+#: includes/Http/Controllers/GeneratorController.php:1274
+msgid "Not authorized"
+msgstr "Não autorizado"
+
+#: includes/Http/Controllers/GeneratorController.php:533
+#: includes/Http/Controllers/GeneratorController.php:870
+#: includes/Http/Controllers/GeneratorController.php:1282
+msgid "Failed to update history record"
+msgstr "Falha ao atualizar o registro do histórico"
+
+#: includes/Http/Controllers/GeneratorController.php:541
+msgid "Metadata saved successfully"
+msgstr "Metadados salvos com sucesso"
+
+#: includes/Http/Controllers/GeneratorController.php:565
+msgid ""
+"The request timed out before the AI could respond. This often happens on "
+"slower hosts or with larger images — please try again, ideally one image at "
+"a time."
+msgstr ""
+"A solicitação expirou antes de a IA responder. Isso é comum em servidores "
+"lentos ou com imagens grandes — tente novamente, de preferência uma imagem "
+"por vez."
+
+#: includes/Http/Controllers/GeneratorController.php:577
+msgid ""
+"Your AI provider is rate limiting or over capacity right now. Please wait a "
+"moment and try again."
+msgstr ""
+"Seu provedor de IA está limitando requisições ou sobrecarregado. Aguarde um "
+"momento e tente novamente."
+
+#: includes/Http/Controllers/GeneratorController.php:589
+msgid ""
+"Authentication failed. Please check your API key in Settings and try again."
+msgstr ""
+"Falha na autenticação. Verifique sua chave de API nas configurações e tente "
+"novamente."
+
+#: includes/Http/Controllers/GeneratorController.php:774
+#: includes/Http/Controllers/WooCommerceController.php:227
+msgid "Failed to generate alt text. Please check your API key and try again."
+msgstr ""
+"Falha ao gerar o texto alternativo. Verifique sua chave de API e tente "
+"novamente."
+
+#: includes/Http/Controllers/GeneratorController.php:878
+#: includes/Http/Controllers/GeneratorController.php:1243
+msgid "Alt text saved successfully"
+msgstr "Texto alternativo salvo com sucesso"
+
+#: includes/Http/Controllers/GeneratorController.php:893
+msgid "Items array is required"
+msgstr "O array de itens é obrigatório"
+
+#. translators: %d: history record ID
+#: includes/Http/Controllers/GeneratorController.php:926
+#, php-format
+msgid "History %d not found"
+msgstr "Histórico %d não encontrado"
+
+#. translators: %d: history record ID
+#: includes/Http/Controllers/GeneratorController.php:935
+#, php-format
+msgid "Not authorized for history %d"
+msgstr "Não autorizado para o histórico %d"
+
+#. translators: %d: number of saved alt texts
+#: includes/Http/Controllers/GeneratorController.php:968
+#, php-format
+msgid "%d alt text(s) saved successfully"
+msgstr "%d texto(s) alternativo(s) salvos com sucesso"
+
+#: includes/Http/Controllers/GeneratorController.php:986
+#: includes/Http/Controllers/GeneratorController.php:1066
+#: includes/Http/Controllers/GeneratorController.php:1117
+msgid "No API key configured."
+msgstr "Nenhuma chave de API configurada."
+
+#: includes/Http/Controllers/GeneratorController.php:1007
+msgid "Title already exists"
+msgstr "O título já existe"
+
+#: includes/Http/Controllers/GeneratorController.php:1023
+msgid "Failed to generate title. Please check your API key and try again."
+msgstr "Falha ao gerar o título. Verifique sua chave de API e tente novamente."
+
+#: includes/Http/Controllers/GeneratorController.php:1088
+msgid "Failed to generate link title. Please check your API key and try again."
+msgstr ""
+"Falha ao gerar o título do link. Verifique sua chave de API e tente "
+"novamente."
+
+#: includes/Http/Controllers/GeneratorController.php:1140
+msgid "Failed to generate filename. Please check your API key and try again."
+msgstr ""
+"Falha ao gerar o nome do arquivo. Verifique sua chave de API e tente "
+"novamente."
+
+#: includes/Http/Controllers/GeneratorController.php:1173
+#: includes/Services/TranslationStrings.php:606
+msgid "Failed to rename file"
+msgstr "Falha ao renomear o arquivo"
+
+#: includes/Http/Controllers/GeneratorController.php:1290
+msgid "Alt text rejected"
+msgstr "Texto alternativo rejeitado"
+
+#: includes/Http/Controllers/SettingsController.php:111
+msgid "No settings provided"
+msgstr "Nenhuma configuração fornecida"
+
+#: includes/Http/Controllers/SettingsController.php:127
+msgid "Invalid setting keys:"
+msgstr "Chaves de configuração inválidas:"
+
+#: includes/Http/Controllers/SettingsController.php:234
+#: includes/Http/Controllers/SettingsController.php:254
+msgid "Settings updated successfully"
+msgstr "Configurações atualizadas com sucesso"
+
+#: includes/Http/Controllers/SettingsController.php:260
+msgid "Failed to update some settings"
+msgstr "Falha ao atualizar algumas configurações"
+
+#: includes/Http/Controllers/SettingsController.php:269
+msgid "An error occurred while updating settings."
+msgstr "Ocorreu um erro ao atualizar as configurações."
+
+#: includes/Http/Controllers/SettingsController.php:289
+msgid "Provider and API key are required"
+msgstr "Provedor e chave de API são obrigatórios"
+
+#: includes/Http/Controllers/SettingsController.php:297
+#: includes/Http/Controllers/SettingsController.php:444
+msgid "Invalid API key format"
+msgstr "Formato de chave de API inválido"
+
+#: includes/Http/Controllers/SettingsController.php:304
+msgid "Invalid provider"
+msgstr "Provedor inválido"
+
+#: includes/Http/Controllers/SettingsController.php:348
+msgid "Failed to encrypt API key. Please try again."
+msgstr "Falha ao criptografar a chave de API. Tente novamente."
+
+#: includes/Http/Controllers/SettingsController.php:358
+msgid "Failed to encrypt API key. Encrypted value is empty."
+msgstr ""
+"Falha ao criptografar a chave de API. O valor criptografado está vazio."
+
+#: includes/Http/Controllers/SettingsController.php:367
+msgid "Failed to save API key to database"
+msgstr "Falha ao salvar a chave de API no banco de dados"
+
+#: includes/Http/Controllers/SettingsController.php:376
+msgid "Invalid table configuration"
+msgstr "Configuração de tabela inválida"
+
+#: includes/Http/Controllers/SettingsController.php:385
+msgid "API key was not saved correctly. Please try again."
+msgstr "A chave de API não foi salva corretamente. Tente novamente."
+
+#: includes/Http/Controllers/SettingsController.php:402
+#: includes/Services/TranslationStrings.php:761
+msgid "API key saved successfully"
+msgstr "Chave de API salva com sucesso"
+
+#: includes/Http/Controllers/SettingsController.php:418
+msgid "Too many test requests. Please wait a minute before trying again."
+msgstr ""
+"Muitas solicitações de teste. Aguarde um minuto antes de tentar novamente."
+
+#: includes/Http/Controllers/SettingsController.php:452
+msgid "Provider is required"
+msgstr "O provedor é obrigatório"
+
+#: includes/Http/Controllers/SettingsController.php:469
+msgid "API connection test failed. Please check your API key."
+msgstr "Falha no teste de conexão com a API. Verifique sua chave de API."
+
+#: includes/Http/Controllers/SettingsController.php:484
+msgid "User not logged in"
+msgstr "Usuário não conectado"
+
+#: includes/Http/Controllers/SettingsController.php:496
+msgid "Wizard completed"
+msgstr "Assistente concluído"
+
+#: includes/Http/Controllers/SettingsController.php:502
+#: includes/Services/TranslationStrings.php:846
+msgid "Failed to complete wizard"
+msgstr "Falha ao concluir o assistente"
+
+#: includes/Http/Controllers/WooCommerceController.php:21
+#: includes/Http/Controllers/WooCommerceController.php:56
+#: includes/Http/Controllers/WooCommerceController.php:73
+#: includes/Http/Controllers/WooCommerceController.php:88
+#: includes/Http/Controllers/WooCommerceController.php:117
+#: includes/Http/Controllers/WooCommerceController.php:244
+msgid "WooCommerce is not active"
+msgstr "O WooCommerce não está ativo"
+
+#: includes/Http/Controllers/WooCommerceController.php:99
+#: includes/Http/Controllers/WooCommerceController.php:128
+#: includes/Http/Controllers/WooCommerceController.php:253
+msgid "Product ID is required"
+msgstr "O ID do produto é obrigatório"
+
+#: includes/Http/Controllers/WooCommerceController.php:136
+msgid "Product not found"
+msgstr "Produto não encontrado"
+
+#: includes/Http/Controllers/WooCommerceController.php:144
+msgid "Product has no gallery images"
+msgstr "O produto não tem imagens de galeria"
+
+#: includes/Http/Controllers/WooCommerceController.php:154
+msgid "No API key configured"
+msgstr "Nenhuma chave de API configurada"
+
+#: includes/Http/Middleware/RoleGate.php:31
+msgid "Your role is not permitted to use this feature."
+msgstr "Sua função não tem permissão para usar este recurso."
+
+#: includes/Http/Routes/Route.php:161
+msgid "An unexpected error occurred."
+msgstr "Ocorreu um erro inesperado."
+
+#: includes/Http/Routes/Route.php:179
+msgid "You must be logged in."
+msgstr "Você precisa estar conectado."
+
+#: includes/Http/Routes/Route.php:189
+msgid "Insufficient permissions."
+msgstr "Permissões insuficientes."
+
+#: includes/Http/Routes/Route.php:203
+msgid "Invalid middleware configuration"
+msgstr "Configuração de middleware inválida"
+
+#: includes/Http/Routes/Route.php:217
+msgid "Access denied"
+msgstr "Acesso negado"
+
+#: includes/Http/Routes/Route.php:225
+msgid "Internal server error"
+msgstr "Erro interno do servidor"
+
+#: includes/Install.php:42
+msgid "Could not install ImageCraft plugin. Please check error logs."
+msgstr ""
+"Não foi possível instalar o plugin ImageCraft. Verifique os logs de erros."
+
+#: includes/Services/AI/WP7Provider.php:109
+#: includes/Services/AI/WP7Provider.php:116
+msgid "WordPress 7.0 AI Client is not available"
+msgstr "O AI Client do WordPress 7.0 não está disponível"
+
+#: includes/Services/AI/WP7Provider.php:155
+msgid "WordPress AI Client returned an empty response"
+msgstr "O AI Client do WordPress retornou uma resposta vazia"
+
+#: includes/Services/AI/WP7Provider.php:194
+msgid "WordPress 7.0 is required for this feature"
+msgstr "Este recurso requer o WordPress 7.0"
+
+#: includes/Services/AI/WP7Provider.php:210
+msgid "Could not verify the WordPress AI Client. Please try again."
+msgstr "Não foi possível verificar o AI Client do WordPress. Tente novamente."
+
+#: includes/Services/AI/WP7Provider.php:217
+msgid ""
+"No AI provider configured. Go to WordPress Settings → Connectors to set one "
+"up."
+msgstr ""
+"Nenhum provedor de IA configurado. Vá em Configurações do WordPress → "
+"Conectores para configurar um."
+
+#: includes/Services/AI/WP7Provider.php:223
+msgid "WordPress AI Client is ready"
+msgstr "O AI Client do WordPress está pronto"
+
+#: includes/Services/ImageCompressor.php:70
+msgid "Restore failed. Check error log for details."
+msgstr "Falha na restauração. Verifique o log de erros para detalhes."
+
+#: includes/Services/ImageCompressor.php:83
+msgid "Attachment is not an image"
+msgstr "O anexo não é uma imagem"
+
+#: includes/Services/ImageCompressor.php:89
+#: includes/Services/ImageCompressor.php:131
+#: includes/Services/ImageCompressor.php:139
+#: includes/Services/NextGenConverter.php:182
+msgid "Original file not found"
+msgstr "Arquivo original não encontrado"
+
+#: includes/Services/ImageCompressor.php:103
+msgid "Preview failed"
+msgstr "Falha na pré-visualização"
+
+#: includes/Services/ImageCompressor.php:114
+#: includes/Services/ImageCompressor.php:344
+msgid "Image editing is not available on this server"
+msgstr "A edição de imagens não está disponível neste servidor"
+
+#: includes/Services/ImageCompressor.php:136
+#: includes/Services/ImageCompressor.php:385
+msgid "Filesystem API not available"
+msgstr "API de sistema de arquivos indisponível"
+
+#: includes/Services/ImageCompressor.php:224
+msgid "Failed to write compressed image"
+msgstr "Falha ao gravar a imagem comprimida"
+
+#: includes/Services/ImageCompressor.php:380
+msgid "No backup found for this image"
+msgstr "Nenhum backup encontrado para esta imagem"
+
+#: includes/Services/ImageCompressor.php:394
+msgid "Invalid backup location"
+msgstr "Local de backup inválido"
+
+#: includes/Services/ImageCompressor.php:443
+msgid "Failed to create backup directory"
+msgstr "Falha ao criar o diretório de backups"
+
+#: includes/Services/TranslationStrings.php:33
+msgid "Generate All (Alt + Title + Caption)"
+msgstr "Gerar tudo (alt + título + legenda)"
+
+#: includes/Services/TranslationStrings.php:34
+msgid ""
+"Generate alt text, title and caption together in a single AI call — one "
+"click per image."
+msgstr ""
+"Gere texto alternativo, título e legenda juntos em uma única chamada de IA — "
+"um clique por imagem."
+
+#: includes/Services/TranslationStrings.php:35
+msgid "Enable the Generate All button"
+msgstr "Ativar o botão «Gerar tudo»"
+
+#: includes/Services/TranslationStrings.php:36
+msgid "Fields to generate"
+msgstr "Campos a gerar"
+
+#: includes/Services/TranslationStrings.php:38
+msgid "Caption"
+msgstr "Legenda"
+
+#: includes/Services/TranslationStrings.php:39
+msgid "Caption Tone"
+msgstr "Tom da legenda"
+
+#: includes/Services/TranslationStrings.php:40
+msgid "Max Caption Length"
+msgstr "Comprimento máximo da legenda"
+
+#: includes/Services/TranslationStrings.php:41
+msgid "Characters in caption (default: 150)"
+msgstr "Caracteres na legenda (padrão: 150)"
+
+#: includes/Services/TranslationStrings.php:42
+msgid "Skip images with an existing caption"
+msgstr "Ignorar imagens com legenda existente"
+
+#: includes/Services/TranslationStrings.php:43
+msgid "Auto-generate all on upload"
+msgstr "Gerar tudo automaticamente no envio"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:45
+#, php-format
+msgid "Generate All (%s)"
+msgstr "Gerar tudo (%s)"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:47
+#, php-format
+msgid "Generate Caption (%s)"
+msgstr "Gerar legenda (%s)"
+
+#: includes/Services/TranslationStrings.php:48
+msgid "Generate Caption"
+msgstr "Gerar legenda"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:50
+#, php-format
+msgid "Generate (%s)"
+msgstr "Gerar (%s)"
+
+#. translators: %s: number of images
+#: includes/Services/TranslationStrings.php:53
+#, php-format
+msgid "Generation started for %s images"
+msgstr "Geração iniciada para %s imagens"
+
+#: includes/Services/TranslationStrings.php:56
+msgid "Overall optimization"
+msgstr "Otimização geral"
+
+#: includes/Services/TranslationStrings.php:57
+msgid "Blended across alt text, titles, descriptions and compression."
+msgstr "Combinada entre textos alternativos, títulos, descrições e compressão."
+
+#: includes/Services/TranslationStrings.php:58
+msgid "covered"
+msgstr "coberto"
+
+#. translators: %s: number of images
+#: includes/Services/TranslationStrings.php:60
+#, php-format
+msgid "Metadata generation started for %s images"
+msgstr "Geração de metadados iniciada para %s imagens"
+
+#: includes/Services/TranslationStrings.php:63
+msgid "Skip — I only want image compression (no API key needed)"
+msgstr "Pular — só quero compressão de imagens (não precisa de chave de API)"
+
+#: includes/Services/TranslationStrings.php:64
+msgid "Skip for now"
+msgstr "Pular por enquanto"
+
+#: includes/Services/TranslationStrings.php:65
+msgid "Failed to skip setup"
+msgstr "Falha ao pular a configuração"
+
+#: includes/Services/TranslationStrings.php:66
+msgid "Add API key"
+msgstr "Adicionar chave de API"
+
+#: includes/Services/TranslationStrings.php:67
+msgid "Unlock AI alt text, titles & descriptions"
+msgstr "Desbloqueie textos alternativos, títulos e descrições com IA"
+
+#: includes/Services/TranslationStrings.php:68
+msgid ""
+"Use your own API key or your site's WordPress AI Client — you pay your "
+"provider directly, with no markup. Compression, WebP conversion and "
+"fallbacks work without a key."
+msgstr ""
+"Use sua própria chave de API ou o AI Client do WordPress do seu site — você "
+"paga direto ao provedor, sem markup. Compressão, conversão WebP e imagens "
+"reserva funcionam sem chave."
+
+#: includes/Services/TranslationStrings.php:69
+msgid "Add your API key to generate alt text, titles and captions."
+msgstr ""
+"Adicione sua chave de API para gerar textos alternativos, títulos e legendas."
+
+#: includes/Services/TranslationStrings.php:70
+msgid ""
+"Add your API key to generate alt text, titles and captions. Image "
+"compression works without a key."
+msgstr ""
+"Adicione sua chave de API para gerar textos alternativos, títulos e "
+"legendas. A compressão de imagens funciona sem chave."
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:85
+#, php-format
+msgid "%1$s completed, %2$s failed"
+msgstr "%1$s concluídas, %2$s falharam"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:87
+#, php-format
+msgid "%1$s images processed successfully"
+msgstr "%1$s imagens processadas com sucesso"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:89
+#, php-format
+msgid "%s images could not be restored"
+msgstr "%s imagens não puderam ser restauradas"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:91
+#, php-format
+msgid "%s selected"
+msgstr "%s selecionadas"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:93
+#, php-format
+msgid ", %s failed"
+msgstr ", %s falharam"
+
+#: includes/Services/TranslationStrings.php:94
+msgid ""
+"85 is visually lossless (recommended). Lower for smaller files. We never re-"
+"encode larger than the original."
+msgstr ""
+"85 é visualmente sem perdas (recomendado). Mais baixo para arquivos menores. "
+"Nunca recodificamos maior que o original."
+
+#: includes/Services/TranslationStrings.php:95
+msgid ""
+"A key is currently defined in wp-config.php and takes priority over the "
+"database key."
+msgstr ""
+"Há uma chave definida no wp-config.php e ela tem prioridade sobre a chave do "
+"banco de dados."
+
+#: includes/Services/TranslationStrings.php:96
+msgid "AI-powered file renaming for SEO-friendly image URLs."
+msgstr ""
+"Renomeação de arquivos com IA para URLs de imagens otimizadas para SEO."
+
+#: includes/Services/TranslationStrings.php:97
+msgid "API Key Storage"
+msgstr "Armazenamento da chave de API"
+
+#: includes/Services/TranslationStrings.php:98
+msgid "API key detected in wp-config.php"
+msgstr "Chave de API detectada no wp-config.php"
+
+#: includes/Services/TranslationStrings.php:99
+msgid "API rate limit may have been exceeded — wait and retry"
+msgstr ""
+"O limite de requisições da API pode ter sido excedido — aguarde e tente "
+"novamente"
+
+#: includes/Services/TranslationStrings.php:100
+msgid ""
+"AVIF is often ~50% smaller than JPEG — the smallest format modern browsers "
+"support."
+msgstr ""
+"AVIF costuma ser ~50% menor que JPEG — o menor formato aceito pelos "
+"navegadores modernos."
+
+#: includes/Services/TranslationStrings.php:101
+msgid "Active — WordPress AI Client"
+msgstr "Ativo — AI Client do WordPress"
+
+#: includes/Services/TranslationStrings.php:102
+msgid ""
+"Add this line to your wp-config.php file (before \"That's all, stop editing!"
+"\"):"
+msgstr ""
+"Adicione esta linha ao seu wp-config.php (antes de «That's all, stop "
+"editing!»):"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:104
+#, php-format
+msgid ""
+"Adds the Compress tab and per-image compress buttons. Free plan includes %d "
+"compressions per day."
+msgstr ""
+"Adiciona a aba Comprimir e botões de compressão por imagem. O plano gratuito "
+"inclui %d compressões por dia."
+
+#: includes/Services/TranslationStrings.php:105
+msgid "Administrator"
+msgstr "Administrador"
+
+#: includes/Services/TranslationStrings.php:106
+msgid "Advanced"
+msgstr "Avançado"
+
+#: includes/Services/TranslationStrings.php:107
+msgid "All"
+msgstr "Todas"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:109
+#, php-format
+msgid "All %s images processed successfully!"
+msgstr "Todas as %s imagens processadas com sucesso!"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:111
+#, php-format
+msgid "All %s selected."
+msgstr "Todas as %s selecionadas."
+
+#: includes/Services/TranslationStrings.php:112
+msgid "All AI-generated content (alt text, titles) will use this language."
+msgstr ""
+"Todo o conteúdo gerado por IA (textos alternativos, títulos) usará este "
+"idioma."
+
+#: includes/Services/TranslationStrings.php:113
+msgid "All Categories"
+msgstr "Todas as categorias"
+
+#: includes/Services/TranslationStrings.php:114
+msgid "All changes saved"
+msgstr "Todas as alterações salvas"
+
+#: includes/Services/TranslationStrings.php:115
+msgid "All folders"
+msgstr "Todas as pastas"
+
+#: includes/Services/TranslationStrings.php:116
+msgid "Alt Text"
+msgstr "Texto alternativo"
+
+#: includes/Services/TranslationStrings.php:117
+msgid "Alt Text Generation"
+msgstr "Geração de texto alternativo"
+
+#: includes/Services/TranslationStrings.php:118
+msgid ""
+"Alt text and title use their own tone/length settings (Alt Text and Image "
+"Title pages). Caption settings are below."
+msgstr ""
+"Texto alternativo e título usam suas próprias configurações de tom/"
+"comprimento (páginas «Texto alternativo» e «Título da imagem»). As "
+"configurações da legenda estão abaixo."
+
+#: includes/Services/TranslationStrings.php:119
+msgid "Alt text too long"
+msgstr "Texto alternativo muito longo"
+
+#: includes/Services/TranslationStrings.php:120
+msgid "Alt text..."
+msgstr "Texto alternativo..."
+
+#: includes/Services/TranslationStrings.php:121
+msgid "Alt:"
+msgstr "Alt:"
+
+#: includes/Services/TranslationStrings.php:122
+msgid "Apply to post types"
+msgstr "Aplicar a tipos de post"
+
+#: includes/Services/TranslationStrings.php:123
+msgid "Auto-compress new uploads"
+msgstr "Comprimir novos envios automaticamente"
+
+#: includes/Services/TranslationStrings.php:124
+msgid "Auto-convert new uploads"
+msgstr "Converter novos envios automaticamente"
+
+#: includes/Services/TranslationStrings.php:125
+msgid "Auto-generate ALL fields on upload"
+msgstr "Gerar TODOS os campos automaticamente no envio"
+
+#: includes/Services/TranslationStrings.php:126
+msgid "Auto-generate alt text on upload"
+msgstr "Gerar texto alternativo automaticamente no envio"
+
+#: includes/Services/TranslationStrings.php:127
+msgid "Auto-generate description on upload"
+msgstr "Gerar descrição automaticamente no envio"
+
+#: includes/Services/TranslationStrings.php:128
+msgid "Auto-generate title on upload"
+msgstr "Gerar título automaticamente no envio"
+
+#: includes/Services/TranslationStrings.php:129
+msgid ""
+"Automatically compress every image as it is uploaded, in the background."
+msgstr "Comprime automaticamente cada imagem enviada, em segundo plano."
+
+#: includes/Services/TranslationStrings.php:130
+msgid "Automatically generate a title when an image is uploaded."
+msgstr "Gera automaticamente um título quando uma imagem é enviada."
+
+#: includes/Services/TranslationStrings.php:131
+msgid "Automatically generate alt text when an image is uploaded."
+msgstr "Gera automaticamente o texto alternativo quando uma imagem é enviada."
+
+#: includes/Services/TranslationStrings.php:132
+msgid "Automatically generate next-gen copies for every new image you upload."
+msgstr "Cria automaticamente cópias next-gen de cada nova imagem enviada."
+
+#: includes/Services/TranslationStrings.php:133
+msgid "Automatically re-scan in the background and catch broken images early."
+msgstr ""
+"Faz novas varreduras automáticas em segundo plano e detecta imagens "
+"quebradas cedo."
+
+#: includes/Services/TranslationStrings.php:134
+msgid "Back to Integrations"
+msgstr "Voltar para Integrações"
+
+#: includes/Services/TranslationStrings.php:135
+msgid "Back up originals before compressing"
+msgstr "Fazer backup dos originais antes de comprimir"
+
+#: includes/Services/TranslationStrings.php:136
+msgid ""
+"Backups are off. Newly compressed images cannot be restored to their "
+"originals (images already backed up can still be restored). This saves disk "
+"space — use with care."
+msgstr ""
+"Os backups estão desativados. Imagens recém-comprimidas não poderão ser "
+"restauradas ao original (as já salvas em backup, sim). Isso economiza espaço "
+"em disco — use com cuidado."
+
+#: includes/Services/TranslationStrings.php:137
+msgid "Batch Complete"
+msgstr "Lote concluído"
+
+#: includes/Services/TranslationStrings.php:138
+msgid "Broken image scan"
+msgstr "Varredura de imagens quebradas"
+
+#: includes/Services/TranslationStrings.php:139
+msgid "Broken images"
+msgstr "Imagens quebradas"
+
+#: includes/Services/TranslationStrings.php:140
+msgid "Caption settings"
+msgstr "Configurações da legenda"
+
+#: includes/Services/TranslationStrings.php:141
+msgid "Change image"
+msgstr "Trocar imagem"
+
+#: includes/Services/TranslationStrings.php:142
+msgid "Characters in title (default: 30)"
+msgstr "Caracteres no título (padrão: 30)"
+
+#: includes/Services/TranslationStrings.php:143
+msgid "Check your API key is valid in Settings"
+msgstr "Verifique nas configurações se sua chave de API é válida"
+
+#: includes/Services/TranslationStrings.php:144
+msgid "Choose a default featured image — nothing happens until one is set."
+msgstr "Escolha uma imagem destacada padrão — nada acontece até definir uma."
+
+#: includes/Services/TranslationStrings.php:145
+msgid "Choose a fallback image above — nothing happens until one is set."
+msgstr "Escolha uma imagem reserva acima — nada acontece até definir uma."
+
+#: includes/Services/TranslationStrings.php:146
+msgid "Choose image"
+msgstr "Escolher imagem"
+
+#: includes/Services/TranslationStrings.php:147
+msgid ""
+"Choose which user roles are allowed to use ImageCraft. This applies to all "
+"features — alt text generation, image titles, file renaming, and image "
+"compression. Administrators always have access."
+msgstr ""
+"Escolha quais funções de usuário podem usar o ImageCraft. Vale para todos os "
+"recursos — geração de textos alternativos, títulos, renomeação de arquivos e "
+"compressão. Administradores sempre têm acesso."
+
+#: includes/Services/TranslationStrings.php:148
+msgid "Clear"
+msgstr "Limpar"
+
+#: includes/Services/TranslationStrings.php:149
+msgid "Coming Soon"
+msgstr "Em breve"
+
+#: includes/Services/TranslationStrings.php:150
+msgid "Completed"
+msgstr "Concluído"
+
+#: includes/Services/TranslationStrings.php:152
+msgid "Compress Selected"
+msgstr "Comprimir selecionadas"
+
+#: includes/Services/TranslationStrings.php:153
+msgid "Compressed"
+msgstr "Comprimida"
+
+#: includes/Services/TranslationStrings.php:158
+msgid "Compression quality"
+msgstr "Qualidade da compressão"
+
+#: includes/Services/TranslationStrings.php:159
+msgid "Compression settings — quality, resizing & backups"
+msgstr "Configurações de compressão — qualidade, redimensionamento e backups"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:161
+#, php-format
+msgid "Compression started for %s images"
+msgstr "Compressão iniciada para %s imagens"
+
+#: includes/Services/TranslationStrings.php:162
+msgid "Configure compression"
+msgstr "Configurar a compressão"
+
+#: includes/Services/TranslationStrings.php:163
+msgid "Configure how AI generates descriptive alt text for your images."
+msgstr ""
+"Configure como a IA gera textos alternativos descritivos para suas imagens."
+
+#: includes/Services/TranslationStrings.php:164
+msgid "Connect your AI provider to start generating alt text and titles."
+msgstr ""
+"Conecte seu provedor de IA para começar a gerar textos alternativos e "
+"títulos."
+
+#: includes/Services/TranslationStrings.php:165
+msgid "Connected"
+msgstr "Conectado"
+
+#: includes/Services/TranslationStrings.php:166
+msgid "Context Based"
+msgstr "Baseado no contexto"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:168
+#, php-format
+msgid "Conversion started for %s images"
+msgstr "Conversão iniciada para %s imagens"
+
+#: includes/Services/TranslationStrings.php:169
+msgid "Convert Selected"
+msgstr "Converter selecionadas"
+
+#: includes/Services/TranslationStrings.php:170
+msgid ""
+"Convert images from the Performance page — select images and use \"Convert "
+"Selected\", or convert your whole library in bulk."
+msgstr ""
+"Converta imagens pela página Desempenho — selecione imagens e use «Converter "
+"selecionadas», ou converta toda a biblioteca em lote."
+
+#: includes/Services/TranslationStrings.php:171
+msgid "Created From"
+msgstr "Criado de"
+
+#: includes/Services/TranslationStrings.php:172
+msgid "Created To"
+msgstr "Criado até"
+
+#: includes/Services/TranslationStrings.php:173
+msgid "Custom Title Prompt"
+msgstr "Prompt personalizado de título"
+
+#: includes/Services/TranslationStrings.php:174
+msgid "Daily"
+msgstr "Diária"
+
+#: includes/Services/TranslationStrings.php:175
+msgid "Daily compression limit reached."
+msgstr "Limite diário de compressão atingido."
+
+#: includes/Services/TranslationStrings.php:176
+msgid "Daily free usage"
+msgstr "Uso gratuito diário"
+
+#: includes/Services/TranslationStrings.php:177
+msgid "Daily usage"
+msgstr "Uso diário"
+
+#: includes/Services/TranslationStrings.php:178
+msgid "Database (encrypted)"
+msgstr "Banco de dados (criptografado)"
+
+#: includes/Services/TranslationStrings.php:179
+msgid "Database, encrypted"
+msgstr "Banco de dados, criptografado"
+
+#: includes/Services/TranslationStrings.php:180
+msgid "Default featured image"
+msgstr "Imagem destacada padrão"
+
+#: includes/Services/TranslationStrings.php:181
+msgid "Default fields"
+msgstr "Campos padrão"
+
+#: includes/Services/TranslationStrings.php:182
+msgid "Description (Caption)"
+msgstr "Descrição (legenda)"
+
+#: includes/Services/TranslationStrings.php:183
+msgid "Description..."
+msgstr "Descrição..."
+
+#: includes/Services/TranslationStrings.php:185
+msgid "Downscale images whose longest edge exceeds this. 0 disables resizing."
+msgstr ""
+"Reduz imagens cujo lado mais longo exceda este valor. 0 desativa o "
+"redimensionamento."
+
+#: includes/Services/TranslationStrings.php:186
+msgid "Email me when new broken images are found"
+msgstr "Enviar e-mail quando novas imagens quebradas forem encontradas"
+
+#: includes/Services/TranslationStrings.php:187
+msgid "Enable file renaming"
+msgstr "Ativar renomeação de arquivos"
+
+#: includes/Services/TranslationStrings.php:188
+msgid "Enable image compression"
+msgstr "Ativar compressão de imagens"
+
+#: includes/Services/TranslationStrings.php:189
+msgid "Enable image fallbacks"
+msgstr "Ativar imagens reserva"
+
+#: includes/Services/TranslationStrings.php:190
+msgid "Enable in Settings"
+msgstr "Ativar nas configurações"
+
+#: includes/Services/TranslationStrings.php:191
+msgid "Enable or disable integrations with other plugins."
+msgstr "Ative ou desative integrações com outros plugins."
+
+#: includes/Services/TranslationStrings.php:192
+msgid "Encrypted with AES-256-CBC using your WordPress salts before saving."
+msgstr ""
+"Criptografada com AES-256-CBC usando os salts do WordPress antes de salvar."
+
+#: includes/Services/TranslationStrings.php:193
+msgid "Failed to retry"
+msgstr "Falha ao tentar novamente"
+
+#: includes/Services/TranslationStrings.php:194
+msgid "Failed to save setting"
+msgstr "Falha ao salvar a configuração"
+
+#: includes/Services/TranslationStrings.php:195
+msgid "Failed to start batch"
+msgstr "Falha ao iniciar o lote"
+
+#: includes/Services/TranslationStrings.php:196
+msgid "Failed to test WordPress AI Client"
+msgstr "Falha ao testar o AI Client do WordPress"
+
+#: includes/Services/TranslationStrings.php:197
+msgid "Failure details are no longer available."
+msgstr "Os detalhes das falhas não estão mais disponíveis."
+
+#: includes/Services/TranslationStrings.php:198
+msgid "Fallback image"
+msgstr "Imagem reserva"
+
+#: includes/Services/TranslationStrings.php:199
+msgid "Featured"
+msgstr "Destacada"
+
+#: includes/Services/TranslationStrings.php:200
+msgid "File:"
+msgstr "Arquivo:"
+
+#: includes/Services/TranslationStrings.php:201
+msgid "FileBird Folder"
+msgstr "Pasta do FileBird"
+
+#: includes/Services/TranslationStrings.php:202
+msgid "Fix"
+msgstr "Corrigir"
+
+#: includes/Services/TranslationStrings.php:203
+msgid ""
+"Free plan downscales images to 2048px (longest edge) — invisible on the web "
+"and the biggest space saver. Upgrade to Pro to change or disable it."
+msgstr ""
+"O plano gratuito reduz as imagens para 2048 px (lado mais longo) — invisível "
+"na web e a maior economia de espaço. Faça upgrade para o Pro para alterar ou "
+"desativar."
+
+#: includes/Services/TranslationStrings.php:204
+msgid ""
+"Free plan uses a visually-lossless quality of 85. Upgrade to Pro to adjust."
+msgstr ""
+"O plano gratuito usa qualidade 85, visualmente sem perdas. Faça upgrade para "
+"o Pro para ajustar."
+
+#: includes/Services/TranslationStrings.php:205
+msgid "Generate AVIF copies"
+msgstr "Gerar cópias AVIF"
+
+#: includes/Services/TranslationStrings.php:206
+msgid "Generate All"
+msgstr "Gerar tudo"
+
+#: includes/Services/TranslationStrings.php:207
+msgid "Generate All — Combined Metadata"
+msgstr "Gerar tudo — metadados combinados"
+
+#: includes/Services/TranslationStrings.php:208
+msgid "Generate SEO-optimized titles for your images using AI."
+msgstr "Gere títulos otimizados para SEO para suas imagens com IA."
+
+#: includes/Services/TranslationStrings.php:209
+msgid "Generate WebP copies"
+msgstr "Gerar cópias WebP"
+
+#: includes/Services/TranslationStrings.php:210
+msgid "Generate WebP/AVIF copies — originals are never touched"
+msgstr "Gerar cópias WebP/AVIF — os originais nunca são tocados"
+
+#: includes/Services/TranslationStrings.php:211
+msgid ""
+"Generate alt text, title and caption together in a single AI call. Used by "
+"the Media Library bulk picker, the per-image media-modal picker, and auto-on-"
+"upload."
+msgstr ""
+"Gera texto alternativo, título e legenda juntos em uma chamada de IA. Usado "
+"pelo seletor em massa da biblioteca de mídia, pelo seletor por imagem no "
+"modal de mídia e pela automação no envio."
+
+#: includes/Services/TranslationStrings.php:212
+msgid ""
+"Generate metadata automatically when an image is uploaded. Alt text and "
+"title have their own toggles on their settings pages."
+msgstr ""
+"Gera metadados automaticamente no envio de uma imagem. Texto alternativo e "
+"título têm seus próprios controles nas respectivas páginas de configurações."
+
+#: includes/Services/TranslationStrings.php:213
+msgid "Generate title purely from image content."
+msgstr "Gerar o título apenas a partir do conteúdo da imagem."
+
+#: includes/Services/TranslationStrings.php:214
+msgid "Generate title using post title, product info, and SEO keyphrase."
+msgstr ""
+"Gerar o título usando o título do post, informações do produto e a frase-"
+"chave de SEO."
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:216
+#, php-format
+msgid "Generate — %s"
+msgstr "Gerar — %s"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:218
+#, php-format
+msgid "Generated %1$s out of %2$s images"
+msgstr "Geradas %1$s de %2$s imagens"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:220
+#, php-format
+msgid "Generated %1$s out of %2$s images — %3$s failed: %4$s"
+msgstr "Geradas %1$s de %2$s imagens — %3$s falharam: %4$s"
+
+#: includes/Services/TranslationStrings.php:221
+msgid "Generated alt text for all images"
+msgstr "Texto alternativo gerado para todas as imagens"
+
+#: includes/Services/TranslationStrings.php:222
+msgid ""
+"Generates every selected field in one call. Takes priority — when on, it "
+"overrides the individual alt / title / description auto-generate options."
+msgstr ""
+"Gera cada campo selecionado em uma chamada. Tem prioridade — quando ativado, "
+"substitui as opções automáticas individuais de texto alternativo / título / "
+"descrição."
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:224
+#, php-format
+msgid "Generating %1$s/%2$s..."
+msgstr "Gerando %1$s/%2$s..."
+
+#: includes/Services/TranslationStrings.php:225
+msgid "Generic"
+msgstr "Genérico"
+
+#: includes/Services/TranslationStrings.php:226
+msgid "Generic alt text"
+msgstr "Texto alternativo genérico"
+
+#: includes/Services/TranslationStrings.php:227
+msgid "Get Pro"
+msgstr "Obter o Pro"
+
+#: includes/Services/TranslationStrings.php:228
+msgid "Get your API key from"
+msgstr "Obtenha sua chave de API em"
+
+#: includes/Services/TranslationStrings.php:229
+msgid ""
+"Give this image good alt text — it is used when the broken image had none."
+msgstr ""
+"Dê a esta imagem um bom texto alternativo — ele será usado quando a imagem "
+"quebrada não tiver um."
+
+#: includes/Services/TranslationStrings.php:230
+msgid "Global settings shared across all generation features."
+msgstr "Configurações globais compartilhadas por todos os recursos de geração."
+
+#: includes/Services/TranslationStrings.php:231
+msgid "Go to"
+msgstr "Ir para"
+
+#: includes/Services/TranslationStrings.php:232
+msgid "Good afternoon"
+msgstr "Boa tarde"
+
+#: includes/Services/TranslationStrings.php:233
+msgid "Good evening"
+msgstr "Boa noite"
+
+#: includes/Services/TranslationStrings.php:234
+msgid "Good morning"
+msgstr "Bom dia"
+
+#: includes/Services/TranslationStrings.php:235
+msgid "Has"
+msgstr "Tem"
+
+#: includes/Services/TranslationStrings.php:236
+msgid "Here is how your images are doing"
+msgstr "Veja como estão suas imagens"
+
+#: includes/Services/TranslationStrings.php:237
+msgid "Hide Failed Images"
+msgstr "Ocultar imagens com falha"
+
+#: includes/Services/TranslationStrings.php:238
+msgid "Image Based"
+msgstr "Baseado na imagem"
+
+#: includes/Services/TranslationStrings.php:239
+msgid "Image Compression"
+msgstr "Compressão de imagens"
+
+#: includes/Services/TranslationStrings.php:240
+msgid "Image Fallbacks"
+msgstr "Imagens reserva"
+
+#: includes/Services/TranslationStrings.php:241
+msgid "Image SEO"
+msgstr "SEO de imagens"
+
+#: includes/Services/TranslationStrings.php:242
+msgid "Image Title Generation"
+msgstr "Geração de título de imagem"
+
+#: includes/Services/TranslationStrings.php:243
+msgid "Image compression is turned off."
+msgstr "A compressão de imagens está desativada."
+
+#: includes/Services/TranslationStrings.php:244
+msgid "Image fallbacks"
+msgstr "Imagens reserva"
+
+#: includes/Services/TranslationStrings.php:245
+msgid "Image title..."
+msgstr "Título da imagem..."
+
+#: includes/Services/TranslationStrings.php:246
+msgid ""
+"ImageCraft creates a WebP (and on Pro, AVIF) copy next to each original "
+"image. Browsers that support next-gen formats get the smaller copy; everyone "
+"else gets the original. Nothing is rewritten, and removing the copies "
+"restores everything exactly as it was."
+msgstr ""
+"O ImageCraft cria uma cópia WebP (e, no Pro, AVIF) ao lado de cada imagem "
+"original. Navegadores compatíveis com formatos next-gen recebem a cópia "
+"menor; os demais, o original. Nada é reescrito, e remover as cópias restaura "
+"tudo exatamente como era."
+
+#: includes/Services/TranslationStrings.php:247
+msgid "Images must be accessible (not behind authentication)"
+msgstr "As imagens precisam estar acessíveis (não protegidas por autenticação)"
+
+#: includes/Services/TranslationStrings.php:248
+msgid "Integrations"
+msgstr "Integrações"
+
+#: includes/Services/TranslationStrings.php:249
+msgid "Key source:"
+msgstr "Origem da chave:"
+
+#: includes/Services/TranslationStrings.php:250
+msgid "Larger than (KB)"
+msgstr "Maiores que (KB)"
+
+#: includes/Services/TranslationStrings.php:251
+msgid "Largest first"
+msgstr "Maiores primeiro"
+
+#: includes/Services/TranslationStrings.php:252
+msgid "Learn more"
+msgstr "Saiba mais"
+
+#: includes/Services/TranslationStrings.php:253
+msgid "Leave all unchecked to apply to every public post type."
+msgstr "Deixe tudo desmarcado para aplicar a todos os tipos de post públicos."
+
+#: includes/Services/TranslationStrings.php:254
+msgid "Local engine"
+msgstr "Motor local"
+
+#: includes/Services/TranslationStrings.php:255
+msgid "Long"
+msgstr "Longo"
+
+#: includes/Services/TranslationStrings.php:256
+msgid "Make your images rank"
+msgstr "Faça suas imagens ranquearem"
+
+#: includes/Services/TranslationStrings.php:257
+msgid "Make your site fast"
+msgstr "Deixe seu site rápido"
+
+#: includes/Services/TranslationStrings.php:258
+msgid ""
+"Master switch for both fallback features below. Fully non-destructive — turn "
+"it off and everything reverts."
+msgstr ""
+"Chave geral dos dois recursos de reserva abaixo. Totalmente não destrutivo — "
+"desative e tudo volta ao normal."
+
+#: includes/Services/TranslationStrings.php:259
+msgid "Max Price"
+msgstr "Preço máximo"
+
+#: includes/Services/TranslationStrings.php:260
+msgid "Max Title Length"
+msgstr "Comprimento máximo do título"
+
+#: includes/Services/TranslationStrings.php:261
+msgid "Min Price"
+msgstr "Preço mínimo"
+
+#: includes/Services/TranslationStrings.php:262
+msgid "Missing alt text"
+msgstr "Sem texto alternativo"
+
+#: includes/Services/TranslationStrings.php:263
+msgid "Missing featured images"
+msgstr "Imagens destacadas ausentes"
+
+#: includes/Services/TranslationStrings.php:264
+msgid "Missing title"
+msgstr "Sem título"
+
+#: includes/Services/TranslationStrings.php:265
+msgid "More from Softminal"
+msgstr "Mais da Softminal"
+
+#: includes/Services/TranslationStrings.php:266
+msgid "Needs Attention"
+msgstr "Precisa de atenção"
+
+#: includes/Services/TranslationStrings.php:267
+msgid ""
+"Never show a broken or missing image. Swap broken images for a fallback and "
+"give posts without a featured image a default one — nothing is written to "
+"your content."
+msgstr ""
+"Nunca mais mostre uma imagem quebrada ou ausente. Substitua imagens "
+"quebradas por uma reserva e dê aos posts sem imagem destacada uma padrão — "
+"nada é gravado no seu conteúdo."
+
+#: includes/Services/TranslationStrings.php:268
+msgid "Next 5 pages"
+msgstr "Próximas 5 páginas"
+
+#: includes/Services/TranslationStrings.php:269
+msgid "Next-gen formats (WebP / AVIF)"
+msgstr "Formatos next-gen (WebP / AVIF)"
+
+#: includes/Services/TranslationStrings.php:270
+msgid "Next-gen formats (WebP/AVIF)"
+msgstr "Formatos next-gen (WebP/AVIF)"
+
+#: includes/Services/TranslationStrings.php:271
+msgid "No API key needed."
+msgstr "Não precisa de chave de API."
+
+#: includes/Services/TranslationStrings.php:272
+msgid "No images found."
+msgstr "Nenhuma imagem encontrada."
+
+#: includes/Services/TranslationStrings.php:273
+msgid "No other roles available"
+msgstr "Nenhuma outra função disponível"
+
+#: includes/Services/TranslationStrings.php:274
+msgid ""
+"No roles selected — every user who can upload media may use ImageCraft "
+"(current behavior). Select one or more roles to restrict access."
+msgstr ""
+"Nenhuma função selecionada — todo usuário que pode enviar mídia pode usar o "
+"ImageCraft (comportamento atual). Selecione uma ou mais funções para "
+"restringir o acesso."
+
+#: includes/Services/TranslationStrings.php:275
+msgid "Not compressed"
+msgstr "Não comprimida"
+
+#: includes/Services/TranslationStrings.php:276
+msgid "Not supported by server"
+msgstr "Sem suporte no servidor"
+
+#: includes/Services/TranslationStrings.php:277
+msgid "Number of images to process per batch request"
+msgstr "Número de imagens a processar por solicitação de lote"
+
+#: includes/Services/TranslationStrings.php:278
+msgid "Off"
+msgstr "Desativado"
+
+#: includes/Services/TranslationStrings.php:279
+msgid "On"
+msgstr "Ativado"
+
+#: includes/Services/TranslationStrings.php:280
+msgid "Open Image SEO"
+msgstr "Abrir SEO de imagens"
+
+#: includes/Services/TranslationStrings.php:281
+msgid "Open Performance"
+msgstr "Abrir Desempenho"
+
+#: includes/Services/TranslationStrings.php:282
+msgid "Optimize product image alt text with product-aware AI generation."
+msgstr ""
+"Otimize textos alternativos de produtos com geração de IA ciente do produto."
+
+#: includes/Services/TranslationStrings.php:283
+msgid "Original restored"
+msgstr "Original restaurado"
+
+#: includes/Services/TranslationStrings.php:284
+msgid ""
+"Originals are backed up to /uploads/icais-originals/. You can restore any "
+"image from the Compress tab."
+msgstr ""
+"Os originais ficam salvos em /uploads/icais-originals/. Você pode restaurar "
+"qualquer imagem pela aba Comprimir."
+
+#: includes/Services/TranslationStrings.php:285
+msgid "Other plugins we build, with the same focus on doing one job properly."
+msgstr ""
+"Outros plugins que desenvolvemos, com o mesmo foco: fazer bem uma única "
+"coisa."
+
+#: includes/Services/TranslationStrings.php:286
+msgid ""
+"Override the default featured image for specific post types (e.g. a product "
+"placeholder for WooCommerce)."
+msgstr ""
+"Substitua a imagem destacada padrão para tipos de post específicos (ex.: um "
+"placeholder de produto para o WooCommerce)."
+
+#: includes/Services/TranslationStrings.php:287
+msgid "Page selected."
+msgstr "Página selecionada."
+
+#: includes/Services/TranslationStrings.php:288
+msgid "Pending"
+msgstr "Pendente"
+
+#: includes/Services/TranslationStrings.php:289
+msgid "Per-post-type fallback images"
+msgstr "Imagens reserva por tipo de post"
+
+#: includes/Services/TranslationStrings.php:290
+msgid "Performance"
+msgstr "Desempenho"
+
+#: includes/Services/TranslationStrings.php:291
+msgid "Permissions"
+msgstr "Permissões"
+
+#: includes/Services/TranslationStrings.php:292
+msgid "Please select a provider first"
+msgstr "Selecione um provedor primeiro"
+
+#: includes/Services/TranslationStrings.php:293
+msgid "Plugin is not active"
+msgstr "O plugin não está ativo"
+
+#: includes/Services/TranslationStrings.php:294
+msgid ""
+"Posts without a featured image use your fallback in archives, social "
+"previews and anywhere the theme shows one. The post itself is never modified."
+msgstr ""
+"Posts sem imagem destacada usam sua reserva em arquivos, prévias sociais e "
+"onde o tema exibir uma. O post em si nunca é modificado."
+
+#: includes/Services/TranslationStrings.php:295
+msgid "Previous 5 pages"
+msgstr "5 páginas anteriores"
+
+#: includes/Services/TranslationStrings.php:296
+msgid "Pro"
+msgstr "Pro"
+
+#: includes/Services/TranslationStrings.php:297
+msgid "Processing"
+msgstr "Processando"
+
+#: includes/Services/TranslationStrings.php:298
+msgid "Processing images... please wait"
+msgstr "Processando imagens... aguarde"
+
+#: includes/Services/TranslationStrings.php:299
+msgid "Product has no images"
+msgstr "O produto não tem imagens"
+
+#: includes/Services/TranslationStrings.php:300
+msgid "Quick Bulk Select"
+msgstr "Seleção rápida em massa"
+
+#: includes/Services/TranslationStrings.php:301
+msgid "Re-compress"
+msgstr "Recomprimir"
+
+#: includes/Services/TranslationStrings.php:302
+msgid "Re-compress Selected"
+msgstr "Recomprimir selecionadas"
+
+#: includes/Services/TranslationStrings.php:303
+msgid "Remove"
+msgstr "Remover"
+
+#: includes/Services/TranslationStrings.php:305
+msgid ""
+"Renaming files changes image URLs. External links and cached pages may show "
+"broken images."
+msgstr ""
+"Renomear arquivos muda as URLs das imagens. Links externos e páginas em "
+"cache podem mostrar imagens quebradas."
+
+#: includes/Services/TranslationStrings.php:306
+msgid "Replace broken images on the front end"
+msgstr "Substituir imagens quebradas no front-end"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:308
+#, php-format
+msgid "Resets in %s"
+msgstr "Redefine em %s"
+
+#: includes/Services/TranslationStrings.php:309
+msgid "Resize large images (max size, longest edge in px)"
+msgstr "Redimensionar imagens grandes (tamanho máx., lado mais longo em px)"
+
+#: includes/Services/TranslationStrings.php:310
+msgid "Restore"
+msgstr "Restaurar"
+
+#: includes/Services/TranslationStrings.php:311
+msgid "Restore Selected"
+msgstr "Restaurar selecionadas"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:314
+#, php-format
+msgid "Restored %s images"
+msgstr "%s imagens restauradas"
+
+#: includes/Services/TranslationStrings.php:315
+msgid "Restoring..."
+msgstr "Restaurando..."
+
+#: includes/Services/TranslationStrings.php:316
+msgid "Retry All Failed"
+msgstr "Tentar todas as com falha novamente"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:318
+#, php-format
+msgid "Retrying %s failed images..."
+msgstr "Tentando novamente %s imagens com falha..."
+
+#: includes/Services/TranslationStrings.php:319
+msgid "Save All Changes"
+msgstr "Salvar todas as alterações"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:321
+#, php-format
+msgid "Save Selected (%s)"
+msgstr "Salvar selecionadas (%s)"
+
+#: includes/Services/TranslationStrings.php:322
+msgid "Save settings after enabling to apply."
+msgstr "Salve as configurações após ativar para aplicar."
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:324
+#, php-format
+msgid "Saved %1$s/%2$s images"
+msgstr "Salvas %1$s/%2$s imagens"
+
+#. translators: %1$s: saved size (e.g. 1.2 MB), %2$s: saved percentage
+#: includes/Services/TranslationStrings.php:326
+#, php-format
+msgid "Saved %1$s (%2$s%)"
+msgstr "Economizado %1$s (%2$s%)"
+
+#: includes/Services/TranslationStrings.php:327
+msgid "Scheduled scan"
+msgstr "Varredura agendada"
+
+#: includes/Services/TranslationStrings.php:328
+msgid "Select Provider"
+msgstr "Selecionar provedor"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:330
+#, php-format
+msgid "Select all %s"
+msgstr "Selecionar todas as %s"
+
+#: includes/Services/TranslationStrings.php:331
+msgid "Select fallback image"
+msgstr "Selecionar imagem reserva"
+
+#: includes/Services/TranslationStrings.php:332
+msgid "Selected images already have the chosen fields"
+msgstr "As imagens selecionadas já têm os campos escolhidos"
+
+#: includes/Services/TranslationStrings.php:333
+msgid "Selected products have no images"
+msgstr "Os produtos selecionados não têm imagens"
+
+#: includes/Services/TranslationStrings.php:334
+msgid "Serve WebP/AVIF — images up to 35% smaller"
+msgstr "Servir WebP/AVIF — imagens até 35% menores"
+
+#: includes/Services/TranslationStrings.php:335
+msgid "Serve next-gen images to visitors"
+msgstr "Servir imagens next-gen aos visitantes"
+
+#: includes/Services/TranslationStrings.php:336
+msgid ""
+"Serve smaller, faster next-gen copies of your images without ever touching "
+"the originals."
+msgstr ""
+"Sirva cópias next-gen menores e mais rápidas das suas imagens sem nunca "
+"tocar nos originais."
+
+#: includes/Services/TranslationStrings.php:337
+msgid "Set up"
+msgstr "Configurar"
+
+#: includes/Services/TranslationStrings.php:338
+msgid "Settings saved"
+msgstr "Configurações salvas"
+
+#: includes/Services/TranslationStrings.php:339
+msgid ""
+"Shared across AI generation and compression. Generating and compressing the "
+"same image counts as two."
+msgstr ""
+"Compartilhado entre geração com IA e compressão. Gerar e comprimir a mesma "
+"imagem conta como duas ações."
+
+#: includes/Services/TranslationStrings.php:340
+msgid "Show the biggest files first"
+msgstr "Mostrar os maiores arquivos primeiro"
+
+#: includes/Services/TranslationStrings.php:341
+msgid "Showing images from"
+msgstr "Mostrando imagens de"
+
+#: includes/Services/TranslationStrings.php:342
+msgid ""
+"Shows \"Rename File\" buttons to generate SEO-friendly filenames using AI. "
+"This changes image URLs."
+msgstr ""
+"Mostra botões «Renomear arquivo» para gerar nomes otimizados para SEO com "
+"IA. Isso muda as URLs das imagens."
+
+#: includes/Services/TranslationStrings.php:343
+msgid ""
+"Shrink image file sizes to speed up your site. Originals are always backed "
+"up."
+msgstr ""
+"Reduza o tamanho dos arquivos de imagem para acelerar seu site. Os originais "
+"sempre têm backup."
+
+#: includes/Services/TranslationStrings.php:344
+msgid ""
+"Shrink image file sizes to speed up your site. Originals are backed up by "
+"default so you can restore them."
+msgstr ""
+"Reduza o tamanho dos arquivos de imagem para acelerar seu site. Os originais "
+"têm backup por padrão para que você possa restaurá-los."
+
+#: includes/Services/TranslationStrings.php:345
+msgid "Skip images smaller than (KB)"
+msgstr "Ignorar imagens menores que (KB)"
+
+#: includes/Services/TranslationStrings.php:346
+msgid "Skip images that are already compressed"
+msgstr "Ignorar imagens já comprimidas"
+
+#: includes/Services/TranslationStrings.php:347
+msgid "Skip images with existing title"
+msgstr "Ignorar imagens com título existente"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:349
+#, php-format
+msgid "Skipped (%s)"
+msgstr "Ignoradas (%s)"
+
+#: includes/Services/TranslationStrings.php:350
+msgid "Starting..."
+msgstr "Iniciando..."
+
+#: includes/Services/TranslationStrings.php:351
+msgid "Store in Database"
+msgstr "Armazenar no banco de dados"
+
+#: includes/Services/TranslationStrings.php:352
+msgid "Store in wp-config.php"
+msgstr "Armazenar no wp-config.php"
+
+#: includes/Services/TranslationStrings.php:353
+msgid ""
+"The Dashboard scans your media library for images whose files are missing "
+"and shows them under \"Needs attention\"."
+msgstr ""
+"O painel varre sua biblioteca de mídia em busca de imagens com arquivos "
+"ausentes e as mostra em «Precisa de atenção»."
+
+#: includes/Services/TranslationStrings.php:354
+msgid ""
+"The key stays in your server files — never stored in the database. Ideal for "
+"version-controlled deployments and security-conscious setups."
+msgstr ""
+"A chave fica nos arquivos do seu servidor — nunca no banco de dados. Ideal "
+"para implantações versionadas e configurações focadas em segurança."
+
+#: includes/Services/TranslationStrings.php:355
+msgid ""
+"The max character length setting above will be applied automatically. "
+"Product context is added automatically for WooCommerce images."
+msgstr ""
+"A configuração de comprimento máximo acima é aplicada automaticamente. O "
+"contexto do produto é adicionado automaticamente em imagens do WooCommerce."
+
+#: includes/Services/TranslationStrings.php:356
+msgid ""
+"The max character length setting will be applied automatically. Product "
+"name, category, and SKU are automatically included as context."
+msgstr ""
+"A configuração de comprimento máximo é aplicada automaticamente. Nome do "
+"produto, categoria e SKU são incluídos automaticamente como contexto."
+
+#: includes/Services/TranslationStrings.php:357
+msgid "Tiny images barely benefit from compression. Default: 50 KB."
+msgstr ""
+"Imagens muito pequenas pouco se beneficiam da compressão. Padrão: 50 KB."
+
+#: includes/Services/TranslationStrings.php:359
+msgid "Title Context"
+msgstr "Contexto do título"
+
+#: includes/Services/TranslationStrings.php:360
+msgid "Title Generation"
+msgstr "Geração de títulos"
+
+#: includes/Services/TranslationStrings.php:361
+msgid "Title Tone"
+msgstr "Tom do título"
+
+#: includes/Services/TranslationStrings.php:362
+msgid "Title:"
+msgstr "Título:"
+
+#: includes/Services/TranslationStrings.php:363
+msgid "Too long"
+msgstr "Muito longo"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:365
+#, php-format
+msgid "Total %s"
+msgstr "Total %s"
+
+#: includes/Services/TranslationStrings.php:366
+msgid "Troubleshooting"
+msgstr "Solução de problemas"
+
+#: includes/Services/TranslationStrings.php:367
+msgid "Upgrade to Pro for unlimited"
+msgstr "Faça upgrade para o Pro e tenha uso ilimitado"
+
+#: includes/Services/TranslationStrings.php:368
+msgid "Upgrade to Pro to auto-generate alt text on upload."
+msgstr ""
+"Faça upgrade para o Pro para gerar textos alternativos automaticamente no "
+"envio."
+
+#: includes/Services/TranslationStrings.php:369
+msgid "Upgrade to Pro to auto-generate titles on upload."
+msgstr "Faça upgrade para o Pro para gerar títulos automaticamente no envio."
+
+#: includes/Services/TranslationStrings.php:370
+msgid ""
+"Upgrade to Pro to set a different fallback per post type (e.g. a product "
+"placeholder for WooCommerce)."
+msgstr ""
+"Faça upgrade para o Pro para definir uma reserva diferente por tipo de post "
+"(ex.: um placeholder de produto para o WooCommerce)."
+
+#: includes/Services/TranslationStrings.php:371
+msgid "Use WordPress AI Client"
+msgstr "Usar o AI Client do WordPress"
+
+#: includes/Services/TranslationStrings.php:372
+msgid "Use a default featured image"
+msgstr "Usar uma imagem destacada padrão"
+
+#: includes/Services/TranslationStrings.php:373
+msgid "Use focus keyphrases from your SEO plugin to improve generated content."
+msgstr ""
+"Use as frases-chave de foco do seu plugin de SEO para melhorar o conteúdo "
+"gerado."
+
+#: includes/Services/TranslationStrings.php:374
+msgid "Use the same image as the broken-image fallback"
+msgstr "Usar a mesma imagem da reserva de imagens quebradas"
+
+#: includes/Services/TranslationStrings.php:375
+msgid "Use this image"
+msgstr "Usar esta imagem"
+
+#: includes/Services/TranslationStrings.php:376
+msgid "Use {max_length} as a placeholder for the max title length."
+msgstr "Use {max_length} como marcador do comprimento máximo do título."
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:378
+#, php-format
+msgid "View Failed Images (%s)"
+msgstr "Ver imagens com falha (%s)"
+
+#: includes/Services/TranslationStrings.php:379
+msgid "View pricing"
+msgstr "Ver preços"
+
+#: includes/Services/TranslationStrings.php:380
+msgid "WebP is typically 25–35% smaller than JPEG at the same visual quality."
+msgstr "WebP costuma ser 25–35% menor que JPEG com a mesma qualidade visual."
+
+#: includes/Services/TranslationStrings.php:381
+msgid "Weekly"
+msgstr "Semanal"
+
+#: includes/Services/TranslationStrings.php:382
+msgid ""
+"When an image on your site fails to load (deleted file, dead external link), "
+"visitors see your fallback image instead of a broken icon."
+msgstr ""
+"Quando uma imagem do seu site não carrega (arquivo excluído, link externo "
+"morto), os visitantes veem sua imagem reserva em vez de um ícone quebrado."
+
+#: includes/Services/TranslationStrings.php:383
+msgid ""
+"When enabled, generated alt text is shown for review with accept/reject "
+"buttons before applying. Works in the Gutenberg editor and Kadence blocks."
+msgstr ""
+"Quando ativado, o texto alternativo gerado é mostrado para revisão com "
+"botões de aceitar/rejeitar antes de ser aplicado. Funciona no editor "
+"Gutenberg e nos blocos Kadence."
+
+#: includes/Services/TranslationStrings.php:384
+msgid ""
+"When enabled, generated titles are shown for review with accept/reject "
+"buttons before applying. Works in the Gutenberg editor and Kadence blocks."
+msgstr ""
+"Quando ativado, os títulos gerados são mostrados para revisão com botões de "
+"aceitar/rejeitar antes de serem aplicados. Funciona no editor Gutenberg e "
+"nos blocos Kadence."
+
+#: includes/Services/TranslationStrings.php:385
+msgid ""
+"Which fields are pre-selected in the Media Library bulk picker (you can "
+"still change them per action)."
+msgstr ""
+"Quais campos vêm pré-selecionados no seletor em massa da biblioteca de mídia "
+"(você ainda pode mudar a cada ação)."
+
+#: includes/Services/TranslationStrings.php:386
+msgid "WordPress AI Client is not available"
+msgstr "O AI Client do WordPress não está disponível"
+
+#: includes/Services/TranslationStrings.php:387
+msgid "WordPress AI Client is ready!"
+msgstr "O AI Client do WordPress está pronto!"
+
+#: includes/Services/TranslationStrings.php:388
+msgid "WordPress AI Client is ready."
+msgstr "O AI Client do WordPress está pronto."
+
+#: includes/Services/TranslationStrings.php:389
+msgid ""
+"Wraps images in a <picture> tag so supporting browsers load the WebP/AVIF "
+"copy, with the original as automatic fallback. Off by default — enable after "
+"converting your images."
+msgstr ""
+"Envolve as imagens em uma tag <picture> para que navegadores compatíveis "
+"carreguem a cópia WebP/AVIF, com o original como reserva automática. "
+"Desativado por padrão — ative após converter suas imagens."
+
+#: includes/Services/TranslationStrings.php:390
+msgid "Write a title for this image. Max {max_length} characters..."
+msgstr "Escreva um título para esta imagem. Máx. {max_length} caracteres..."
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:392
+#, php-format
+msgid ""
+"Your saved %1$s key (%2$s) is kept as a fallback — used if you turn off the "
+"WordPress AI Client."
+msgstr ""
+"Sua chave %1$s salva (%2$s) é mantida como reserva — usada se você desativar "
+"o AI Client do WordPress."
+
+#: includes/Services/TranslationStrings.php:393
+msgid ""
+"Your server cannot create AVIF images. AVIF needs PHP 8.1+ (GD) or an "
+"Imagick build with AVIF support — ask your host."
+msgstr ""
+"Seu servidor não pode criar imagens AVIF. AVIF requer PHP 8.1+ (GD) ou uma "
+"build do Imagick com suporte a AVIF — fale com sua hospedagem."
+
+#: includes/Services/TranslationStrings.php:394
+msgid ""
+"Your server cannot create WebP images (neither Imagick nor GD supports it). "
+"Ask your host to enable WebP support."
+msgstr ""
+"Seu servidor não pode criar imagens WebP (nem Imagick nem GD oferecem "
+"suporte). Peça à sua hospedagem para ativar o suporte a WebP."
+
+#: includes/Services/TranslationStrings.php:395
+msgid ""
+"Your server supports next-gen image formats. ImageCraft can create WebP "
+"copies beside your originals and serve them automatically — nothing is "
+"overwritten, fully reversible."
+msgstr ""
+"Seu servidor tem suporte a formatos de imagem next-gen. O ImageCraft pode "
+"criar cópias WebP ao lado dos originais e servi-las automaticamente — nada é "
+"sobrescrito, totalmente reversível."
+
+#: includes/Services/TranslationStrings.php:396
+msgid "always allowed"
+msgstr "sempre permitido"
+
+#: includes/Services/TranslationStrings.php:397
+msgid "compressed"
+msgstr "comprimidas"
+
+#: includes/Services/TranslationStrings.php:398
+msgid "e.g. 10"
+msgstr "ex.: 10"
+
+#: includes/Services/TranslationStrings.php:399
+msgid "e.g. 100"
+msgstr "ex.: 100"
+
+#: includes/Services/TranslationStrings.php:400
+msgid "e.g. 60"
+msgstr "ex.: 60"
+
+#: includes/Services/TranslationStrings.php:401
+msgid ""
+"e.g. Generate alt text describing the subject, colors, and setting. Do not "
+"start with 'Image of'. Return only the alt text."
+msgstr ""
+"ex.: Gere um texto alternativo descrevendo o assunto, as cores e o cenário. "
+"Não comece com «Imagem de». Retorne apenas o texto alternativo."
+
+#: includes/Services/TranslationStrings.php:402
+msgid ""
+"e.g. Generate product alt text with the product name, visible features, and "
+"use case. Do not start with 'Image of'. Return only the alt text."
+msgstr ""
+"ex.: Gere um texto alternativo do produto com o nome, características "
+"visíveis e caso de uso. Não comece com «Imagem de». Retorne apenas o texto "
+"alternativo."
+
+#: includes/Services/TranslationStrings.php:403
+msgid "images in your media library"
+msgstr "imagens na sua biblioteca de mídia"
+
+#: includes/Services/TranslationStrings.php:404
+msgid "not compressed"
+msgstr "não comprimidas"
+
+#: includes/Services/TranslationStrings.php:405
+msgid "page"
+msgstr "página"
+
+#: includes/Services/TranslationStrings.php:406
+msgid "space saved"
+msgstr "espaço economizado"
+
+#: includes/Services/TranslationStrings.php:420
+msgid "API"
+msgstr "API"
+
+#: includes/Services/TranslationStrings.php:421
+msgid "Alt + title + caption in one pass"
+msgstr "Alt + título + legenda em uma só passada"
+
+#: includes/Services/TranslationStrings.php:422
+msgid "Alt text, titles, captions & file names"
+msgstr "Textos alternativos, títulos, legendas e nomes de arquivos"
+
+#: includes/Services/TranslationStrings.php:423
+msgid "Basic behavior & defaults"
+msgstr "Comportamento básico e padrões"
+
+#: includes/Services/TranslationStrings.php:424
+msgid "Compress images"
+msgstr "Comprimir imagens"
+
+#: includes/Services/TranslationStrings.php:425
+msgid "Compress images & speed up your site"
+msgstr "Comprima imagens e acelere seu site"
+
+#: includes/Services/TranslationStrings.php:426
+msgid "Compression"
+msgstr "Compressão"
+
+#: includes/Services/TranslationStrings.php:427
+msgid "Configure ImageCraft"
+msgstr "Configurar o ImageCraft"
+
+#: includes/Services/TranslationStrings.php:428
+msgid "Connect your AI provider"
+msgstr "Conectar seu provedor de IA"
+
+#: includes/Services/TranslationStrings.php:429
+msgid "Cover broken images"
+msgstr "Cobrir imagens quebradas"
+
+#: includes/Services/TranslationStrings.php:430
+msgid "Fill in missing alt text"
+msgstr "Preencher textos alternativos ausentes"
+
+#: includes/Services/TranslationStrings.php:431
+msgid "Generate alt text"
+msgstr "Gerar texto alternativo"
+
+#: includes/Services/TranslationStrings.php:432
+msgid "Guides and support"
+msgstr "Guias e suporte"
+
+#: includes/Services/TranslationStrings.php:433
+msgid "Image Title"
+msgstr "Título da imagem"
+
+#: includes/Services/TranslationStrings.php:434
+msgid "Media Library"
+msgstr "Biblioteca de mídia"
+
+#: includes/Services/TranslationStrings.php:435
+msgid "Never show a broken image"
+msgstr "Nunca mostrar uma imagem quebrada"
+
+#: includes/Services/TranslationStrings.php:436
+msgid "Next-gen Formats"
+msgstr "Formatos next-gen"
+
+#: includes/Services/TranslationStrings.php:437
+msgid "Optimize product images"
+msgstr "Otimizar imagens de produtos"
+
+#: includes/Services/TranslationStrings.php:438
+msgid "Pro license & account"
+msgstr "Licença Pro e conta"
+
+#: includes/Services/TranslationStrings.php:439
+msgid "Product & gallery images"
+msgstr "Imagens de produtos e galerias"
+
+#: includes/Services/TranslationStrings.php:440
+msgid "Quality, resizing & backups"
+msgstr "Qualidade, redimensionamento e backups"
+
+#: includes/Services/TranslationStrings.php:441
+msgid "Rename files"
+msgstr "Renomear arquivos"
+
+#: includes/Services/TranslationStrings.php:442
+msgid "SEO Plugins"
+msgstr "Plugins de SEO"
+
+#: includes/Services/TranslationStrings.php:443
+msgid "SEO-friendly file names"
+msgstr "Nomes de arquivos otimizados para SEO"
+
+#: includes/Services/TranslationStrings.php:444
+msgid "Scan & fix alt text, titles, file names"
+msgstr "Varra e corrija textos alternativos, títulos e nomes de arquivos"
+
+#: includes/Services/TranslationStrings.php:445
+msgid "Shrink files, keep quality"
+msgstr "Reduza os arquivos, mantenha a qualidade"
+
+#: includes/Services/TranslationStrings.php:446
+msgid "Store image settings"
+msgstr "Armazenar configurações de imagens"
+
+#: includes/Services/TranslationStrings.php:447
+msgid "Title generation preferences"
+msgstr "Preferências de geração de títulos"
+
+#: includes/Services/TranslationStrings.php:448
+msgid "Tone, length & generation rules"
+msgstr "Tom, comprimento e regras de geração"
+
+#: includes/Services/TranslationStrings.php:449
+msgid "WebP & AVIF conversion"
+msgstr "Conversão WebP e AVIF"
+
+#: includes/Services/TranslationStrings.php:450
+msgid "Which roles can use ImageCraft"
+msgstr "Quais funções podem usar o ImageCraft"
+
+#: includes/Services/TranslationStrings.php:451
+msgid "WooCommerce & SEO plugins"
+msgstr "WooCommerce e plugins de SEO"
+
+#: includes/Services/TranslationStrings.php:452
+msgid "Yoast & Rank Math keyphrases"
+msgstr "Frases-chave do Yoast e Rank Math"
+
+#: includes/Services/TranslationStrings.php:453
+msgid "Your image health at a glance"
+msgstr "A saúde das suas imagens em um relance"
+
+#: includes/Services/TranslationStrings.php:454
+msgid "Softminal B2B Suite for WooCommerce"
+msgstr "Softminal B2B Suite for WooCommerce"
+
+#: includes/Services/TranslationStrings.php:455
+msgid "For WooCommerce"
+msgstr "Para WooCommerce"
+
+#: includes/Services/TranslationStrings.php:456
+msgid ""
+"Turn a standard WooCommerce store into a proper trade store — one pricing "
+"pipeline, no surprise prices at checkout."
+msgstr ""
+"Transforme uma loja WooCommerce comum em uma verdadeira loja B2B — um único "
+"pipeline de preços, sem surpresas no checkout."
+
+#: includes/Services/TranslationStrings.php:457
+msgid "Customer group pricing (percentage, amount off or fixed)"
+msgstr ""
+"Preços por grupo de clientes (porcentagem, valor fixo de desconto ou preço "
+"fixo)"
+
+#: includes/Services/TranslationStrings.php:458
+msgid "Hide prices until a trade account is approved"
+msgstr "Oculte os preços até a conta comercial ser aprovada"
+
+#: includes/Services/TranslationStrings.php:459
+msgid "Trade registration with your own business fields"
+msgstr "Cadastro comercial com seus próprios campos de empresa"
+
+#: includes/Services/TranslationStrings.php:460
+msgid "Quantity rules and a bulk order form"
+msgstr "Regras de quantidade e um formulário de pedido em massa"
+
+#: includes/Services/TranslationStrings.php:461
+msgid "Block"
+msgstr "Blocos"
+
+#: includes/Services/TranslationStrings.php:462
+msgid "Ecommerce"
+msgstr "E-commerce"
+
+#: includes/Services/TranslationStrings.php:463
+msgid "Media"
+msgstr "Mídia"
+
+#: includes/Services/TranslationStrings.php:464
+msgid "Multilingual"
+msgstr "Multilíngue"
+
+#: includes/Services/TranslationStrings.php:465
+msgid "SEO"
+msgstr "SEO"
+
+#: includes/Services/TranslationStrings.php:466
+msgid "Uncompressed"
+msgstr "Não comprimidas"
+
+#: includes/Services/TranslationStrings.php:472
+msgid "Dashboard"
+msgstr "Painel"
+
+#: includes/Services/TranslationStrings.php:473
+msgid "Scanner"
+msgstr "Scanner"
+
+#: includes/Services/TranslationStrings.php:474
+msgid "WooCommerce"
+msgstr "WooCommerce"
+
+#: includes/Services/TranslationStrings.php:475
+msgid "Settings"
+msgstr "Configurações"
+
+#: includes/Services/TranslationStrings.php:476
+msgid "Loading..."
+msgstr "Carregando..."
+
+#: includes/Services/TranslationStrings.php:483
+msgid "Total Images"
+msgstr "Total de imagens"
+
+#: includes/Services/TranslationStrings.php:484
+msgid "Missing Alt Text"
+msgstr "Sem texto alternativo"
+
+#: includes/Services/TranslationStrings.php:485
+msgid "This Month"
+msgstr "Este mês"
+
+#: includes/Services/TranslationStrings.php:486
+msgid "Success Rate"
+msgstr "Taxa de sucesso"
+
+#: includes/Services/TranslationStrings.php:489
+msgid "Image SEO Audit"
+msgstr "Auditoria de SEO de imagens"
+
+#: includes/Services/TranslationStrings.php:490
+msgid "Scanning..."
+msgstr "Varrendo..."
+
+#: includes/Services/TranslationStrings.php:491
+msgid "Refresh"
+msgstr "Atualizar"
+
+#: includes/Services/TranslationStrings.php:492
+msgid "Scanning media library..."
+msgstr "Varrendo a biblioteca de mídia..."
+
+#: includes/Services/TranslationStrings.php:493
+msgid "Excellent"
+msgstr "Excelente"
+
+#: includes/Services/TranslationStrings.php:494
+msgid "Good"
+msgstr "Bom"
+
+#: includes/Services/TranslationStrings.php:495
+msgid "Needs Work"
+msgstr "Precisa melhorar"
+
+#: includes/Services/TranslationStrings.php:496
+msgid "Poor"
+msgstr "Ruim"
+
+#. translators: %1$s: number of optimized images, %2$s: total number of images
+#: includes/Services/TranslationStrings.php:498
+#, php-format
+msgid "%1$s of %2$s images are fully optimized"
+msgstr "%1$s de %2$s imagens estão totalmente otimizadas"
+
+#: includes/Services/TranslationStrings.php:499
+msgid "Generic / Placeholder"
+msgstr "Genérico / Placeholder"
+
+#: includes/Services/TranslationStrings.php:500
+msgid "Too Long"
+msgstr "Muito longo"
+
+#: includes/Services/TranslationStrings.php:501
+msgid "Generic alt text found:"
+msgstr "Texto alternativo genérico encontrado:"
+
+#. translators: %s: maximum character count
+#: includes/Services/TranslationStrings.php:503
+#, php-format
+msgid "Alt text exceeding %s characters:"
+msgstr "Textos alternativos com mais de %s caracteres:"
+
+#. translators: %s: character count
+#: includes/Services/TranslationStrings.php:505
+#, php-format
+msgid "%s chars"
+msgstr "%s caracteres"
+
+#: includes/Services/TranslationStrings.php:508
+msgid "API Status"
+msgstr "Status da API"
+
+#. translators: %s: AI provider name
+#: includes/Services/TranslationStrings.php:510
+#, php-format
+msgid "Connected to %s"
+msgstr "Conectado a %s"
+
+#: includes/Services/TranslationStrings.php:511
+msgid "Not connected"
+msgstr "Não conectado"
+
+#: includes/Services/TranslationStrings.php:512
+msgid "Configure API"
+msgstr "Configurar API"
+
+#: includes/Services/TranslationStrings.php:515
+msgid "Quick Actions"
+msgstr "Ações rápidas"
+
+#: includes/Services/TranslationStrings.php:516
+msgid "Scan Media Library"
+msgstr "Varrer a biblioteca de mídia"
+
+#: includes/Services/TranslationStrings.php:517
+msgid "WooCommerce Products"
+msgstr "Produtos WooCommerce"
+
+#: includes/Services/TranslationStrings.php:520
+msgid "Recent Activity"
+msgstr "Atividade recente"
+
+#: includes/Services/TranslationStrings.php:521
+msgid "No recent activity"
+msgstr "Nenhuma atividade recente"
+
+#: includes/Services/TranslationStrings.php:528
+msgid "You have an interrupted batch job. Would you like to resume it?"
+msgstr "Você tem um trabalho em lote interrompido. Deseja retomá-lo?"
+
+#: includes/Services/TranslationStrings.php:530
+msgid "Media Library Scanner"
+msgstr "Scanner da biblioteca de mídia"
+
+#: includes/Services/TranslationStrings.php:531
+msgid "Has Alt Text"
+msgstr "Com texto alternativo"
+
+#: includes/Services/TranslationStrings.php:532
+msgid "All Images"
+msgstr "Todas as imagens"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:534
+#, php-format
+msgid "Generate for %s Selected"
+msgstr "Gerar para %s selecionadas"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:536
+#, php-format
+msgid "Rename %s Selected"
+msgstr "Renomear %s selecionadas"
+
+#: includes/Services/TranslationStrings.php:537
+msgid "Advanced Filters & Bulk Select"
+msgstr "Filtros avançados e seleção em massa"
+
+#: includes/Services/TranslationStrings.php:538
+msgid "Upload Date From"
+msgstr "Data de envio de"
+
+#: includes/Services/TranslationStrings.php:539
+msgid "Upload Date To"
+msgstr "Data de envio até"
+
+#: includes/Services/TranslationStrings.php:540
+msgid "Min File Size (KB)"
+msgstr "Tamanho mínimo do arquivo (KB)"
+
+#: includes/Services/TranslationStrings.php:541
+msgid "e.g. 500"
+msgstr "ex.: 500"
+
+#: includes/Services/TranslationStrings.php:542
+msgid "Apply"
+msgstr "Aplicar"
+
+#: includes/Services/TranslationStrings.php:543
+msgid "Clear Filters"
+msgstr "Limpar filtros"
+
+#: includes/Services/TranslationStrings.php:544
+msgid "Quick Bulk Select (across all pages)"
+msgstr "Seleção rápida em massa (em todas as páginas)"
+
+#: includes/Services/TranslationStrings.php:545
+msgid "Selecting..."
+msgstr "Selecionando..."
+
+#: includes/Services/TranslationStrings.php:546
+msgid "All Missing Alt Text"
+msgstr "Todas sem texto alternativo"
+
+#: includes/Services/TranslationStrings.php:547
+msgid "All Generic / Placeholder"
+msgstr "Todas genéricas / placeholder"
+
+#: includes/Services/TranslationStrings.php:548
+msgid "All Too Long"
+msgstr "Todas muito longas"
+
+#. translators: %s: minimum file size in kilobytes
+#: includes/Services/TranslationStrings.php:550
+#, php-format
+msgid "All Larger Than %s KB"
+msgstr "Todas maiores que %s KB"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:552
+#, php-format
+msgid "Clear Selection (%s)"
+msgstr "Limpar seleção (%s)"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:554
+#, php-format
+msgid "%s images selected across all pages"
+msgstr "%s imagens selecionadas em todas as páginas"
+
+#: includes/Services/TranslationStrings.php:555
+msgid "Loading images..."
+msgstr "Carregando imagens..."
+
+#: includes/Services/TranslationStrings.php:556
+msgid "Select All"
+msgstr "Selecionar todas"
+
+#. translators: %s: number of images on current page
+#: includes/Services/TranslationStrings.php:558
+#, php-format
+msgid "All %s images on this page are selected."
+msgstr "Todas as %s imagens desta página estão selecionadas."
+
+#. translators: %s: total number of matching images
+#: includes/Services/TranslationStrings.php:560
+#, php-format
+msgid "Select all %s matching images"
+msgstr "Selecionar todas as %s imagens correspondentes"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:562
+#, php-format
+msgid "All %s matching images are selected."
+msgstr "Todas as %s imagens correspondentes estão selecionadas."
+
+#: includes/Services/TranslationStrings.php:563
+msgid "Clear selection"
+msgstr "Limpar seleção"
+
+#: includes/Services/TranslationStrings.php:564
+msgid "Show"
+msgstr "Mostrar"
+
+#: includes/Services/TranslationStrings.php:565
+msgid "Has alt"
+msgstr "Com alt"
+
+#: includes/Services/TranslationStrings.php:566
+msgid "Missing"
+msgstr "Ausente"
+
+#: includes/Services/TranslationStrings.php:567
+msgid "No alt text"
+msgstr "Sem texto alternativo"
+
+#: includes/Services/TranslationStrings.php:568
+msgid "Rename"
+msgstr "Renomear"
+
+#: includes/Services/TranslationStrings.php:570
+msgid "Previous"
+msgstr "Anterior"
+
+#. translators: %1$s: current page number, %2$s: total number of pages
+#: includes/Services/TranslationStrings.php:572
+#, php-format
+msgid "Page %1$s of %2$s"
+msgstr "Página %1$s de %2$s"
+
+#: includes/Services/TranslationStrings.php:573
+msgid "Next"
+msgstr "Próxima"
+
+#: includes/Services/TranslationStrings.php:576
+msgid "Attachment details"
+msgstr "Detalhes do anexo"
+
+#: includes/Services/TranslationStrings.php:578
+msgid "File name"
+msgstr "Nome do arquivo"
+
+#: includes/Services/TranslationStrings.php:579
+msgid "Rename to SEO"
+msgstr "Renomear para SEO"
+
+#: includes/Services/TranslationStrings.php:583
+msgid "Describe the image for accessibility..."
+msgstr "Descreva a imagem para acessibilidade..."
+
+#: includes/Services/TranslationStrings.php:584
+msgid "Alternative text helps describe the image for screen readers and SEO."
+msgstr ""
+"O texto alternativo ajuda a descrever a imagem para leitores de tela e SEO."
+
+#: includes/Services/TranslationStrings.php:585
+msgid "Open in WordPress Media Library"
+msgstr "Abrir na biblioteca de mídia do WordPress"
+
+#: includes/Services/TranslationStrings.php:586
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: includes/Services/TranslationStrings.php:587
+msgid "Saving..."
+msgstr "Salvando..."
+
+#: includes/Services/TranslationStrings.php:588
+msgid "Update"
+msgstr "Atualizar"
+
+#: includes/Services/TranslationStrings.php:591
+msgid "Failed to load images"
+msgstr "Falha ao carregar as imagens"
+
+#: includes/Services/TranslationStrings.php:592
+msgid "No images match this filter"
+msgstr "Nenhuma imagem corresponde a este filtro"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:594
+#, php-format
+msgid "%s images selected"
+msgstr "%s imagens selecionadas"
+
+#: includes/Services/TranslationStrings.php:595
+msgid "Failed to select images"
+msgstr "Falha ao selecionar as imagens"
+
+#: includes/Services/TranslationStrings.php:596
+msgid "Maximum 500 images per batch job. Please reduce your selection."
+msgstr "Máximo de 500 imagens por trabalho em lote. Reduza sua seleção."
+
+#. translators: %s: number of images in batch
+#: includes/Services/TranslationStrings.php:598
+#, php-format
+msgid "Batch job started for %s images"
+msgstr "Trabalho em lote iniciado para %s imagens"
+
+#: includes/Services/TranslationStrings.php:599
+msgid "Failed to start batch job"
+msgstr "Falha ao iniciar o trabalho em lote"
+
+#: includes/Services/TranslationStrings.php:600
+msgid "Alt text generated. Review and click Update to save."
+msgstr "Texto alternativo gerado. Revise e clique em Atualizar para salvar."
+
+#: includes/Services/TranslationStrings.php:601
+msgid "Failed to generate alt text"
+msgstr "Falha ao gerar o texto alternativo"
+
+#: includes/Services/TranslationStrings.php:602
+msgid "Alt text updated."
+msgstr "Texto alternativo atualizado."
+
+#: includes/Services/TranslationStrings.php:603
+msgid "Failed to update alt text"
+msgstr "Falha ao atualizar o texto alternativo"
+
+#. translators: %s: new filename
+#: includes/Services/TranslationStrings.php:605
+#, php-format
+msgid "Renamed to: %s"
+msgstr "Renomeado para: %s"
+
+#: includes/Services/TranslationStrings.php:607
+msgid "Selected images must have alt text to rename"
+msgstr ""
+"As imagens selecionadas precisam ter texto alternativo para serem renomeadas"
+
+#. translators: %s: number of renamed files
+#: includes/Services/TranslationStrings.php:609
+#, php-format
+msgid "Renamed %s files"
+msgstr "%s arquivos renomeados"
+
+#. translators: %1$s: number of successfully renamed files, %2$s: total number of files
+#: includes/Services/TranslationStrings.php:611
+#, php-format
+msgid "Renamed %1$s/%2$s files"
+msgstr "%1$s/%2$s arquivos renomeados"
+
+#: includes/Services/TranslationStrings.php:612
+msgid "Bulk rename failed"
+msgstr "Falha na renomeação em massa"
+
+#: includes/Services/TranslationStrings.php:619
+msgid "API Configuration"
+msgstr "Configuração da API"
+
+#: includes/Services/TranslationStrings.php:620
+msgid "Provider"
+msgstr "Provedor"
+
+#: includes/Services/TranslationStrings.php:621
+msgid "Anthropic Claude"
+msgstr "Anthropic Claude"
+
+#: includes/Services/TranslationStrings.php:622
+msgid "OpenAI GPT-4"
+msgstr "OpenAI GPT-4"
+
+#: includes/Services/TranslationStrings.php:623
+msgid "Google Gemini"
+msgstr "Google Gemini"
+
+#: includes/Services/TranslationStrings.php:624
+msgid "Mistral AI (Pixtral)"
+msgstr "Mistral AI (Pixtral)"
+
+#: includes/Services/TranslationStrings.php:625
+msgid "OpenRouter"
+msgstr "OpenRouter"
+
+#: includes/Services/TranslationStrings.php:626
+msgid "OpenRouter Model"
+msgstr "Modelo do OpenRouter"
+
+#: includes/Services/TranslationStrings.php:627
+msgid "API Key"
+msgstr "Chave de API"
+
+#: includes/Services/TranslationStrings.php:628
+msgid "Enter API key"
+msgstr "Digite a chave de API"
+
+#: includes/Services/TranslationStrings.php:629
+msgid "Save API Key"
+msgstr "Salvar chave de API"
+
+#: includes/Services/TranslationStrings.php:630
+msgid "Status:"
+msgstr "Status:"
+
+#: includes/Services/TranslationStrings.php:631
+msgid "Active"
+msgstr "Ativo"
+
+#: includes/Services/TranslationStrings.php:632
+msgid "Inactive"
+msgstr "Inativo"
+
+#: includes/Services/TranslationStrings.php:633
+msgid "Provider:"
+msgstr "Provedor:"
+
+#: includes/Services/TranslationStrings.php:636
+msgid "Generation Settings"
+msgstr "Configurações de geração"
+
+#: includes/Services/TranslationStrings.php:637
+msgid "Default Tone"
+msgstr "Tom padrão"
+
+#: includes/Services/TranslationStrings.php:638
+msgid "Professional"
+msgstr "Profissional"
+
+#: includes/Services/TranslationStrings.php:639
+msgid "Casual"
+msgstr "Casual"
+
+#: includes/Services/TranslationStrings.php:640
+msgid "Technical"
+msgstr "Técnico"
+
+#: includes/Services/TranslationStrings.php:641
+msgid "SEO-Optimized"
+msgstr "Otimizado para SEO"
+
+#: includes/Services/TranslationStrings.php:642
+msgid "Custom Prompt"
+msgstr "Prompt personalizado"
+
+#: includes/Services/TranslationStrings.php:643
+msgid ""
+"e.g. Generate alt text (max {max_length} characters) describing the subject, "
+"colors, and setting. Do not start with 'Image of'. Return only the alt text."
+msgstr ""
+"ex.: Gere um texto alternativo (máx. {max_length} caracteres) descrevendo o "
+"assunto, as cores e o cenário. Não comece com «Imagem de». Retorne apenas o "
+"texto alternativo."
+
+#: includes/Services/TranslationStrings.php:644
+msgid ""
+"Use {max_length} as a placeholder for your max character setting. Product "
+"context is added automatically for WooCommerce images."
+msgstr ""
+"Use {max_length} como marcador do seu limite de caracteres. O contexto do "
+"produto é adicionado automaticamente em imagens do WooCommerce."
+
+#: includes/Services/TranslationStrings.php:645
+msgid "Max Character Length"
+msgstr "Comprimento máximo de caracteres"
+
+#: includes/Services/TranslationStrings.php:646
+msgid "Language"
+msgstr "Idioma"
+
+#: includes/Services/TranslationStrings.php:647
+msgid "Afrikaans"
+msgstr "Africâner"
+
+#: includes/Services/TranslationStrings.php:648
+msgid "Albanian"
+msgstr "Albanês"
+
+#: includes/Services/TranslationStrings.php:649
+msgid "Amharic"
+msgstr "Amárico"
+
+#: includes/Services/TranslationStrings.php:650
+msgid "Arabic"
+msgstr "Árabe"
+
+#: includes/Services/TranslationStrings.php:651
+msgid "Armenian"
+msgstr "Armênio"
+
+#: includes/Services/TranslationStrings.php:652
+msgid "Azerbaijani"
+msgstr "Azerbaijano"
+
+#: includes/Services/TranslationStrings.php:653
+msgid "Bengali"
+msgstr "Bengali"
+
+#: includes/Services/TranslationStrings.php:654
+msgid "Bosnian"
+msgstr "Bósnio"
+
+#: includes/Services/TranslationStrings.php:655
+msgid "Bulgarian"
+msgstr "Búlgaro"
+
+#: includes/Services/TranslationStrings.php:656
+msgid "Catalan"
+msgstr "Catalão"
+
+#: includes/Services/TranslationStrings.php:657
+msgid "Chinese"
+msgstr "Chinês"
+
+#: includes/Services/TranslationStrings.php:658
+msgid "Croatian"
+msgstr "Croata"
+
+#: includes/Services/TranslationStrings.php:659
+msgid "Czech"
+msgstr "Tcheco"
+
+#: includes/Services/TranslationStrings.php:660
+msgid "Danish"
+msgstr "Dinamarquês"
+
+#: includes/Services/TranslationStrings.php:661
+msgid "Dutch"
+msgstr "Holandês"
+
+#: includes/Services/TranslationStrings.php:662
+msgid "English"
+msgstr "Inglês"
+
+#: includes/Services/TranslationStrings.php:663
+msgid "Estonian"
+msgstr "Estoniano"
+
+#: includes/Services/TranslationStrings.php:664
+msgid "Filipino"
+msgstr "Filipino"
+
+#: includes/Services/TranslationStrings.php:665
+msgid "Finnish"
+msgstr "Finlandês"
+
+#: includes/Services/TranslationStrings.php:666
+msgid "French"
+msgstr "Francês"
+
+#: includes/Services/TranslationStrings.php:667
+msgid "Galician"
+msgstr "Galego"
+
+#: includes/Services/TranslationStrings.php:668
+msgid "Georgian"
+msgstr "Georgiano"
+
+#: includes/Services/TranslationStrings.php:669
+msgid "German"
+msgstr "Alemão"
+
+#: includes/Services/TranslationStrings.php:670
+msgid "Greek"
+msgstr "Grego"
+
+#: includes/Services/TranslationStrings.php:671
+msgid "Gujarati"
+msgstr "Guzerate"
+
+#: includes/Services/TranslationStrings.php:672
+msgid "Hebrew"
+msgstr "Hebraico"
+
+#: includes/Services/TranslationStrings.php:673
+msgid "Hindi"
+msgstr "Híndi"
+
+#: includes/Services/TranslationStrings.php:674
+msgid "Hungarian"
+msgstr "Húngaro"
+
+#: includes/Services/TranslationStrings.php:675
+msgid "Icelandic"
+msgstr "Islandês"
+
+#: includes/Services/TranslationStrings.php:676
+msgid "Indonesian"
+msgstr "Indonésio"
+
+#: includes/Services/TranslationStrings.php:677
+msgid "Irish"
+msgstr "Irlandês"
+
+#: includes/Services/TranslationStrings.php:678
+msgid "Italian"
+msgstr "Italiano"
+
+#: includes/Services/TranslationStrings.php:679
+msgid "Japanese"
+msgstr "Japonês"
+
+#: includes/Services/TranslationStrings.php:680
+msgid "Kannada"
+msgstr "Canarês"
+
+#: includes/Services/TranslationStrings.php:681
+msgid "Kazakh"
+msgstr "Cazaque"
+
+#: includes/Services/TranslationStrings.php:682
+msgid "Khmer"
+msgstr "Khmer"
+
+#: includes/Services/TranslationStrings.php:683
+msgid "Korean"
+msgstr "Coreano"
+
+#: includes/Services/TranslationStrings.php:684
+msgid "Latvian"
+msgstr "Letão"
+
+#: includes/Services/TranslationStrings.php:685
+msgid "Lithuanian"
+msgstr "Lituano"
+
+#: includes/Services/TranslationStrings.php:686
+msgid "Macedonian"
+msgstr "Macedônio"
+
+#: includes/Services/TranslationStrings.php:687
+msgid "Malay"
+msgstr "Malaio"
+
+#: includes/Services/TranslationStrings.php:688
+msgid "Marathi"
+msgstr "Marata"
+
+#: includes/Services/TranslationStrings.php:689
+msgid "Mongolian"
+msgstr "Mongol"
+
+#: includes/Services/TranslationStrings.php:690
+msgid "Nepali"
+msgstr "Nepalês"
+
+#: includes/Services/TranslationStrings.php:691
+msgid "Norwegian"
+msgstr "Norueguês"
+
+#: includes/Services/TranslationStrings.php:692
+msgid "Pashto"
+msgstr "Pachto"
+
+#: includes/Services/TranslationStrings.php:693
+msgid "Persian"
+msgstr "Persa"
+
+#: includes/Services/TranslationStrings.php:694
+msgid "Polish"
+msgstr "Polonês"
+
+#: includes/Services/TranslationStrings.php:695
+msgid "Portuguese"
+msgstr "Português"
+
+#: includes/Services/TranslationStrings.php:696
+msgid "Punjabi"
+msgstr "Panjabi"
+
+#: includes/Services/TranslationStrings.php:697
+msgid "Romanian"
+msgstr "Romeno"
+
+#: includes/Services/TranslationStrings.php:698
+msgid "Russian"
+msgstr "Russo"
+
+#: includes/Services/TranslationStrings.php:699
+msgid "Serbian"
+msgstr "Sérvio"
+
+#: includes/Services/TranslationStrings.php:700
+msgid "Sinhala"
+msgstr "Cingalês"
+
+#: includes/Services/TranslationStrings.php:701
+msgid "Slovak"
+msgstr "Eslovaco"
+
+#: includes/Services/TranslationStrings.php:702
+msgid "Slovenian"
+msgstr "Esloveno"
+
+#: includes/Services/TranslationStrings.php:703
+msgid "Spanish"
+msgstr "Espanhol"
+
+#: includes/Services/TranslationStrings.php:704
+msgid "Swahili"
+msgstr "Suaíli"
+
+#: includes/Services/TranslationStrings.php:705
+msgid "Swedish"
+msgstr "Sueco"
+
+#: includes/Services/TranslationStrings.php:706
+msgid "Tamil"
+msgstr "Tâmil"
+
+#: includes/Services/TranslationStrings.php:707
+msgid "Telugu"
+msgstr "Télugo"
+
+#: includes/Services/TranslationStrings.php:708
+msgid "Thai"
+msgstr "Tailandês"
+
+#: includes/Services/TranslationStrings.php:709
+msgid "Turkish"
+msgstr "Turco"
+
+#: includes/Services/TranslationStrings.php:710
+msgid "Ukrainian"
+msgstr "Ucraniano"
+
+#: includes/Services/TranslationStrings.php:711
+msgid "Urdu"
+msgstr "Urdu"
+
+#: includes/Services/TranslationStrings.php:712
+msgid "Uzbek"
+msgstr "Uzbeque"
+
+#: includes/Services/TranslationStrings.php:713
+msgid "Vietnamese"
+msgstr "Vietnamita"
+
+#: includes/Services/TranslationStrings.php:714
+msgid "Welsh"
+msgstr "Galês"
+
+#: includes/Services/TranslationStrings.php:715
+msgid "Zulu"
+msgstr "Zulu"
+
+#: includes/Services/TranslationStrings.php:716
+msgid "Alt text will be generated in the selected language"
+msgstr "O texto alternativo será gerado no idioma selecionado"
+
+#: includes/Services/TranslationStrings.php:717
+msgid "Auto-generate on upload"
+msgstr "Gerar automaticamente no envio"
+
+#: includes/Services/TranslationStrings.php:718
+msgid "Exclude post types from auto-generation"
+msgstr "Excluir tipos de post da geração automática"
+
+#: includes/Services/TranslationStrings.php:719
+msgid "Images uploaded to these post types will not be auto-generated."
+msgstr ""
+"Imagens enviadas para esses tipos de post não serão geradas automaticamente."
+
+#: includes/Services/TranslationStrings.php:720
+msgid "No post types available"
+msgstr "Nenhum tipo de post disponível"
+
+#: includes/Services/TranslationStrings.php:721
+msgid "Preview before accepting"
+msgstr "Pré-visualizar antes de aceitar"
+
+#: includes/Services/TranslationStrings.php:722
+msgid "Skip images with existing alt text"
+msgstr "Ignorar imagens com texto alternativo existente"
+
+#: includes/Services/TranslationStrings.php:725
+msgid "File Renaming"
+msgstr "Renomeação de arquivos"
+
+#: includes/Services/TranslationStrings.php:726
+msgid "Auto-rename files on upload"
+msgstr "Renomear arquivos automaticamente no envio"
+
+#: includes/Services/TranslationStrings.php:727
+msgid "Rename uploaded files to SEO-friendly names based on generated alt text"
+msgstr ""
+"Renomeia os arquivos enviados com nomes otimizados para SEO baseados no "
+"texto alternativo gerado"
+
+#: includes/Services/TranslationStrings.php:728
+msgid "Max Filename Length"
+msgstr "Comprimento máximo do nome do arquivo"
+
+#: includes/Services/TranslationStrings.php:729
+msgid "Characters in filename (default: 120)"
+msgstr "Caracteres no nome do arquivo (padrão: 120)"
+
+#: includes/Services/TranslationStrings.php:732
+msgid "Advanced Settings"
+msgstr "Configurações avançadas"
+
+#: includes/Services/TranslationStrings.php:733
+msgid "Batch Size"
+msgstr "Tamanho do lote"
+
+#: includes/Services/TranslationStrings.php:734
+msgid "Number of images to process per batch"
+msgstr "Número de imagens a processar por lote"
+
+#: includes/Services/TranslationStrings.php:735
+msgid "Request Timeout (seconds)"
+msgstr "Tempo limite da solicitação (segundos)"
+
+#: includes/Services/TranslationStrings.php:738
+msgid "WooCommerce Settings"
+msgstr "Configurações do WooCommerce"
+
+#: includes/Services/TranslationStrings.php:739
+msgid "Configure alt text generation for WooCommerce products"
+msgstr ""
+"Configure a geração de textos alternativos para produtos do WooCommerce"
+
+#: includes/Services/TranslationStrings.php:740
+msgid "Auto-generate on product upload"
+msgstr "Gerar automaticamente no envio de produtos"
+
+#: includes/Services/TranslationStrings.php:741
+msgid "Automatically generate alt text when adding product images"
+msgstr ""
+"Gera automaticamente o texto alternativo ao adicionar imagens de produtos"
+
+#: includes/Services/TranslationStrings.php:742
+msgid "Include product information"
+msgstr "Incluir informações do produto"
+
+#: includes/Services/TranslationStrings.php:743
+msgid "Use product name, categories, and SKU in alt text generation"
+msgstr "Usa nome do produto, categorias e SKU na geração do texto alternativo"
+
+#: includes/Services/TranslationStrings.php:744
+msgid "Default Tone for Products"
+msgstr "Tom padrão para produtos"
+
+#: includes/Services/TranslationStrings.php:745
+msgid "WooCommerce Optimized"
+msgstr "Otimizado para WooCommerce"
+
+#: includes/Services/TranslationStrings.php:746
+msgid "Product SEO (Recommended)"
+msgstr "SEO do produto (recomendado)"
+
+#: includes/Services/TranslationStrings.php:747
+msgid "Product Descriptive (Accessibility)"
+msgstr "Produto descritivo (acessibilidade)"
+
+#: includes/Services/TranslationStrings.php:748
+msgid "Product Lifestyle (In-Use Photos)"
+msgstr "Produto lifestyle (fotos em uso)"
+
+#: includes/Services/TranslationStrings.php:749
+msgid "General"
+msgstr "Geral"
+
+#: includes/Services/TranslationStrings.php:750
+msgid "Custom WooCommerce Prompt"
+msgstr "Prompt personalizado do WooCommerce"
+
+#: includes/Services/TranslationStrings.php:751
+msgid ""
+"e.g. Generate product alt text (max {max_length} characters) with the "
+"product name, visible features, and use case. Do not start with 'Image of'. "
+"Return only the alt text."
+msgstr ""
+"ex.: Gere um texto alternativo do produto (máx. {max_length} caracteres) com "
+"o nome, características visíveis e caso de uso. Não comece com «Imagem de». "
+"Retorne apenas o texto alternativo."
+
+#: includes/Services/TranslationStrings.php:752
+msgid ""
+"Use {max_length} as a placeholder. Product name, category, and SKU are "
+"automatically included as context."
+msgstr ""
+"Use {max_length} como marcador. Nome do produto, categoria e SKU são "
+"incluídos automaticamente como contexto."
+
+#: includes/Services/TranslationStrings.php:753
+msgid ""
+"WooCommerce is not installed. Install WooCommerce to access product image "
+"optimization features."
+msgstr ""
+"O WooCommerce não está instalado. Instale o WooCommerce para acessar a "
+"otimização de imagens de produtos."
+
+#: includes/Services/TranslationStrings.php:754
+msgid "Save Settings"
+msgstr "Salvar configurações"
+
+#: includes/Services/TranslationStrings.php:757
+msgid "Failed to load settings"
+msgstr "Falha ao carregar as configurações"
+
+#: includes/Services/TranslationStrings.php:758
+msgid "Settings saved successfully"
+msgstr "Configurações salvas com sucesso"
+
+#: includes/Services/TranslationStrings.php:759
+msgid "Failed to save settings"
+msgstr "Falha ao salvar as configurações"
+
+#: includes/Services/TranslationStrings.php:760
+msgid "Please enter an API key"
+msgstr "Digite uma chave de API"
+
+#: includes/Services/TranslationStrings.php:762
+msgid "Failed to save API key"
+msgstr "Falha ao salvar a chave de API"
+
+#: includes/Services/TranslationStrings.php:769
+msgid "Setup progress"
+msgstr "Progresso da configuração"
+
+#: includes/Services/TranslationStrings.php:770
+msgid "Model"
+msgstr "Modelo"
+
+#: includes/Services/TranslationStrings.php:771
+msgid "Welcome"
+msgstr "Boas-vindas"
+
+#: includes/Services/TranslationStrings.php:772
+msgid "AI setup"
+msgstr "Configuração de IA"
+
+#: includes/Services/TranslationStrings.php:773
+msgid "Fallbacks"
+msgstr "Imagens reserva"
+
+#: includes/Services/TranslationStrings.php:774
+msgid "Finish"
+msgstr "Concluir"
+
+#: includes/Services/TranslationStrings.php:777
+msgid "Watch How It Works"
+msgstr "Veja como funciona"
+
+#: includes/Services/TranslationStrings.php:778
+msgid "How to Use ImageCraft"
+msgstr "Como usar o ImageCraft"
+
+#: includes/Services/TranslationStrings.php:779
+msgid "Click to load the video from YouTube"
+msgstr "Clique para carregar o vídeo do YouTube"
+
+#: includes/Services/TranslationStrings.php:780
+msgid "Welcome to ImageCraft"
+msgstr "Boas-vindas ao ImageCraft"
+
+#: includes/Services/TranslationStrings.php:781
+msgid ""
+"The all-in-one image toolkit — AI alt text, titles & descriptions, local "
+"image compression, WebP conversion, and image fallbacks."
+msgstr ""
+"O kit de imagens tudo-em-um — textos alternativos, títulos e descrições com "
+"IA, compressão local de imagens, conversão para WebP e imagens reserva."
+
+#: includes/Services/TranslationStrings.php:782
+msgid "AI Image SEO"
+msgstr "SEO de imagens com IA"
+
+#: includes/Services/TranslationStrings.php:783
+msgid ""
+"Alt text, titles & descriptions with your own AI key — pay your provider "
+"directly, no markup"
+msgstr ""
+"Textos alternativos, títulos e descrições com sua própria chave de IA — você "
+"paga direto ao provedor, sem markup"
+
+#: includes/Services/TranslationStrings.php:784
+msgid "Works without AI"
+msgstr "Funciona sem IA"
+
+#: includes/Services/TranslationStrings.php:785
+msgid ""
+"Compression, WebP conversion & fallbacks run locally — no API key, no account"
+msgstr ""
+"Compressão, conversão WebP e imagens reserva rodam localmente — sem chave de "
+"API, sem conta"
+
+#: includes/Services/TranslationStrings.php:786
+msgid "Free to start"
+msgstr "Comece grátis"
+
+#: includes/Services/TranslationStrings.php:787
+msgid ""
+"50 free actions per day across AI generation and compression — Pro removes "
+"the limit"
+msgstr ""
+"50 ações gratuitas por dia entre geração com IA e compressão — o Pro remove "
+"o limite"
+
+#: includes/Services/TranslationStrings.php:788
+msgid "Set up AI generation"
+msgstr "Configurar a geração com IA"
+
+#: includes/Services/TranslationStrings.php:789
+msgid "Start without AI — compression, WebP & fallbacks need no key"
+msgstr "Começar sem IA — compressão, WebP e reservas não precisam de chave"
+
+#: includes/Services/TranslationStrings.php:792
+msgid "Choose Your AI Provider"
+msgstr "Escolha seu provedor de IA"
+
+#: includes/Services/TranslationStrings.php:793
+msgid ""
+"Approximate cost per image, billed by the provider at their standard rates."
+msgstr "Custo aproximado por imagem, cobrado pelo provedor nas tarifas padrão."
+
+#: includes/Services/TranslationStrings.php:794
+msgid "Recommended"
+msgstr "Recomendado"
+
+#: includes/Services/TranslationStrings.php:795
+msgid "Best quality at the lowest cost"
+msgstr "A melhor qualidade pelo menor custo"
+
+#: includes/Services/TranslationStrings.php:796
+msgid "~$0.0008 per image (Claude Haiku)"
+msgstr "~$0,0008 por imagem (Claude Haiku)"
+
+#: includes/Services/TranslationStrings.php:797
+msgid "OpenAI GPT-4o"
+msgstr "OpenAI GPT-4o"
+
+#: includes/Services/TranslationStrings.php:798
+msgid "Great quality, widely used"
+msgstr "Ótima qualidade, muito usado"
+
+#: includes/Services/TranslationStrings.php:799
+msgid "~$0.003 per image (GPT-4o mini)"
+msgstr "~$0,003 por imagem (GPT-4o mini)"
+
+#: includes/Services/TranslationStrings.php:800
+msgid "Fast and affordable"
+msgstr "Rápido e econômico"
+
+#: includes/Services/TranslationStrings.php:801
+msgid "~$0.001 per image (Gemini 2.5 Flash)"
+msgstr "~$0,001 por imagem (Gemini 2.5 Flash)"
+
+#: includes/Services/TranslationStrings.php:802
+msgid "WordPress Native AI Connector"
+msgstr "Conector de IA nativo do WordPress"
+
+#: includes/Services/TranslationStrings.php:803
+msgid "No key needed"
+msgstr "Sem chave"
+
+#: includes/Services/TranslationStrings.php:804
+msgid "Use your site's built-in AI — no API key needed"
+msgstr "Use a IA integrada do seu site — sem chave de API"
+
+#: includes/Services/TranslationStrings.php:805
+msgid "Managed by WordPress, nothing to configure"
+msgstr "Gerenciado pelo WordPress, nada para configurar"
+
+#: includes/Services/TranslationStrings.php:806
+msgid "Back"
+msgstr "Voltar"
+
+#: includes/Services/TranslationStrings.php:807
+msgid "Continue"
+msgstr "Continuar"
+
+#: includes/Services/TranslationStrings.php:810
+msgid "Add Your API Key"
+msgstr "Adicione sua chave de API"
+
+#: includes/Services/TranslationStrings.php:811
+msgid "WordPress AI Client detected"
+msgstr "AI Client do WordPress detectado"
+
+#: includes/Services/TranslationStrings.php:812
+msgid ""
+"Your site has a WordPress AI connector configured. You can use it instead of "
+"entering your own API key — no key storage needed."
+msgstr ""
+"Seu site tem um conector de IA do WordPress configurado. Você pode usá-lo em "
+"vez de informar sua própria chave de API — sem armazenar chaves."
+
+#: includes/Services/TranslationStrings.php:813
+msgid "API Key Detected in wp-config.php"
+msgstr "Chave de API detectada no wp-config.php"
+
+#: includes/Services/TranslationStrings.php:814
+msgid "Your API key is defined via the"
+msgstr "Sua chave de API está definida pela constante"
+
+#: includes/Services/TranslationStrings.php:815
+msgid "constant. No need to enter it manually."
+msgstr ". Não é preciso digitá-la manualmente."
+
+#: includes/Services/TranslationStrings.php:816
+msgid "You can also define your key in wp-config.php:"
+msgstr "Você também pode definir sua chave no wp-config.php:"
+
+#: includes/Services/TranslationStrings.php:817
+msgid "How to get your API key:"
+msgstr "Como obter sua chave de API:"
+
+#: includes/Services/TranslationStrings.php:818
+msgid "Visit"
+msgstr "Acesse"
+
+#: includes/Services/TranslationStrings.php:819
+msgid "Create an account and add credits"
+msgstr "Crie uma conta e adicione créditos"
+
+#: includes/Services/TranslationStrings.php:820
+msgid "Generate an API key"
+msgstr "Gere uma chave de API"
+
+#: includes/Services/TranslationStrings.php:821
+msgid "Paste it below"
+msgstr "Cole-a abaixo"
+
+#: includes/Services/TranslationStrings.php:822
+msgid "Enter your API key"
+msgstr "Digite sua chave de API"
+
+#: includes/Services/TranslationStrings.php:823
+msgid "Connection successful!"
+msgstr "Conexão bem-sucedida!"
+
+#: includes/Services/TranslationStrings.php:824
+msgid "Connection failed:"
+msgstr "Falha na conexão:"
+
+#: includes/Services/TranslationStrings.php:825
+msgid "Connection failed"
+msgstr "Falha na conexão"
+
+#: includes/Services/TranslationStrings.php:826
+msgid "Testing..."
+msgstr "Testando..."
+
+#: includes/Services/TranslationStrings.php:827
+msgid "Test Connection"
+msgstr "Testar conexão"
+
+#: includes/Services/TranslationStrings.php:828
+msgid "Save & Continue"
+msgstr "Salvar e continuar"
+
+#: includes/Services/TranslationStrings.php:829
+msgid "Failed to test connection"
+msgstr "Falha ao testar a conexão"
+
+#: includes/Services/TranslationStrings.php:830
+msgid "API key saved successfully!"
+msgstr "Chave de API salva com sucesso!"
+
+#: includes/Services/TranslationStrings.php:833
+msgid "One more thing — never show a broken image"
+msgstr "Mais uma coisa — nunca mais mostre uma imagem quebrada"
+
+#: includes/Services/TranslationStrings.php:834
+msgid ""
+"Pick one image and ImageCraft will show it whenever an image on your site is "
+"broken, and as the featured image for posts that have none. Nothing is "
+"written to your content — turn it off anytime."
+msgstr ""
+"Escolha uma imagem e o ImageCraft a mostrará sempre que uma imagem do seu "
+"site estiver quebrada, e como imagem destacada nos posts que não têm uma. "
+"Nada é gravado no seu conteúdo — desative quando quiser."
+
+#: includes/Services/TranslationStrings.php:835
+msgid "Your fallback image"
+msgstr "Sua imagem reserva"
+
+#: includes/Services/TranslationStrings.php:836
+msgid ""
+"Tip: use your logo or a simple branded placeholder. You can fine-tune "
+"everything later in Settings → Image Fallbacks."
+msgstr ""
+"Dica: use seu logotipo ou um placeholder simples da sua marca. Você pode "
+"ajustar tudo depois em Configurações → Imagens reserva."
+
+#: includes/Services/TranslationStrings.php:837
+msgid "Enable & Finish"
+msgstr "Ativar e concluir"
+
+#: includes/Services/TranslationStrings.php:838
+msgid "Image fallbacks enabled!"
+msgstr "Imagens reserva ativadas!"
+
+#: includes/Services/TranslationStrings.php:839
+msgid "Failed to save fallback settings"
+msgstr "Falha ao salvar as configurações de reserva"
+
+#: includes/Services/TranslationStrings.php:840
+msgid "Failed to complete setup"
+msgstr "Falha ao concluir a configuração"
+
+#: includes/Services/TranslationStrings.php:843
+msgid "Setup Complete!"
+msgstr "Configuração concluída!"
+
+#: includes/Services/TranslationStrings.php:844
+msgid ""
+"Generate alt text, compress images, convert to WebP, and audit your media "
+"library — all from your dashboard."
+msgstr ""
+"Gere textos alternativos, comprima imagens, converta para WebP e audite sua "
+"biblioteca de mídia — tudo pelo seu painel."
+
+#: includes/Services/TranslationStrings.php:845
+msgid "Go to Dashboard"
+msgstr "Ir para o painel"
+
+#: includes/Services/TranslationStrings.php:852
+msgid "Batch Processing"
+msgstr "Processamento em lote"
+
+#: includes/Services/TranslationStrings.php:853
+msgid "Progress"
+msgstr "Progresso"
+
+#. translators: %1$s: number of processed images, %2$s: total number of images
+#: includes/Services/TranslationStrings.php:855
+#, php-format
+msgid "%1$s of %2$s images processed"
+msgstr "%1$s de %2$s imagens processadas"
+
+#. translators: %s: number of failed images
+#: includes/Services/TranslationStrings.php:857
+#, php-format
+msgid "%s failed"
+msgstr "%s falharam"
+
+#: includes/Services/TranslationStrings.php:858
+msgid "Review & Edit Alt Text"
+msgstr "Revisar e editar textos alternativos"
+
+#: includes/Services/TranslationStrings.php:859
+msgid "Troubleshooting Failed Images"
+msgstr "Solução de problemas de imagens com falha"
+
+#. translators: %s: number of failed images
+#: includes/Services/TranslationStrings.php:861
+#, php-format
+msgid "All %s image(s) failed to process. Common causes:"
+msgstr "Todas as %s imagem(ns) falharam no processamento. Causas comuns:"
+
+#: includes/Services/TranslationStrings.php:862
+msgid "No API key configured:"
+msgstr "Nenhuma chave de API configurada:"
+
+#: includes/Services/TranslationStrings.php:863
+msgid "Go to Settings and add your API key"
+msgstr "Vá em Configurações e adicione sua chave de API"
+
+#: includes/Services/TranslationStrings.php:864
+msgid "Invalid API key:"
+msgstr "Chave de API inválida:"
+
+#: includes/Services/TranslationStrings.php:865
+msgid "Verify your API key is correct"
+msgstr "Verifique se sua chave de API está correta"
+
+#: includes/Services/TranslationStrings.php:866
+msgid "API key permissions:"
+msgstr "Permissões da chave de API:"
+
+#: includes/Services/TranslationStrings.php:867
+msgid "Ensure your API key has access"
+msgstr "Garanta que sua chave de API tenha acesso"
+
+#: includes/Services/TranslationStrings.php:868
+msgid "Image URL not accessible:"
+msgstr "URL da imagem inacessível:"
+
+#: includes/Services/TranslationStrings.php:869
+msgid "Images must be publicly accessible"
+msgstr "As imagens precisam estar acessíveis publicamente"
+
+#: includes/Services/TranslationStrings.php:870
+msgid "API rate limit exceeded:"
+msgstr "Limite de requisições da API excedido:"
+
+#: includes/Services/TranslationStrings.php:871
+msgid "Wait a few minutes and try again"
+msgstr "Aguarde alguns minutos e tente novamente"
+
+#: includes/Services/TranslationStrings.php:872
+msgid "Network/connection error:"
+msgstr "Erro de rede/conexão:"
+
+#: includes/Services/TranslationStrings.php:873
+msgid "Check your internet connection and firewall settings"
+msgstr "Verifique sua conexão com a internet e as configurações de firewall"
+
+#: includes/Services/TranslationStrings.php:874
+msgid "To find the exact error:"
+msgstr "Para encontrar o erro exato:"
+
+#: includes/Services/TranslationStrings.php:875
+msgid "Enable WordPress debug logging in wp-config.php"
+msgstr "Ative o log de depuração do WordPress no wp-config.php"
+
+#: includes/Services/TranslationStrings.php:876
+msgid "Check wp-content/debug.log for error entries"
+msgstr "Verifique o wp-content/debug.log em busca de erros"
+
+#: includes/Services/TranslationStrings.php:877
+msgid "The log will show the specific error message for each failed image"
+msgstr "O log mostrará a mensagem de erro específica de cada imagem com falha"
+
+#: includes/Services/TranslationStrings.php:878
+msgid "Go to Settings"
+msgstr "Ir para Configurações"
+
+#: includes/Services/TranslationStrings.php:879
+msgid "Back to Scanner"
+msgstr "Voltar ao Scanner"
+
+#: includes/Services/TranslationStrings.php:880
+msgid "No active batch job"
+msgstr "Nenhum trabalho em lote ativo"
+
+#: includes/Services/TranslationStrings.php:881
+msgid "No generated images to review."
+msgstr "Nenhuma imagem gerada para revisar."
+
+#: includes/Services/TranslationStrings.php:882
+msgid "Enter alt text..."
+msgstr "Digite o texto alternativo..."
+
+#: includes/Services/TranslationStrings.php:883
+msgid "Save All"
+msgstr "Salvar tudo"
+
+#. translators: %1$s: number of successful images, %2$s: number of failed images
+#: includes/Services/TranslationStrings.php:887
+#, php-format
+msgid "Batch processing completed with %1$s successful and %2$s failed."
+msgstr "Processamento em lote concluído: %1$s com sucesso e %2$s com falha."
+
+#: includes/Services/TranslationStrings.php:888
+msgid "Batch processing completed successfully!"
+msgstr "Processamento em lote concluído com sucesso!"
+
+#. translators: %s: number of failed images
+#: includes/Services/TranslationStrings.php:890
+#, php-format
+msgid "Batch processing failed. All %s images failed to process."
+msgstr "Falha no processamento em lote. Todas as %s imagens falharam."
+
+#: includes/Services/TranslationStrings.php:891
+msgid "Batch job was cancelled."
+msgstr "O trabalho em lote foi cancelado."
+
+#: includes/Services/TranslationStrings.php:892
+msgid "Failed to load generated images"
+msgstr "Falha ao carregar as imagens geradas"
+
+#: includes/Services/TranslationStrings.php:893
+msgid "Alt texts saved successfully."
+msgstr "Textos alternativos salvos com sucesso."
+
+#: includes/Services/TranslationStrings.php:894
+msgid "Failed to save alt texts"
+msgstr "Falha ao salvar os textos alternativos"
+
+#: includes/Services/TranslationStrings.php:896
+msgid "Failed to cancel job"
+msgstr "Falha ao cancelar o trabalho"
+
+#: includes/Services/TranslationStrings.php:899
+msgid "Interrupted Batch Job Found"
+msgstr "Trabalho em lote interrompido encontrado"
+
+#: includes/Services/TranslationStrings.php:900
+msgid "A previous batch job was interrupted before completing."
+msgstr "Um trabalho em lote anterior foi interrompido antes de concluir."
+
+#: includes/Services/TranslationStrings.php:901
+msgid "Total"
+msgstr "Total"
+
+#: includes/Services/TranslationStrings.php:902
+msgid "Processed"
+msgstr "Processadas"
+
+#: includes/Services/TranslationStrings.php:903
+msgid "Failed"
+msgstr "Falharam"
+
+#: includes/Services/TranslationStrings.php:904
+msgid "Remaining"
+msgstr "Restantes"
+
+#: includes/Services/TranslationStrings.php:905
+msgid "Resume"
+msgstr "Retomar"
+
+#: includes/Services/TranslationStrings.php:906
+msgid "Resuming..."
+msgstr "Retomando..."
+
+#: includes/Services/TranslationStrings.php:907
+msgid "Discard"
+msgstr "Descartar"
+
+#: includes/Services/TranslationStrings.php:908
+msgid "Resuming batch job..."
+msgstr "Retomando o trabalho em lote..."
+
+#: includes/Services/TranslationStrings.php:909
+msgid "Batch job discarded"
+msgstr "Trabalho em lote descartado"
+
+#: includes/Services/TranslationStrings.php:910
+msgid "Failed to resume batch job"
+msgstr "Falha ao retomar o trabalho em lote"
+
+#: includes/Services/TranslationStrings.php:911
+msgid "Failed to discard job"
+msgstr "Falha ao descartar o trabalho"
+
+#: includes/Services/TranslationStrings.php:912
+msgid "A batch job is already in progress."
+msgstr "Já existe um trabalho em lote em andamento."
+
+#: includes/Services/TranslationStrings.php:919
+msgid "WooCommerce Not Detected"
+msgstr "WooCommerce não detectado"
+
+#: includes/Services/TranslationStrings.php:920
+msgid "Please install and activate WooCommerce to use this feature."
+msgstr "Instale e ative o WooCommerce para usar este recurso."
+
+#: includes/Services/TranslationStrings.php:921
+msgid "Total Products"
+msgstr "Total de produtos"
+
+#: includes/Services/TranslationStrings.php:922
+msgid "Selected"
+msgstr "Selecionados"
+
+#: includes/Services/TranslationStrings.php:923
+msgid "All Products"
+msgstr "Todos os produtos"
+
+#: includes/Services/TranslationStrings.php:924
+msgid "Missing Alt"
+msgstr "Sem alt"
+
+#: includes/Services/TranslationStrings.php:925
+msgid "Has Alt"
+msgstr "Com alt"
+
+#: includes/Services/TranslationStrings.php:926
+msgid "Loading products..."
+msgstr "Carregando produtos..."
+
+#: includes/Services/TranslationStrings.php:927
+msgid "SKU:"
+msgstr "SKU:"
+
+#: includes/Services/TranslationStrings.php:928
+msgid "View Details"
+msgstr "Ver detalhes"
+
+#: includes/Services/TranslationStrings.php:930
+msgid "Product Details"
+msgstr "Detalhes do produto"
+
+#: includes/Services/TranslationStrings.php:931
+msgid "Product"
+msgstr "Produto"
+
+#: includes/Services/TranslationStrings.php:932
+msgid "SKU"
+msgstr "SKU"
+
+#: includes/Services/TranslationStrings.php:933
+msgid "Featured Image Alt Text"
+msgstr "Texto alternativo da imagem destacada"
+
+#: includes/Services/TranslationStrings.php:934
+msgid "Describe for accessibility..."
+msgstr "Descreva para acessibilidade..."
+
+#. translators: %s: number of gallery images
+#: includes/Services/TranslationStrings.php:936
+#, php-format
+msgid "Gallery Images (%s)"
+msgstr "Imagens da galeria (%s)"
+
+#: includes/Services/TranslationStrings.php:939
+msgid "Failed to load products"
+msgstr "Falha ao carregar os produtos"
+
+#. translators: %1$s: number of successful products, %2$s: total number of products
+#: includes/Services/TranslationStrings.php:941
+#, php-format
+msgid "Generated alt text for %1$s/%2$s products"
+msgstr "Texto alternativo gerado para %1$s/%2$s produtos"
+
+#: includes/Services/TranslationStrings.php:942
+msgid "Batch generation failed"
+msgstr "Falha na geração em lote"
+
+#: includes/Services/TranslationStrings.php:943
+msgid "Alt text generated successfully"
+msgstr "Texto alternativo gerado com sucesso"
+
+#: includes/Services/TranslationStrings.php:944
+msgid "Alt text generated"
+msgstr "Texto alternativo gerado"
+
+#: includes/Services/TranslationStrings.php:945
+msgid "Failed to generate"
+msgstr "Falha ao gerar"
+
+#: includes/Services/TranslationStrings.php:946
+msgid "Alt text updated"
+msgstr "Texto alternativo atualizado"
+
+#: includes/Services/TranslationStrings.php:947
+msgid "Failed to save"
+msgstr "Falha ao salvar"
+
+#: includes/Services/TranslationStrings.php:953
+msgid "SEO Integration"
+msgstr "Integração de SEO"
+
+#: includes/Services/TranslationStrings.php:954
+msgid "Detected:"
+msgstr "Detectado:"
+
+#: includes/Services/TranslationStrings.php:955
+msgid "Use your focus keyphrase to improve alt text SEO relevance."
+msgstr ""
+"Use sua frase-chave de foco para melhorar a relevância de SEO do texto "
+"alternativo."
+
+#: includes/Services/TranslationStrings.php:956
+msgid "Enable SEO integration"
+msgstr "Ativar integração de SEO"
+
+#: includes/Services/TranslationStrings.php:957
+msgid ""
+"When enabled, the plugin will read SEO data from your SEO plugin to enhance "
+"alt text generation."
+msgstr ""
+"Quando ativado, o plugin lerá os dados de SEO do seu plugin de SEO para "
+"aprimorar a geração de textos alternativos."
+
+#: includes/Services/TranslationStrings.php:958
+msgid "Include focus keyphrase in alt text"
+msgstr "Incluir a frase-chave de foco no texto alternativo"
+
+#: includes/Services/TranslationStrings.php:959
+msgid ""
+"The AI will naturally incorporate the focus keyphrase from the parent post/"
+"page into the generated alt text. The image must be attached to a post that "
+"has a focus keyphrase set."
+msgstr ""
+"A IA incorporará naturalmente a frase-chave de foco do post/página pai no "
+"texto alternativo gerado. A imagem precisa estar anexada a um post com frase-"
+"chave de foco definida."
+
+#: includes/Services/TranslationStrings.php:960
+msgid ""
+"No supported SEO plugin detected. Install Yoast SEO, Rank Math, All in One "
+"SEO, or SEOPress to enable focus keyphrase integration."
+msgstr ""
+"Nenhum plugin de SEO compatível detectado. Instale Yoast SEO, Rank Math, All "
+"in One SEO ou SEOPress para ativar a integração de frases-chave."
+
+#: includes/Services/TranslationStrings.php:966
+msgid "Help"
+msgstr "Ajuda"
+
+#: includes/Services/TranslationStrings.php:967
+msgid "Help & Support"
+msgstr "Ajuda e suporte"
+
+#: includes/Services/TranslationStrings.php:968
+msgid "24/7 Dedicated Support"
+msgstr "Suporte dedicado 24/7"
+
+#: includes/Services/TranslationStrings.php:969
+msgid ""
+"Our support team is here to help you with any questions, issues, or feature "
+"requests."
+msgstr ""
+"Nossa equipe de suporte está aqui para ajudar com dúvidas, problemas ou "
+"pedidos de recursos."
+
+#: includes/Services/TranslationStrings.php:970
+msgid ""
+"Whether you need help setting up your API key, configuring WooCommerce, or "
+"troubleshooting batch processing — we've got you covered."
+msgstr ""
+"Precisando de ajuda com a chave de API, com o WooCommerce ou com o "
+"processamento em lote — conte com a gente."
+
+#: includes/Services/TranslationStrings.php:971
+msgid "Contact Support"
+msgstr "Falar com o suporte"
+
+#: includes/Services/TranslationStrings.php:972
+msgid "Give Your Love"
+msgstr "Mostre seu carinho"
+
+#: includes/Services/TranslationStrings.php:973
+msgid ""
+"Your love is our motivation! A quick review helps us grow and keep improving "
+"ImageCraft for everyone."
+msgstr ""
+"Seu carinho é nossa motivação! Uma avaliação rápida nos ajuda a crescer e a "
+"melhorar o ImageCraft para todos."
+
+#: includes/Services/TranslationStrings.php:974
+msgid ""
+"If ImageCraft has helped your workflow, please take a moment to share your "
+"experience on WordPress.org."
+msgstr ""
+"Se o ImageCraft melhorou seu fluxo de trabalho, tire um momento para "
+"compartilhar sua experiência no WordPress.org."
+
+#: includes/Services/TranslationStrings.php:976
+msgid "Quick Links"
+msgstr "Links rápidos"
+
+#: includes/Services/TranslationStrings.php:977
+msgid "WordPress.org Plugin Page"
+msgstr "Página do plugin no WordPress.org"
+
+#: includes/Services/TranslationStrings.php:978
+msgid "View plugin details and changelog"
+msgstr "Ver detalhes do plugin e changelog"
+
+#: includes/Services/TranslationStrings.php:979
+msgid "Knowledge Base"
+msgstr "Base de conhecimento"
+
+#: includes/Services/TranslationStrings.php:980
+msgid "Guides, tutorials, and FAQs"
+msgstr "Guias, tutoriais e perguntas frequentes"
+
+#: includes/Services/TranslationStrings.php:981
+msgid "Community Forum"
+msgstr "Fórum da comunidade"
+
+#: includes/Services/TranslationStrings.php:982
+msgid "Ask questions and get help from the community"
+msgstr "Faça perguntas e receba ajuda da comunidade"
+
+#: includes/Services/TranslationStrings.php:983
+msgid "Plugin Information"
+msgstr "Informações do plugin"
+
+#: includes/Services/TranslationStrings.php:984
+msgid "Version"
+msgstr "Versão"
+
+#: includes/Services/TranslationStrings.php:985
+msgid "Developer"
+msgstr "Desenvolvedor"
+
+#: includes/Services/TranslationStrings.php:986
+msgid "License"
+msgstr "Licença"
+
+#: includes/Services/TranslationStrings.php:987
+msgid "Requires WordPress"
+msgstr "Requer WordPress"
+
+#: includes/Services/TranslationStrings.php:988
+msgid "Video Tutorial"
+msgstr "Tutorial em vídeo"
+
+#: includes/Services/TranslationStrings.php:989
+msgid "Watch how to set up and use ImageCraft in just a few minutes."
+msgstr "Veja como configurar e usar o ImageCraft em poucos minutos."
+
+#. translators: %d: daily free-tier limit
+#: includes/Services/UsageLimiter.php:200
+#, php-format
+msgid "Daily free limit of %d reached. Upgrade to Pro for unlimited usage."
+msgstr ""
+"Limite gratuito diário de %d atingido. Faça upgrade para o Pro e tenha uso "
+"ilimitado."
+
+#~ msgid ""
+#~ "All-in-one image toolkit: AI-powered alt text & titles, smart image "
+#~ "compression, SEO file renaming, and image SEO audit. Supports WordPress "
+#~ "7.0 native AI Client, Anthropic, OpenAI and Gemini."
+#~ msgstr ""
+#~ "Kit de ferramentas de imagens tudo-em-um: textos alternativos e títulos "
+#~ "com IA, compressão inteligente de imagens, renomeação de arquivos para "
+#~ "SEO e auditoria de SEO de imagens. Compatível com o AI Client nativo do "
+#~ "WordPress 7.0, Anthropic, OpenAI e Gemini."

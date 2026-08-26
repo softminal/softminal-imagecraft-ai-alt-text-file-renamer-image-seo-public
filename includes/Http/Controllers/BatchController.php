@@ -138,7 +138,7 @@ class BatchController extends Controller
 
         // Store batch type: 'alt' (default), 'title' (title-only), 'compress', or 'meta' (alt+title+caption)
         $batchType = sanitize_text_field($params['type'] ?? 'alt');
-        if (in_array($batchType, ['title', 'compress', 'meta'], true)) {
+        if (in_array($batchType, ['title', 'compress', 'meta', 'convert'], true)) {
             set_transient('icais_batch_type_' . $job->id, $batchType, DAY_IN_SECONDS);
         }
 
@@ -213,7 +213,7 @@ class BatchController extends Controller
                 'progress' => $job->getProgress(),
                 'started_at' => $job->started_at,
                 'completed_at' => $job->completed_at,
-                'batch_type' => in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt',
+                'batch_type' => in_array($batchType, ['title', 'compress', 'meta', 'convert'], true) ? $batchType : 'alt',
                 'batch_fields' => $this->getBatchFields((int) $job->id)
             ]
         ]);
@@ -322,6 +322,7 @@ class BatchController extends Controller
         $isTitleOnly = ($batchType === 'title');
         $isCompress  = ($batchType === 'compress');
         $isMeta      = ($batchType === 'meta');
+        $isConvert   = ($batchType === 'convert');
         $forceCompress = $isCompress && (string) get_transient('icais_batch_force_' . $jobId) === '1';
 
         // Per-action field selection for a meta batch (null = use settings defaults).
@@ -334,6 +335,8 @@ class BatchController extends Controller
         }
 
         $compressor = $isCompress ? new \Softminal\ImageCraft\Services\ImageCompressor() : null;
+        $converter  = $isConvert ? new \Softminal\ImageCraft\Services\NextGenConverter() : null;
+        $convertFormats = $isConvert ? \Softminal\ImageCraft\Services\NextGenConverter::enabledFormats() : [];
 
         $failures = [];
 
@@ -375,6 +378,45 @@ class BatchController extends Controller
                     $failures[] = [
                         'attachment_id' => (int) $attachmentId,
                         'reason' => __('Compression failed. Check error log for details.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                    ];
+                }
+            } elseif ($isConvert) {
+                // Next-gen format batch: generate WebP/AVIF sidecars (no AI calls).
+                // Shares the daily compress counter, like single conversions.
+                try {
+                    if (!UsageLimiter::canCompress($userId, (int) $attachmentId)) {
+                        $failed++;
+                        $failures[] = [
+                            'attachment_id' => (int) $attachmentId,
+                            'reason' => __('Daily compression limit reached. Upgrade to Pro for unlimited conversions.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                        ];
+                        continue;
+                    }
+
+                    $convertResult = $converter->convert((int) $attachmentId, $convertFormats);
+                    if ($convertResult['success'] ?? false) {
+                        if (!empty($convertResult['generated'])) {
+                            UsageLimiter::recordCompressUsage($userId, (int) $attachmentId);
+                        }
+                        $processed++;
+                    } elseif (!empty($convertResult['skipped'])) {
+                        // Nothing to do for this image (unsupported type / already
+                        // converted / nothing smaller) — count as processed, not failed.
+                        $processed++;
+                    } else {
+                        $failed++;
+                        $failures[] = [
+                            'attachment_id' => (int) $attachmentId,
+                            'reason' => $convertResult['error'] ?? __('Conversion failed', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
+                        ];
+                    }
+                } catch (\Throwable $e) {
+                    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                    error_log('[ImageCraft] Convert batch error for #' . $attachmentId . ': ' . $e->getMessage());
+                    $failed++;
+                    $failures[] = [
+                        'attachment_id' => (int) $attachmentId,
+                        'reason' => __('Conversion failed. Check error log for details.', 'imagecraft-ai-alt-text-file-renamer-image-seo'),
                     ];
                 }
             } elseif ($isTitleOnly) {
@@ -531,7 +573,7 @@ class BatchController extends Controller
                 'progress' => $job->getProgress(),
                 'started_at' => $job->started_at,
                 'completed_at' => $job->completed_at,
-                'batch_type' => in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt',
+                'batch_type' => in_array($batchType, ['title', 'compress', 'meta', 'convert'], true) ? $batchType : 'alt',
                 'batch_fields' => $this->getBatchFields((int) $job->id)
             ]
         ]);
@@ -617,7 +659,7 @@ class BatchController extends Controller
         }
 
         $batchType = (string) get_transient('icais_batch_type_' . $job->id);
-        $batchTypeLabel = in_array($batchType, ['title', 'compress', 'meta'], true) ? $batchType : 'alt';
+        $batchTypeLabel = in_array($batchType, ['title', 'compress', 'meta', 'convert'], true) ? $batchType : 'alt';
 
         // Check if another browser tab is actively processing this job
         if ($this->hasHeartbeat((int) $job->id)) {
@@ -1052,7 +1094,7 @@ class BatchController extends Controller
 
         set_transient('icais_batch_' . $newJob->id, $imageIds, DAY_IN_SECONDS);
 
-        if (in_array($batchType, ['title', 'compress', 'meta'], true)) {
+        if (in_array($batchType, ['title', 'compress', 'meta', 'convert'], true)) {
             set_transient('icais_batch_type_' . $newJob->id, $batchType, DAY_IN_SECONDS);
         }
 

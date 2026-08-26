@@ -1,6 +1,48 @@
 @import "tailwindcss";
+@import "../admin/design/tokens.css";
 
 @source "../admin/**/*.{vue,js,ts}";
+
+/* ImageCraft design tokens → Tailwind v4 utilities.
+   `inline` so utilities resolve the var() at build time; edit values in
+   design/tokens.css only. Generates: bg-brand, text-pillar-perf,
+   border-ic-border, rounded-card, shadow-card, text-ic-soft, etc. */
+@theme inline {
+    /* Colors */
+    --color-brand:            var(--ic-brand);
+    --color-brand-strong:     var(--ic-brand-strong);
+    --color-brand-soft:       var(--ic-brand-soft);
+    --color-brand-soft-text:  var(--ic-brand-soft-text);
+    --color-pillar-seo:       var(--ic-pillar-seo);
+    --color-pillar-seo-soft:  var(--ic-pillar-seo-soft);
+    --color-pillar-perf:      var(--ic-pillar-perf);
+    --color-pillar-perf-soft: var(--ic-pillar-perf-soft);
+    --color-ic-page:          var(--ic-page);
+    --color-ic-card:          var(--ic-card);
+    --color-ic-muted:         var(--ic-muted);
+    --color-ic-border:        var(--ic-border);
+    --color-ic-border-soft:   var(--ic-border-soft);
+    --color-ic-text:          var(--ic-text);
+    --color-ic-soft:          var(--ic-text-soft);
+    --color-ic-faint:         var(--ic-text-faint);
+    --color-ic-success:       var(--ic-success);
+    --color-ic-success-soft:  var(--ic-success-soft);
+    --color-ic-warning:       var(--ic-warning);
+    --color-ic-warning-soft:  var(--ic-warning-soft);
+    --color-ic-danger:        var(--ic-danger);
+    --color-ic-danger-soft:   var(--ic-danger-soft);
+    --color-ic-info:          var(--ic-info);
+    --color-ic-info-soft:     var(--ic-info-soft);
+    --color-ic-pro:           var(--ic-pro);
+    --color-ic-pro-soft:      var(--ic-pro-soft);
+
+    /* Shape & elevation */
+    --radius-ic:      var(--ic-radius);
+    --radius-card:    var(--ic-radius-lg);
+    --radius-pill:    var(--ic-radius-pill);
+    --shadow-card:    var(--ic-shadow-card);
+    --shadow-hover:   var(--ic-shadow-hover);
+}
 
 /* Restore Tailwind v3 default border color (v4 changed to currentColor) */
 @layer base {
@@ -19,6 +61,24 @@
     background-color: #FFFFFB;
 }
 #icais-app{
+    /* Navbar logo lockup — explicit UNLAYERED rules. Tailwind v4 utilities live
+       in @layer utilities, which any unlayered admin CSS (WP core or another
+       plugin's global rules) overrides regardless of specificity, so the logo
+       is pinned here instead. */
+    .icais-logo-mark{
+        height: 2.25rem !important;
+        width: 2.25rem !important;
+        max-width: none !important;
+        flex: none;
+        display: block;
+    }
+    .icais-logo-text{
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        color: var(--ic-text, #111827);
+        line-height: 1;
+    }
     input[type="checkbox"]{
         margin: unset;
     }
@@ -114,4 +174,15 @@
 }
 a:focus{
     @apply outline-hidden
+}
+/* WP core paints a blue glow on a:focus/:active — kill it inside our SPA only.
+   :focus-visible keeps a real ring for keyboard users. */
+#icais-app a:active,
+#icais-app a:focus{
+    box-shadow: none !important;
+    outline: none !important;
+}
+#icais-app a:focus-visible{
+    outline: 2px solid var(--ic-brand, #2563eb) !important;
+    outline-offset: 2px;
 }

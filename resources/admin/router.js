@@ -4,6 +4,7 @@ import Api from './services/Api';
 const Dashboard = () => import('./views/Dashboard.vue');
 const Scanner = () => import('./views/Scanner.vue');
 const Compression = () => import('./views/Compression.vue');
+const PerformanceFeature = () => import('./views/PerformanceFeature.vue');
 const Batch = () => import('./views/Batch.vue');
 const Settings = () => import('./views/Settings.vue');
 const WooCommerce = () => import('./views/WooCommerce.vue');
@@ -18,6 +19,7 @@ const RenameSettings = () => import('./components/Settings/RenameSettings.vue');
 const WooCommerceSettings = () => import('./components/Settings/WooCommerceSettings.vue');
 const SeoSettings = () => import('./components/Settings/SeoSettings.vue');
 const CompressionSettings = () => import('./components/Settings/CompressionSettings.vue');
+const NextGenSettings = () => import('./components/Settings/NextGenSettings.vue');
 const FallbackSettings = () => import('./components/Settings/FallbackSettings.vue');
 const IntegrationSettings = () => import('./components/Settings/IntegrationSettings.vue');
 const LicenseSettings = () => import('./components/Settings/LicenseSettings.vue');
@@ -35,14 +37,36 @@ const routes = [
         component: Scanner,
     },
     {
-        path: '/compression',
-        name: 'compression',
+        path: '/performance',
+        name: 'performance',
         component: Compression,
     },
     {
-        path: '/woocommerce',
+        path: '/compression',
+        redirect: '/performance',
+    },
+    {
+        // Performance-pillar feature pages (admin-only — they save settings).
+        path: '/performance/nextgen',
+        name: 'performance-nextgen',
+        component: PerformanceFeature,
+        meta: { feature: 'nextgen' },
+    },
+    {
+        path: '/performance/fallbacks',
+        name: 'performance-fallbacks',
+        component: PerformanceFeature,
+        meta: { feature: 'fallbacks' },
+    },
+    {
+        path: '/scanner/woocommerce',
         name: 'woocommerce',
         component: WooCommerce,
+    },
+    {
+        // Legacy path — WooCommerce now lives inside the Image SEO pillar.
+        path: '/woocommerce',
+        redirect: '/scanner/woocommerce',
     },
     {
         path: '/batch/:jobId?',
@@ -61,6 +85,7 @@ const routes = [
             { path: 'meta', name: 'settings-meta', component: MetaSettings },
             { path: 'rename', name: 'settings-rename', component: RenameSettings },
             { path: 'compression', name: 'settings-compression', component: CompressionSettings },
+            { path: 'nextgen', name: 'settings-nextgen', component: NextGenSettings },
             { path: 'fallback', name: 'settings-fallback', component: FallbackSettings },
             { path: 'permissions', name: 'settings-permissions', component: PermissionsSettings },
             { path: 'integrations', name: 'settings-integrations', component: IntegrationSettings },
@@ -95,12 +120,9 @@ const CACHE_DURATION = 5000; // 5 seconds
 
 // Check wizard completion on route change
 router.beforeEach(async (to, from, next) => {
-    // Non-admins (permitted roles) only get Dashboard / Image SEO / Compress.
-    // They cannot reach the admin-only /settings endpoint, so skip the wizard
-    // check entirely and block admin-only routes.
     const isAdmin = window.icais?.isAdmin ?? false;
     if (!isAdmin) {
-        const adminOnly = ['/settings', '/batch', '/woocommerce', '/wizard'];
+        const adminOnly = ['/settings', '/batch', '/woocommerce', '/scanner/woocommerce', '/wizard', '/performance/nextgen', '/performance/fallbacks'];
         if (adminOnly.some((p) => to.path === p || to.path.startsWith(p + '/'))) {
             return next('/');
         }
@@ -119,10 +141,6 @@ router.beforeEach(async (to, from, next) => {
             settingsCacheTime = now;
         }
 
-        // Completing (or skipping) the wizard is enough to enter the SPA — an API
-        // key is no longer required, because the plugin can be used purely for
-        // image compression (which needs no AI key). AI features prompt for a key
-        // at point of use instead.
         const isComplete = settings.wizard_completed;
 
         if (to.path === '/wizard') {
@@ -133,7 +151,6 @@ router.beforeEach(async (to, from, next) => {
             isComplete ? next() : next('/wizard');
         }
     } catch {
-        // If API fails, allow navigation (might be first load)
         next();
     }
 });

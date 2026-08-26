@@ -182,8 +182,10 @@ Schema changes go in `Install.php` with a version-gated migration. `Install::DB_
   (Pro, future), `icais_compression_keep_backup` (forced on), `icais_compression_skip_compressed`,
   `icais_compression_min_size_kb` (50), `icais_compression_auto` (Pro). Engine: direct Imagick
   (strip metadata + progressive JPEG, no chroma subsampling) with GD/`wp_get_image_editor`
-  fallback; writes to temp + **never-enlarge guard** (commits only if smaller). Free cap 20/day
-  via `UsageLimiter` separate counter `icais_daily_compress_<id>`; `ICAIS_PRO` removes the cap.
+  fallback; writes to temp + **never-enlarge guard** (commits only if smaller). Free cap: the
+  **shared 50-action / rolling-24h pool** in `UsageLimiter` (`icais_daily_usage_<userId>`,
+  `compress_count` field) — the SAME pool as generation, not a separate counter;
+  `ICAIS_PRO` removes the cap.
   Pro/free split: the engine reads quality/resize via `apply_filters('icais_compression_quality',85)`
   and `apply_filters('icais_compression_max_dim',2048)`; the **Pro add-on**
   (`imagecraft-...-pro/includes/Features/Compression.php`) overrides them + registers
@@ -210,7 +212,120 @@ Gemini `gemini-2.5-flash`. WP7 uses WordPress-managed models (no selection).
 
 ---
 
+## 9b. Next-Release Targets (decided 2026-08-06 — NOT in the current ship)
+
+- **GIF conversion/compression** — extend the Next-gen/compression engines to GIF.
+  Caution noted: static GIF→WebP is straightforward (GD/Imagick); **animated** GIF
+  needs Imagick with frame coalescing and is often unavailable on shared hosts —
+  ship static-GIF-only first, clearly labeled, with capability detection like AVIF.
+- **PDF optimization** — evaluate scope carefully (different engine domain than
+  images); explicitly deferred from the current release.
+
+The current release ships WITHOUT GIF and PDF handling — feature parity with
+Kraken.io on everything else (compress/convert/resize/bulk/auto; JPEG/PNG/WebP/AVIF),
+plus local-only processing and the Image-SEO pillar Kraken lacks.
+
 ## 10. Recent Changes (newest first)
+
+- **2026-08-07** — **Dashboard AI-setup card redesign + "What's New" notice revived for
+  WebP/Fallbacks.** (1) The Dashboard no-key banner is now a design-system card (KeyRound
+  icon tile, heading + body, brand CTA button) and **dismissible** (X, localStorage
+  `icais_ai_prompt_dismissed`, same pattern as the next-gen hint); the Scanner keeps its
+  own contextual prompt so AI setup is never hidden where needed. New copy also mentions
+  the WordPress AI Client and no-markup billing. (2) The retired wp-admin "What's New"
+  notice returns as `AdminNotice::displayNextGenFeatureNotice` announcing **Next-gen WebP
+  + Image Fallbacks** together: admins only, own per-user meta
+  `icais_nextgen_notice_dismissed` (so users who dismissed the old Fallbacks-only notice
+  still hear about WebP), hidden mid-wizard and once BOTH features are enabled, CTA →
+  `#/performance`. Dismiss endpoint gains additive `notice=nextgen_feature`; the setup
+  wizard auto-dismisses it for fresh installs. Legacy `displayFallbackFeatureNotice`
+  stays unhooked (BC only). All new UI strings registered + translated in all 8 locales
+  (catalogs at 947/947, msgfmt -c clean).
+
+- **2026-08-07** — **Shipped translations for 8 locales + textdomain loader.** Discovery:
+  the plugin never called `load_plugin_textdomain`, so the bundled es_ES/fr_FR .mo files
+  were NEVER loaded (any working translations came from the wp.org language pack, which
+  only covers old strings). Fix: `init`-hooked `load_plugin_textdomain` in the main plugin
+  file (WP_LANG_DIR packs still take priority). Regenerated the POT (942 strings,
+  `wp i18n make-pot`, `--skip-js`, excludes build/node_modules/docs/assets/resources) and
+  shipped COMPLETE 942/942 catalogs for **es_ES, fr_FR (274 community strings preserved
+  via msgmerge), de_DE, it_IT, pt_BR, ar, ja, nl_NL** — matching the B2B Suite locale set.
+  All machine-authored (informal register where that's the WP-core convention: du/tú/tu/je),
+  validated with `msgfmt -c` + placeholder-integrity checks; native review welcome, and
+  translate.wordpress.org strings will override once approved. Pipeline (msgids.json +
+  index-keyed chunk files + apply_po.py) lives in the session scratchpad; regenerate any
+  locale by re-running make-pot → msgmerge → fill → msgfmt.
+
+- **2026-08-07** — **i18n catch-up + Plugin Check pass.** 297 `$t()` strings used in the
+  SPA were never registered in `TranslationStrings.php` (everything since the UX redesign:
+  dashboard pillar cards, Compression, Next-gen, Fallbacks, Permissions, Meta, Batch
+  details, WooCommerce modal, Help) — unregistered strings can NEVER be translated because
+  `window.icais.i18n` is built from that file. All added in new `viewStrings()` method
+  (auto-collected; translator comments on placeholder strings). Rule of thumb: any new
+  `$t()` string MUST also be added to `TranslationStrings.php`. Also fixed from PCP:
+  `unlink()` → `wp_delete_file()` in `NextGenConverter.php` (removal now verified via
+  `!is_file()` since `wp_delete_file()` has no return on older WP), readme tags 6 → 5
+  (dropped `image converter`), `'Saved %s (%s%)'` → numbered `%1$s/%2$s` placeholders.
+  Remaining PCP output is dev-only files excluded by `.distignore`/`build.sh` + two
+  accepted WP_DEBUG-gated `error_log` warnings.
+
+- **2026-08-07** — **Onboarding overhaul (audit fixes).** `SetupWizard.vue` rewritten on the
+  design system (`--ic-*` tokens, `@ui` UiButton/UiBadge, Lucide icons, no emoji) with a
+  4-stage step indicator. Fixes from the onboarding audit: (1) **compliance** — tutorial
+  videos (wizard + Help.vue) now use new `components/VideoEmbed.vue`: click-to-load
+  `youtube-nocookie.com`, zero external requests until the user clicks; readme
+  `== External services ==` now discloses YouTube AND the Softminal deactivation-feedback
+  endpoint. (2) **honesty** — the false "Unlimited" welcome card replaced with the real free
+  tier (50 actions/day shared pool); provider cards show approximate per-image costs
+  (Haiku ~$0.0008 / GPT-4o mini ~$0.003 / Gemini Flash ~$0.001) instead of contradictory
+  adjectives. (3) **bug** — a `watch` on provider+key clears `testResult`, closing the
+  save-an-untested-key hole. (4) **a11y** — provider cards are `<button role="radio">` with
+  focus rings (were click-only divs). (5) **i18n** — every wizard string now in
+  `TranslationStrings.php` (fallback step, WP7/config-key variants, video strings); stale
+  keys for removed copy dropped, duplicate keys removed. (6) **UX** — skip path
+  (`skipToFallbacks`) marks the wizard complete then routes to the key-free Fallbacks step
+  instead of dead-ending at the dashboard; welcome pitch covers both pillars; stale
+  "GPT-4" / "AI Alt Text Generator" copy gone; Gemini key URL updated to
+  aistudio.google.com. No PHP behavior change (TranslationStrings only); REST/API untouched.
+
+- **2026-08-07** — **Docs correction: usage limit is ONE shared pool, not two counters.**
+  `CLAUDE.md` and this file described the free tier as two separate counters (50/day
+  generation + 20/day compression, key `icais_daily_compress_<id>`). The code has never
+  matched that since the pool was consolidated: `UsageLimiter` uses a single
+  `DAILY_LIMIT = 50` over a **rolling 24h window** (`WINDOW_SECONDS`), stored in one option
+  `icais_daily_usage_<userId>` as `['started_at','ids','compress_count']`, with
+  `totalCount() = count(ids) + compress_count` spanning generation AND compression. The
+  `icais_daily_compress_<id>` key does not exist. Generation is deduped per attachment
+  (re-generating a counted image is free); every compression increments. No code change —
+  documentation only. Older dated entries below are left as-is as a historical record.
+  **Also:** plugin display name changed to *ImageCraft - AI Alt Text, Image Compression &
+  WebP* (`readme.txt` + `Plugin Name` header; slug, text domain, and version unchanged).
+
+- **2026-08-06** — **Premium UX redesign (two-pillar IA + design system) + Next-gen
+  formats (WebP/AVIF).** One release, five build phases. (1) Design system:
+  `resources/admin/design/tokens.css` (`--ic-*` vars — brand blue, pillar accents
+  SEO=blue/Performance=teal) bridged into Tailwind v4 via `@theme inline` in
+  `resources/scss/index.css`; new `@ui` primitives (UiCard/UiButton/UiBadge/UiField/
+  UiPageHead/UiSectionHeader/UiEmptyState/UiSkeleton); Lucide icons replace emoji.
+  (2) Single navigation model `config/navigation.js` (topNav, settingsSections,
+  pillarScreens, quickActions) drives Navbar, Settings sidebar, new `SectionBar.vue`
+  contextual sub-bar, and Dashboard quick actions; canonical `/performance` route
+  (`/compression` redirects). (3) Settings sidebar regrouped General / Image SEO /
+  Performance with per-item descriptions; Integrations children visible. (4) Dashboard
+  reflowed to two pillar health cards + calm secondary row; Fallbacks promo card and
+  wp-admin "What's New" notice RETIRED (dismiss endpoint/meta kept); Get Pro reduced
+  to one quiet Navbar entry. (5) NEW Next-gen formats: `Services/NextGenConverter.php`
+  sidecar engine (photo.jpg.webp/.avif beside originals, `_icais_nextgen` manifest,
+  capability probe, never-bigger guard), `includes/NextGen.php` `<picture>` delivery
+  (opt-in, default off, `wp_content_img_tag` + `post_thumbnail_html`, delete_attachment
+  cleanup always on), REST `POST /compressor/convert` + `GET /compressor/convert-scan`
+  + `POST /compressor/convert-clean`, batch `type='convert'`, shared 20/day compress
+  counter. New settings (additive, default off): `icais_compression_convert_avif`,
+  `icais_nextgen_delivery_enabled`, `icais_nextgen_auto` (+ dormant
+  `icais_compression_convert_webp` now live). `window.icais.canWebp/canAvif`.
+  New `/settings/nextgen` page. Pro add-on gained `Features/NextGen.php`
+  (auto-convert-on-upload; AVIF unlocked via `ICAIS_PRO` in the free engine).
+  Free = manual WebP + delivery; Pro = AVIF + auto + no cap. No DB migration.
 
 - **2026-07-11** — **Update-discovery + Quick Actions.** (1) One-time wp-admin "What's New:
   Image Fallbacks" notice (`AdminNotice::displayFallbackFeatureNotice`) — admins only, per-user

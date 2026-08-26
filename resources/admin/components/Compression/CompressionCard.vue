@@ -21,7 +21,7 @@
       <div class="text-xs text-gray-600 truncate" :title="image.filename">{{ image.filename }}</div>
       <div class="text-sm font-medium text-gray-800">{{ image.size_human }}</div>
       <div v-if="image.compressed && image.saved_percent > 0" class="text-xs text-green-600 mt-1">
-        {{ $t('Saved %s (%s%)', image.saved_human, image.saved_percent) }}
+        {{ $t('Saved %1$s (%2$s%)', image.saved_human, image.saved_percent) }}
       </div>
       <div class="mt-auto pt-2 flex gap-2">
         <button

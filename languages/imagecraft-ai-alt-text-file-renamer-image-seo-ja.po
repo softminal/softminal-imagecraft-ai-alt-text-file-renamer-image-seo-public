@@ -1,0 +1,4407 @@
+# Copyright (C) 2026 Softminal
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: ImageCraft - AI Alt Text, Image Compression & WebP "
+"1.6.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/imagecraft-ai-alt-"
+"text-file-renamer-image-seo\n"
+"POT-Creation-Date: 2026-08-06T20:18:14+00:00\n"
+"PO-Revision-Date: 2026-08-06T19:19:56+00:00\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: imagecraft-ai-alt-text-file-renamer-image-seo\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. Plugin Name of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid "ImageCraft - AI Alt Text, Image Compression & WebP"
+msgstr "ImageCraft - AI代替テキスト・画像圧縮・WebP"
+
+#. Plugin URI of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid ""
+"https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-"
+"seo"
+msgstr ""
+"https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-"
+"seo"
+
+#. Description of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid ""
+"All-in-one image toolkit: AI alt text, titles & descriptions, local image "
+"compression, WebP conversion, image fallbacks, SEO file renaming, and an "
+"image SEO audit. Works with the WordPress 7.0 native AI Client, Anthropic, "
+"OpenAI and Gemini — compression and WebP need no API key."
+msgstr ""
+"オールインワン画像ツールキット:AIによる代替テキスト・タイトル・説明、ローカル"
+"画像圧縮、WebP変換、フォールバック画像、SEO向けファイル名変更、画像SEO監査。"
+"WordPress 7.0ネイティブAIクライアント、Anthropic、OpenAI、Geminiに対応 — 圧縮"
+"とWebPにはAPIキー不要。"
+
+#. Author of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid "Softminal"
+msgstr "Softminal"
+
+#. Author URI of the plugin
+#: imagecraft-ai-alt-text-file-renamer-image-seo.php
+msgid "https://softminal.com"
+msgstr "https://softminal.com"
+
+#: includes/AdminNotice.php:66
+msgid "New in ImageCraft: Next-gen WebP & Image Fallbacks."
+msgstr "ImageCraftの新機能:次世代WebPとフォールバック画像。"
+
+#: includes/AdminNotice.php:67
+msgid ""
+"Serve smaller WebP copies of your images without touching the originals, and "
+"show a fallback image instead of broken or missing ones. Both run locally, "
+"need no API key, and are off by default."
+msgstr "元画像に一切触れずに、より小さなWebPコピーを配信し、リンク切れや欠けた画像の代わりにフォールバック画像を表示します。どちらもローカルで動作し、APIキー不要、初期状態では無効です。"
+
+#: includes/AdminNotice.php:71
+msgid "Explore the new features"
+msgstr "新機能を見る"
+
+#: includes/AdminNotice.php:74 includes/AdminNotice.php:126
+#: includes/Services/TranslationStrings.php:184
+msgid "Dismiss"
+msgstr "閉じる"
+
+#: includes/AdminNotice.php:118
+msgid "New in ImageCraft: Image Fallbacks — never show a broken image again."
+msgstr ""
+"ImageCraftの新機能:フォールバック画像 — リンク切れ画像を二度と表示しません。"
+
+#: includes/AdminNotice.php:119
+msgid ""
+"Pick one fallback image: it replaces broken images for your visitors and "
+"acts as the featured image for posts without one. Non-destructive and off by "
+"default."
+msgstr ""
+"フォールバック画像を1枚選ぶだけ。訪問者に表示されるリンク切れ画像を置き換え、"
+"アイキャッチ画像のない投稿ではアイキャッチとして機能します。非破壊的で、初期"
+"状態では無効です。"
+
+#: includes/AdminNotice.php:123
+msgid "Set up Image Fallbacks"
+msgstr "フォールバック画像を設定"
+
+#: includes/AdminNotice.php:171
+msgid "You've generated over 8 alt texts with ImageCraft — that's awesome!"
+msgstr "ImageCraftで8件以上の代替テキストを生成しました — 素晴らしい!"
+
+#: includes/AdminNotice.php:172
+msgid ""
+"If you find the plugin helpful, we'd love a quick review on WordPress.org. "
+"It helps us grow and keep improving!"
+msgstr ""
+"このプラグインが役立っているなら、WordPress.orgでのレビューをぜひお願いしま"
+"す。成長と改善の励みになります!"
+
+#: includes/AdminNotice.php:176 includes/Services/TranslationStrings.php:975
+msgid "Leave a Review"
+msgstr "レビューを書く"
+
+#: includes/AdminNotice.php:179
+msgid "Maybe Later"
+msgstr "また後で"
+
+#: includes/DeactivationSurvey.php:54
+msgid "I no longer need the plugin"
+msgstr "もうプラグインが不要になった"
+
+#: includes/DeactivationSurvey.php:58
+msgid "I found a better plugin"
+msgstr "より良いプラグインを見つけた"
+
+#: includes/DeactivationSurvey.php:59
+msgid "Which plugin? (optional)"
+msgstr "どのプラグインですか?(任意)"
+
+#: includes/DeactivationSurvey.php:63
+msgid "I couldn't get the plugin to work"
+msgstr "プラグインを動作させられなかった"
+
+#: includes/DeactivationSurvey.php:64
+msgid "What went wrong? We'd love to help. (optional)"
+msgstr "何が問題でしたか?ぜひお手伝いさせてください。(任意)"
+
+#: includes/DeactivationSurvey.php:68
+msgid "It's a temporary deactivation"
+msgstr "一時的な無効化です"
+
+#: includes/DeactivationSurvey.php:72
+msgid "I don't know how to use it"
+msgstr "使い方がわからない"
+
+#: includes/DeactivationSurvey.php:73
+msgid "What were you trying to do? (optional)"
+msgstr "何をしようとしていましたか?(任意)"
+
+#: includes/DeactivationSurvey.php:77
+msgid "Other"
+msgstr "その他"
+
+#: includes/DeactivationSurvey.php:78
+msgid "Please tell us more (optional)"
+msgstr "詳しくお聞かせください(任意)"
+
+#: includes/DeactivationSurvey.php:102
+#: includes/Services/TranslationStrings.php:577
+msgid "Close"
+msgstr "閉じる"
+
+#: includes/DeactivationSurvey.php:105
+msgid "Quick question before you go"
+msgstr "その前にひとつだけ質問させてください"
+
+#: includes/DeactivationSurvey.php:108
+msgid ""
+"If you have a moment, please let us know why you are deactivating "
+"ImageCraft. It helps us improve."
+msgstr ""
+"お時間があれば、ImageCraftを無効化する理由をお聞かせください。改善の参考にな"
+"ります。"
+
+#: includes/DeactivationSurvey.php:135
+msgid "Skip & Deactivate"
+msgstr "スキップして無効化"
+
+#: includes/DeactivationSurvey.php:138
+msgid "Submit & Deactivate"
+msgstr "送信して無効化"
+
+#: includes/Enqueue.php:131 includes/Services/TranslationStrings.php:929
+msgid "Generate"
+msgstr "生成"
+
+#: includes/Enqueue.php:132 includes/Enqueue.php:192
+#: includes/Services/TranslationStrings.php:581
+msgid "Generating..."
+msgstr "生成中..."
+
+#: includes/Enqueue.php:133
+msgid "Generated!"
+msgstr "生成しました!"
+
+#: includes/Enqueue.php:134
+msgid "Failed to generate metadata."
+msgstr "メタデータを生成できませんでした。"
+
+#: includes/Enqueue.php:135 includes/Services/TranslationStrings.php:37
+#: includes/Services/TranslationStrings.php:580
+msgid "Alt text"
+msgstr "代替テキスト"
+
+#: includes/Enqueue.php:136 includes/Services/TranslationStrings.php:358
+msgid "Title"
+msgstr "タイトル"
+
+#: includes/Enqueue.php:137 includes/Services/TranslationStrings.php:51
+msgid "Description"
+msgstr "説明"
+
+#: includes/Enqueue.php:138 includes/Services/TranslationStrings.php:151
+msgid "Compress"
+msgstr "圧縮"
+
+#: includes/Enqueue.php:139 includes/Services/TranslationStrings.php:156
+msgid "Compressing..."
+msgstr "圧縮中..."
+
+#. translators: %s: human-readable size saved, e.g. "120 KB"
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Enqueue.php:141 includes/Services/TranslationStrings.php:155
+#, php-format
+msgid "Compressed — saved %s"
+msgstr "圧縮済み — %s削減"
+
+#: includes/Enqueue.php:142
+msgid "Already optimized."
+msgstr "すでに最適化済みです。"
+
+#: includes/Enqueue.php:143
+msgid "Failed to compress image."
+msgstr "画像を圧縮できませんでした。"
+
+#: includes/Enqueue.php:144
+msgid "Could not detect image. Please select an image first."
+msgstr "画像を検出できませんでした。先に画像を選択してください。"
+
+#: includes/Enqueue.php:145 includes/Services/TranslationStrings.php:304
+msgid "Rename File"
+msgstr "ファイル名を変更"
+
+#: includes/Enqueue.php:146 includes/Services/TranslationStrings.php:569
+msgid "Renaming..."
+msgstr "名前を変更中..."
+
+#. translators: %s: new filename
+#: includes/Enqueue.php:148
+#, php-format
+msgid "File renamed to: %s"
+msgstr "ファイル名を変更しました: %s"
+
+#: includes/Enqueue.php:149
+msgid "Failed to rename file."
+msgstr "ファイル名を変更できませんでした。"
+
+#: includes/Enqueue.php:150
+msgid "Generate Title"
+msgstr "タイトルを生成"
+
+#: includes/Enqueue.php:151
+msgid "Generating title..."
+msgstr "タイトルを生成中..."
+
+#. translators: %s: new title
+#: includes/Enqueue.php:153
+#, php-format
+msgid "Title updated to: %s"
+msgstr "タイトルを更新しました: %s"
+
+#: includes/Enqueue.php:154
+msgid "Failed to generate title."
+msgstr "タイトルを生成できませんでした。"
+
+#: includes/Enqueue.php:155
+msgid ""
+"This will change the image URL. External links and cached pages may show "
+"broken images.\n"
+"\n"
+"Are you sure you want to rename this file?"
+msgstr ""
+"この操作で画像のURLが変わります。外部リンクやキャッシュ済みページでリンク切れ"
+"画像が表示される可能性があります。\n"
+"\n"
+"本当にこのファイルの名前を変更しますか?"
+
+#: includes/Enqueue.php:191 includes/Services/TranslationStrings.php:582
+msgid "Generate with AI"
+msgstr "AIで生成"
+
+#: includes/Enqueue.php:193
+msgid "Accept"
+msgstr "承認"
+
+#: includes/Enqueue.php:194
+msgid "Reject"
+msgstr "却下"
+
+#: includes/Enqueue.php:195
+msgid "Alt text generated!"
+msgstr "代替テキストを生成しました!"
+
+#: includes/Enqueue.php:196
+msgid "Failed to generate alt text."
+msgstr "代替テキストを生成できませんでした。"
+
+#: includes/Http/Controllers/BatchController.php:104
+msgid "Image IDs are required"
+msgstr "画像IDは必須です"
+
+#: includes/Http/Controllers/BatchController.php:111
+msgid "Maximum 500 images per batch job"
+msgstr "一括ジョブあたり最大500枚です"
+
+#: includes/Http/Controllers/BatchController.php:122
+#: includes/Http/Controllers/BatchController.php:1078
+msgid "A batch job is already in progress"
+msgstr "一括ジョブがすでに進行中です"
+
+#: includes/Http/Controllers/BatchController.php:178
+#: includes/Http/Controllers/BatchController.php:233
+#: includes/Http/Controllers/BatchController.php:593
+#: includes/Http/Controllers/BatchController.php:734
+#: includes/Http/Controllers/BatchController.php:866
+#: includes/Http/Controllers/BatchController.php:957
+#: includes/Http/Controllers/BatchController.php:1039
+msgid "Job ID is required"
+msgstr "ジョブIDは必須です"
+
+#: includes/Http/Controllers/BatchController.php:186
+#: includes/Http/Controllers/BatchController.php:241
+#: includes/Http/Controllers/BatchController.php:601
+#: includes/Http/Controllers/BatchController.php:742
+#: includes/Http/Controllers/BatchController.php:874
+#: includes/Http/Controllers/BatchController.php:965
+#: includes/Http/Controllers/BatchController.php:1047
+msgid "Job not found"
+msgstr "ジョブが見つかりません"
+
+#: includes/Http/Controllers/BatchController.php:249
+msgid "This job is no longer active"
+msgstr "このジョブはすでに終了しています"
+
+#: includes/Http/Controllers/BatchController.php:261
+msgid "Client ID is required"
+msgstr "クライアントIDは必須です"
+
+#: includes/Http/Controllers/BatchController.php:270
+msgid "This job is being processed by another window"
+msgstr "このジョブは別のウィンドウで処理中です"
+
+#: includes/Http/Controllers/BatchController.php:282
+msgid "Image IDs not found for this job"
+msgstr "このジョブの画像IDが見つかりません"
+
+#: includes/Http/Controllers/BatchController.php:356
+msgid ""
+"Daily compression limit reached. Upgrade to Pro for unlimited compression."
+msgstr ""
+"本日の圧縮上限に達しました。Proにアップグレードすると無制限に圧縮できます。"
+
+#: includes/Http/Controllers/BatchController.php:371
+#: includes/Http/Controllers/CompressorController.php:147
+#: includes/Services/ImageCompressor.php:182
+#: includes/Services/TranslationStrings.php:157
+msgid "Compression failed"
+msgstr "圧縮に失敗しました"
+
+#: includes/Http/Controllers/BatchController.php:380
+#: includes/Services/ImageCompressor.php:55
+msgid "Compression failed. Check error log for details."
+msgstr "圧縮に失敗しました。詳細はエラーログをご確認ください。"
+
+#: includes/Http/Controllers/BatchController.php:391
+msgid ""
+"Daily compression limit reached. Upgrade to Pro for unlimited conversions."
+msgstr ""
+"本日の圧縮上限に達しました。Proにアップグレードすると無制限に変換できます。"
+
+#: includes/Http/Controllers/BatchController.php:410
+msgid "Conversion failed"
+msgstr "変換に失敗しました"
+
+#: includes/Http/Controllers/BatchController.php:419
+#: includes/Services/NextGenConverter.php:114
+msgid "Conversion failed. Check error log for details."
+msgstr "変換に失敗しました。詳細はエラーログをご確認ください。"
+
+#: includes/Http/Controllers/BatchController.php:432
+msgid "Title generation failed"
+msgstr "タイトルの生成に失敗しました"
+
+#: includes/Http/Controllers/BatchController.php:441
+msgid "Title generation failed. Check error log for details."
+msgstr "タイトルの生成に失敗しました。詳細はエラーログをご確認ください。"
+
+#: includes/Http/Controllers/BatchController.php:462
+msgid "Metadata generation failed"
+msgstr "メタデータの生成に失敗しました"
+
+#: includes/Http/Controllers/BatchController.php:471
+msgid "Metadata generation failed. Check error log for details."
+msgstr "メタデータの生成に失敗しました。詳細はエラーログをご確認ください。"
+
+#: includes/Http/Controllers/BatchController.php:501
+msgid "Alt text generation failed"
+msgstr "代替テキストの生成に失敗しました"
+
+#: includes/Http/Controllers/BatchController.php:510
+msgid "Generation failed. Check error log for details."
+msgstr "生成に失敗しました。詳細はエラーログをご確認ください。"
+
+#: includes/Http/Controllers/BatchController.php:612
+#: includes/Http/Controllers/BatchController.php:758
+#: includes/Services/TranslationStrings.php:913
+msgid "This job is currently being processed in another window."
+msgstr "このジョブは現在別のウィンドウで処理中です。"
+
+#: includes/Http/Controllers/BatchController.php:631
+#: includes/Services/TranslationStrings.php:895
+msgid "Batch job cancelled"
+msgstr "一括ジョブをキャンセルしました"
+
+#: includes/Http/Controllers/BatchController.php:750
+msgid "This job cannot be resumed"
+msgstr "このジョブは再開できません"
+
+#: includes/Http/Controllers/BatchController.php:772
+msgid "Image data for this job has expired. Please start a new batch."
+msgstr ""
+"このジョブの画像データは期限切れです。新しい一括処理を開始してください。"
+
+#: includes/Http/Controllers/BatchController.php:881
+msgid "Job is not completed yet"
+msgstr "ジョブはまだ完了していません"
+
+#: includes/Http/Controllers/BatchController.php:1011
+msgid "(deleted)"
+msgstr "(削除済み)"
+
+#: includes/Http/Controllers/BatchController.php:1012
+msgid "Unknown error"
+msgstr "不明なエラー"
+
+#: includes/Http/Controllers/BatchController.php:1055
+msgid "No failure details available to retry"
+msgstr "再試行できる失敗の詳細がありません"
+
+#: includes/Http/Controllers/BatchController.php:1067
+msgid "No valid images to retry"
+msgstr "再試行できる有効な画像がありません"
+
+#: includes/Http/Controllers/CompressorController.php:128
+#: includes/Http/Controllers/CompressorController.php:173
+#: includes/Http/Controllers/CompressorController.php:274
+#: includes/Http/Controllers/CompressorController.php:298
+#: includes/Http/Controllers/CompressorController.php:331
+#: includes/Http/Controllers/FileRenamerController.php:29
+#: includes/Http/Controllers/FileRenamerController.php:209
+#: includes/Http/Controllers/GeneratorController.php:164
+#: includes/Http/Controllers/GeneratorController.php:278
+#: includes/Http/Controllers/GeneratorController.php:713
+#: includes/Http/Controllers/GeneratorController.php:1197
+msgid "Attachment ID is required"
+msgstr "添付ファイルIDは必須です"
+
+#: includes/Http/Controllers/CompressorController.php:186
+msgid "This server cannot create WebP or AVIF images"
+msgstr "このサーバーではWebPまたはAVIF画像を作成できません"
+
+#: includes/Http/Controllers/CompressorController.php:203
+msgid "Nothing to convert for this image"
+msgstr "この画像には変換対象がありません"
+
+#: includes/Http/Controllers/CompressorController.php:312
+#: includes/Services/TranslationStrings.php:312
+msgid "Restore failed"
+msgstr "復元に失敗しました"
+
+#: includes/Http/Controllers/CompressorController.php:364
+msgid "Not authorized to modify this attachment"
+msgstr "この添付ファイルを変更する権限がありません"
+
+#: includes/Http/Controllers/FallbackController.php:55
+msgid "Something went wrong"
+msgstr "問題が発生しました"
+
+#: includes/Http/Controllers/FeedbackController.php:49
+msgid "Invalid feedback reason"
+msgstr "フィードバックの理由が無効です"
+
+#: includes/Http/Controllers/FeedbackController.php:83
+msgid "Thanks for your feedback"
+msgstr "フィードバックありがとうございます"
+
+#: includes/Http/Controllers/FileBirdController.php:30
+msgid "Folder ID is required"
+msgstr "フォルダーIDは必須です"
+
+#: includes/Http/Controllers/FileBirdController.php:42
+msgid "Folder not found"
+msgstr "フォルダーが見つかりません"
+
+#: includes/Http/Controllers/FileBirdController.php:48
+msgid "Not authorized to access this folder"
+msgstr "このフォルダーへのアクセス権限がありません"
+
+#: includes/Http/Controllers/FileRenamerController.php:38
+msgid "Not authorized to rename this attachment"
+msgstr "この添付ファイルの名前を変更する権限がありません"
+
+#: includes/Http/Controllers/FileRenamerController.php:52
+msgid "File already has the correct name"
+msgstr "ファイル名はすでに正しい名前です"
+
+#: includes/Http/Controllers/FileRenamerController.php:60
+msgid "File renamed successfully"
+msgstr "ファイル名を変更しました"
+
+#: includes/Http/Controllers/FileRenamerController.php:81
+msgid "No attachments provided"
+msgstr "添付ファイルが指定されていません"
+
+#: includes/Http/Controllers/FileRenamerController.php:88
+msgid "Maximum 25 images per request"
+msgstr "1回のリクエストで最大25枚です"
+
+#. translators: %1$d: number of updated titles, %2$d: total number of images
+#: includes/Http/Controllers/FileRenamerController.php:137
+#, php-format
+msgid "Updated %1$d/%2$d titles"
+msgstr "%1$d/%2$d件のタイトルを更新しました"
+
+#: includes/Http/Controllers/GeneratorController.php:41
+#: includes/Http/Controllers/GeneratorController.php:187
+msgid "This integration is disabled."
+msgstr "この連携は無効になっています。"
+
+#: includes/Http/Controllers/GeneratorController.php:173
+#: includes/Http/Controllers/GeneratorController.php:1213
+msgid "Not authorized to edit this attachment"
+msgstr "この添付ファイルを編集する権限がありません"
+
+#: includes/Http/Controllers/GeneratorController.php:241
+#: includes/Http/Controllers/GeneratorController.php:593
+msgid "Failed to generate metadata. Please try again."
+msgstr "メタデータを生成できませんでした。もう一度お試しください。"
+
+#: includes/Http/Controllers/GeneratorController.php:285
+#: includes/Http/Controllers/GeneratorController.php:720
+#: includes/Http/Controllers/GeneratorController.php:1204
+msgid "Invalid image attachment"
+msgstr "無効な画像添付ファイルです"
+
+#: includes/Http/Controllers/GeneratorController.php:328
+msgid "Metadata already exists — skipped"
+msgstr "メタデータはすでに存在します — スキップしました"
+
+#: includes/Http/Controllers/GeneratorController.php:341
+#: includes/Http/Controllers/GeneratorController.php:738
+msgid "No API key configured. Please set up your API key in settings."
+msgstr "APIキーが設定されていません。設定でAPIキーを設定してください。"
+
+#: includes/Http/Controllers/GeneratorController.php:349
+#: includes/Http/Controllers/GeneratorController.php:746
+#: includes/Http/Controllers/GeneratorController.php:994
+#: includes/Http/Controllers/GeneratorController.php:1074
+#: includes/Http/Controllers/GeneratorController.php:1125
+#: includes/Http/Controllers/WooCommerceController.php:179
+msgid "Failed to get image URL"
+msgstr "画像URLを取得できませんでした"
+
+#: includes/Http/Controllers/GeneratorController.php:376
+#: includes/Http/Controllers/GeneratorController.php:761
+msgid ""
+"Image file not found or inaccessible. Please verify the image exists in your "
+"media library."
+msgstr ""
+"画像ファイルが見つからないかアクセスできません。メディアライブラリに画像が存"
+"在するか確認してください。"
+
+#: includes/Http/Controllers/GeneratorController.php:421
+msgid ""
+"Failed to generate metadata — the AI cut its response short, possibly due to "
+"rate limiting or high demand on your provider account. Please try again in a "
+"moment."
+msgstr ""
+"メタデータを生成できませんでした — レート制限またはプロバイダーアカウントへの"
+"高負荷により、AIが応答を途中で打ち切った可能性があります。少し待ってからもう"
+"一度お試しください。"
+
+#: includes/Http/Controllers/GeneratorController.php:422
+msgid ""
+"Failed to generate metadata — the AI response was incomplete. Please try "
+"again."
+msgstr ""
+"メタデータを生成できませんでした — AIの応答が不完全でした。もう一度お試しくだ"
+"さい。"
+
+#: includes/Http/Controllers/GeneratorController.php:487
+#: includes/Http/Controllers/GeneratorController.php:825
+#: includes/Http/Controllers/GeneratorController.php:1258
+msgid "History ID is required"
+msgstr "履歴IDは必須です"
+
+#: includes/Http/Controllers/GeneratorController.php:495
+#: includes/Http/Controllers/GeneratorController.php:833
+#: includes/Http/Controllers/GeneratorController.php:1266
+msgid "History not found"
+msgstr "履歴が見つかりません"
+
+#: includes/Http/Controllers/GeneratorController.php:503
+#: includes/Http/Controllers/GeneratorController.php:841
+#: includes/Http/Controllers/GeneratorController.php:1274
+msgid "Not authorized"
+msgstr "権限がありません"
+
+#: includes/Http/Controllers/GeneratorController.php:533
+#: includes/Http/Controllers/GeneratorController.php:870
+#: includes/Http/Controllers/GeneratorController.php:1282
+msgid "Failed to update history record"
+msgstr "履歴レコードを更新できませんでした"
+
+#: includes/Http/Controllers/GeneratorController.php:541
+msgid "Metadata saved successfully"
+msgstr "メタデータを保存しました"
+
+#: includes/Http/Controllers/GeneratorController.php:565
+msgid ""
+"The request timed out before the AI could respond. This often happens on "
+"slower hosts or with larger images — please try again, ideally one image at "
+"a time."
+msgstr ""
+"AIが応答する前にリクエストがタイムアウトしました。低速なホストや大きな画像で"
+"よく起こります — もう一度、できれば1枚ずつお試しください。"
+
+#: includes/Http/Controllers/GeneratorController.php:577
+msgid ""
+"Your AI provider is rate limiting or over capacity right now. Please wait a "
+"moment and try again."
+msgstr ""
+"AIプロバイダーがレート制限中か過負荷の状態です。少し待ってからもう一度お試し"
+"ください。"
+
+#: includes/Http/Controllers/GeneratorController.php:589
+msgid ""
+"Authentication failed. Please check your API key in Settings and try again."
+msgstr "認証に失敗しました。設定でAPIキーを確認して、もう一度お試しください。"
+
+#: includes/Http/Controllers/GeneratorController.php:774
+#: includes/Http/Controllers/WooCommerceController.php:227
+msgid "Failed to generate alt text. Please check your API key and try again."
+msgstr ""
+"代替テキストを生成できませんでした。APIキーを確認して、もう一度お試しくださ"
+"い。"
+
+#: includes/Http/Controllers/GeneratorController.php:878
+#: includes/Http/Controllers/GeneratorController.php:1243
+msgid "Alt text saved successfully"
+msgstr "代替テキストを保存しました"
+
+#: includes/Http/Controllers/GeneratorController.php:893
+msgid "Items array is required"
+msgstr "項目の配列は必須です"
+
+#. translators: %d: history record ID
+#: includes/Http/Controllers/GeneratorController.php:926
+#, php-format
+msgid "History %d not found"
+msgstr "履歴%dが見つかりません"
+
+#. translators: %d: history record ID
+#: includes/Http/Controllers/GeneratorController.php:935
+#, php-format
+msgid "Not authorized for history %d"
+msgstr "履歴%dの権限がありません"
+
+#. translators: %d: number of saved alt texts
+#: includes/Http/Controllers/GeneratorController.php:968
+#, php-format
+msgid "%d alt text(s) saved successfully"
+msgstr "%d件の代替テキストを保存しました"
+
+#: includes/Http/Controllers/GeneratorController.php:986
+#: includes/Http/Controllers/GeneratorController.php:1066
+#: includes/Http/Controllers/GeneratorController.php:1117
+msgid "No API key configured."
+msgstr "APIキーが設定されていません。"
+
+#: includes/Http/Controllers/GeneratorController.php:1007
+msgid "Title already exists"
+msgstr "タイトルはすでに存在します"
+
+#: includes/Http/Controllers/GeneratorController.php:1023
+msgid "Failed to generate title. Please check your API key and try again."
+msgstr ""
+"タイトルを生成できませんでした。APIキーを確認して、もう一度お試しください。"
+
+#: includes/Http/Controllers/GeneratorController.php:1088
+msgid "Failed to generate link title. Please check your API key and try again."
+msgstr ""
+"リンクタイトルを生成できませんでした。APIキーを確認して、もう一度お試しくださ"
+"い。"
+
+#: includes/Http/Controllers/GeneratorController.php:1140
+msgid "Failed to generate filename. Please check your API key and try again."
+msgstr ""
+"ファイル名を生成できませんでした。APIキーを確認して、もう一度お試しください。"
+
+#: includes/Http/Controllers/GeneratorController.php:1173
+#: includes/Services/TranslationStrings.php:606
+msgid "Failed to rename file"
+msgstr "ファイル名を変更できませんでした"
+
+#: includes/Http/Controllers/GeneratorController.php:1290
+msgid "Alt text rejected"
+msgstr "代替テキストを却下しました"
+
+#: includes/Http/Controllers/SettingsController.php:111
+msgid "No settings provided"
+msgstr "設定が指定されていません"
+
+#: includes/Http/Controllers/SettingsController.php:127
+msgid "Invalid setting keys:"
+msgstr "無効な設定キー:"
+
+#: includes/Http/Controllers/SettingsController.php:234
+#: includes/Http/Controllers/SettingsController.php:254
+msgid "Settings updated successfully"
+msgstr "設定を更新しました"
+
+#: includes/Http/Controllers/SettingsController.php:260
+msgid "Failed to update some settings"
+msgstr "一部の設定を更新できませんでした"
+
+#: includes/Http/Controllers/SettingsController.php:269
+msgid "An error occurred while updating settings."
+msgstr "設定の更新中にエラーが発生しました。"
+
+#: includes/Http/Controllers/SettingsController.php:289
+msgid "Provider and API key are required"
+msgstr "プロバイダーとAPIキーは必須です"
+
+#: includes/Http/Controllers/SettingsController.php:297
+#: includes/Http/Controllers/SettingsController.php:444
+msgid "Invalid API key format"
+msgstr "APIキーの形式が無効です"
+
+#: includes/Http/Controllers/SettingsController.php:304
+msgid "Invalid provider"
+msgstr "無効なプロバイダーです"
+
+#: includes/Http/Controllers/SettingsController.php:348
+msgid "Failed to encrypt API key. Please try again."
+msgstr "APIキーを暗号化できませんでした。もう一度お試しください。"
+
+#: includes/Http/Controllers/SettingsController.php:358
+msgid "Failed to encrypt API key. Encrypted value is empty."
+msgstr "APIキーを暗号化できませんでした。暗号化された値が空です。"
+
+#: includes/Http/Controllers/SettingsController.php:367
+msgid "Failed to save API key to database"
+msgstr "APIキーをデータベースに保存できませんでした"
+
+#: includes/Http/Controllers/SettingsController.php:376
+msgid "Invalid table configuration"
+msgstr "無効なテーブル設定です"
+
+#: includes/Http/Controllers/SettingsController.php:385
+msgid "API key was not saved correctly. Please try again."
+msgstr "APIキーが正しく保存されませんでした。もう一度お試しください。"
+
+#: includes/Http/Controllers/SettingsController.php:402
+#: includes/Services/TranslationStrings.php:761
+msgid "API key saved successfully"
+msgstr "APIキーを保存しました"
+
+#: includes/Http/Controllers/SettingsController.php:418
+msgid "Too many test requests. Please wait a minute before trying again."
+msgstr "テストリクエストが多すぎます。1分待ってから再度お試しください。"
+
+#: includes/Http/Controllers/SettingsController.php:452
+msgid "Provider is required"
+msgstr "プロバイダーは必須です"
+
+#: includes/Http/Controllers/SettingsController.php:469
+msgid "API connection test failed. Please check your API key."
+msgstr "API接続テストに失敗しました。APIキーを確認してください。"
+
+#: includes/Http/Controllers/SettingsController.php:484
+msgid "User not logged in"
+msgstr "ユーザーがログインしていません"
+
+#: includes/Http/Controllers/SettingsController.php:496
+msgid "Wizard completed"
+msgstr "セットアップが完了しました"
+
+#: includes/Http/Controllers/SettingsController.php:502
+#: includes/Services/TranslationStrings.php:846
+msgid "Failed to complete wizard"
+msgstr "セットアップを完了できませんでした"
+
+#: includes/Http/Controllers/WooCommerceController.php:21
+#: includes/Http/Controllers/WooCommerceController.php:56
+#: includes/Http/Controllers/WooCommerceController.php:73
+#: includes/Http/Controllers/WooCommerceController.php:88
+#: includes/Http/Controllers/WooCommerceController.php:117
+#: includes/Http/Controllers/WooCommerceController.php:244
+msgid "WooCommerce is not active"
+msgstr "WooCommerceが有効ではありません"
+
+#: includes/Http/Controllers/WooCommerceController.php:99
+#: includes/Http/Controllers/WooCommerceController.php:128
+#: includes/Http/Controllers/WooCommerceController.php:253
+msgid "Product ID is required"
+msgstr "商品IDは必須です"
+
+#: includes/Http/Controllers/WooCommerceController.php:136
+msgid "Product not found"
+msgstr "商品が見つかりません"
+
+#: includes/Http/Controllers/WooCommerceController.php:144
+msgid "Product has no gallery images"
+msgstr "商品にギャラリー画像がありません"
+
+#: includes/Http/Controllers/WooCommerceController.php:154
+msgid "No API key configured"
+msgstr "APIキーが設定されていません"
+
+#: includes/Http/Middleware/RoleGate.php:31
+msgid "Your role is not permitted to use this feature."
+msgstr "お使いの権限グループではこの機能を使用できません。"
+
+#: includes/Http/Routes/Route.php:161
+msgid "An unexpected error occurred."
+msgstr "予期しないエラーが発生しました。"
+
+#: includes/Http/Routes/Route.php:179
+msgid "You must be logged in."
+msgstr "ログインが必要です。"
+
+#: includes/Http/Routes/Route.php:189
+msgid "Insufficient permissions."
+msgstr "権限が不足しています。"
+
+#: includes/Http/Routes/Route.php:203
+msgid "Invalid middleware configuration"
+msgstr "無効なミドルウェア設定です"
+
+#: includes/Http/Routes/Route.php:217
+msgid "Access denied"
+msgstr "アクセスが拒否されました"
+
+#: includes/Http/Routes/Route.php:225
+msgid "Internal server error"
+msgstr "内部サーバーエラー"
+
+#: includes/Install.php:42
+msgid "Could not install ImageCraft plugin. Please check error logs."
+msgstr ""
+"ImageCraftプラグインをインストールできませんでした。エラーログをご確認くださ"
+"い。"
+
+#: includes/Services/AI/WP7Provider.php:109
+#: includes/Services/AI/WP7Provider.php:116
+msgid "WordPress 7.0 AI Client is not available"
+msgstr "WordPress 7.0 AIクライアントは利用できません"
+
+#: includes/Services/AI/WP7Provider.php:155
+msgid "WordPress AI Client returned an empty response"
+msgstr "WordPress AIクライアントが空の応答を返しました"
+
+#: includes/Services/AI/WP7Provider.php:194
+msgid "WordPress 7.0 is required for this feature"
+msgstr "この機能にはWordPress 7.0が必要です"
+
+#: includes/Services/AI/WP7Provider.php:210
+msgid "Could not verify the WordPress AI Client. Please try again."
+msgstr ""
+"WordPress AIクライアントを確認できませんでした。もう一度お試しください。"
+
+#: includes/Services/AI/WP7Provider.php:217
+msgid ""
+"No AI provider configured. Go to WordPress Settings → Connectors to set one "
+"up."
+msgstr ""
+"AIプロバイダーが設定されていません。WordPress設定→コネクターで設定してくださ"
+"い。"
+
+#: includes/Services/AI/WP7Provider.php:223
+msgid "WordPress AI Client is ready"
+msgstr "WordPress AIクライアントの準備ができました"
+
+#: includes/Services/ImageCompressor.php:70
+msgid "Restore failed. Check error log for details."
+msgstr "復元に失敗しました。詳細はエラーログをご確認ください。"
+
+#: includes/Services/ImageCompressor.php:83
+msgid "Attachment is not an image"
+msgstr "添付ファイルは画像ではありません"
+
+#: includes/Services/ImageCompressor.php:89
+#: includes/Services/ImageCompressor.php:131
+#: includes/Services/ImageCompressor.php:139
+#: includes/Services/NextGenConverter.php:182
+msgid "Original file not found"
+msgstr "元のファイルが見つかりません"
+
+#: includes/Services/ImageCompressor.php:103
+msgid "Preview failed"
+msgstr "プレビューに失敗しました"
+
+#: includes/Services/ImageCompressor.php:114
+#: includes/Services/ImageCompressor.php:344
+msgid "Image editing is not available on this server"
+msgstr "このサーバーでは画像編集を利用できません"
+
+#: includes/Services/ImageCompressor.php:136
+#: includes/Services/ImageCompressor.php:385
+msgid "Filesystem API not available"
+msgstr "ファイルシステムAPIを利用できません"
+
+#: includes/Services/ImageCompressor.php:224
+msgid "Failed to write compressed image"
+msgstr "圧縮した画像を書き込めませんでした"
+
+#: includes/Services/ImageCompressor.php:380
+msgid "No backup found for this image"
+msgstr "この画像のバックアップが見つかりません"
+
+#: includes/Services/ImageCompressor.php:394
+msgid "Invalid backup location"
+msgstr "無効なバックアップ場所です"
+
+#: includes/Services/ImageCompressor.php:443
+msgid "Failed to create backup directory"
+msgstr "バックアップディレクトリを作成できませんでした"
+
+#: includes/Services/TranslationStrings.php:33
+msgid "Generate All (Alt + Title + Caption)"
+msgstr "すべて生成(代替テキスト + タイトル + キャプション)"
+
+#: includes/Services/TranslationStrings.php:34
+msgid ""
+"Generate alt text, title and caption together in a single AI call — one "
+"click per image."
+msgstr ""
+"代替テキスト、タイトル、キャプションを1回のAI呼び出しでまとめて生成 — 画像ご"
+"とにワンクリックです。"
+
+#: includes/Services/TranslationStrings.php:35
+msgid "Enable the Generate All button"
+msgstr "「すべて生成」ボタンを有効化"
+
+#: includes/Services/TranslationStrings.php:36
+msgid "Fields to generate"
+msgstr "生成するフィールド"
+
+#: includes/Services/TranslationStrings.php:38
+msgid "Caption"
+msgstr "キャプション"
+
+#: includes/Services/TranslationStrings.php:39
+msgid "Caption Tone"
+msgstr "キャプションのトーン"
+
+#: includes/Services/TranslationStrings.php:40
+msgid "Max Caption Length"
+msgstr "キャプションの最大文字数"
+
+#: includes/Services/TranslationStrings.php:41
+msgid "Characters in caption (default: 150)"
+msgstr "キャプションの文字数(初期値: 150)"
+
+#: includes/Services/TranslationStrings.php:42
+msgid "Skip images with an existing caption"
+msgstr "キャプションが既にある画像をスキップ"
+
+#: includes/Services/TranslationStrings.php:43
+msgid "Auto-generate all on upload"
+msgstr "アップロード時にすべて自動生成"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:45
+#, php-format
+msgid "Generate All (%s)"
+msgstr "すべて生成(%s)"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:47
+#, php-format
+msgid "Generate Caption (%s)"
+msgstr "キャプションを生成(%s)"
+
+#: includes/Services/TranslationStrings.php:48
+msgid "Generate Caption"
+msgstr "キャプションを生成"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:50
+#, php-format
+msgid "Generate (%s)"
+msgstr "生成(%s)"
+
+#. translators: %s: number of images
+#: includes/Services/TranslationStrings.php:53
+#, php-format
+msgid "Generation started for %s images"
+msgstr "%s枚の画像の生成を開始しました"
+
+#: includes/Services/TranslationStrings.php:56
+msgid "Overall optimization"
+msgstr "総合最適化"
+
+#: includes/Services/TranslationStrings.php:57
+msgid "Blended across alt text, titles, descriptions and compression."
+msgstr "代替テキスト、タイトル、説明、圧縮を総合した指標です。"
+
+#: includes/Services/TranslationStrings.php:58
+msgid "covered"
+msgstr "対応済み"
+
+#. translators: %s: number of images
+#: includes/Services/TranslationStrings.php:60
+#, php-format
+msgid "Metadata generation started for %s images"
+msgstr "%s枚の画像のメタデータ生成を開始しました"
+
+#: includes/Services/TranslationStrings.php:63
+msgid "Skip — I only want image compression (no API key needed)"
+msgstr "スキップ — 画像圧縮だけ使いたい(APIキー不要)"
+
+#: includes/Services/TranslationStrings.php:64
+msgid "Skip for now"
+msgstr "今はスキップ"
+
+#: includes/Services/TranslationStrings.php:65
+msgid "Failed to skip setup"
+msgstr "セットアップをスキップできませんでした"
+
+#: includes/Services/TranslationStrings.php:66
+msgid "Add API key"
+msgstr "APIキーを追加"
+
+#: includes/Services/TranslationStrings.php:67
+msgid "Unlock AI alt text, titles & descriptions"
+msgstr "AIによる代替テキスト・タイトル・説明を解放しましょう"
+
+#: includes/Services/TranslationStrings.php:68
+msgid ""
+"Use your own API key or your site's WordPress AI Client — you pay your "
+"provider directly, with no markup. Compression, WebP conversion and "
+"fallbacks work without a key."
+msgstr ""
+"自分のAPIキー、またはサイトのWordPress AIクライアントを利用できます — プロバ"
+"イダーに直接支払い、上乗せはありません。圧縮・WebP変換・フォールバックはキー"
+"なしで動作します。"
+
+#: includes/Services/TranslationStrings.php:69
+msgid "Add your API key to generate alt text, titles and captions."
+msgstr ""
+"代替テキスト、タイトル、キャプションを生成するにはAPIキーを追加してください。"
+
+#: includes/Services/TranslationStrings.php:70
+msgid ""
+"Add your API key to generate alt text, titles and captions. Image "
+"compression works without a key."
+msgstr ""
+"代替テキスト、タイトル、キャプションを生成するにはAPIキーを追加してください。"
+"画像圧縮はキーなしで動作します。"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:85
+#, php-format
+msgid "%1$s completed, %2$s failed"
+msgstr "%1$s件完了、%2$s件失敗"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:87
+#, php-format
+msgid "%1$s images processed successfully"
+msgstr "%1$s枚の画像を正常に処理しました"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:89
+#, php-format
+msgid "%s images could not be restored"
+msgstr "%s枚の画像を復元できませんでした"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:91
+#, php-format
+msgid "%s selected"
+msgstr "%s件選択中"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:93
+#, php-format
+msgid ", %s failed"
+msgstr "、%s件失敗"
+
+#: includes/Services/TranslationStrings.php:94
+msgid ""
+"85 is visually lossless (recommended). Lower for smaller files. We never re-"
+"encode larger than the original."
+msgstr ""
+"85は視覚的に劣化のない品質です(推奨)。小さいファイルにするには下げてくださ"
+"い。元より大きく再エンコードすることはありません。"
+
+#: includes/Services/TranslationStrings.php:95
+msgid ""
+"A key is currently defined in wp-config.php and takes priority over the "
+"database key."
+msgstr ""
+"現在wp-config.phpでキーが定義されており、データベースのキーより優先されます。"
+
+#: includes/Services/TranslationStrings.php:96
+msgid "AI-powered file renaming for SEO-friendly image URLs."
+msgstr "SEOに適した画像URLのためのAIによるファイル名変更。"
+
+#: includes/Services/TranslationStrings.php:97
+msgid "API Key Storage"
+msgstr "APIキーの保存先"
+
+#: includes/Services/TranslationStrings.php:98
+msgid "API key detected in wp-config.php"
+msgstr "wp-config.phpでAPIキーを検出しました"
+
+#: includes/Services/TranslationStrings.php:99
+msgid "API rate limit may have been exceeded — wait and retry"
+msgstr "APIレート制限を超えた可能性があります — 待ってから再試行してください"
+
+#: includes/Services/TranslationStrings.php:100
+msgid ""
+"AVIF is often ~50% smaller than JPEG — the smallest format modern browsers "
+"support."
+msgstr ""
+"AVIFはJPEGより約50%小さいことが多く、モダンブラウザーが対応する最小のフォー"
+"マットです。"
+
+#: includes/Services/TranslationStrings.php:101
+msgid "Active — WordPress AI Client"
+msgstr "有効 — WordPress AIクライアント"
+
+#: includes/Services/TranslationStrings.php:102
+msgid ""
+"Add this line to your wp-config.php file (before \"That's all, stop editing!"
+"\"):"
+msgstr ""
+"この行をwp-config.phpに追加してください(「That's all, stop editing!」の前):"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:104
+#, php-format
+msgid ""
+"Adds the Compress tab and per-image compress buttons. Free plan includes %d "
+"compressions per day."
+msgstr ""
+"「圧縮」タブと画像ごとの圧縮ボタンを追加します。無料プランには1日%d回の圧縮が"
+"含まれます。"
+
+#: includes/Services/TranslationStrings.php:105
+msgid "Administrator"
+msgstr "管理者"
+
+#: includes/Services/TranslationStrings.php:106
+msgid "Advanced"
+msgstr "詳細設定"
+
+#: includes/Services/TranslationStrings.php:107
+msgid "All"
+msgstr "すべて"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:109
+#, php-format
+msgid "All %s images processed successfully!"
+msgstr "%s枚の画像をすべて正常に処理しました!"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:111
+#, php-format
+msgid "All %s selected."
+msgstr "%s件をすべて選択しました。"
+
+#: includes/Services/TranslationStrings.php:112
+msgid "All AI-generated content (alt text, titles) will use this language."
+msgstr ""
+"AIが生成するすべてのコンテンツ(代替テキスト、タイトル)にこの言語が使われま"
+"す。"
+
+#: includes/Services/TranslationStrings.php:113
+msgid "All Categories"
+msgstr "すべてのカテゴリー"
+
+#: includes/Services/TranslationStrings.php:114
+msgid "All changes saved"
+msgstr "すべての変更を保存しました"
+
+#: includes/Services/TranslationStrings.php:115
+msgid "All folders"
+msgstr "すべてのフォルダー"
+
+#: includes/Services/TranslationStrings.php:116
+msgid "Alt Text"
+msgstr "代替テキスト"
+
+#: includes/Services/TranslationStrings.php:117
+msgid "Alt Text Generation"
+msgstr "代替テキスト生成"
+
+#: includes/Services/TranslationStrings.php:118
+msgid ""
+"Alt text and title use their own tone/length settings (Alt Text and Image "
+"Title pages). Caption settings are below."
+msgstr ""
+"代替テキストとタイトルは、それぞれのトーン/文字数設定(「代替テキスト」と「画"
+"像タイトル」のページ)を使います。キャプションの設定は下にあります。"
+
+#: includes/Services/TranslationStrings.php:119
+msgid "Alt text too long"
+msgstr "代替テキストが長すぎます"
+
+#: includes/Services/TranslationStrings.php:120
+msgid "Alt text..."
+msgstr "代替テキスト..."
+
+#: includes/Services/TranslationStrings.php:121
+msgid "Alt:"
+msgstr "代替テキスト:"
+
+#: includes/Services/TranslationStrings.php:122
+msgid "Apply to post types"
+msgstr "適用する投稿タイプ"
+
+#: includes/Services/TranslationStrings.php:123
+msgid "Auto-compress new uploads"
+msgstr "新規アップロードを自動圧縮"
+
+#: includes/Services/TranslationStrings.php:124
+msgid "Auto-convert new uploads"
+msgstr "新規アップロードを自動変換"
+
+#: includes/Services/TranslationStrings.php:125
+msgid "Auto-generate ALL fields on upload"
+msgstr "アップロード時にすべてのフィールドを自動生成"
+
+#: includes/Services/TranslationStrings.php:126
+msgid "Auto-generate alt text on upload"
+msgstr "アップロード時に代替テキストを自動生成"
+
+#: includes/Services/TranslationStrings.php:127
+msgid "Auto-generate description on upload"
+msgstr "アップロード時に説明を自動生成"
+
+#: includes/Services/TranslationStrings.php:128
+msgid "Auto-generate title on upload"
+msgstr "アップロード時にタイトルを自動生成"
+
+#: includes/Services/TranslationStrings.php:129
+msgid ""
+"Automatically compress every image as it is uploaded, in the background."
+msgstr "アップロードされた画像をバックグラウンドで自動的に圧縮します。"
+
+#: includes/Services/TranslationStrings.php:130
+msgid "Automatically generate a title when an image is uploaded."
+msgstr "画像のアップロード時にタイトルを自動生成します。"
+
+#: includes/Services/TranslationStrings.php:131
+msgid "Automatically generate alt text when an image is uploaded."
+msgstr "画像のアップロード時に代替テキストを自動生成します。"
+
+#: includes/Services/TranslationStrings.php:132
+msgid "Automatically generate next-gen copies for every new image you upload."
+msgstr ""
+"新しくアップロードされたすべての画像の次世代フォーマットのコピーを自動作成し"
+"ます。"
+
+#: includes/Services/TranslationStrings.php:133
+msgid "Automatically re-scan in the background and catch broken images early."
+msgstr ""
+"バックグラウンドで自動的に再スキャンし、リンク切れ画像を早期に検出します。"
+
+#: includes/Services/TranslationStrings.php:134
+msgid "Back to Integrations"
+msgstr "連携に戻る"
+
+#: includes/Services/TranslationStrings.php:135
+msgid "Back up originals before compressing"
+msgstr "圧縮前に元画像をバックアップ"
+
+#: includes/Services/TranslationStrings.php:136
+msgid ""
+"Backups are off. Newly compressed images cannot be restored to their "
+"originals (images already backed up can still be restored). This saves disk "
+"space — use with care."
+msgstr ""
+"バックアップは無効です。新たに圧縮した画像は元に戻せません(バックアップ済みの"
+"画像は復元可能)。ディスク容量を節約できますが、慎重にお使いください。"
+
+#: includes/Services/TranslationStrings.php:137
+msgid "Batch Complete"
+msgstr "一括処理が完了しました"
+
+#: includes/Services/TranslationStrings.php:138
+msgid "Broken image scan"
+msgstr "リンク切れ画像スキャン"
+
+#: includes/Services/TranslationStrings.php:139
+msgid "Broken images"
+msgstr "リンク切れ画像"
+
+#: includes/Services/TranslationStrings.php:140
+msgid "Caption settings"
+msgstr "キャプション設定"
+
+#: includes/Services/TranslationStrings.php:141
+msgid "Change image"
+msgstr "画像を変更"
+
+#: includes/Services/TranslationStrings.php:142
+msgid "Characters in title (default: 30)"
+msgstr "タイトルの文字数(初期値: 30)"
+
+#: includes/Services/TranslationStrings.php:143
+msgid "Check your API key is valid in Settings"
+msgstr "設定でAPIキーが有効か確認してください"
+
+#: includes/Services/TranslationStrings.php:144
+msgid "Choose a default featured image — nothing happens until one is set."
+msgstr ""
+"デフォルトのアイキャッチ画像を選んでください — 設定するまで何も起こりません。"
+
+#: includes/Services/TranslationStrings.php:145
+msgid "Choose a fallback image above — nothing happens until one is set."
+msgstr ""
+"上でフォールバック画像を選んでください — 設定するまで何も起こりません。"
+
+#: includes/Services/TranslationStrings.php:146
+msgid "Choose image"
+msgstr "画像を選択"
+
+#: includes/Services/TranslationStrings.php:147
+msgid ""
+"Choose which user roles are allowed to use ImageCraft. This applies to all "
+"features — alt text generation, image titles, file renaming, and image "
+"compression. Administrators always have access."
+msgstr ""
+"ImageCraftを使用できるユーザー権限グループを選択します。代替テキスト生成、画"
+"像タイトル、ファイル名変更、画像圧縮のすべての機能に適用されます。管理者は常"
+"に利用できます。"
+
+#: includes/Services/TranslationStrings.php:148
+msgid "Clear"
+msgstr "クリア"
+
+#: includes/Services/TranslationStrings.php:149
+msgid "Coming Soon"
+msgstr "近日公開"
+
+#: includes/Services/TranslationStrings.php:150
+msgid "Completed"
+msgstr "完了"
+
+#: includes/Services/TranslationStrings.php:152
+msgid "Compress Selected"
+msgstr "選択した画像を圧縮"
+
+#: includes/Services/TranslationStrings.php:153
+msgid "Compressed"
+msgstr "圧縮済み"
+
+#: includes/Services/TranslationStrings.php:158
+msgid "Compression quality"
+msgstr "圧縮品質"
+
+#: includes/Services/TranslationStrings.php:159
+msgid "Compression settings — quality, resizing & backups"
+msgstr "圧縮設定 — 品質・リサイズ・バックアップ"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:161
+#, php-format
+msgid "Compression started for %s images"
+msgstr "%s枚の画像の圧縮を開始しました"
+
+#: includes/Services/TranslationStrings.php:162
+msgid "Configure compression"
+msgstr "圧縮を設定"
+
+#: includes/Services/TranslationStrings.php:163
+msgid "Configure how AI generates descriptive alt text for your images."
+msgstr "AIが画像の説明的な代替テキストを生成する方法を設定します。"
+
+#: includes/Services/TranslationStrings.php:164
+msgid "Connect your AI provider to start generating alt text and titles."
+msgstr "AIプロバイダーを接続して、代替テキストとタイトルの生成を始めましょう。"
+
+#: includes/Services/TranslationStrings.php:165
+msgid "Connected"
+msgstr "接続済み"
+
+#: includes/Services/TranslationStrings.php:166
+msgid "Context Based"
+msgstr "コンテキストベース"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:168
+#, php-format
+msgid "Conversion started for %s images"
+msgstr "%s枚の画像の変換を開始しました"
+
+#: includes/Services/TranslationStrings.php:169
+msgid "Convert Selected"
+msgstr "選択した画像を変換"
+
+#: includes/Services/TranslationStrings.php:170
+msgid ""
+"Convert images from the Performance page — select images and use \"Convert "
+"Selected\", or convert your whole library in bulk."
+msgstr ""
+"パフォーマンスページから画像を変換できます — 画像を選択して「選択した画像を変"
+"換」を使うか、ライブラリ全体を一括変換してください。"
+
+#: includes/Services/TranslationStrings.php:171
+msgid "Created From"
+msgstr "作成日(から)"
+
+#: includes/Services/TranslationStrings.php:172
+msgid "Created To"
+msgstr "作成日(まで)"
+
+#: includes/Services/TranslationStrings.php:173
+msgid "Custom Title Prompt"
+msgstr "カスタムタイトルプロンプト"
+
+#: includes/Services/TranslationStrings.php:174
+msgid "Daily"
+msgstr "毎日"
+
+#: includes/Services/TranslationStrings.php:175
+msgid "Daily compression limit reached."
+msgstr "本日の圧縮上限に達しました。"
+
+#: includes/Services/TranslationStrings.php:176
+msgid "Daily free usage"
+msgstr "本日の無料利用状況"
+
+#: includes/Services/TranslationStrings.php:177
+msgid "Daily usage"
+msgstr "本日の利用状況"
+
+#: includes/Services/TranslationStrings.php:178
+msgid "Database (encrypted)"
+msgstr "データベース(暗号化)"
+
+#: includes/Services/TranslationStrings.php:179
+msgid "Database, encrypted"
+msgstr "データベース、暗号化"
+
+#: includes/Services/TranslationStrings.php:180
+msgid "Default featured image"
+msgstr "デフォルトのアイキャッチ画像"
+
+#: includes/Services/TranslationStrings.php:181
+msgid "Default fields"
+msgstr "デフォルトのフィールド"
+
+#: includes/Services/TranslationStrings.php:182
+msgid "Description (Caption)"
+msgstr "説明(キャプション)"
+
+#: includes/Services/TranslationStrings.php:183
+msgid "Description..."
+msgstr "説明..."
+
+#: includes/Services/TranslationStrings.php:185
+msgid "Downscale images whose longest edge exceeds this. 0 disables resizing."
+msgstr "長辺がこの値を超える画像を縮小します。0でリサイズを無効化します。"
+
+#: includes/Services/TranslationStrings.php:186
+msgid "Email me when new broken images are found"
+msgstr "新しいリンク切れ画像が見つかったらメールで通知"
+
+#: includes/Services/TranslationStrings.php:187
+msgid "Enable file renaming"
+msgstr "ファイル名変更を有効化"
+
+#: includes/Services/TranslationStrings.php:188
+msgid "Enable image compression"
+msgstr "画像圧縮を有効化"
+
+#: includes/Services/TranslationStrings.php:189
+msgid "Enable image fallbacks"
+msgstr "フォールバック画像を有効化"
+
+#: includes/Services/TranslationStrings.php:190
+msgid "Enable in Settings"
+msgstr "設定で有効化"
+
+#: includes/Services/TranslationStrings.php:191
+msgid "Enable or disable integrations with other plugins."
+msgstr "他のプラグインとの連携を有効化・無効化します。"
+
+#: includes/Services/TranslationStrings.php:192
+msgid "Encrypted with AES-256-CBC using your WordPress salts before saving."
+msgstr "保存前にWordPressのソルトを使ってAES-256-CBCで暗号化されます。"
+
+#: includes/Services/TranslationStrings.php:193
+msgid "Failed to retry"
+msgstr "再試行に失敗しました"
+
+#: includes/Services/TranslationStrings.php:194
+msgid "Failed to save setting"
+msgstr "設定を保存できませんでした"
+
+#: includes/Services/TranslationStrings.php:195
+msgid "Failed to start batch"
+msgstr "一括処理を開始できませんでした"
+
+#: includes/Services/TranslationStrings.php:196
+msgid "Failed to test WordPress AI Client"
+msgstr "WordPress AIクライアントをテストできませんでした"
+
+#: includes/Services/TranslationStrings.php:197
+msgid "Failure details are no longer available."
+msgstr "失敗の詳細は利用できなくなりました。"
+
+#: includes/Services/TranslationStrings.php:198
+msgid "Fallback image"
+msgstr "フォールバック画像"
+
+#: includes/Services/TranslationStrings.php:199
+msgid "Featured"
+msgstr "アイキャッチ"
+
+#: includes/Services/TranslationStrings.php:200
+msgid "File:"
+msgstr "ファイル:"
+
+#: includes/Services/TranslationStrings.php:201
+msgid "FileBird Folder"
+msgstr "FileBirdフォルダー"
+
+#: includes/Services/TranslationStrings.php:202
+msgid "Fix"
+msgstr "修正"
+
+#: includes/Services/TranslationStrings.php:203
+msgid ""
+"Free plan downscales images to 2048px (longest edge) — invisible on the web "
+"and the biggest space saver. Upgrade to Pro to change or disable it."
+msgstr ""
+"無料プランでは画像を2048px(長辺)に縮小します — ウェブ上では見分けがつかず、最"
+"も容量を節約できます。変更や無効化はProへのアップグレードで可能です。"
+
+#: includes/Services/TranslationStrings.php:204
+msgid ""
+"Free plan uses a visually-lossless quality of 85. Upgrade to Pro to adjust."
+msgstr ""
+"無料プランでは視覚的に劣化のない品質85を使用します。調整はProへのアップグレー"
+"ドで可能です。"
+
+#: includes/Services/TranslationStrings.php:205
+msgid "Generate AVIF copies"
+msgstr "AVIFコピーを生成"
+
+#: includes/Services/TranslationStrings.php:206
+msgid "Generate All"
+msgstr "すべて生成"
+
+#: includes/Services/TranslationStrings.php:207
+msgid "Generate All — Combined Metadata"
+msgstr "すべて生成 — 統合メタデータ"
+
+#: includes/Services/TranslationStrings.php:208
+msgid "Generate SEO-optimized titles for your images using AI."
+msgstr "AIで画像のSEOに最適化されたタイトルを生成します。"
+
+#: includes/Services/TranslationStrings.php:209
+msgid "Generate WebP copies"
+msgstr "WebPコピーを生成"
+
+#: includes/Services/TranslationStrings.php:210
+msgid "Generate WebP/AVIF copies — originals are never touched"
+msgstr "WebP/AVIFコピーを生成 — 元画像には一切手を加えません"
+
+#: includes/Services/TranslationStrings.php:211
+msgid ""
+"Generate alt text, title and caption together in a single AI call. Used by "
+"the Media Library bulk picker, the per-image media-modal picker, and auto-on-"
+"upload."
+msgstr ""
+"代替テキスト、タイトル、キャプションを1回のAI呼び出しでまとめて生成します。メ"
+"ディアライブラリの一括セレクター、メディアモーダルの画像ごとのセレクター、"
+"アップロード時の自動生成で使われます。"
+
+#: includes/Services/TranslationStrings.php:212
+msgid ""
+"Generate metadata automatically when an image is uploaded. Alt text and "
+"title have their own toggles on their settings pages."
+msgstr ""
+"画像のアップロード時にメタデータを自動生成します。代替テキストとタイトルには"
+"各設定ページに個別のスイッチがあります。"
+
+#: includes/Services/TranslationStrings.php:213
+msgid "Generate title purely from image content."
+msgstr "画像の内容だけからタイトルを生成します。"
+
+#: includes/Services/TranslationStrings.php:214
+msgid "Generate title using post title, product info, and SEO keyphrase."
+msgstr "投稿タイトル、商品情報、SEOキーフレーズを使ってタイトルを生成します。"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:216
+#, php-format
+msgid "Generate — %s"
+msgstr "生成 — %s"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:218
+#, php-format
+msgid "Generated %1$s out of %2$s images"
+msgstr "%2$s枚中%1$s枚の画像を生成しました"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:220
+#, php-format
+msgid "Generated %1$s out of %2$s images — %3$s failed: %4$s"
+msgstr "%2$s枚中%1$s枚の画像を生成しました — %3$s枚失敗: %4$s"
+
+#: includes/Services/TranslationStrings.php:221
+msgid "Generated alt text for all images"
+msgstr "すべての画像の代替テキストを生成しました"
+
+#: includes/Services/TranslationStrings.php:222
+msgid ""
+"Generates every selected field in one call. Takes priority — when on, it "
+"overrides the individual alt / title / description auto-generate options."
+msgstr ""
+"選択したすべてのフィールドを1回の呼び出しで生成します。優先されます — 有効に"
+"すると、代替テキスト/タイトル/説明の個別の自動生成オプションを上書きします。"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:224
+#, php-format
+msgid "Generating %1$s/%2$s..."
+msgstr "%1$s/%2$sを生成中..."
+
+#: includes/Services/TranslationStrings.php:225
+msgid "Generic"
+msgstr "汎用"
+
+#: includes/Services/TranslationStrings.php:226
+msgid "Generic alt text"
+msgstr "汎用的な代替テキスト"
+
+#: includes/Services/TranslationStrings.php:227
+msgid "Get Pro"
+msgstr "Proを入手"
+
+#: includes/Services/TranslationStrings.php:228
+msgid "Get your API key from"
+msgstr "APIキーの取得先:"
+
+#: includes/Services/TranslationStrings.php:229
+msgid ""
+"Give this image good alt text — it is used when the broken image had none."
+msgstr ""
+"この画像には良い代替テキストを付けてください — リンク切れ画像に代替テキストが"
+"なかったときに使われます。"
+
+#: includes/Services/TranslationStrings.php:230
+msgid "Global settings shared across all generation features."
+msgstr "すべての生成機能で共有されるグローバル設定です。"
+
+#: includes/Services/TranslationStrings.php:231
+msgid "Go to"
+msgstr "移動:"
+
+#: includes/Services/TranslationStrings.php:232
+msgid "Good afternoon"
+msgstr "こんにちは"
+
+#: includes/Services/TranslationStrings.php:233
+msgid "Good evening"
+msgstr "こんばんは"
+
+#: includes/Services/TranslationStrings.php:234
+msgid "Good morning"
+msgstr "おはようございます"
+
+#: includes/Services/TranslationStrings.php:235
+msgid "Has"
+msgstr "あり"
+
+#: includes/Services/TranslationStrings.php:236
+msgid "Here is how your images are doing"
+msgstr "画像の状態をお知らせします"
+
+#: includes/Services/TranslationStrings.php:237
+msgid "Hide Failed Images"
+msgstr "失敗した画像を非表示"
+
+#: includes/Services/TranslationStrings.php:238
+msgid "Image Based"
+msgstr "画像ベース"
+
+#: includes/Services/TranslationStrings.php:239
+msgid "Image Compression"
+msgstr "画像圧縮"
+
+#: includes/Services/TranslationStrings.php:240
+msgid "Image Fallbacks"
+msgstr "フォールバック画像"
+
+#: includes/Services/TranslationStrings.php:241
+msgid "Image SEO"
+msgstr "画像SEO"
+
+#: includes/Services/TranslationStrings.php:242
+msgid "Image Title Generation"
+msgstr "画像タイトル生成"
+
+#: includes/Services/TranslationStrings.php:243
+msgid "Image compression is turned off."
+msgstr "画像圧縮は無効になっています。"
+
+#: includes/Services/TranslationStrings.php:244
+msgid "Image fallbacks"
+msgstr "フォールバック画像"
+
+#: includes/Services/TranslationStrings.php:245
+msgid "Image title..."
+msgstr "画像タイトル..."
+
+#: includes/Services/TranslationStrings.php:246
+msgid ""
+"ImageCraft creates a WebP (and on Pro, AVIF) copy next to each original "
+"image. Browsers that support next-gen formats get the smaller copy; everyone "
+"else gets the original. Nothing is rewritten, and removing the copies "
+"restores everything exactly as it was."
+msgstr ""
+"ImageCraftは各元画像の隣にWebPコピー(ProではAVIFも)を作成します。次世代フォー"
+"マット対応のブラウザーには小さいコピーが、それ以外には元画像が配信されます。"
+"何も書き換えられず、コピーを削除すればすべて元通りになります。"
+
+#: includes/Services/TranslationStrings.php:247
+msgid "Images must be accessible (not behind authentication)"
+msgstr "画像にアクセスできる必要があります(認証の背後は不可)"
+
+#: includes/Services/TranslationStrings.php:248
+msgid "Integrations"
+msgstr "連携"
+
+#: includes/Services/TranslationStrings.php:249
+msgid "Key source:"
+msgstr "キーの保存元:"
+
+#: includes/Services/TranslationStrings.php:250
+msgid "Larger than (KB)"
+msgstr "指定サイズ以上(KB)"
+
+#: includes/Services/TranslationStrings.php:251
+msgid "Largest first"
+msgstr "大きい順"
+
+#: includes/Services/TranslationStrings.php:252
+msgid "Learn more"
+msgstr "詳細を見る"
+
+#: includes/Services/TranslationStrings.php:253
+msgid "Leave all unchecked to apply to every public post type."
+msgstr "すべて未選択のままにすると、すべての公開投稿タイプに適用されます。"
+
+#: includes/Services/TranslationStrings.php:254
+msgid "Local engine"
+msgstr "ローカルエンジン"
+
+#: includes/Services/TranslationStrings.php:255
+msgid "Long"
+msgstr "長い"
+
+#: includes/Services/TranslationStrings.php:256
+msgid "Make your images rank"
+msgstr "画像を上位表示させましょう"
+
+#: includes/Services/TranslationStrings.php:257
+msgid "Make your site fast"
+msgstr "サイトを高速化しましょう"
+
+#: includes/Services/TranslationStrings.php:258
+msgid ""
+"Master switch for both fallback features below. Fully non-destructive — turn "
+"it off and everything reverts."
+msgstr ""
+"下の2つのフォールバック機能のメインスイッチです。完全に非破壊的 — オフにすれ"
+"ばすべて元通りになります。"
+
+#: includes/Services/TranslationStrings.php:259
+msgid "Max Price"
+msgstr "最高価格"
+
+#: includes/Services/TranslationStrings.php:260
+msgid "Max Title Length"
+msgstr "タイトルの最大文字数"
+
+#: includes/Services/TranslationStrings.php:261
+msgid "Min Price"
+msgstr "最低価格"
+
+#: includes/Services/TranslationStrings.php:262
+msgid "Missing alt text"
+msgstr "代替テキストなし"
+
+#: includes/Services/TranslationStrings.php:263
+msgid "Missing featured images"
+msgstr "アイキャッチ画像なし"
+
+#: includes/Services/TranslationStrings.php:264
+msgid "Missing title"
+msgstr "タイトルなし"
+
+#: includes/Services/TranslationStrings.php:265
+msgid "More from Softminal"
+msgstr "Softminalのその他の製品"
+
+#: includes/Services/TranslationStrings.php:266
+msgid "Needs Attention"
+msgstr "要対応"
+
+#: includes/Services/TranslationStrings.php:267
+msgid ""
+"Never show a broken or missing image. Swap broken images for a fallback and "
+"give posts without a featured image a default one — nothing is written to "
+"your content."
+msgstr ""
+"リンク切れ画像や欠けた画像を二度と表示しません。リンク切れ画像をフォールバッ"
+"クに置き換え、アイキャッチのない投稿にデフォルト画像を設定します — コンテンツ"
+"には何も書き込まれません。"
+
+#: includes/Services/TranslationStrings.php:268
+msgid "Next 5 pages"
+msgstr "次の5ページ"
+
+#: includes/Services/TranslationStrings.php:269
+msgid "Next-gen formats (WebP / AVIF)"
+msgstr "次世代フォーマット(WebP / AVIF)"
+
+#: includes/Services/TranslationStrings.php:270
+msgid "Next-gen formats (WebP/AVIF)"
+msgstr "次世代フォーマット(WebP/AVIF)"
+
+#: includes/Services/TranslationStrings.php:271
+msgid "No API key needed."
+msgstr "APIキーは不要です。"
+
+#: includes/Services/TranslationStrings.php:272
+msgid "No images found."
+msgstr "画像が見つかりません。"
+
+#: includes/Services/TranslationStrings.php:273
+msgid "No other roles available"
+msgstr "他に利用可能な権限グループはありません"
+
+#: includes/Services/TranslationStrings.php:274
+msgid ""
+"No roles selected — every user who can upload media may use ImageCraft "
+"(current behavior). Select one or more roles to restrict access."
+msgstr ""
+"権限グループが未選択です — メディアをアップロードできるすべてのユーザーが"
+"ImageCraftを使用できます(現在の動作)。アクセスを制限するには1つ以上の権限グ"
+"ループを選択してください。"
+
+#: includes/Services/TranslationStrings.php:275
+msgid "Not compressed"
+msgstr "未圧縮"
+
+#: includes/Services/TranslationStrings.php:276
+msgid "Not supported by server"
+msgstr "サーバーが未対応"
+
+#: includes/Services/TranslationStrings.php:277
+msgid "Number of images to process per batch request"
+msgstr "一括リクエストごとに処理する画像数"
+
+#: includes/Services/TranslationStrings.php:278
+msgid "Off"
+msgstr "オフ"
+
+#: includes/Services/TranslationStrings.php:279
+msgid "On"
+msgstr "オン"
+
+#: includes/Services/TranslationStrings.php:280
+msgid "Open Image SEO"
+msgstr "画像SEOを開く"
+
+#: includes/Services/TranslationStrings.php:281
+msgid "Open Performance"
+msgstr "パフォーマンスを開く"
+
+#: includes/Services/TranslationStrings.php:282
+msgid "Optimize product image alt text with product-aware AI generation."
+msgstr "商品を理解したAI生成で商品画像の代替テキストを最適化します。"
+
+#: includes/Services/TranslationStrings.php:283
+msgid "Original restored"
+msgstr "元画像を復元しました"
+
+#: includes/Services/TranslationStrings.php:284
+msgid ""
+"Originals are backed up to /uploads/icais-originals/. You can restore any "
+"image from the Compress tab."
+msgstr ""
+"元画像は/uploads/icais-originals/にバックアップされます。「圧縮」タブからいつ"
+"でも復元できます。"
+
+#: includes/Services/TranslationStrings.php:285
+msgid "Other plugins we build, with the same focus on doing one job properly."
+msgstr ""
+"私たちが開発している他のプラグインです。ひとつの仕事を丁寧に、という同じ姿勢"
+"で作っています。"
+
+#: includes/Services/TranslationStrings.php:286
+msgid ""
+"Override the default featured image for specific post types (e.g. a product "
+"placeholder for WooCommerce)."
+msgstr ""
+"特定の投稿タイプでデフォルトのアイキャッチ画像を上書きします(例: WooCommerce"
+"用の商品プレースホルダー)。"
+
+#: includes/Services/TranslationStrings.php:287
+msgid "Page selected."
+msgstr "ページを選択しました。"
+
+#: includes/Services/TranslationStrings.php:288
+msgid "Pending"
+msgstr "保留中"
+
+#: includes/Services/TranslationStrings.php:289
+msgid "Per-post-type fallback images"
+msgstr "投稿タイプごとのフォールバック画像"
+
+#: includes/Services/TranslationStrings.php:290
+msgid "Performance"
+msgstr "パフォーマンス"
+
+#: includes/Services/TranslationStrings.php:291
+msgid "Permissions"
+msgstr "権限"
+
+#: includes/Services/TranslationStrings.php:292
+msgid "Please select a provider first"
+msgstr "先にプロバイダーを選択してください"
+
+#: includes/Services/TranslationStrings.php:293
+msgid "Plugin is not active"
+msgstr "プラグインが有効ではありません"
+
+#: includes/Services/TranslationStrings.php:294
+msgid ""
+"Posts without a featured image use your fallback in archives, social "
+"previews and anywhere the theme shows one. The post itself is never modified."
+msgstr ""
+"アイキャッチ画像のない投稿では、アーカイブ、SNSプレビュー、テーマが表示するあ"
+"らゆる場所でフォールバックが使われます。投稿自体は一切変更されません。"
+
+#: includes/Services/TranslationStrings.php:295
+msgid "Previous 5 pages"
+msgstr "前の5ページ"
+
+#: includes/Services/TranslationStrings.php:296
+msgid "Pro"
+msgstr "Pro"
+
+#: includes/Services/TranslationStrings.php:297
+msgid "Processing"
+msgstr "処理中"
+
+#: includes/Services/TranslationStrings.php:298
+msgid "Processing images... please wait"
+msgstr "画像を処理中... お待ちください"
+
+#: includes/Services/TranslationStrings.php:299
+msgid "Product has no images"
+msgstr "商品に画像がありません"
+
+#: includes/Services/TranslationStrings.php:300
+msgid "Quick Bulk Select"
+msgstr "クイック一括選択"
+
+#: includes/Services/TranslationStrings.php:301
+msgid "Re-compress"
+msgstr "再圧縮"
+
+#: includes/Services/TranslationStrings.php:302
+msgid "Re-compress Selected"
+msgstr "選択した画像を再圧縮"
+
+#: includes/Services/TranslationStrings.php:303
+msgid "Remove"
+msgstr "削除"
+
+#: includes/Services/TranslationStrings.php:305
+msgid ""
+"Renaming files changes image URLs. External links and cached pages may show "
+"broken images."
+msgstr ""
+"ファイル名の変更は画像URLを変更します。外部リンクやキャッシュ済みページでリン"
+"ク切れ画像が表示される可能性があります。"
+
+#: includes/Services/TranslationStrings.php:306
+msgid "Replace broken images on the front end"
+msgstr "フロントエンドでリンク切れ画像を置き換え"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:308
+#, php-format
+msgid "Resets in %s"
+msgstr "%s後にリセット"
+
+#: includes/Services/TranslationStrings.php:309
+msgid "Resize large images (max size, longest edge in px)"
+msgstr "大きな画像をリサイズ(最大サイズ、長辺px)"
+
+#: includes/Services/TranslationStrings.php:310
+msgid "Restore"
+msgstr "復元"
+
+#: includes/Services/TranslationStrings.php:311
+msgid "Restore Selected"
+msgstr "選択した画像を復元"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:314
+#, php-format
+msgid "Restored %s images"
+msgstr "%s枚の画像を復元しました"
+
+#: includes/Services/TranslationStrings.php:315
+msgid "Restoring..."
+msgstr "復元中..."
+
+#: includes/Services/TranslationStrings.php:316
+msgid "Retry All Failed"
+msgstr "失敗をすべて再試行"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:318
+#, php-format
+msgid "Retrying %s failed images..."
+msgstr "%s枚の失敗画像を再試行中..."
+
+#: includes/Services/TranslationStrings.php:319
+msgid "Save All Changes"
+msgstr "すべての変更を保存"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:321
+#, php-format
+msgid "Save Selected (%s)"
+msgstr "選択分を保存(%s)"
+
+#: includes/Services/TranslationStrings.php:322
+msgid "Save settings after enabling to apply."
+msgstr "有効化後、設定を保存すると適用されます。"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:324
+#, php-format
+msgid "Saved %1$s/%2$s images"
+msgstr "%1$s/%2$s枚の画像を保存しました"
+
+#. translators: %1$s: saved size (e.g. 1.2 MB), %2$s: saved percentage
+#: includes/Services/TranslationStrings.php:326
+#, php-format
+msgid "Saved %1$s (%2$s%)"
+msgstr "%1$s削減(%2$s%)"
+
+#: includes/Services/TranslationStrings.php:327
+msgid "Scheduled scan"
+msgstr "スケジュールスキャン"
+
+#: includes/Services/TranslationStrings.php:328
+msgid "Select Provider"
+msgstr "プロバイダーを選択"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:330
+#, php-format
+msgid "Select all %s"
+msgstr "%s件すべて選択"
+
+#: includes/Services/TranslationStrings.php:331
+msgid "Select fallback image"
+msgstr "フォールバック画像を選択"
+
+#: includes/Services/TranslationStrings.php:332
+msgid "Selected images already have the chosen fields"
+msgstr "選択した画像には選んだフィールドがすでにあります"
+
+#: includes/Services/TranslationStrings.php:333
+msgid "Selected products have no images"
+msgstr "選択した商品に画像がありません"
+
+#: includes/Services/TranslationStrings.php:334
+msgid "Serve WebP/AVIF — images up to 35% smaller"
+msgstr "WebP/AVIFを配信 — 画像を最大35%削減"
+
+#: includes/Services/TranslationStrings.php:335
+msgid "Serve next-gen images to visitors"
+msgstr "訪問者に次世代画像を配信"
+
+#: includes/Services/TranslationStrings.php:336
+msgid ""
+"Serve smaller, faster next-gen copies of your images without ever touching "
+"the originals."
+msgstr "元画像には一切触れずに、より小さく高速な次世代コピーを配信します。"
+
+#: includes/Services/TranslationStrings.php:337
+msgid "Set up"
+msgstr "設定する"
+
+#: includes/Services/TranslationStrings.php:338
+msgid "Settings saved"
+msgstr "設定を保存しました"
+
+#: includes/Services/TranslationStrings.php:339
+msgid ""
+"Shared across AI generation and compression. Generating and compressing the "
+"same image counts as two."
+msgstr ""
+"AI生成と圧縮で共有されます。同じ画像の生成と圧縮は2回分としてカウントされま"
+"す。"
+
+#: includes/Services/TranslationStrings.php:340
+msgid "Show the biggest files first"
+msgstr "大きいファイルから表示"
+
+#: includes/Services/TranslationStrings.php:341
+msgid "Showing images from"
+msgstr "表示中の画像:"
+
+#: includes/Services/TranslationStrings.php:342
+msgid ""
+"Shows \"Rename File\" buttons to generate SEO-friendly filenames using AI. "
+"This changes image URLs."
+msgstr ""
+"AIでSEOに適したファイル名を生成する「ファイル名を変更」ボタンを表示します。画"
+"像URLが変更されます。"
+
+#: includes/Services/TranslationStrings.php:343
+msgid ""
+"Shrink image file sizes to speed up your site. Originals are always backed "
+"up."
+msgstr ""
+"画像ファイルを軽量化してサイトを高速化します。元画像は必ずバックアップされま"
+"す。"
+
+#: includes/Services/TranslationStrings.php:344
+msgid ""
+"Shrink image file sizes to speed up your site. Originals are backed up by "
+"default so you can restore them."
+msgstr ""
+"画像ファイルを軽量化してサイトを高速化します。元画像は初期設定でバックアップ"
+"されるため復元できます。"
+
+#: includes/Services/TranslationStrings.php:345
+msgid "Skip images smaller than (KB)"
+msgstr "指定サイズ未満の画像をスキップ(KB)"
+
+#: includes/Services/TranslationStrings.php:346
+msgid "Skip images that are already compressed"
+msgstr "圧縮済みの画像をスキップ"
+
+#: includes/Services/TranslationStrings.php:347
+msgid "Skip images with existing title"
+msgstr "タイトルが既にある画像をスキップ"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:349
+#, php-format
+msgid "Skipped (%s)"
+msgstr "スキップ(%s)"
+
+#: includes/Services/TranslationStrings.php:350
+msgid "Starting..."
+msgstr "開始中..."
+
+#: includes/Services/TranslationStrings.php:351
+msgid "Store in Database"
+msgstr "データベースに保存"
+
+#: includes/Services/TranslationStrings.php:352
+msgid "Store in wp-config.php"
+msgstr "wp-config.phpに保存"
+
+#: includes/Services/TranslationStrings.php:353
+msgid ""
+"The Dashboard scans your media library for images whose files are missing "
+"and shows them under \"Needs attention\"."
+msgstr ""
+"ダッシュボードはメディアライブラリをスキャンしてファイルが欠けている画像を検"
+"出し、「要対応」に表示します。"
+
+#: includes/Services/TranslationStrings.php:354
+msgid ""
+"The key stays in your server files — never stored in the database. Ideal for "
+"version-controlled deployments and security-conscious setups."
+msgstr ""
+"キーはサーバーのファイル内に留まり、データベースには保存されません。バージョ"
+"ン管理されたデプロイやセキュリティ重視の構成に最適です。"
+
+#: includes/Services/TranslationStrings.php:355
+msgid ""
+"The max character length setting above will be applied automatically. "
+"Product context is added automatically for WooCommerce images."
+msgstr ""
+"上の最大文字数設定が自動的に適用されます。WooCommerce画像には商品コンテキスト"
+"が自動的に追加されます。"
+
+#: includes/Services/TranslationStrings.php:356
+msgid ""
+"The max character length setting will be applied automatically. Product "
+"name, category, and SKU are automatically included as context."
+msgstr ""
+"最大文字数設定が自動的に適用されます。商品名、カテゴリー、SKUが自動的にコンテ"
+"キストとして含まれます。"
+
+#: includes/Services/TranslationStrings.php:357
+msgid "Tiny images barely benefit from compression. Default: 50 KB."
+msgstr "小さな画像は圧縮の効果がほとんどありません。初期値: 50KB。"
+
+#: includes/Services/TranslationStrings.php:359
+msgid "Title Context"
+msgstr "タイトルのコンテキスト"
+
+#: includes/Services/TranslationStrings.php:360
+msgid "Title Generation"
+msgstr "タイトル生成"
+
+#: includes/Services/TranslationStrings.php:361
+msgid "Title Tone"
+msgstr "タイトルのトーン"
+
+#: includes/Services/TranslationStrings.php:362
+msgid "Title:"
+msgstr "タイトル:"
+
+#: includes/Services/TranslationStrings.php:363
+msgid "Too long"
+msgstr "長すぎます"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:365
+#, php-format
+msgid "Total %s"
+msgstr "合計%s"
+
+#: includes/Services/TranslationStrings.php:366
+msgid "Troubleshooting"
+msgstr "トラブルシューティング"
+
+#: includes/Services/TranslationStrings.php:367
+msgid "Upgrade to Pro for unlimited"
+msgstr "Proにアップグレードして無制限に"
+
+#: includes/Services/TranslationStrings.php:368
+msgid "Upgrade to Pro to auto-generate alt text on upload."
+msgstr "アップロード時の代替テキスト自動生成はProで利用できます。"
+
+#: includes/Services/TranslationStrings.php:369
+msgid "Upgrade to Pro to auto-generate titles on upload."
+msgstr "アップロード時のタイトル自動生成はProで利用できます。"
+
+#: includes/Services/TranslationStrings.php:370
+msgid ""
+"Upgrade to Pro to set a different fallback per post type (e.g. a product "
+"placeholder for WooCommerce)."
+msgstr ""
+"投稿タイプごとに異なるフォールバックの設定はProで利用できます(例: WooCommerce"
+"用の商品プレースホルダー)。"
+
+#: includes/Services/TranslationStrings.php:371
+msgid "Use WordPress AI Client"
+msgstr "WordPress AIクライアントを使用"
+
+#: includes/Services/TranslationStrings.php:372
+msgid "Use a default featured image"
+msgstr "デフォルトのアイキャッチ画像を使用"
+
+#: includes/Services/TranslationStrings.php:373
+msgid "Use focus keyphrases from your SEO plugin to improve generated content."
+msgstr ""
+"SEOプラグインのフォーカスキーフレーズを使って生成コンテンツを改善します。"
+
+#: includes/Services/TranslationStrings.php:374
+msgid "Use the same image as the broken-image fallback"
+msgstr "リンク切れ画像のフォールバックと同じ画像を使用"
+
+#: includes/Services/TranslationStrings.php:375
+msgid "Use this image"
+msgstr "この画像を使用"
+
+#: includes/Services/TranslationStrings.php:376
+msgid "Use {max_length} as a placeholder for the max title length."
+msgstr "タイトルの最大文字数のプレースホルダーとして{max_length}を使えます。"
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:378
+#, php-format
+msgid "View Failed Images (%s)"
+msgstr "失敗した画像を表示(%s)"
+
+#: includes/Services/TranslationStrings.php:379
+msgid "View pricing"
+msgstr "料金を見る"
+
+#: includes/Services/TranslationStrings.php:380
+msgid "WebP is typically 25–35% smaller than JPEG at the same visual quality."
+msgstr "WebPは同じ見た目の品質でJPEGより通常25〜35%小さくなります。"
+
+#: includes/Services/TranslationStrings.php:381
+msgid "Weekly"
+msgstr "毎週"
+
+#: includes/Services/TranslationStrings.php:382
+msgid ""
+"When an image on your site fails to load (deleted file, dead external link), "
+"visitors see your fallback image instead of a broken icon."
+msgstr ""
+"サイトの画像が読み込めないとき(ファイル削除、外部リンク切れ)、訪問者には壊れ"
+"たアイコンの代わりにフォールバック画像が表示されます。"
+
+#: includes/Services/TranslationStrings.php:383
+msgid ""
+"When enabled, generated alt text is shown for review with accept/reject "
+"buttons before applying. Works in the Gutenberg editor and Kadence blocks."
+msgstr ""
+"有効にすると、生成された代替テキストは適用前に承認/却下ボタン付きで確認できま"
+"す。Gutenbergエディターと Kadenceブロックで動作します。"
+
+#: includes/Services/TranslationStrings.php:384
+msgid ""
+"When enabled, generated titles are shown for review with accept/reject "
+"buttons before applying. Works in the Gutenberg editor and Kadence blocks."
+msgstr ""
+"有効にすると、生成されたタイトルは適用前に承認/却下ボタン付きで確認できます。"
+"GutenbergエディターとKadenceブロックで動作します。"
+
+#: includes/Services/TranslationStrings.php:385
+msgid ""
+"Which fields are pre-selected in the Media Library bulk picker (you can "
+"still change them per action)."
+msgstr ""
+"メディアライブラリの一括セレクターで事前に選択されるフィールドです(操作ごとに"
+"変更できます)。"
+
+#: includes/Services/TranslationStrings.php:386
+msgid "WordPress AI Client is not available"
+msgstr "WordPress AIクライアントは利用できません"
+
+#: includes/Services/TranslationStrings.php:387
+msgid "WordPress AI Client is ready!"
+msgstr "WordPress AIクライアントの準備ができました!"
+
+#: includes/Services/TranslationStrings.php:388
+msgid "WordPress AI Client is ready."
+msgstr "WordPress AIクライアントの準備ができました。"
+
+#: includes/Services/TranslationStrings.php:389
+msgid ""
+"Wraps images in a <picture> tag so supporting browsers load the WebP/AVIF "
+"copy, with the original as automatic fallback. Off by default — enable after "
+"converting your images."
+msgstr ""
+"画像を<picture>タグで包み、対応ブラウザーにはWebP/AVIFコピーを、それ以外には"
+"元画像を自動的に配信します。初期状態ではオフです — 画像の変換後に有効化してく"
+"ださい。"
+
+#: includes/Services/TranslationStrings.php:390
+msgid "Write a title for this image. Max {max_length} characters..."
+msgstr "この画像のタイトルを書いてください。最大{max_length}文字..."
+
+#. translators: placeholders are dynamic values (counts, names, sizes)
+#: includes/Services/TranslationStrings.php:392
+#, php-format
+msgid ""
+"Your saved %1$s key (%2$s) is kept as a fallback — used if you turn off the "
+"WordPress AI Client."
+msgstr ""
+"保存済みの%1$sキー(%2$s)はフォールバックとして保持され、WordPress AIクライア"
+"ントをオフにしたときに使われます。"
+
+#: includes/Services/TranslationStrings.php:393
+msgid ""
+"Your server cannot create AVIF images. AVIF needs PHP 8.1+ (GD) or an "
+"Imagick build with AVIF support — ask your host."
+msgstr ""
+"このサーバーではAVIF画像を作成できません。AVIFにはPHP 8.1以降(GD)またはAVIF対"
+"応のImagickが必要です — ホスティング会社にお問い合わせください。"
+
+#: includes/Services/TranslationStrings.php:394
+msgid ""
+"Your server cannot create WebP images (neither Imagick nor GD supports it). "
+"Ask your host to enable WebP support."
+msgstr ""
+"このサーバーではWebP画像を作成できません(ImagickもGDも未対応)。ホスティング会"
+"社にWebP対応の有効化を依頼してください。"
+
+#: includes/Services/TranslationStrings.php:395
+msgid ""
+"Your server supports next-gen image formats. ImageCraft can create WebP "
+"copies beside your originals and serve them automatically — nothing is "
+"overwritten, fully reversible."
+msgstr ""
+"このサーバーは次世代画像フォーマットに対応しています。ImageCraftは元画像の隣"
+"にWebPコピーを作成して自動配信できます — 何も上書きされず、完全に元に戻せま"
+"す。"
+
+#: includes/Services/TranslationStrings.php:396
+msgid "always allowed"
+msgstr "常に許可"
+
+#: includes/Services/TranslationStrings.php:397
+msgid "compressed"
+msgstr "圧縮済み"
+
+#: includes/Services/TranslationStrings.php:398
+msgid "e.g. 10"
+msgstr "例: 10"
+
+#: includes/Services/TranslationStrings.php:399
+msgid "e.g. 100"
+msgstr "例: 100"
+
+#: includes/Services/TranslationStrings.php:400
+msgid "e.g. 60"
+msgstr "例: 60"
+
+#: includes/Services/TranslationStrings.php:401
+msgid ""
+"e.g. Generate alt text describing the subject, colors, and setting. Do not "
+"start with 'Image of'. Return only the alt text."
+msgstr ""
+"例: 被写体、色、背景を説明する代替テキストを生成してください。「〜の画像」で"
+"始めないでください。代替テキストのみを返してください。"
+
+#: includes/Services/TranslationStrings.php:402
+msgid ""
+"e.g. Generate product alt text with the product name, visible features, and "
+"use case. Do not start with 'Image of'. Return only the alt text."
+msgstr ""
+"例: 商品名、見た目の特徴、使用シーンを含む商品の代替テキストを生成してくださ"
+"い。「〜の画像」で始めないでください。代替テキストのみを返してください。"
+
+#: includes/Services/TranslationStrings.php:403
+msgid "images in your media library"
+msgstr "枚の画像がメディアライブラリにあります"
+
+#: includes/Services/TranslationStrings.php:404
+msgid "not compressed"
+msgstr "未圧縮"
+
+#: includes/Services/TranslationStrings.php:405
+msgid "page"
+msgstr "ページ"
+
+#: includes/Services/TranslationStrings.php:406
+msgid "space saved"
+msgstr "削減した容量"
+
+#: includes/Services/TranslationStrings.php:420
+msgid "API"
+msgstr "API"
+
+#: includes/Services/TranslationStrings.php:421
+msgid "Alt + title + caption in one pass"
+msgstr "代替テキスト+タイトル+キャプションを一度に"
+
+#: includes/Services/TranslationStrings.php:422
+msgid "Alt text, titles, captions & file names"
+msgstr "代替テキスト・タイトル・キャプション・ファイル名"
+
+#: includes/Services/TranslationStrings.php:423
+msgid "Basic behavior & defaults"
+msgstr "基本動作とデフォルト設定"
+
+#: includes/Services/TranslationStrings.php:424
+msgid "Compress images"
+msgstr "画像を圧縮"
+
+#: includes/Services/TranslationStrings.php:425
+msgid "Compress images & speed up your site"
+msgstr "画像を圧縮してサイトを高速化"
+
+#: includes/Services/TranslationStrings.php:426
+msgid "Compression"
+msgstr "圧縮"
+
+#: includes/Services/TranslationStrings.php:427
+msgid "Configure ImageCraft"
+msgstr "ImageCraftを設定"
+
+#: includes/Services/TranslationStrings.php:428
+msgid "Connect your AI provider"
+msgstr "AIプロバイダーを接続"
+
+#: includes/Services/TranslationStrings.php:429
+msgid "Cover broken images"
+msgstr "リンク切れ画像をカバー"
+
+#: includes/Services/TranslationStrings.php:430
+msgid "Fill in missing alt text"
+msgstr "不足している代替テキストを補完"
+
+#: includes/Services/TranslationStrings.php:431
+msgid "Generate alt text"
+msgstr "代替テキストを生成"
+
+#: includes/Services/TranslationStrings.php:432
+msgid "Guides and support"
+msgstr "ガイドとサポート"
+
+#: includes/Services/TranslationStrings.php:433
+msgid "Image Title"
+msgstr "画像タイトル"
+
+#: includes/Services/TranslationStrings.php:434
+msgid "Media Library"
+msgstr "メディアライブラリ"
+
+#: includes/Services/TranslationStrings.php:435
+msgid "Never show a broken image"
+msgstr "リンク切れ画像を表示しない"
+
+#: includes/Services/TranslationStrings.php:436
+msgid "Next-gen Formats"
+msgstr "次世代フォーマット"
+
+#: includes/Services/TranslationStrings.php:437
+msgid "Optimize product images"
+msgstr "商品画像を最適化"
+
+#: includes/Services/TranslationStrings.php:438
+msgid "Pro license & account"
+msgstr "Proライセンスとアカウント"
+
+#: includes/Services/TranslationStrings.php:439
+msgid "Product & gallery images"
+msgstr "商品画像とギャラリー"
+
+#: includes/Services/TranslationStrings.php:440
+msgid "Quality, resizing & backups"
+msgstr "品質・リサイズ・バックアップ"
+
+#: includes/Services/TranslationStrings.php:441
+msgid "Rename files"
+msgstr "ファイル名を変更"
+
+#: includes/Services/TranslationStrings.php:442
+msgid "SEO Plugins"
+msgstr "SEOプラグイン"
+
+#: includes/Services/TranslationStrings.php:443
+msgid "SEO-friendly file names"
+msgstr "SEOに適したファイル名"
+
+#: includes/Services/TranslationStrings.php:444
+msgid "Scan & fix alt text, titles, file names"
+msgstr "代替テキスト・タイトル・ファイル名をスキャンして修正"
+
+#: includes/Services/TranslationStrings.php:445
+msgid "Shrink files, keep quality"
+msgstr "品質を保ったままファイルを軽量化"
+
+#: includes/Services/TranslationStrings.php:446
+msgid "Store image settings"
+msgstr "画像設定を保存"
+
+#: includes/Services/TranslationStrings.php:447
+msgid "Title generation preferences"
+msgstr "タイトル生成の設定"
+
+#: includes/Services/TranslationStrings.php:448
+msgid "Tone, length & generation rules"
+msgstr "トーン・文字数・生成ルール"
+
+#: includes/Services/TranslationStrings.php:449
+msgid "WebP & AVIF conversion"
+msgstr "WebP・AVIF変換"
+
+#: includes/Services/TranslationStrings.php:450
+msgid "Which roles can use ImageCraft"
+msgstr "ImageCraftを使える権限グループ"
+
+#: includes/Services/TranslationStrings.php:451
+msgid "WooCommerce & SEO plugins"
+msgstr "WooCommerceとSEOプラグイン"
+
+#: includes/Services/TranslationStrings.php:452
+msgid "Yoast & Rank Math keyphrases"
+msgstr "YoastとRank Mathのキーフレーズ"
+
+#: includes/Services/TranslationStrings.php:453
+msgid "Your image health at a glance"
+msgstr "画像の健全性をひと目で"
+
+#: includes/Services/TranslationStrings.php:454
+msgid "Softminal B2B Suite for WooCommerce"
+msgstr "Softminal B2B Suite for WooCommerce"
+
+#: includes/Services/TranslationStrings.php:455
+msgid "For WooCommerce"
+msgstr "WooCommerce向け"
+
+#: includes/Services/TranslationStrings.php:456
+msgid ""
+"Turn a standard WooCommerce store into a proper trade store — one pricing "
+"pipeline, no surprise prices at checkout."
+msgstr ""
+"標準のWooCommerceストアを本格的な卸売ストアに — 価格パイプラインは1つ、チェッ"
+"クアウトでの価格サプライズはありません。"
+
+#: includes/Services/TranslationStrings.php:457
+msgid "Customer group pricing (percentage, amount off or fixed)"
+msgstr "顧客グループ価格(割合、値引き額、固定価格)"
+
+#: includes/Services/TranslationStrings.php:458
+msgid "Hide prices until a trade account is approved"
+msgstr "取引アカウントの承認まで価格を非表示"
+
+#: includes/Services/TranslationStrings.php:459
+msgid "Trade registration with your own business fields"
+msgstr "独自のビジネス項目を備えた取引先登録"
+
+#: includes/Services/TranslationStrings.php:460
+msgid "Quantity rules and a bulk order form"
+msgstr "数量ルールと一括注文フォーム"
+
+#: includes/Services/TranslationStrings.php:461
+msgid "Block"
+msgstr "ブロック"
+
+#: includes/Services/TranslationStrings.php:462
+msgid "Ecommerce"
+msgstr "Eコマース"
+
+#: includes/Services/TranslationStrings.php:463
+msgid "Media"
+msgstr "メディア"
+
+#: includes/Services/TranslationStrings.php:464
+msgid "Multilingual"
+msgstr "多言語"
+
+#: includes/Services/TranslationStrings.php:465
+msgid "SEO"
+msgstr "SEO"
+
+#: includes/Services/TranslationStrings.php:466
+msgid "Uncompressed"
+msgstr "未圧縮"
+
+#: includes/Services/TranslationStrings.php:472
+msgid "Dashboard"
+msgstr "ダッシュボード"
+
+#: includes/Services/TranslationStrings.php:473
+msgid "Scanner"
+msgstr "スキャナー"
+
+#: includes/Services/TranslationStrings.php:474
+msgid "WooCommerce"
+msgstr "WooCommerce"
+
+#: includes/Services/TranslationStrings.php:475
+msgid "Settings"
+msgstr "設定"
+
+#: includes/Services/TranslationStrings.php:476
+msgid "Loading..."
+msgstr "読み込み中..."
+
+#: includes/Services/TranslationStrings.php:483
+msgid "Total Images"
+msgstr "総画像数"
+
+#: includes/Services/TranslationStrings.php:484
+msgid "Missing Alt Text"
+msgstr "代替テキストなし"
+
+#: includes/Services/TranslationStrings.php:485
+msgid "This Month"
+msgstr "今月"
+
+#: includes/Services/TranslationStrings.php:486
+msgid "Success Rate"
+msgstr "成功率"
+
+#: includes/Services/TranslationStrings.php:489
+msgid "Image SEO Audit"
+msgstr "画像SEO監査"
+
+#: includes/Services/TranslationStrings.php:490
+msgid "Scanning..."
+msgstr "スキャン中..."
+
+#: includes/Services/TranslationStrings.php:491
+msgid "Refresh"
+msgstr "更新"
+
+#: includes/Services/TranslationStrings.php:492
+msgid "Scanning media library..."
+msgstr "メディアライブラリをスキャン中..."
+
+#: includes/Services/TranslationStrings.php:493
+msgid "Excellent"
+msgstr "非常に良い"
+
+#: includes/Services/TranslationStrings.php:494
+msgid "Good"
+msgstr "良い"
+
+#: includes/Services/TranslationStrings.php:495
+msgid "Needs Work"
+msgstr "要改善"
+
+#: includes/Services/TranslationStrings.php:496
+msgid "Poor"
+msgstr "不十分"
+
+#. translators: %1$s: number of optimized images, %2$s: total number of images
+#: includes/Services/TranslationStrings.php:498
+#, php-format
+msgid "%1$s of %2$s images are fully optimized"
+msgstr "%2$s枚中%1$s枚の画像が完全に最適化されています"
+
+#: includes/Services/TranslationStrings.php:499
+msgid "Generic / Placeholder"
+msgstr "汎用 / プレースホルダー"
+
+#: includes/Services/TranslationStrings.php:500
+msgid "Too Long"
+msgstr "長すぎる"
+
+#: includes/Services/TranslationStrings.php:501
+msgid "Generic alt text found:"
+msgstr "汎用的な代替テキストが見つかりました:"
+
+#. translators: %s: maximum character count
+#: includes/Services/TranslationStrings.php:503
+#, php-format
+msgid "Alt text exceeding %s characters:"
+msgstr "%s文字を超える代替テキスト:"
+
+#. translators: %s: character count
+#: includes/Services/TranslationStrings.php:505
+#, php-format
+msgid "%s chars"
+msgstr "%s文字"
+
+#: includes/Services/TranslationStrings.php:508
+msgid "API Status"
+msgstr "APIステータス"
+
+#. translators: %s: AI provider name
+#: includes/Services/TranslationStrings.php:510
+#, php-format
+msgid "Connected to %s"
+msgstr "%sに接続済み"
+
+#: includes/Services/TranslationStrings.php:511
+msgid "Not connected"
+msgstr "未接続"
+
+#: includes/Services/TranslationStrings.php:512
+msgid "Configure API"
+msgstr "APIを設定"
+
+#: includes/Services/TranslationStrings.php:515
+msgid "Quick Actions"
+msgstr "クイックアクション"
+
+#: includes/Services/TranslationStrings.php:516
+msgid "Scan Media Library"
+msgstr "メディアライブラリをスキャン"
+
+#: includes/Services/TranslationStrings.php:517
+msgid "WooCommerce Products"
+msgstr "WooCommerce商品"
+
+#: includes/Services/TranslationStrings.php:520
+msgid "Recent Activity"
+msgstr "最近のアクティビティ"
+
+#: includes/Services/TranslationStrings.php:521
+msgid "No recent activity"
+msgstr "最近のアクティビティはありません"
+
+#: includes/Services/TranslationStrings.php:528
+msgid "You have an interrupted batch job. Would you like to resume it?"
+msgstr "中断された一括ジョブがあります。再開しますか?"
+
+#: includes/Services/TranslationStrings.php:530
+msgid "Media Library Scanner"
+msgstr "メディアライブラリスキャナー"
+
+#: includes/Services/TranslationStrings.php:531
+msgid "Has Alt Text"
+msgstr "代替テキストあり"
+
+#: includes/Services/TranslationStrings.php:532
+msgid "All Images"
+msgstr "すべての画像"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:534
+#, php-format
+msgid "Generate for %s Selected"
+msgstr "選択した%s枚に生成"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:536
+#, php-format
+msgid "Rename %s Selected"
+msgstr "選択した%s枚の名前を変更"
+
+#: includes/Services/TranslationStrings.php:537
+msgid "Advanced Filters & Bulk Select"
+msgstr "詳細フィルターと一括選択"
+
+#: includes/Services/TranslationStrings.php:538
+msgid "Upload Date From"
+msgstr "アップロード日(から)"
+
+#: includes/Services/TranslationStrings.php:539
+msgid "Upload Date To"
+msgstr "アップロード日(まで)"
+
+#: includes/Services/TranslationStrings.php:540
+msgid "Min File Size (KB)"
+msgstr "最小ファイルサイズ(KB)"
+
+#: includes/Services/TranslationStrings.php:541
+msgid "e.g. 500"
+msgstr "例: 500"
+
+#: includes/Services/TranslationStrings.php:542
+msgid "Apply"
+msgstr "適用"
+
+#: includes/Services/TranslationStrings.php:543
+msgid "Clear Filters"
+msgstr "フィルターをクリア"
+
+#: includes/Services/TranslationStrings.php:544
+msgid "Quick Bulk Select (across all pages)"
+msgstr "クイック一括選択(全ページ対象)"
+
+#: includes/Services/TranslationStrings.php:545
+msgid "Selecting..."
+msgstr "選択中..."
+
+#: includes/Services/TranslationStrings.php:546
+msgid "All Missing Alt Text"
+msgstr "代替テキストがないすべて"
+
+#: includes/Services/TranslationStrings.php:547
+msgid "All Generic / Placeholder"
+msgstr "汎用/プレースホルダーのすべて"
+
+#: includes/Services/TranslationStrings.php:548
+msgid "All Too Long"
+msgstr "長すぎるすべて"
+
+#. translators: %s: minimum file size in kilobytes
+#: includes/Services/TranslationStrings.php:550
+#, php-format
+msgid "All Larger Than %s KB"
+msgstr "%s KBより大きいすべて"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:552
+#, php-format
+msgid "Clear Selection (%s)"
+msgstr "選択を解除(%s)"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:554
+#, php-format
+msgid "%s images selected across all pages"
+msgstr "全ページで%s枚の画像を選択中"
+
+#: includes/Services/TranslationStrings.php:555
+msgid "Loading images..."
+msgstr "画像を読み込み中..."
+
+#: includes/Services/TranslationStrings.php:556
+msgid "Select All"
+msgstr "すべて選択"
+
+#. translators: %s: number of images on current page
+#: includes/Services/TranslationStrings.php:558
+#, php-format
+msgid "All %s images on this page are selected."
+msgstr "このページの%s枚の画像をすべて選択しました。"
+
+#. translators: %s: total number of matching images
+#: includes/Services/TranslationStrings.php:560
+#, php-format
+msgid "Select all %s matching images"
+msgstr "一致する%s枚の画像をすべて選択"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:562
+#, php-format
+msgid "All %s matching images are selected."
+msgstr "一致する%s枚の画像をすべて選択しました。"
+
+#: includes/Services/TranslationStrings.php:563
+msgid "Clear selection"
+msgstr "選択を解除"
+
+#: includes/Services/TranslationStrings.php:564
+msgid "Show"
+msgstr "表示"
+
+#: includes/Services/TranslationStrings.php:565
+msgid "Has alt"
+msgstr "代替テキストあり"
+
+#: includes/Services/TranslationStrings.php:566
+msgid "Missing"
+msgstr "なし"
+
+#: includes/Services/TranslationStrings.php:567
+msgid "No alt text"
+msgstr "代替テキストなし"
+
+#: includes/Services/TranslationStrings.php:568
+msgid "Rename"
+msgstr "名前を変更"
+
+#: includes/Services/TranslationStrings.php:570
+msgid "Previous"
+msgstr "前へ"
+
+#. translators: %1$s: current page number, %2$s: total number of pages
+#: includes/Services/TranslationStrings.php:572
+#, php-format
+msgid "Page %1$s of %2$s"
+msgstr "%2$sページ中%1$sページ"
+
+#: includes/Services/TranslationStrings.php:573
+msgid "Next"
+msgstr "次へ"
+
+#: includes/Services/TranslationStrings.php:576
+msgid "Attachment details"
+msgstr "添付ファイルの詳細"
+
+#: includes/Services/TranslationStrings.php:578
+msgid "File name"
+msgstr "ファイル名"
+
+#: includes/Services/TranslationStrings.php:579
+msgid "Rename to SEO"
+msgstr "SEO向けに名前変更"
+
+#: includes/Services/TranslationStrings.php:583
+msgid "Describe the image for accessibility..."
+msgstr "アクセシビリティのために画像を説明してください..."
+
+#: includes/Services/TranslationStrings.php:584
+msgid "Alternative text helps describe the image for screen readers and SEO."
+msgstr ""
+"代替テキストはスクリーンリーダーとSEOのために画像を説明するのに役立ちます。"
+
+#: includes/Services/TranslationStrings.php:585
+msgid "Open in WordPress Media Library"
+msgstr "WordPressメディアライブラリで開く"
+
+#: includes/Services/TranslationStrings.php:586
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: includes/Services/TranslationStrings.php:587
+msgid "Saving..."
+msgstr "保存中..."
+
+#: includes/Services/TranslationStrings.php:588
+msgid "Update"
+msgstr "更新"
+
+#: includes/Services/TranslationStrings.php:591
+msgid "Failed to load images"
+msgstr "画像を読み込めませんでした"
+
+#: includes/Services/TranslationStrings.php:592
+msgid "No images match this filter"
+msgstr "このフィルターに一致する画像はありません"
+
+#. translators: %s: number of selected images
+#: includes/Services/TranslationStrings.php:594
+#, php-format
+msgid "%s images selected"
+msgstr "%s枚の画像を選択中"
+
+#: includes/Services/TranslationStrings.php:595
+msgid "Failed to select images"
+msgstr "画像を選択できませんでした"
+
+#: includes/Services/TranslationStrings.php:596
+msgid "Maximum 500 images per batch job. Please reduce your selection."
+msgstr "一括ジョブあたり最大500枚です。選択を減らしてください。"
+
+#. translators: %s: number of images in batch
+#: includes/Services/TranslationStrings.php:598
+#, php-format
+msgid "Batch job started for %s images"
+msgstr "%s枚の画像の一括ジョブを開始しました"
+
+#: includes/Services/TranslationStrings.php:599
+msgid "Failed to start batch job"
+msgstr "一括ジョブを開始できませんでした"
+
+#: includes/Services/TranslationStrings.php:600
+msgid "Alt text generated. Review and click Update to save."
+msgstr ""
+"代替テキストを生成しました。確認して「更新」をクリックすると保存されます。"
+
+#: includes/Services/TranslationStrings.php:601
+msgid "Failed to generate alt text"
+msgstr "代替テキストを生成できませんでした"
+
+#: includes/Services/TranslationStrings.php:602
+msgid "Alt text updated."
+msgstr "代替テキストを更新しました。"
+
+#: includes/Services/TranslationStrings.php:603
+msgid "Failed to update alt text"
+msgstr "代替テキストを更新できませんでした"
+
+#. translators: %s: new filename
+#: includes/Services/TranslationStrings.php:605
+#, php-format
+msgid "Renamed to: %s"
+msgstr "名前を変更しました: %s"
+
+#: includes/Services/TranslationStrings.php:607
+msgid "Selected images must have alt text to rename"
+msgstr "名前を変更するには、選択した画像に代替テキストが必要です"
+
+#. translators: %s: number of renamed files
+#: includes/Services/TranslationStrings.php:609
+#, php-format
+msgid "Renamed %s files"
+msgstr "%s件のファイル名を変更しました"
+
+#. translators: %1$s: number of successfully renamed files, %2$s: total number of files
+#: includes/Services/TranslationStrings.php:611
+#, php-format
+msgid "Renamed %1$s/%2$s files"
+msgstr "%1$s/%2$s件のファイル名を変更しました"
+
+#: includes/Services/TranslationStrings.php:612
+msgid "Bulk rename failed"
+msgstr "一括名前変更に失敗しました"
+
+#: includes/Services/TranslationStrings.php:619
+msgid "API Configuration"
+msgstr "API設定"
+
+#: includes/Services/TranslationStrings.php:620
+msgid "Provider"
+msgstr "プロバイダー"
+
+#: includes/Services/TranslationStrings.php:621
+msgid "Anthropic Claude"
+msgstr "Anthropic Claude"
+
+#: includes/Services/TranslationStrings.php:622
+msgid "OpenAI GPT-4"
+msgstr "OpenAI GPT-4"
+
+#: includes/Services/TranslationStrings.php:623
+msgid "Google Gemini"
+msgstr "Google Gemini"
+
+#: includes/Services/TranslationStrings.php:624
+msgid "Mistral AI (Pixtral)"
+msgstr "Mistral AI (Pixtral)"
+
+#: includes/Services/TranslationStrings.php:625
+msgid "OpenRouter"
+msgstr "OpenRouter"
+
+#: includes/Services/TranslationStrings.php:626
+msgid "OpenRouter Model"
+msgstr "OpenRouterモデル"
+
+#: includes/Services/TranslationStrings.php:627
+msgid "API Key"
+msgstr "APIキー"
+
+#: includes/Services/TranslationStrings.php:628
+msgid "Enter API key"
+msgstr "APIキーを入力"
+
+#: includes/Services/TranslationStrings.php:629
+msgid "Save API Key"
+msgstr "APIキーを保存"
+
+#: includes/Services/TranslationStrings.php:630
+msgid "Status:"
+msgstr "ステータス:"
+
+#: includes/Services/TranslationStrings.php:631
+msgid "Active"
+msgstr "有効"
+
+#: includes/Services/TranslationStrings.php:632
+msgid "Inactive"
+msgstr "無効"
+
+#: includes/Services/TranslationStrings.php:633
+msgid "Provider:"
+msgstr "プロバイダー:"
+
+#: includes/Services/TranslationStrings.php:636
+msgid "Generation Settings"
+msgstr "生成設定"
+
+#: includes/Services/TranslationStrings.php:637
+msgid "Default Tone"
+msgstr "デフォルトのトーン"
+
+#: includes/Services/TranslationStrings.php:638
+msgid "Professional"
+msgstr "プロフェッショナル"
+
+#: includes/Services/TranslationStrings.php:639
+msgid "Casual"
+msgstr "カジュアル"
+
+#: includes/Services/TranslationStrings.php:640
+msgid "Technical"
+msgstr "テクニカル"
+
+#: includes/Services/TranslationStrings.php:641
+msgid "SEO-Optimized"
+msgstr "SEO最適化"
+
+#: includes/Services/TranslationStrings.php:642
+msgid "Custom Prompt"
+msgstr "カスタムプロンプト"
+
+#: includes/Services/TranslationStrings.php:643
+msgid ""
+"e.g. Generate alt text (max {max_length} characters) describing the subject, "
+"colors, and setting. Do not start with 'Image of'. Return only the alt text."
+msgstr ""
+"例: 被写体、色、背景を説明する代替テキスト(最大{max_length}文字)を生成してく"
+"ださい。「〜の画像」で始めないでください。代替テキストのみを返してください。"
+
+#: includes/Services/TranslationStrings.php:644
+msgid ""
+"Use {max_length} as a placeholder for your max character setting. Product "
+"context is added automatically for WooCommerce images."
+msgstr ""
+"最大文字数のプレースホルダーとして{max_length}を使えます。WooCommerce画像には"
+"商品コンテキストが自動的に追加されます。"
+
+#: includes/Services/TranslationStrings.php:645
+msgid "Max Character Length"
+msgstr "最大文字数"
+
+#: includes/Services/TranslationStrings.php:646
+msgid "Language"
+msgstr "言語"
+
+#: includes/Services/TranslationStrings.php:647
+msgid "Afrikaans"
+msgstr "アフリカーンス語"
+
+#: includes/Services/TranslationStrings.php:648
+msgid "Albanian"
+msgstr "アルバニア語"
+
+#: includes/Services/TranslationStrings.php:649
+msgid "Amharic"
+msgstr "アムハラ語"
+
+#: includes/Services/TranslationStrings.php:650
+msgid "Arabic"
+msgstr "アラビア語"
+
+#: includes/Services/TranslationStrings.php:651
+msgid "Armenian"
+msgstr "アルメニア語"
+
+#: includes/Services/TranslationStrings.php:652
+msgid "Azerbaijani"
+msgstr "アゼルバイジャン語"
+
+#: includes/Services/TranslationStrings.php:653
+msgid "Bengali"
+msgstr "ベンガル語"
+
+#: includes/Services/TranslationStrings.php:654
+msgid "Bosnian"
+msgstr "ボスニア語"
+
+#: includes/Services/TranslationStrings.php:655
+msgid "Bulgarian"
+msgstr "ブルガリア語"
+
+#: includes/Services/TranslationStrings.php:656
+msgid "Catalan"
+msgstr "カタルーニャ語"
+
+#: includes/Services/TranslationStrings.php:657
+msgid "Chinese"
+msgstr "中国語"
+
+#: includes/Services/TranslationStrings.php:658
+msgid "Croatian"
+msgstr "クロアチア語"
+
+#: includes/Services/TranslationStrings.php:659
+msgid "Czech"
+msgstr "チェコ語"
+
+#: includes/Services/TranslationStrings.php:660
+msgid "Danish"
+msgstr "デンマーク語"
+
+#: includes/Services/TranslationStrings.php:661
+msgid "Dutch"
+msgstr "オランダ語"
+
+#: includes/Services/TranslationStrings.php:662
+msgid "English"
+msgstr "英語"
+
+#: includes/Services/TranslationStrings.php:663
+msgid "Estonian"
+msgstr "エストニア語"
+
+#: includes/Services/TranslationStrings.php:664
+msgid "Filipino"
+msgstr "フィリピン語"
+
+#: includes/Services/TranslationStrings.php:665
+msgid "Finnish"
+msgstr "フィンランド語"
+
+#: includes/Services/TranslationStrings.php:666
+msgid "French"
+msgstr "フランス語"
+
+#: includes/Services/TranslationStrings.php:667
+msgid "Galician"
+msgstr "ガリシア語"
+
+#: includes/Services/TranslationStrings.php:668
+msgid "Georgian"
+msgstr "ジョージア語"
+
+#: includes/Services/TranslationStrings.php:669
+msgid "German"
+msgstr "ドイツ語"
+
+#: includes/Services/TranslationStrings.php:670
+msgid "Greek"
+msgstr "ギリシャ語"
+
+#: includes/Services/TranslationStrings.php:671
+msgid "Gujarati"
+msgstr "グジャラート語"
+
+#: includes/Services/TranslationStrings.php:672
+msgid "Hebrew"
+msgstr "ヘブライ語"
+
+#: includes/Services/TranslationStrings.php:673
+msgid "Hindi"
+msgstr "ヒンディー語"
+
+#: includes/Services/TranslationStrings.php:674
+msgid "Hungarian"
+msgstr "ハンガリー語"
+
+#: includes/Services/TranslationStrings.php:675
+msgid "Icelandic"
+msgstr "アイスランド語"
+
+#: includes/Services/TranslationStrings.php:676
+msgid "Indonesian"
+msgstr "インドネシア語"
+
+#: includes/Services/TranslationStrings.php:677
+msgid "Irish"
+msgstr "アイルランド語"
+
+#: includes/Services/TranslationStrings.php:678
+msgid "Italian"
+msgstr "イタリア語"
+
+#: includes/Services/TranslationStrings.php:679
+msgid "Japanese"
+msgstr "日本語"
+
+#: includes/Services/TranslationStrings.php:680
+msgid "Kannada"
+msgstr "カンナダ語"
+
+#: includes/Services/TranslationStrings.php:681
+msgid "Kazakh"
+msgstr "カザフ語"
+
+#: includes/Services/TranslationStrings.php:682
+msgid "Khmer"
+msgstr "クメール語"
+
+#: includes/Services/TranslationStrings.php:683
+msgid "Korean"
+msgstr "韓国語"
+
+#: includes/Services/TranslationStrings.php:684
+msgid "Latvian"
+msgstr "ラトビア語"
+
+#: includes/Services/TranslationStrings.php:685
+msgid "Lithuanian"
+msgstr "リトアニア語"
+
+#: includes/Services/TranslationStrings.php:686
+msgid "Macedonian"
+msgstr "マケドニア語"
+
+#: includes/Services/TranslationStrings.php:687
+msgid "Malay"
+msgstr "マレー語"
+
+#: includes/Services/TranslationStrings.php:688
+msgid "Marathi"
+msgstr "マラーティー語"
+
+#: includes/Services/TranslationStrings.php:689
+msgid "Mongolian"
+msgstr "モンゴル語"
+
+#: includes/Services/TranslationStrings.php:690
+msgid "Nepali"
+msgstr "ネパール語"
+
+#: includes/Services/TranslationStrings.php:691
+msgid "Norwegian"
+msgstr "ノルウェー語"
+
+#: includes/Services/TranslationStrings.php:692
+msgid "Pashto"
+msgstr "パシュトー語"
+
+#: includes/Services/TranslationStrings.php:693
+msgid "Persian"
+msgstr "ペルシア語"
+
+#: includes/Services/TranslationStrings.php:694
+msgid "Polish"
+msgstr "ポーランド語"
+
+#: includes/Services/TranslationStrings.php:695
+msgid "Portuguese"
+msgstr "ポルトガル語"
+
+#: includes/Services/TranslationStrings.php:696
+msgid "Punjabi"
+msgstr "パンジャブ語"
+
+#: includes/Services/TranslationStrings.php:697
+msgid "Romanian"
+msgstr "ルーマニア語"
+
+#: includes/Services/TranslationStrings.php:698
+msgid "Russian"
+msgstr "ロシア語"
+
+#: includes/Services/TranslationStrings.php:699
+msgid "Serbian"
+msgstr "セルビア語"
+
+#: includes/Services/TranslationStrings.php:700
+msgid "Sinhala"
+msgstr "シンハラ語"
+
+#: includes/Services/TranslationStrings.php:701
+msgid "Slovak"
+msgstr "スロバキア語"
+
+#: includes/Services/TranslationStrings.php:702
+msgid "Slovenian"
+msgstr "スロベニア語"
+
+#: includes/Services/TranslationStrings.php:703
+msgid "Spanish"
+msgstr "スペイン語"
+
+#: includes/Services/TranslationStrings.php:704
+msgid "Swahili"
+msgstr "スワヒリ語"
+
+#: includes/Services/TranslationStrings.php:705
+msgid "Swedish"
+msgstr "スウェーデン語"
+
+#: includes/Services/TranslationStrings.php:706
+msgid "Tamil"
+msgstr "タミル語"
+
+#: includes/Services/TranslationStrings.php:707
+msgid "Telugu"
+msgstr "テルグ語"
+
+#: includes/Services/TranslationStrings.php:708
+msgid "Thai"
+msgstr "タイ語"
+
+#: includes/Services/TranslationStrings.php:709
+msgid "Turkish"
+msgstr "トルコ語"
+
+#: includes/Services/TranslationStrings.php:710
+msgid "Ukrainian"
+msgstr "ウクライナ語"
+
+#: includes/Services/TranslationStrings.php:711
+msgid "Urdu"
+msgstr "ウルドゥー語"
+
+#: includes/Services/TranslationStrings.php:712
+msgid "Uzbek"
+msgstr "ウズベク語"
+
+#: includes/Services/TranslationStrings.php:713
+msgid "Vietnamese"
+msgstr "ベトナム語"
+
+#: includes/Services/TranslationStrings.php:714
+msgid "Welsh"
+msgstr "ウェールズ語"
+
+#: includes/Services/TranslationStrings.php:715
+msgid "Zulu"
+msgstr "ズールー語"
+
+#: includes/Services/TranslationStrings.php:716
+msgid "Alt text will be generated in the selected language"
+msgstr "代替テキストは選択した言語で生成されます"
+
+#: includes/Services/TranslationStrings.php:717
+msgid "Auto-generate on upload"
+msgstr "アップロード時に自動生成"
+
+#: includes/Services/TranslationStrings.php:718
+msgid "Exclude post types from auto-generation"
+msgstr "自動生成から除外する投稿タイプ"
+
+#: includes/Services/TranslationStrings.php:719
+msgid "Images uploaded to these post types will not be auto-generated."
+msgstr "これらの投稿タイプにアップロードされた画像は自動生成されません。"
+
+#: includes/Services/TranslationStrings.php:720
+msgid "No post types available"
+msgstr "利用可能な投稿タイプがありません"
+
+#: includes/Services/TranslationStrings.php:721
+msgid "Preview before accepting"
+msgstr "承認前にプレビュー"
+
+#: includes/Services/TranslationStrings.php:722
+msgid "Skip images with existing alt text"
+msgstr "代替テキストが既にある画像をスキップ"
+
+#: includes/Services/TranslationStrings.php:725
+msgid "File Renaming"
+msgstr "ファイル名変更"
+
+#: includes/Services/TranslationStrings.php:726
+msgid "Auto-rename files on upload"
+msgstr "アップロード時にファイル名を自動変更"
+
+#: includes/Services/TranslationStrings.php:727
+msgid "Rename uploaded files to SEO-friendly names based on generated alt text"
+msgstr ""
+"生成された代替テキストに基づき、アップロードファイルをSEOに適した名前に変更し"
+"ます"
+
+#: includes/Services/TranslationStrings.php:728
+msgid "Max Filename Length"
+msgstr "ファイル名の最大文字数"
+
+#: includes/Services/TranslationStrings.php:729
+msgid "Characters in filename (default: 120)"
+msgstr "ファイル名の文字数(初期値: 120)"
+
+#: includes/Services/TranslationStrings.php:732
+msgid "Advanced Settings"
+msgstr "詳細設定"
+
+#: includes/Services/TranslationStrings.php:733
+msgid "Batch Size"
+msgstr "バッチサイズ"
+
+#: includes/Services/TranslationStrings.php:734
+msgid "Number of images to process per batch"
+msgstr "バッチごとに処理する画像数"
+
+#: includes/Services/TranslationStrings.php:735
+msgid "Request Timeout (seconds)"
+msgstr "リクエストのタイムアウト(秒)"
+
+#: includes/Services/TranslationStrings.php:738
+msgid "WooCommerce Settings"
+msgstr "WooCommerce設定"
+
+#: includes/Services/TranslationStrings.php:739
+msgid "Configure alt text generation for WooCommerce products"
+msgstr "WooCommerce商品の代替テキスト生成を設定します"
+
+#: includes/Services/TranslationStrings.php:740
+msgid "Auto-generate on product upload"
+msgstr "商品アップロード時に自動生成"
+
+#: includes/Services/TranslationStrings.php:741
+msgid "Automatically generate alt text when adding product images"
+msgstr "商品画像の追加時に代替テキストを自動生成します"
+
+#: includes/Services/TranslationStrings.php:742
+msgid "Include product information"
+msgstr "商品情報を含める"
+
+#: includes/Services/TranslationStrings.php:743
+msgid "Use product name, categories, and SKU in alt text generation"
+msgstr "代替テキスト生成に商品名、カテゴリー、SKUを使用します"
+
+#: includes/Services/TranslationStrings.php:744
+msgid "Default Tone for Products"
+msgstr "商品のデフォルトトーン"
+
+#: includes/Services/TranslationStrings.php:745
+msgid "WooCommerce Optimized"
+msgstr "WooCommerce最適化"
+
+#: includes/Services/TranslationStrings.php:746
+msgid "Product SEO (Recommended)"
+msgstr "商品SEO(推奨)"
+
+#: includes/Services/TranslationStrings.php:747
+msgid "Product Descriptive (Accessibility)"
+msgstr "商品説明(アクセシビリティ)"
+
+#: includes/Services/TranslationStrings.php:748
+msgid "Product Lifestyle (In-Use Photos)"
+msgstr "商品ライフスタイル(使用シーン写真)"
+
+#: includes/Services/TranslationStrings.php:749
+msgid "General"
+msgstr "一般"
+
+#: includes/Services/TranslationStrings.php:750
+msgid "Custom WooCommerce Prompt"
+msgstr "カスタムWooCommerceプロンプト"
+
+#: includes/Services/TranslationStrings.php:751
+msgid ""
+"e.g. Generate product alt text (max {max_length} characters) with the "
+"product name, visible features, and use case. Do not start with 'Image of'. "
+"Return only the alt text."
+msgstr ""
+"例: 商品名、見た目の特徴、使用シーンを含む商品の代替テキスト(最大{max_length}"
+"文字)を生成してください。「〜の画像」で始めないでください。代替テキストのみを"
+"返してください。"
+
+#: includes/Services/TranslationStrings.php:752
+msgid ""
+"Use {max_length} as a placeholder. Product name, category, and SKU are "
+"automatically included as context."
+msgstr ""
+"プレースホルダーとして{max_length}を使えます。商品名、カテゴリー、SKUが自動的"
+"にコンテキストとして含まれます。"
+
+#: includes/Services/TranslationStrings.php:753
+msgid ""
+"WooCommerce is not installed. Install WooCommerce to access product image "
+"optimization features."
+msgstr ""
+"WooCommerceがインストールされていません。商品画像の最適化機能を使うには"
+"WooCommerceをインストールしてください。"
+
+#: includes/Services/TranslationStrings.php:754
+msgid "Save Settings"
+msgstr "設定を保存"
+
+#: includes/Services/TranslationStrings.php:757
+msgid "Failed to load settings"
+msgstr "設定を読み込めませんでした"
+
+#: includes/Services/TranslationStrings.php:758
+msgid "Settings saved successfully"
+msgstr "設定を保存しました"
+
+#: includes/Services/TranslationStrings.php:759
+msgid "Failed to save settings"
+msgstr "設定を保存できませんでした"
+
+#: includes/Services/TranslationStrings.php:760
+msgid "Please enter an API key"
+msgstr "APIキーを入力してください"
+
+#: includes/Services/TranslationStrings.php:762
+msgid "Failed to save API key"
+msgstr "APIキーを保存できませんでした"
+
+#: includes/Services/TranslationStrings.php:769
+msgid "Setup progress"
+msgstr "セットアップの進行状況"
+
+#: includes/Services/TranslationStrings.php:770
+msgid "Model"
+msgstr "モデル"
+
+#: includes/Services/TranslationStrings.php:771
+msgid "Welcome"
+msgstr "ようこそ"
+
+#: includes/Services/TranslationStrings.php:772
+msgid "AI setup"
+msgstr "AIセットアップ"
+
+#: includes/Services/TranslationStrings.php:773
+msgid "Fallbacks"
+msgstr "フォールバック"
+
+#: includes/Services/TranslationStrings.php:774
+msgid "Finish"
+msgstr "完了"
+
+#: includes/Services/TranslationStrings.php:777
+msgid "Watch How It Works"
+msgstr "動画で使い方を見る"
+
+#: includes/Services/TranslationStrings.php:778
+msgid "How to Use ImageCraft"
+msgstr "ImageCraftの使い方"
+
+#: includes/Services/TranslationStrings.php:779
+msgid "Click to load the video from YouTube"
+msgstr "クリックするとYouTubeから動画を読み込みます"
+
+#: includes/Services/TranslationStrings.php:780
+msgid "Welcome to ImageCraft"
+msgstr "ImageCraftへようこそ"
+
+#: includes/Services/TranslationStrings.php:781
+msgid ""
+"The all-in-one image toolkit — AI alt text, titles & descriptions, local "
+"image compression, WebP conversion, and image fallbacks."
+msgstr ""
+"オールインワン画像ツールキット — AIによる代替テキスト・タイトル・説明、ローカ"
+"ル画像圧縮、WebP変換、フォールバック画像。"
+
+#: includes/Services/TranslationStrings.php:782
+msgid "AI Image SEO"
+msgstr "AI画像SEO"
+
+#: includes/Services/TranslationStrings.php:783
+msgid ""
+"Alt text, titles & descriptions with your own AI key — pay your provider "
+"directly, no markup"
+msgstr ""
+"自分のAIキーで代替テキスト・タイトル・説明を生成 — プロバイダーに直接支払い、"
+"上乗せなし"
+
+#: includes/Services/TranslationStrings.php:784
+msgid "Works without AI"
+msgstr "AIなしでも使えます"
+
+#: includes/Services/TranslationStrings.php:785
+msgid ""
+"Compression, WebP conversion & fallbacks run locally — no API key, no account"
+msgstr ""
+"圧縮・WebP変換・フォールバックはローカルで動作 — APIキー不要、アカウント不要"
+
+#: includes/Services/TranslationStrings.php:786
+msgid "Free to start"
+msgstr "無料で始められます"
+
+#: includes/Services/TranslationStrings.php:787
+msgid ""
+"50 free actions per day across AI generation and compression — Pro removes "
+"the limit"
+msgstr "AI生成と圧縮を合わせて1日50回まで無料 — Proで制限がなくなります"
+
+#: includes/Services/TranslationStrings.php:788
+msgid "Set up AI generation"
+msgstr "AI生成をセットアップ"
+
+#: includes/Services/TranslationStrings.php:789
+msgid "Start without AI — compression, WebP & fallbacks need no key"
+msgstr "AIなしで始める — 圧縮・WebP・フォールバックにキーは不要"
+
+#: includes/Services/TranslationStrings.php:792
+msgid "Choose Your AI Provider"
+msgstr "AIプロバイダーを選択"
+
+#: includes/Services/TranslationStrings.php:793
+msgid ""
+"Approximate cost per image, billed by the provider at their standard rates."
+msgstr ""
+"画像1枚あたりのおおよその費用です。プロバイダーの標準料金で請求されます。"
+
+#: includes/Services/TranslationStrings.php:794
+msgid "Recommended"
+msgstr "おすすめ"
+
+#: includes/Services/TranslationStrings.php:795
+msgid "Best quality at the lowest cost"
+msgstr "最も低コストで最高の品質"
+
+#: includes/Services/TranslationStrings.php:796
+msgid "~$0.0008 per image (Claude Haiku)"
+msgstr "1枚あたり約$0.0008(Claude Haiku)"
+
+#: includes/Services/TranslationStrings.php:797
+msgid "OpenAI GPT-4o"
+msgstr "OpenAI GPT-4o"
+
+#: includes/Services/TranslationStrings.php:798
+msgid "Great quality, widely used"
+msgstr "高品質で広く使われています"
+
+#: includes/Services/TranslationStrings.php:799
+msgid "~$0.003 per image (GPT-4o mini)"
+msgstr "1枚あたり約$0.003(GPT-4o mini)"
+
+#: includes/Services/TranslationStrings.php:800
+msgid "Fast and affordable"
+msgstr "高速で低価格"
+
+#: includes/Services/TranslationStrings.php:801
+msgid "~$0.001 per image (Gemini 2.5 Flash)"
+msgstr "1枚あたり約$0.001(Gemini 2.5 Flash)"
+
+#: includes/Services/TranslationStrings.php:802
+msgid "WordPress Native AI Connector"
+msgstr "WordPressネイティブAIコネクター"
+
+#: includes/Services/TranslationStrings.php:803
+msgid "No key needed"
+msgstr "キー不要"
+
+#: includes/Services/TranslationStrings.php:804
+msgid "Use your site's built-in AI — no API key needed"
+msgstr "サイト内蔵のAIを使用 — APIキー不要"
+
+#: includes/Services/TranslationStrings.php:805
+msgid "Managed by WordPress, nothing to configure"
+msgstr "WordPressが管理、設定は不要"
+
+#: includes/Services/TranslationStrings.php:806
+msgid "Back"
+msgstr "戻る"
+
+#: includes/Services/TranslationStrings.php:807
+msgid "Continue"
+msgstr "続行"
+
+#: includes/Services/TranslationStrings.php:810
+msgid "Add Your API Key"
+msgstr "APIキーを追加"
+
+#: includes/Services/TranslationStrings.php:811
+msgid "WordPress AI Client detected"
+msgstr "WordPress AIクライアントを検出しました"
+
+#: includes/Services/TranslationStrings.php:812
+msgid ""
+"Your site has a WordPress AI connector configured. You can use it instead of "
+"entering your own API key — no key storage needed."
+msgstr ""
+"サイトにWordPress AIコネクターが設定されています。自分のAPIキーを入力する代わ"
+"りに利用できます — キーの保存は不要です。"
+
+#: includes/Services/TranslationStrings.php:813
+msgid "API Key Detected in wp-config.php"
+msgstr "wp-config.phpでAPIキーを検出しました"
+
+#: includes/Services/TranslationStrings.php:814
+msgid "Your API key is defined via the"
+msgstr "APIキーは次の定数で定義されています:"
+
+#: includes/Services/TranslationStrings.php:815
+msgid "constant. No need to enter it manually."
+msgstr "。手動で入力する必要はありません。"
+
+#: includes/Services/TranslationStrings.php:816
+msgid "You can also define your key in wp-config.php:"
+msgstr "wp-config.phpでキーを定義することもできます:"
+
+#: includes/Services/TranslationStrings.php:817
+msgid "How to get your API key:"
+msgstr "APIキーの取得方法:"
+
+#: includes/Services/TranslationStrings.php:818
+msgid "Visit"
+msgstr "アクセス:"
+
+#: includes/Services/TranslationStrings.php:819
+msgid "Create an account and add credits"
+msgstr "アカウントを作成してクレジットを追加"
+
+#: includes/Services/TranslationStrings.php:820
+msgid "Generate an API key"
+msgstr "APIキーを生成"
+
+#: includes/Services/TranslationStrings.php:821
+msgid "Paste it below"
+msgstr "下に貼り付け"
+
+#: includes/Services/TranslationStrings.php:822
+msgid "Enter your API key"
+msgstr "APIキーを入力してください"
+
+#: includes/Services/TranslationStrings.php:823
+msgid "Connection successful!"
+msgstr "接続に成功しました!"
+
+#: includes/Services/TranslationStrings.php:824
+msgid "Connection failed:"
+msgstr "接続に失敗しました:"
+
+#: includes/Services/TranslationStrings.php:825
+msgid "Connection failed"
+msgstr "接続に失敗しました"
+
+#: includes/Services/TranslationStrings.php:826
+msgid "Testing..."
+msgstr "テスト中..."
+
+#: includes/Services/TranslationStrings.php:827
+msgid "Test Connection"
+msgstr "接続をテスト"
+
+#: includes/Services/TranslationStrings.php:828
+msgid "Save & Continue"
+msgstr "保存して続行"
+
+#: includes/Services/TranslationStrings.php:829
+msgid "Failed to test connection"
+msgstr "接続をテストできませんでした"
+
+#: includes/Services/TranslationStrings.php:830
+msgid "API key saved successfully!"
+msgstr "APIキーを保存しました!"
+
+#: includes/Services/TranslationStrings.php:833
+msgid "One more thing — never show a broken image"
+msgstr "最後にもうひとつ — リンク切れ画像を二度と表示しません"
+
+#: includes/Services/TranslationStrings.php:834
+msgid ""
+"Pick one image and ImageCraft will show it whenever an image on your site is "
+"broken, and as the featured image for posts that have none. Nothing is "
+"written to your content — turn it off anytime."
+msgstr ""
+"画像を1枚選ぶと、サイトの画像がリンク切れのときにImageCraftがその画像を表示"
+"し、アイキャッチのない投稿ではアイキャッチとして使います。コンテンツには何も"
+"書き込まれません — いつでもオフにできます。"
+
+#: includes/Services/TranslationStrings.php:835
+msgid "Your fallback image"
+msgstr "フォールバック画像"
+
+#: includes/Services/TranslationStrings.php:836
+msgid ""
+"Tip: use your logo or a simple branded placeholder. You can fine-tune "
+"everything later in Settings → Image Fallbacks."
+msgstr ""
+"ヒント: ロゴやシンプルなブランドプレースホルダーがおすすめです。後から設定→"
+"フォールバック画像で細かく調整できます。"
+
+#: includes/Services/TranslationStrings.php:837
+msgid "Enable & Finish"
+msgstr "有効化して完了"
+
+#: includes/Services/TranslationStrings.php:838
+msgid "Image fallbacks enabled!"
+msgstr "フォールバック画像を有効化しました!"
+
+#: includes/Services/TranslationStrings.php:839
+msgid "Failed to save fallback settings"
+msgstr "フォールバック設定を保存できませんでした"
+
+#: includes/Services/TranslationStrings.php:840
+msgid "Failed to complete setup"
+msgstr "セットアップを完了できませんでした"
+
+#: includes/Services/TranslationStrings.php:843
+msgid "Setup Complete!"
+msgstr "セットアップ完了!"
+
+#: includes/Services/TranslationStrings.php:844
+msgid ""
+"Generate alt text, compress images, convert to WebP, and audit your media "
+"library — all from your dashboard."
+msgstr ""
+"代替テキストの生成、画像の圧縮、WebP変換、メディアライブラリの監査 — すべて"
+"ダッシュボードから行えます。"
+
+#: includes/Services/TranslationStrings.php:845
+msgid "Go to Dashboard"
+msgstr "ダッシュボードへ"
+
+#: includes/Services/TranslationStrings.php:852
+msgid "Batch Processing"
+msgstr "一括処理"
+
+#: includes/Services/TranslationStrings.php:853
+msgid "Progress"
+msgstr "進行状況"
+
+#. translators: %1$s: number of processed images, %2$s: total number of images
+#: includes/Services/TranslationStrings.php:855
+#, php-format
+msgid "%1$s of %2$s images processed"
+msgstr "%2$s枚中%1$s枚の画像を処理しました"
+
+#. translators: %s: number of failed images
+#: includes/Services/TranslationStrings.php:857
+#, php-format
+msgid "%s failed"
+msgstr "%s枚失敗"
+
+#: includes/Services/TranslationStrings.php:858
+msgid "Review & Edit Alt Text"
+msgstr "代替テキストの確認と編集"
+
+#: includes/Services/TranslationStrings.php:859
+msgid "Troubleshooting Failed Images"
+msgstr "失敗した画像のトラブルシューティング"
+
+#. translators: %s: number of failed images
+#: includes/Services/TranslationStrings.php:861
+#, php-format
+msgid "All %s image(s) failed to process. Common causes:"
+msgstr "%s枚の画像すべての処理に失敗しました。よくある原因:"
+
+#: includes/Services/TranslationStrings.php:862
+msgid "No API key configured:"
+msgstr "APIキーが未設定:"
+
+#: includes/Services/TranslationStrings.php:863
+msgid "Go to Settings and add your API key"
+msgstr "設定に移動してAPIキーを追加してください"
+
+#: includes/Services/TranslationStrings.php:864
+msgid "Invalid API key:"
+msgstr "APIキーが無効:"
+
+#: includes/Services/TranslationStrings.php:865
+msgid "Verify your API key is correct"
+msgstr "APIキーが正しいか確認してください"
+
+#: includes/Services/TranslationStrings.php:866
+msgid "API key permissions:"
+msgstr "APIキーの権限:"
+
+#: includes/Services/TranslationStrings.php:867
+msgid "Ensure your API key has access"
+msgstr "APIキーにアクセス権があるか確認してください"
+
+#: includes/Services/TranslationStrings.php:868
+msgid "Image URL not accessible:"
+msgstr "画像URLにアクセス不可:"
+
+#: includes/Services/TranslationStrings.php:869
+msgid "Images must be publicly accessible"
+msgstr "画像は一般公開されている必要があります"
+
+#: includes/Services/TranslationStrings.php:870
+msgid "API rate limit exceeded:"
+msgstr "APIレート制限超過:"
+
+#: includes/Services/TranslationStrings.php:871
+msgid "Wait a few minutes and try again"
+msgstr "数分待ってから再試行してください"
+
+#: includes/Services/TranslationStrings.php:872
+msgid "Network/connection error:"
+msgstr "ネットワーク/接続エラー:"
+
+#: includes/Services/TranslationStrings.php:873
+msgid "Check your internet connection and firewall settings"
+msgstr "インターネット接続とファイアウォール設定を確認してください"
+
+#: includes/Services/TranslationStrings.php:874
+msgid "To find the exact error:"
+msgstr "正確なエラーを調べるには:"
+
+#: includes/Services/TranslationStrings.php:875
+msgid "Enable WordPress debug logging in wp-config.php"
+msgstr "wp-config.phpでWordPressのデバッグログを有効化"
+
+#: includes/Services/TranslationStrings.php:876
+msgid "Check wp-content/debug.log for error entries"
+msgstr "wp-content/debug.logでエラー項目を確認"
+
+#: includes/Services/TranslationStrings.php:877
+msgid "The log will show the specific error message for each failed image"
+msgstr "ログには失敗した各画像の具体的なエラーメッセージが記録されます"
+
+#: includes/Services/TranslationStrings.php:878
+msgid "Go to Settings"
+msgstr "設定へ"
+
+#: includes/Services/TranslationStrings.php:879
+msgid "Back to Scanner"
+msgstr "スキャナーに戻る"
+
+#: includes/Services/TranslationStrings.php:880
+msgid "No active batch job"
+msgstr "実行中の一括ジョブはありません"
+
+#: includes/Services/TranslationStrings.php:881
+msgid "No generated images to review."
+msgstr "確認する生成済み画像はありません。"
+
+#: includes/Services/TranslationStrings.php:882
+msgid "Enter alt text..."
+msgstr "代替テキストを入力..."
+
+#: includes/Services/TranslationStrings.php:883
+msgid "Save All"
+msgstr "すべて保存"
+
+#. translators: %1$s: number of successful images, %2$s: number of failed images
+#: includes/Services/TranslationStrings.php:887
+#, php-format
+msgid "Batch processing completed with %1$s successful and %2$s failed."
+msgstr "一括処理が完了しました: 成功%1$s件、失敗%2$s件。"
+
+#: includes/Services/TranslationStrings.php:888
+msgid "Batch processing completed successfully!"
+msgstr "一括処理が正常に完了しました!"
+
+#. translators: %s: number of failed images
+#: includes/Services/TranslationStrings.php:890
+#, php-format
+msgid "Batch processing failed. All %s images failed to process."
+msgstr "一括処理に失敗しました。%s枚の画像すべての処理に失敗しました。"
+
+#: includes/Services/TranslationStrings.php:891
+msgid "Batch job was cancelled."
+msgstr "一括ジョブはキャンセルされました。"
+
+#: includes/Services/TranslationStrings.php:892
+msgid "Failed to load generated images"
+msgstr "生成された画像を読み込めませんでした"
+
+#: includes/Services/TranslationStrings.php:893
+msgid "Alt texts saved successfully."
+msgstr "代替テキストを保存しました。"
+
+#: includes/Services/TranslationStrings.php:894
+msgid "Failed to save alt texts"
+msgstr "代替テキストを保存できませんでした"
+
+#: includes/Services/TranslationStrings.php:896
+msgid "Failed to cancel job"
+msgstr "ジョブをキャンセルできませんでした"
+
+#: includes/Services/TranslationStrings.php:899
+msgid "Interrupted Batch Job Found"
+msgstr "中断された一括ジョブが見つかりました"
+
+#: includes/Services/TranslationStrings.php:900
+msgid "A previous batch job was interrupted before completing."
+msgstr "前回の一括ジョブは完了前に中断されました。"
+
+#: includes/Services/TranslationStrings.php:901
+msgid "Total"
+msgstr "合計"
+
+#: includes/Services/TranslationStrings.php:902
+msgid "Processed"
+msgstr "処理済み"
+
+#: includes/Services/TranslationStrings.php:903
+msgid "Failed"
+msgstr "失敗"
+
+#: includes/Services/TranslationStrings.php:904
+msgid "Remaining"
+msgstr "残り"
+
+#: includes/Services/TranslationStrings.php:905
+msgid "Resume"
+msgstr "再開"
+
+#: includes/Services/TranslationStrings.php:906
+msgid "Resuming..."
+msgstr "再開中..."
+
+#: includes/Services/TranslationStrings.php:907
+msgid "Discard"
+msgstr "破棄"
+
+#: includes/Services/TranslationStrings.php:908
+msgid "Resuming batch job..."
+msgstr "一括ジョブを再開中..."
+
+#: includes/Services/TranslationStrings.php:909
+msgid "Batch job discarded"
+msgstr "一括ジョブを破棄しました"
+
+#: includes/Services/TranslationStrings.php:910
+msgid "Failed to resume batch job"
+msgstr "一括ジョブを再開できませんでした"
+
+#: includes/Services/TranslationStrings.php:911
+msgid "Failed to discard job"
+msgstr "ジョブを破棄できませんでした"
+
+#: includes/Services/TranslationStrings.php:912
+msgid "A batch job is already in progress."
+msgstr "一括ジョブがすでに進行中です。"
+
+#: includes/Services/TranslationStrings.php:919
+msgid "WooCommerce Not Detected"
+msgstr "WooCommerceが見つかりません"
+
+#: includes/Services/TranslationStrings.php:920
+msgid "Please install and activate WooCommerce to use this feature."
+msgstr "この機能を使うにはWooCommerceをインストールして有効化してください。"
+
+#: includes/Services/TranslationStrings.php:921
+msgid "Total Products"
+msgstr "総商品数"
+
+#: includes/Services/TranslationStrings.php:922
+msgid "Selected"
+msgstr "選択中"
+
+#: includes/Services/TranslationStrings.php:923
+msgid "All Products"
+msgstr "すべての商品"
+
+#: includes/Services/TranslationStrings.php:924
+msgid "Missing Alt"
+msgstr "代替テキストなし"
+
+#: includes/Services/TranslationStrings.php:925
+msgid "Has Alt"
+msgstr "代替テキストあり"
+
+#: includes/Services/TranslationStrings.php:926
+msgid "Loading products..."
+msgstr "商品を読み込み中..."
+
+#: includes/Services/TranslationStrings.php:927
+msgid "SKU:"
+msgstr "SKU:"
+
+#: includes/Services/TranslationStrings.php:928
+msgid "View Details"
+msgstr "詳細を表示"
+
+#: includes/Services/TranslationStrings.php:930
+msgid "Product Details"
+msgstr "商品の詳細"
+
+#: includes/Services/TranslationStrings.php:931
+msgid "Product"
+msgstr "商品"
+
+#: includes/Services/TranslationStrings.php:932
+msgid "SKU"
+msgstr "SKU"
+
+#: includes/Services/TranslationStrings.php:933
+msgid "Featured Image Alt Text"
+msgstr "アイキャッチ画像の代替テキスト"
+
+#: includes/Services/TranslationStrings.php:934
+msgid "Describe for accessibility..."
+msgstr "アクセシビリティのために説明..."
+
+#. translators: %s: number of gallery images
+#: includes/Services/TranslationStrings.php:936
+#, php-format
+msgid "Gallery Images (%s)"
+msgstr "ギャラリー画像(%s)"
+
+#: includes/Services/TranslationStrings.php:939
+msgid "Failed to load products"
+msgstr "商品を読み込めませんでした"
+
+#. translators: %1$s: number of successful products, %2$s: total number of products
+#: includes/Services/TranslationStrings.php:941
+#, php-format
+msgid "Generated alt text for %1$s/%2$s products"
+msgstr "%1$s/%2$s件の商品の代替テキストを生成しました"
+
+#: includes/Services/TranslationStrings.php:942
+msgid "Batch generation failed"
+msgstr "一括生成に失敗しました"
+
+#: includes/Services/TranslationStrings.php:943
+msgid "Alt text generated successfully"
+msgstr "代替テキストを生成しました"
+
+#: includes/Services/TranslationStrings.php:944
+msgid "Alt text generated"
+msgstr "代替テキストを生成しました"
+
+#: includes/Services/TranslationStrings.php:945
+msgid "Failed to generate"
+msgstr "生成できませんでした"
+
+#: includes/Services/TranslationStrings.php:946
+msgid "Alt text updated"
+msgstr "代替テキストを更新しました"
+
+#: includes/Services/TranslationStrings.php:947
+msgid "Failed to save"
+msgstr "保存できませんでした"
+
+#: includes/Services/TranslationStrings.php:953
+msgid "SEO Integration"
+msgstr "SEO連携"
+
+#: includes/Services/TranslationStrings.php:954
+msgid "Detected:"
+msgstr "検出:"
+
+#: includes/Services/TranslationStrings.php:955
+msgid "Use your focus keyphrase to improve alt text SEO relevance."
+msgstr "フォーカスキーフレーズを使って代替テキストのSEO関連性を高めます。"
+
+#: includes/Services/TranslationStrings.php:956
+msgid "Enable SEO integration"
+msgstr "SEO連携を有効化"
+
+#: includes/Services/TranslationStrings.php:957
+msgid ""
+"When enabled, the plugin will read SEO data from your SEO plugin to enhance "
+"alt text generation."
+msgstr ""
+"有効にすると、SEOプラグインのSEOデータを読み取って代替テキスト生成を強化しま"
+"す。"
+
+#: includes/Services/TranslationStrings.php:958
+msgid "Include focus keyphrase in alt text"
+msgstr "代替テキストにフォーカスキーフレーズを含める"
+
+#: includes/Services/TranslationStrings.php:959
+msgid ""
+"The AI will naturally incorporate the focus keyphrase from the parent post/"
+"page into the generated alt text. The image must be attached to a post that "
+"has a focus keyphrase set."
+msgstr ""
+"AIは親投稿/ページのフォーカスキーフレーズを自然に代替テキストへ組み込みます。"
+"画像はフォーカスキーフレーズが設定された投稿に添付されている必要があります。"
+
+#: includes/Services/TranslationStrings.php:960
+msgid ""
+"No supported SEO plugin detected. Install Yoast SEO, Rank Math, All in One "
+"SEO, or SEOPress to enable focus keyphrase integration."
+msgstr ""
+"対応するSEOプラグインが見つかりません。フォーカスキーフレーズ連携を有効にする"
+"には、Yoast SEO、Rank Math、All in One SEO、SEOPressのいずれかをインストール"
+"してください。"
+
+#: includes/Services/TranslationStrings.php:966
+msgid "Help"
+msgstr "ヘルプ"
+
+#: includes/Services/TranslationStrings.php:967
+msgid "Help & Support"
+msgstr "ヘルプとサポート"
+
+#: includes/Services/TranslationStrings.php:968
+msgid "24/7 Dedicated Support"
+msgstr "24時間365日の専任サポート"
+
+#: includes/Services/TranslationStrings.php:969
+msgid ""
+"Our support team is here to help you with any questions, issues, or feature "
+"requests."
+msgstr "ご質問、問題、機能のご要望など、サポートチームがお手伝いします。"
+
+#: includes/Services/TranslationStrings.php:970
+msgid ""
+"Whether you need help setting up your API key, configuring WooCommerce, or "
+"troubleshooting batch processing — we've got you covered."
+msgstr ""
+"APIキーの設定、WooCommerceの設定、一括処理のトラブルシューティング — 何でもお"
+"任せください。"
+
+#: includes/Services/TranslationStrings.php:971
+msgid "Contact Support"
+msgstr "サポートに問い合わせ"
+
+#: includes/Services/TranslationStrings.php:972
+msgid "Give Your Love"
+msgstr "応援をお願いします"
+
+#: includes/Services/TranslationStrings.php:973
+msgid ""
+"Your love is our motivation! A quick review helps us grow and keep improving "
+"ImageCraft for everyone."
+msgstr ""
+"皆さまの応援が私たちの原動力です!短いレビューが、ImageCraftをみんなのために改"
+"善し続ける助けになります。"
+
+#: includes/Services/TranslationStrings.php:974
+msgid ""
+"If ImageCraft has helped your workflow, please take a moment to share your "
+"experience on WordPress.org."
+msgstr ""
+"ImageCraftがお役に立ちましたら、WordPress.orgでぜひ体験を共有してください。"
+
+#: includes/Services/TranslationStrings.php:976
+msgid "Quick Links"
+msgstr "クイックリンク"
+
+#: includes/Services/TranslationStrings.php:977
+msgid "WordPress.org Plugin Page"
+msgstr "WordPress.orgのプラグインページ"
+
+#: includes/Services/TranslationStrings.php:978
+msgid "View plugin details and changelog"
+msgstr "プラグインの詳細と変更履歴を見る"
+
+#: includes/Services/TranslationStrings.php:979
+msgid "Knowledge Base"
+msgstr "ナレッジベース"
+
+#: includes/Services/TranslationStrings.php:980
+msgid "Guides, tutorials, and FAQs"
+msgstr "ガイド、チュートリアル、FAQ"
+
+#: includes/Services/TranslationStrings.php:981
+msgid "Community Forum"
+msgstr "コミュニティフォーラム"
+
+#: includes/Services/TranslationStrings.php:982
+msgid "Ask questions and get help from the community"
+msgstr "質問してコミュニティの助けを得る"
+
+#: includes/Services/TranslationStrings.php:983
+msgid "Plugin Information"
+msgstr "プラグイン情報"
+
+#: includes/Services/TranslationStrings.php:984
+msgid "Version"
+msgstr "バージョン"
+
+#: includes/Services/TranslationStrings.php:985
+msgid "Developer"
+msgstr "開発者"
+
+#: includes/Services/TranslationStrings.php:986
+msgid "License"
+msgstr "ライセンス"
+
+#: includes/Services/TranslationStrings.php:987
+msgid "Requires WordPress"
+msgstr "必要なWordPressバージョン"
+
+#: includes/Services/TranslationStrings.php:988
+msgid "Video Tutorial"
+msgstr "動画チュートリアル"
+
+#: includes/Services/TranslationStrings.php:989
+msgid "Watch how to set up and use ImageCraft in just a few minutes."
+msgstr "ImageCraftのセットアップと使い方を数分の動画でご覧ください。"
+
+#. translators: %d: daily free-tier limit
+#: includes/Services/UsageLimiter.php:200
+#, php-format
+msgid "Daily free limit of %d reached. Upgrade to Pro for unlimited usage."
+msgstr ""
+"1日の無料上限(%d回)に達しました。Proにアップグレードすると無制限に使えます。"
+
+#~ msgid ""
+#~ "All-in-one image toolkit: AI-powered alt text & titles, smart image "
+#~ "compression, SEO file renaming, and image SEO audit. Supports WordPress "
+#~ "7.0 native AI Client, Anthropic, OpenAI and Gemini."
+#~ msgstr ""
+#~ "オールインワン画像ツールキット:AIによる代替テキストとタイトル生成、スマー"
+#~ "トな画像圧縮、SEO向けファイル名変更、画像SEO監査。WordPress 7.0ネイティブ"
+#~ "AIクライアント、Anthropic、OpenAI、Geminiに対応。"

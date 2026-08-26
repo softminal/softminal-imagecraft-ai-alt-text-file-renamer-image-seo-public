@@ -1,0 +1,180 @@
+<p><strong>You know the icon.</strong> A small gray square with a torn photo inside it. It shows up on a page where an image used to be, and it tells every visitor the same thing: nobody is looking after this site.</p>
+
+<p>Here is the uncomfortable part. Your visitors see broken images before you do. You look at your own site a few times a week, and mostly the same pages. Your visitors land everywhere — old posts, deep archive pages, product pages you haven't opened in a year. If an image broke on one of those pages last month, it has been greeting people with that gray icon ever since.</p>
+
+<p>And images break more often than you would think. You clean up your Media Library and delete a file that was still used somewhere. You migrate to a new host and a few files don't make the trip. You hotlinked an image from another site years ago and that site is now gone. None of these feel like big mistakes at the time. Each one leaves a broken image behind.</p>
+
+<p>There is a second, quieter version of the same problem: posts with <strong>no featured image at all</strong>. They don't show a broken icon, but they show up as a blank card in your blog archive, an empty box in "related posts," and a bare link when someone shares them on social media. One post with no thumbnail in a grid of posts with thumbnails looks exactly like what it is — the one nobody finished.</p>
+
+<p>ImageCraft's <strong>Image Fallbacks</strong> feature handles both. You pick one fallback image, turn the feature on, and from that moment no visitor ever sees a broken icon or an empty thumbnail on your site again. It also scans your Media Library and shows you which images are actually broken, so you can fix the real problem, not just cover it.</p>
+
+<h2>TL;DR</h2>
+
+<ul>
+<li><strong>Image Fallbacks</strong> does two things: it swaps broken images for a fallback image the moment they fail, and it gives posts without a featured image a default one.</li>
+<li>It is <strong>fully non-destructive</strong>. Nothing is written to your posts or your database. Turn it off and your site goes back to exactly how it was.</li>
+<li>Setup: go to <em>ImageCraft → Settings → Image Fallbacks</em>, turn on <em>Enable image fallbacks</em>, pick a fallback image, and turn on the parts you want.</li>
+<li>The <strong>Dashboard scans your Media Library</strong> for images whose files are missing and lists them under "Needs attention," so you can repair the real problem too.</li>
+<li>The fallback carries proper <strong>alt text</strong>, so it stays friendly to screen readers and search engines.</li>
+<li>Free covers one global fallback image and the manual scan. <strong>Pro</strong> adds a different fallback per post type (say, a product placeholder for WooCommerce) and a scheduled scan that emails you when new broken images appear.</li>
+<li>It is <strong>off by default</strong>. If you updated the plugin and changed nothing, nothing changed.</li>
+</ul>
+
+<h2>Why images break in the first place</h2>
+
+<p>It helps to know what you are actually protecting against. Almost every broken image on a WordPress site comes from one of these:</p>
+
+<p><strong>You deleted the file.</strong> This is the big one. You open the Media Library, see an image, think "I don't use this anymore," and delete it. But WordPress does not warn you if that image is still sitting inside an old post. The post keeps the image URL, the file is gone, and the page now shows a broken icon.</p>
+
+<p><strong>You migrated or changed hosts.</strong> Moving a site is messy. Sometimes the database comes over cleanly but a chunk of the uploads folder does not. Everything looks fine on the pages you check, and the missing files hide in the pages you don't.</p>
+
+<p><strong>You linked to an image on another site.</strong> Maybe years ago, maybe in a post you forgot about. That other site reorganized, or shut down, and now your page points at nothing. No cleanup on your side caused it, and no backup of yours can restore it.</p>
+
+<p><strong>You renamed a file.</strong> New file name, but one old post — or a widget, or a theme setting — still uses the old URL.</p>
+
+<p><strong>A CDN or optimization plugin hiccuped.</strong> Sometimes the file exists but a service in front of it fails for some visitors. These are the worst kind, because the image works when <em>you</em> look.</p>
+
+<p>Notice something about that list: most of these are silent. Nothing emails you. No error log fills up. The page just quietly gets worse, and the only people who know are the visitors who see it.</p>
+
+<h2>What a fallback image is (and what it is not)</h2>
+
+<p>A fallback image is a stand-in. It is one image you choose — usually your logo on a soft background, or a simple branded placeholder — that appears wherever a real image should be but isn't. It shows up in two situations: a <strong>broken image</strong> (an image tries to load and fails, and the visitor sees your fallback instead of the torn-photo icon) and a <strong>missing featured image</strong> (a post never got one, and it uses your fallback as its thumbnail instead of showing a blank card).</p>
+
+<p>Here is what a fallback is <strong>not</strong>: it is not a repair. If a post points at a deleted file, that reference is still wrong; the fallback just covers for it so visitors don't suffer while it's wrong. That is why ImageCraft pairs the fallback with a <strong>scan</strong> that tells you which images are actually broken. The fallback protects your visitors today. The scan list is your to-do list for fixing things properly.</p>
+
+<blockquote><p>ImageCraft never touches your content. It does not edit your posts, and it does not save the fallback into your database. Everything happens at the moment the page is shown to a visitor. Turn the feature off and every page renders exactly as it did before — there is nothing to undo, because nothing was done to your data.</p></blockquote>
+
+<h2>Setup: pick one image, flip one switch</h2>
+
+<p>You do this once.</p>
+
+<p><img src="beauty-fallback-settings.png" alt="ImageCraft Image Fallbacks settings screen with the master toggle enabled, broken-image replacement turned on, and a fallback image selected" /></p>
+
+<ol>
+<li><strong>Install ImageCraft</strong> from the WordPress plugin directory and activate it, if you haven't already.</li>
+<li>Go to <em>ImageCraft → Settings → Image Fallbacks</em>.</li>
+<li>Turn on <strong>Enable image fallbacks</strong>. This is the master switch for everything below it.</li>
+<li>Under <em>Broken images</em>, turn on <strong>Replace broken images on the front end</strong> and choose a <strong>Fallback image</strong> from your Media Library.</li>
+<li>Under <em>Missing featured images</em>, turn on <strong>Use a default featured image</strong>. You can pick a second image here, or just tick <em>Use the same image as the broken-image fallback</em> and reuse the first one.</li>
+<li>Click save.</li>
+</ol>
+
+<p>That's it. No code, no theme edits, and you don't need an AI key for any of this — Image Fallbacks works even if you use ImageCraft only for this one job.</p>
+
+<blockquote><p><strong>Tip:</strong> Before you pick your fallback image, give it good alt text in the Media Library. When ImageCraft swaps a broken image that had no alt text of its own, it uses the fallback's alt text in its place. A blind visitor hears something useful instead of nothing.</p></blockquote>
+
+<h2>Part 1: Replace broken images for visitors</h2>
+
+<p>Once this is on, ImageCraft adds one small script to your public pages. It watches every image on the page. The moment an image fails to load, the script swaps it for your fallback image. It also checks for images that had already failed before the script started, so nothing slips through on slow connections.</p>
+
+<p>The visitor experience is simple: they never see the gray torn-photo icon. They see your fallback image, sitting cleanly where the broken image would have been. The page keeps its shape, the layout doesn't jump, and the site looks cared for.</p>
+
+<ul>
+<li><strong>It catches everything, including images you don't control.</strong> Because the swap happens in the visitor's browser, it works on hotlinked images from other sites, CDN failures, and files missing from your own server alike.</li>
+<li><strong>It fills in alt text.</strong> If the broken image had alt text, it keeps it. If it had none, the fallback's own alt text is used. Screen readers and search engines still get a real description.</li>
+<li><strong>It can't loop.</strong> Every swapped image is marked, so if your fallback image itself ever failed to load, the script stops rather than trying forever.</li>
+</ul>
+
+<p>What it does <strong>not</strong> do: it does not change the page's saved content. The post still contains the original image URL. If you fix the real image later, the real image simply loads again and the fallback steps aside. Nothing to clean up.</p>
+
+<h2>Part 2: Give every post a featured image</h2>
+
+<p>Featured images do more work than most people realize. Your theme uses them in the blog archive, in "related posts," in sliders and grids. Social networks use them when someone shares your link — that preview card on Facebook or LinkedIn is your featured image. A post without one shows up as a gap in all of those places.</p>
+
+<p>Turn on <strong>Use a default featured image</strong>, and any post without a featured image quietly uses your fallback instead. Everywhere. The archive card gets a thumbnail. The related-posts box fills in. The social share preview shows your image instead of a gray nothing.</p>
+
+<p><img src="beauty-fallback-archive.png" alt="A blog archive page where one post without a featured image shows the fallback image alongside posts with real featured images" /></p>
+
+<p>The important word is <em>quietly</em>:</p>
+
+<ul>
+<li><strong>Your post is never modified.</strong> ImageCraft does not attach the image to the post or write anything to the database. Open the post in the editor and the featured-image box is still empty — which is honest, because it is.</li>
+<li><strong>Real featured images always win.</strong> The fallback only appears when there is nothing else. Set a real featured image and that image is used, everywhere, immediately.</li>
+<li><strong>wp-admin is untouched.</strong> Your post list and editor show the true state of things, so you can still see which posts genuinely lack a featured image. The fallback is for your visitors, not for you.</li>
+</ul>
+
+<p>By default this applies to every public post type. If you want it narrower — say, posts but not pages — use the <em>Apply to post types</em> checkboxes on the same settings screen.</p>
+
+<blockquote><p><strong>Note for stores and Pro users:</strong> with ImageCraft Pro you can set a <em>different</em> fallback per post type — for example, a product-shaped placeholder for WooCommerce products and your logo card for blog posts. The free version uses one global image everywhere, which covers most sites fine.</p></blockquote>
+
+<h2>Part 3: Find your broken images and actually fix them</h2>
+
+<p>The two features above protect your visitors. This one is for you.</p>
+
+<p>Open the <strong>ImageCraft Dashboard</strong>. It scans your Media Library in the background, checking every image against the files actually on your server. Any image whose file is missing shows up in the <strong>Needs attention</strong> area as a broken-images count, with a link to the fallback settings.</p>
+
+<p><img src="beauty-fallback-dashboard.png" alt="ImageCraft Dashboard with the Needs Attention widget showing a broken images count and a Fix link" /></p>
+
+<p>This matters because a fallback, on its own, has a downside: it hides the evidence. If broken images always look fine to visitors, they also always look fine to you, and you might never fix the underlying references. The scan closes that gap. You get the clean visitor experience <em>and</em> a plain list of what is really broken.</p>
+
+<ul>
+<li><strong>It runs on your server, not in your browser.</strong> It checks whether each image's file exists on disk. That catches deleted and lost files — the most common case. It can't check images hosted on other people's sites, but the front-end swap covers those for visitors anyway.</li>
+<li><strong>It is patient with big libraries.</strong> On a site with tens of thousands of images, the scan works in chunks and picks up where it left off, so it finishes without straining your server.</li>
+<li><strong>The scan runs even if fallbacks are off.</strong> You can use ImageCraft just to <em>find</em> broken images, without enabling any front-end behavior at all.</li>
+</ul>
+
+<p>What do you do with the list? For each broken image, you have three honest options: restore the file from a backup, edit the post to use a different image, or remove the image from the post entirely. The fallback buys you time to do this calmly instead of in a panic.</p>
+
+<blockquote><p><strong>Pro:</strong> ImageCraft Pro can run this scan on a schedule — daily or weekly — and email you only when <em>new</em> broken images appear. Break something on Tuesday, know about it Wednesday morning, instead of finding out from a visitor months later.</p></blockquote>
+
+<h2>Will this slow down my site?</h2>
+
+<p>Short answer: no. The broken-image script is a tiny, dependency-free piece of JavaScript that loads after your page content. It does not delay anything the visitor sees, and it sits idle unless an image actually fails. The featured-image fallback is a lightweight check built to answer "nothing to do here" as fast as possible, which is what it says on every image that is fine.</p>
+
+<p>And when the whole feature is switched off — which is the default — none of this loads at all.</p>
+
+<h2>Choosing a good fallback image</h2>
+
+<p>The fallback image will appear in places you can't predict — a wide hero slot on one page, a small square thumbnail on another. A few guidelines make one image work everywhere:</p>
+
+<ul>
+<li><strong>Keep it simple.</strong> Your logo centered on a soft, solid background is the classic for a reason. It looks intentional at any size.</li>
+<li><strong>Avoid text beyond a word or two.</strong> Text becomes unreadable when the image is shown small, and awkward when it is cropped.</li>
+<li><strong>Match your brand colors.</strong> The fallback will sit next to your real content. It should look like it belongs.</li>
+<li><strong>Use a reasonably large source image.</strong> Something around 1200×630 works well — that is also the size social networks like for share previews.</li>
+<li><strong>Give it alt text.</strong> The fallback's alt text is what screen readers hear when a broken image had none. Something plain like "Sunrise Coffee Co. logo" is perfect.</li>
+</ul>
+
+<p>Don't overthink it. The fallback's whole job is to be quietly acceptable. If a visitor doesn't consciously notice it, it is working.</p>
+
+<h2>Frequently asked questions</h2>
+
+<h3>Does this change my posts or my database?</h3>
+
+<p>No. This is the feature's core promise. Nothing is written to your content. The broken-image swap happens in the visitor's browser, and the featured fallback is applied at display time. Turn the feature off and your site is back to exactly how it was.</p>
+
+<h3>Will the fallback show up in my wp-admin?</h3>
+
+<p>No. The editor, the post list, and the media modal all show the true state of your content. A post without a featured image still looks empty in admin, so you always know what's real.</p>
+
+<h3>What happens when I fix the real image?</h3>
+
+<p>The fallback steps aside on its own. It only ever appears when the real image is broken or missing. Restore the file, or set a real featured image, and the real one shows immediately. Nothing to undo.</p>
+
+<h3>Does it work with my theme? Block themes too?</h3>
+
+<p>Yes. The featured fallback answers the same question every theme asks — "does this post have a thumbnail?" — so classic themes, block themes, and page builders all pick it up naturally. It reaches social share previews the same way.</p>
+
+<h3>Does it catch images hosted on other sites?</h3>
+
+<p>The front-end swap does, yes — it covers anything that fails to load in the browser, wherever it lives. The Dashboard scan only checks files on your own server, since it can't inspect other people's sites.</p>
+
+<h3>Do I need an AI key for this feature?</h3>
+
+<p>No. Image Fallbacks is completely independent of the AI features. You can use ImageCraft only for fallbacks, or only for compression, without ever adding a key.</p>
+
+<h3>Is this in the free version?</h3>
+
+<p>Yes — the master toggle, the broken-image swap, the default featured image, the post-type list, and the manual Dashboard scan are all free, with no daily limits. Pro adds two things: a different fallback image per post type, and a scheduled scan (daily or weekly) that emails you when new broken images appear.</p>
+
+<h3>I updated the plugin — did anything change on my site?</h3>
+
+<p>No. Image Fallbacks is off by default. Existing sites behave exactly as before until you turn it on yourself.</p>
+
+<h2>Get started</h2>
+
+<p>Broken images are a small problem with an outsized cost. Each one is silent — no alert, no error, just a gray icon quietly telling your visitors that no one is minding the site. Image Fallbacks fixes the visitor's experience immediately: pick one image, flip the switch, and no one ever sees a broken icon or a blank thumbnail on your site again. The Dashboard scan then hands you the real repair list, so covering the problem never turns into ignoring it. And because nothing is ever written to your content, you risk exactly nothing by turning it on.</p>
+
+<p>Open <em>ImageCraft → Settings → Image Fallbacks</em>, turn on <strong>Enable image fallbacks</strong>, choose a fallback image, enable both features, and save. Five minutes, once — and one whole category of embarrassment is gone for good.</p>
+
+<p><strong>Ready to never show a broken image again?</strong> <a href="https://softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo">Get ImageCraft →</a></p>

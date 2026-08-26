@@ -6,16 +6,28 @@
         <h1 class="text-2xl font-bold text-gray-800 m-0!">{{ $t('Image Compression') }}</h1>
         <p class="text-gray-500 mt-2">{{ $t('Shrink image file sizes to speed up your site. Originals are always backed up.') }}</p>
       </div>
-      <div v-if="!isPro" class="text-right">
-        <div class="text-sm text-gray-600">
-          {{ $t('Daily usage') }}: <strong>{{ usage.used }} / {{ usage.limit }}</strong>
+      <div class="flex items-start gap-4">
+        <div v-if="!isPro" class="text-right">
+          <div class="text-sm text-gray-600">
+            {{ $t('Daily usage') }}: <strong>{{ usage.used }} / {{ usage.limit }}</strong>
+          </div>
+          <a
+            :href="proUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs text-amber-600 font-semibold hover:underline"
+          >{{ $t('Upgrade to Pro for unlimited') }}</a>
         </div>
-        <a
-          :href="proUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-xs text-amber-600 font-semibold hover:underline"
-        >{{ $t('Upgrade to Pro for unlimited') }}</a>
+        <!-- Discoverable path to the engine settings (quality, resize, backups) -->
+        <router-link
+          v-if="isAdmin"
+          to="/settings/compression"
+          :title="$t('Compression settings — quality, resizing & backups')"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-brand underline underline-offset-3 hover:text-brand-strong transition-colors shadow-none! focus:outline-hidden focus:shadow-none"
+        >
+          <SettingsIcon :size="15" :stroke-width="2" aria-hidden="true" />
+          {{ $t('Configure compression') }}
+        </router-link>
       </div>
     </div>
 
@@ -29,6 +41,37 @@
     </div>
 
     <template v-else>
+      <!-- Next-gen discovery: contextual, in-flow (not a popup) — shown only to
+           admins when the server CAN encode next-gen formats but none is enabled.
+           Dismissible; disappears for good once the feature is set up. -->
+      <div
+        v-if="showNextgenHint"
+        class="bg-pillar-perf-soft border border-pillar-perf/20 rounded-card p-4 mb-4 flex items-start justify-between gap-4"
+      >
+        <div class="flex items-start gap-3 min-w-0">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded-ic bg-white text-pillar-perf shrink-0">
+            <FileImage :size="18" :stroke-width="2" aria-hidden="true" />
+          </span>
+          <div class="min-w-0">
+            <div class="text-sm font-semibold text-ic-text">{{ $t('Serve WebP/AVIF — images up to 35% smaller') }}</div>
+            <p class="text-[0.8125rem] text-ic-soft mt-0.5 m-0">
+              {{ $t('Your server supports next-gen image formats. ImageCraft can create WebP copies beside your originals and serve them automatically — nothing is overwritten, fully reversible.') }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <router-link
+            to="/performance/nextgen"
+            class="bg-pillar-perf text-white! px-4 py-2 rounded-ic text-sm font-medium no-underline hover:opacity-90 transition"
+          >{{ $t('Set up') }} →</router-link>
+          <button
+            @click="dismissNextgenHint"
+            :aria-label="$t('Dismiss')"
+            class="text-ic-faint hover:text-ic-soft text-lg leading-none"
+          >✕</button>
+        </div>
+      </div>
+
       <!-- Toolbar -->
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div class="flex gap-2">
@@ -101,6 +144,12 @@
                 class="px-4 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-colors"
               >{{ filter === 'compressed' ? $t('Re-compress Selected') : $t('Compress Selected') }} ({{ selected.length }})</button>
               <button
+                v-if="canConvert"
+                @click="convertSelected"
+                :title="$t('Generate WebP/AVIF copies — originals are never touched')"
+                class="px-4 py-1.5 text-sm font-medium rounded-lg bg-pillar-perf-soft text-pillar-perf hover:opacity-80 shadow-sm transition-colors"
+              >{{ $t('Convert Selected') }} ({{ selected.length }})</button>
+              <button
                 v-if="selectedRestorable > 0"
                 :disabled="restoringBulk"
                 @click="restoreSelected"
@@ -156,6 +205,7 @@ import Api from '../services/Api'
 import { notification } from '../plugins/notification'
 import { $t } from '../utils/i18n'
 import { getSettings } from '../router'
+import { FileImage, Settings as SettingsIcon } from 'lucide-vue-next'
 import { Pagination, Checkbox } from '../@ui'
 import CompressionCard from '../components/Compression/CompressionCard.vue'
 
@@ -167,6 +217,41 @@ const isAdmin = window.icais?.isAdmin ?? false
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
 
 const enabled = ref(true)
+
+// Next-gen (WebP/AVIF) bulk convert: admins only, and only when at least one
+// enabled format is actually encodable on this server.
+const convertWebpOn = ref(false)
+const convertAvifOn = ref(false)
+const settingsLoaded = ref(false)
+
+// Contextual next-gen discovery hint (admins, server-capable, feature off,
+// not dismissed). Dismissal remembered per browser.
+const NEXTGEN_HINT_KEY = 'icais_nextgen_hint_dismissed'
+const nextgenHintDismissed = ref(true)
+try {
+  nextgenHintDismissed.value = window.localStorage?.getItem(NEXTGEN_HINT_KEY) === '1'
+} catch {
+  // localStorage unavailable — keep the hint hidden
+}
+const showNextgenHint = computed(() => {
+  if (!isAdmin || nextgenHintDismissed.value || !settingsLoaded.value) return false
+  if (convertWebpOn.value || convertAvifOn.value) return false
+  return (window.icais?.canWebp ?? false) || (window.icais?.canAvif ?? false)
+})
+const dismissNextgenHint = () => {
+  nextgenHintDismissed.value = true
+  try {
+    window.localStorage?.setItem(NEXTGEN_HINT_KEY, '1')
+  } catch {
+    // Non-fatal — the card just reappears next visit
+  }
+}
+const canConvert = computed(() => {
+  if (!isAdmin) return false
+  const canWebp = window.icais?.canWebp ?? false
+  const canAvif = window.icais?.canAvif ?? false
+  return (convertWebpOn.value && canWebp) || (convertAvifOn.value && canAvif)
+})
 const loading = ref(false)
 const images = ref([])
 const selected = ref([])
@@ -336,6 +421,31 @@ const restoreSelected = async () => {
   }
 }
 
+const convertSelected = async () => {
+  if (selected.value.length === 0) return
+  if (selected.value.length > 500) {
+    notification.error($t('Maximum 500 images per batch job. Please reduce your selection.'))
+    return
+  }
+  try {
+    const result = await Api.post('/batch/start', {
+      image_ids: selected.value,
+      type: 'convert',
+    })
+    if (result.success) {
+      notification.success($t('Conversion started for %s images', selected.value.length))
+      router.push(`/batch/${result.job_id}`)
+    }
+  } catch (error) {
+    if (error.response?.job_id) {
+      notification.warning($t('A batch job is already in progress.'))
+      router.push(`/batch/${error.response.job_id}`)
+    } else {
+      notification.error(error.message || $t('Failed to start batch'))
+    }
+  }
+}
+
 const compressSelected = async () => {
   if (selected.value.length === 0) return
   if (selected.value.length > 500) {
@@ -368,6 +478,10 @@ onMounted(async () => {
     const settings = await getSettings()
     enabled.value = settings.icais_compression_enabled === '1'
       || settings.settings?.icais_compression_enabled === '1'
+    const s = settings.settings || settings
+    convertWebpOn.value = s.icais_compression_convert_webp === '1'
+    convertAvifOn.value = s.icais_compression_convert_avif === '1'
+    settingsLoaded.value = true
   } catch {
     enabled.value = true
   }

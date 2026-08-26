@@ -41,98 +41,115 @@
       <p class="text-sm text-gray-500 mb-4">Activate your ImageCraft Pro license to unlock unlimited generations.</p>
       <hr class="mb-6" />
 
-      <!-- License status -->
-      <div class="mb-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-semibold text-gray-800 text-base mt-0">License Status</h3>
-          <span :class="statusBadgeClass">{{ statusLabel }}</span>
-        </div>
+      <!-- Active license: detail card -->
+      <div v-if="status.valid">
+        <div>
+          <div class="flex items-center justify-between py-4 border-b border-dashed border-gray-200">
+            <span class="text-sm text-gray-500">Expires</span>
+            <span class="inline-flex items-center rounded-full bg-green-100 text-green-700 text-xs font-semibold px-3 py-1">{{ expiresLabel }}</span>
+          </div>
 
-        <div v-if="status.key" class="mb-4">
-          <p class="text-sm text-gray-500 mb-1.5">License Key</p>
-          <code class="text-sm bg-gray-50 px-3 py-2 rounded border block tracking-widest">{{ status.key }}</code>
-        </div>
+          <div class="flex items-center justify-between py-4 border-b border-dashed border-gray-200">
+            <span class="text-sm text-gray-500">License Key</span>
+            <span class="font-mono text-sm tracking-widest text-gray-800">{{ keyDisplay }}</span>
+          </div>
 
-        <!-- Domain usage -->
-        <div v-if="status.valid" class="mt-4 pt-4 border-t">
-          <p class="text-sm text-gray-500 mb-1.5">Domain Usage</p>
-          <div class="flex items-center gap-3">
-            <div class="flex-1 bg-gray-100 rounded-full h-2">
-              <div
-                class="bg-blue-500 h-2 rounded-full transition-all"
-                :style="{ width: siteUsagePercent + '%' }"
-              ></div>
-            </div>
-            <span class="text-sm font-medium text-gray-700 whitespace-nowrap">
-              {{ status.unlimited ? 'Unlimited domains' : `${status.site_count ?? 0} / ${status.site_limit} domain${status.site_limit !== 1 ? 's' : ''}` }}
+          <div v-if="status.licensee_name || status.licensee_email" class="flex items-start justify-between py-4 border-b border-dashed border-gray-200">
+            <span class="text-sm text-gray-500">Licensed To</span>
+            <span class="text-right">
+              <span v-if="status.licensee_name" class="block text-sm font-semibold text-gray-800">{{ status.licensee_name }}</span>
+              <span v-if="status.licensee_email" class="block text-xs font-mono text-gray-400">{{ status.licensee_email }}</span>
             </span>
+          </div>
+
+          <div v-if="!status.unlimited && status.site_limit" class="flex items-center justify-between py-4">
+            <span class="text-sm text-gray-500">Domains</span>
+            <span class="text-sm text-gray-700">{{ status.site_count ?? 0 }} / {{ status.site_limit }}</span>
+          </div>
+          <div v-else-if="status.unlimited" class="flex items-center justify-between py-4">
+            <span class="text-sm text-gray-500">Domains</span>
+            <span class="text-sm text-gray-700">Unlimited</span>
           </div>
         </div>
 
-        <div v-if="status.last_check" class="text-xs text-gray-400 mt-3">
-          Last verified: {{ lastVerified }}
+        <div class="flex items-center justify-between flex-wrap gap-3 mt-4 pt-4 border-t">
+          <div class="flex items-center gap-3 text-sm flex-wrap">
+            <span class="text-gray-400">Last checked: {{ lastCheckedLabel }}</span>
+            <button type="button" @click="refresh" :disabled="activating" class="text-blue-600 hover:underline disabled:opacity-50">Refresh</button>
+            <span class="text-gray-300">|</span>
+            <a :href="accountUrl" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Your Account</a>
+            <span class="text-gray-300">|</span>
+            <a :href="supportUrl" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Get Support</a>
+          </div>
+          <button
+            @click="deactivate"
+            :disabled="activating"
+            class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+          >
+            Deactivate
+          </button>
         </div>
+
+        <p v-if="errorMsg" class="mt-3 text-sm text-red-600">{{ errorMsg }}</p>
       </div>
 
-      <hr class="mb-6" />
+      <!-- No / invalid license: activation form -->
+      <div v-else>
+        <div v-if="status.status && status.status !== 'inactive'" class="mb-4">
+          <span :class="statusBadgeClass">{{ statusLabel }}</span>
+        </div>
 
-      <!-- Activate / Update form -->
-      <h3 class="font-semibold text-gray-800 text-base mt-0 mb-4">
-        {{ status.key ? 'Update License Key' : 'Activate License' }}
-      </h3>
+        <h3 class="font-semibold text-gray-800 text-base mt-0 mb-4">Activate License</h3>
 
-      <div class="flex gap-3">
-        <input
-          v-model="licenseKey"
-          type="text"
-          placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-          class="flex-1 border rounded-lg px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
-          :disabled="activating"
-          @keydown.enter="activate"
-        />
-        <button
-          @click="activate"
-          :disabled="activating || !licenseKey.trim()"
-          class="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-        >
-          {{ activating ? 'Verifying...' : (status.key ? 'Update' : 'Activate') }}
-        </button>
+        <div class="flex gap-3">
+          <input
+            v-model="licenseKey"
+            type="text"
+            placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            class="flex-1 border rounded-lg px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+            :disabled="activating"
+            @keydown.enter="activate"
+          />
+          <button
+            @click="activate"
+            :disabled="activating || !licenseKey.trim()"
+            class="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {{ activating ? 'Verifying...' : 'Activate' }}
+          </button>
+        </div>
+
+        <p v-if="errorMsg" class="mt-3 text-sm text-red-600">{{ errorMsg }}</p>
+
+        <p class="mt-5 text-xs text-gray-400">
+          Find your license key in your
+          <a href="https://softminal.com/dashboard/downloads" target="_blank" class="text-blue-600 hover:underline">Softminal dashboard</a>.
+        </p>
       </div>
-
-      <div v-if="status.key" class="mt-3">
-        <button
-          @click="deactivate"
-          :disabled="activating"
-          class="text-sm text-red-500 hover:text-red-700 disabled:opacity-50"
-        >
-          Remove license from this domain
-        </button>
-      </div>
-
-      <p v-if="errorMsg" class="mt-3 text-sm text-red-600">{{ errorMsg }}</p>
-
-      <p class="mt-5 text-xs text-gray-400">
-        Find your license key in your
-        <a href="https://softminal.com/dashboard/downloads" target="_blank" class="text-blue-600 hover:underline">Softminal dashboard</a>.
-      </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { notification } from '../../plugins/notification'
 
 const isProInstalled = window.icais?.isProInstalled ?? false
 const proUrl = 'https://www.softminal.com/products/imagecraft-ai-alt-text-file-renamer-image-seo#pricing'
+const accountUrl = 'https://softminal.com/dashboard'
+const supportUrl = 'https://softminal.com/support'
 
 const proApiUrl = window.icaisPro?.proApiUrl ?? ''
 const nonce     = window.icais?.nonce ?? ''
 
-const status     = ref({ key: '', valid: false, status: 'inactive', last_check: null })
+const status     = ref({ key: '', valid: false, status: 'inactive', last_check: null, licensee_name: '', licensee_email: '', expires: null })
 const licenseKey = ref('')
 const activating = ref(false)
 const errorMsg   = ref('')
+
+// Ticks so the "last checked" label stays fresh without a reload.
+const now   = ref(Math.floor(Date.now() / 1000))
+let   clock = null
 
 const statusBadgeClass = computed(() => {
   const map = {
@@ -158,16 +175,27 @@ const statusLabel = computed(() => {
   return map[status.value.status] ?? 'Not activated'
 })
 
-const siteUsagePercent = computed(() => {
-  if (status.value.unlimited || !status.value.site_limit) return 0
-  return Math.min(100, Math.round(((status.value.site_count ?? 0) / status.value.site_limit) * 100))
+// Masked key with the server's asterisks rendered as dots, e.g. 8f60••••••8cf2.
+const keyDisplay = computed(() => (status.value.key || '—').replace(/\*/g, '•'))
+
+// No expiry in the license model → perpetual. null/empty renders as "Lifetime".
+const expiresLabel = computed(() => {
+  if (!status.value.expires) return 'Lifetime'
+  const d = new Date(status.value.expires)
+  return isNaN(d.getTime()) ? String(status.value.expires) : d.toLocaleDateString()
 })
 
-const lastVerified = computed(() => {
-  if (!status.value.last_check) return ''
-  return new Date(status.value.last_check * 1000).toLocaleString(undefined, {
-    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-  })
+const lastCheckedLabel = computed(() => {
+  if (!status.value.last_check) return 'just now'
+  const secs = Math.max(0, now.value - status.value.last_check)
+  if (secs < 5) return 'just now'
+  if (secs < 60) return `${secs} second${secs === 1 ? '' : 's'} ago`
+  const mins = Math.floor(secs / 60)
+  if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? '' : 's'} ago`
+  const days = Math.floor(hrs / 24)
+  return `${days} day${days === 1 ? '' : 's'} ago`
 })
 
 const apiFetch = (path, options = {}) =>
@@ -184,8 +212,19 @@ const loadStatus = async () => {
   try {
     const res = await apiFetch('/license/status')
     if (res) status.value = res
+    now.value = Math.floor(Date.now() / 1000)
   } catch {
     // Silently fail — defaults to inactive
+  }
+}
+
+const refresh = async () => {
+  activating.value = true
+  errorMsg.value   = ''
+  try {
+    await loadStatus()
+  } finally {
+    activating.value = false
   }
 }
 
@@ -243,6 +282,11 @@ const deactivate = async () => {
 
 onMounted(() => {
   if (isProInstalled) loadStatus()
+  clock = setInterval(() => { now.value = Math.floor(Date.now() / 1000) }, 15000)
+})
+
+onUnmounted(() => {
+  if (clock) { clearInterval(clock); clock = null }
 })
 </script>
 

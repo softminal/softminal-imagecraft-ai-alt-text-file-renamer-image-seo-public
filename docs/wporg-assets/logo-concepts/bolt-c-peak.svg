@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="ImageCraft">
+  <defs>
+    <linearGradient id="ic-bolt-c" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="60" y2="60">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#0D9488"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#ic-bolt-c)"/>
+  <!-- image horizon, with the bolt where the sun would sit -->
+  <path d="M11 48 L23 33 L31 41.5 L39 31 L53 48 Z" fill="#fff"/>
+  <path d="M45 9 L36.5 21.5 L42 21.5 L40.5 30 L49 18 L43.5 18 Z" fill="#fff"/>
+</svg>
