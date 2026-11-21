@@ -2,7 +2,7 @@
 
 A WordPress plugin that generates AI-powered alt text for images using your own API key from Anthropic Claude, OpenAI GPT-4, or Google Gemini.
 
-## Features
+## Features 
 
 - **3 AI providers** — Anthropic Claude, OpenAI GPT-4, and Google Gemini (BYOK)
 - **SEO keyphrase-aware** — Integrates with Yoast SEO, Rank Math, All in One SEO, and SEOPress
